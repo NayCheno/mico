@@ -109,14 +109,24 @@ adapt dma.tx -> AsyncFifo32 -> aes.rx;
 
 | Error | Meaning |
 |---|---|
+| `DuplicateDeclaration` | A top-level clock domain, interface, module, adapter, or compose name is declared more than once. |
+| `DuplicateField` | An interface declares the same field name more than once. |
+| `DuplicatePort` | A module declares the same port name more than once. |
+| `DuplicateInstance` | A compose block declares the same instance name more than once. |
 | `UnknownInstance` | Referenced instance does not exist. |
 | `UnknownPort` | Referenced port does not exist on the instance module. |
 | `DirectionMismatch` | Source is not `out` or sink is not `in`. |
 | `InterfaceMismatch` | Direct connection uses incompatible interfaces. |
 | `ClockDomainMismatch` | Direct connection crosses clock/reset domains. |
 | `AdapterRequired` | A safe direct connection is impossible. |
+| `UnknownAdapterKind` | Adapter kind is not in the v0 adapter library and is not explicitly `custom`. |
+| `AdapterMismatch` | Adapter declaration does not match endpoint interfaces/domains or violates its kind-specific legality rule. |
+| `ProtocolMismatch` | Adapter kind requires a protocol, such as ready/valid, that one endpoint interface does not provide. |
+| `WidthMismatch` | Adapter kind requires known compatible payload widths and the endpoint interfaces do not satisfy that rule. |
 | `AmbiguousConnect` | A shorthand connection maps to multiple candidates. |
 | `ContractViolation` | Sink assumption is not satisfied by source+adapter guarantee. |
+
+The v0 adapter library recognizes `cdc_fifo`, `width_adapter`, `skid_buffer`, `pipeline`, and `custom`. Non-custom known adapters have conservative legality rules: CDC FIFOs cross domains and preserve ready/valid payload width, width adapters stay within one domain and change a single ready/valid payload width, and skid/pipeline adapters preserve interface type within one domain. When an adapter connects different contracted interfaces, it must declare at least one contract-preservation attribute.
 
 ## Lowering contract
 

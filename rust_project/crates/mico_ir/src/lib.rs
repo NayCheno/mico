@@ -321,6 +321,8 @@ impl Diagnostic {
 
 pub fn check_design(design: &Design) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
+    check_top_level_duplicates(design, &mut diags);
+
     let clock_names: HashSet<_> = design
         .clock_domains
         .iter()
@@ -339,6 +341,7 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
         .collect();
 
     for iface in &design.interfaces {
+        check_interface_fields(iface, &mut diags);
         if !clock_names.contains(&iface.domain) {
             diags.push(Diagnostic::error(
                 "UnknownClockDomain",
@@ -351,6 +354,7 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
     }
 
     for module in &design.modules {
+        check_module_ports(module, &mut diags);
         if !clock_names.contains(&module.domain) {
             diags.push(Diagnostic::error(
                 "UnknownClockDomain",
@@ -373,7 +377,22 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
         }
     }
 
+    for adapter in &design.adapters {
+        check_adapter_decl(adapter, &clock_names, &interfaces, &mut diags);
+    }
+
     for compose in &design.composes {
+        if !clock_names.contains(&compose.domain) {
+            diags.push(Diagnostic::error(
+                "UnknownClockDomain",
+                format!(
+                    "compose `{}` references unknown clock domain `{}`",
+                    compose.name, compose.domain
+                ),
+            ));
+        }
+        check_compose_instances(compose, &mut diags);
+
         let instances: HashMap<_, _> = compose
             .instances
             .iter()
@@ -413,10 +432,6 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
                     let same_interface = src_port.interface == dst_port.interface;
                     let same_domain = src_mod.domain == dst_mod.domain;
 
-                    if same_interface && same_domain {
-                        continue;
-                    }
-
                     if let Some(adapter_name) = &conn.adapter {
                         match adapters.get(adapter_name) {
                             Some(adapter) => {
@@ -438,6 +453,16 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
                                             dst_mod.domain
                                         ),
                                     ));
+                                } else if let (Some(src_interface), Some(dst_interface)) = (
+                                    interfaces.get(&src_port.interface),
+                                    interfaces.get(&dst_port.interface),
+                                ) {
+                                    check_adapter_application(
+                                        adapter,
+                                        src_interface,
+                                        dst_interface,
+                                        &mut diags,
+                                    );
                                 }
                             }
                             None => diags.push(Diagnostic::error(
@@ -449,6 +474,9 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
                             )),
                         }
                     } else {
+                        if same_interface && same_domain {
+                            continue;
+                        }
                         if !same_interface {
                             diags.push(Diagnostic::error(
                                 "InterfaceMismatch",
@@ -478,6 +506,352 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
     }
 
     diags
+}
+
+fn check_top_level_duplicates(design: &Design, diags: &mut Vec<Diagnostic>) {
+    check_duplicate_idents(
+        design.clock_domains.iter().map(|item| &item.name),
+        "clock domain",
+        diags,
+    );
+    check_duplicate_idents(
+        design.interfaces.iter().map(|item| &item.name),
+        "interface",
+        diags,
+    );
+    check_duplicate_idents(
+        design.modules.iter().map(|item| &item.name),
+        "module",
+        diags,
+    );
+    check_duplicate_idents(
+        design.adapters.iter().map(|item| &item.name),
+        "adapter",
+        diags,
+    );
+    check_duplicate_idents(
+        design.composes.iter().map(|item| &item.name),
+        "compose",
+        diags,
+    );
+}
+
+fn check_duplicate_idents<'a>(
+    names: impl Iterator<Item = &'a Ident>,
+    label: &'static str,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let mut seen = HashSet::new();
+    for name in names {
+        if !seen.insert(name.clone()) {
+            diags.push(Diagnostic::error(
+                "DuplicateDeclaration",
+                format!("duplicate {label} declaration `{name}`"),
+            ));
+        }
+    }
+}
+
+fn check_interface_fields(interface: &InterfaceDef, diags: &mut Vec<Diagnostic>) {
+    let mut fields = HashSet::new();
+    for field in &interface.fields {
+        if !fields.insert(field.name.clone()) {
+            diags.push(Diagnostic::error(
+                "DuplicateField",
+                format!(
+                    "interface `{}` declares duplicate field `{}`",
+                    interface.name, field.name
+                ),
+            ));
+        }
+    }
+}
+
+fn check_module_ports(module: &ModuleDef, diags: &mut Vec<Diagnostic>) {
+    let mut ports = HashSet::new();
+    for port in &module.ports {
+        if !ports.insert(port.name.clone()) {
+            diags.push(Diagnostic::error(
+                "DuplicatePort",
+                format!(
+                    "module `{}` declares duplicate port `{}`",
+                    module.name, port.name
+                ),
+            ));
+        }
+    }
+}
+
+fn check_compose_instances(compose: &ComposeDef, diags: &mut Vec<Diagnostic>) {
+    let mut instances = HashSet::new();
+    for instance in &compose.instances {
+        if !instances.insert(instance.name.clone()) {
+            diags.push(Diagnostic::error(
+                "DuplicateInstance",
+                format!(
+                    "compose `{}` declares duplicate instance `{}`",
+                    compose.name, instance.name
+                ),
+            ));
+        }
+    }
+}
+
+fn check_adapter_decl(
+    adapter: &AdapterDef,
+    clock_names: &HashSet<Ident>,
+    interfaces: &HashMap<Ident, &InterfaceDef>,
+    diags: &mut Vec<Diagnostic>,
+) {
+    if !interfaces.contains_key(&adapter.from_interface) {
+        diags.push(Diagnostic::error(
+            "UnknownInterface",
+            format!(
+                "adapter `{}` references unknown source interface `{}`",
+                adapter.name, adapter.from_interface
+            ),
+        ));
+    }
+    if !interfaces.contains_key(&adapter.to_interface) {
+        diags.push(Diagnostic::error(
+            "UnknownInterface",
+            format!(
+                "adapter `{}` references unknown destination interface `{}`",
+                adapter.name, adapter.to_interface
+            ),
+        ));
+    }
+    if !clock_names.contains(&adapter.from_domain) {
+        diags.push(Diagnostic::error(
+            "UnknownClockDomain",
+            format!(
+                "adapter `{}` references unknown source domain `{}`",
+                adapter.name, adapter.from_domain
+            ),
+        ));
+    }
+    if !clock_names.contains(&adapter.to_domain) {
+        diags.push(Diagnostic::error(
+            "UnknownClockDomain",
+            format!(
+                "adapter `{}` references unknown destination domain `{}`",
+                adapter.name, adapter.to_domain
+            ),
+        ));
+    }
+
+    let Some(kind) = recognized_adapter_kind(&adapter.kind) else {
+        diags.push(
+            Diagnostic::error(
+                "UnknownAdapterKind",
+                format!(
+                    "adapter `{}` uses unsupported kind `{}`",
+                    adapter.name, adapter.kind
+                ),
+            )
+            .with_hint("use cdc_fifo, width_adapter, skid_buffer, pipeline, or custom"),
+        );
+        return;
+    };
+
+    let (Some(from_interface), Some(to_interface)) = (
+        interfaces.get(&adapter.from_interface),
+        interfaces.get(&adapter.to_interface),
+    ) else {
+        return;
+    };
+
+    check_adapter_kind_rules(adapter, &kind, from_interface, to_interface, diags);
+}
+
+fn check_adapter_application(
+    adapter: &AdapterDef,
+    from_interface: &InterfaceDef,
+    to_interface: &InterfaceDef,
+    diags: &mut Vec<Diagnostic>,
+) {
+    if recognized_adapter_kind(&adapter.kind).is_none() {
+        return;
+    }
+
+    if !to_interface.contracts.is_empty()
+        && from_interface.name != to_interface.name
+        && adapter_contracts(adapter).is_empty()
+    {
+        diags.push(
+            Diagnostic::error(
+                "ContractViolation",
+                format!(
+                    "adapter `{}` connects into interface `{}` with contracts but declares no contract preservation attribute",
+                    adapter.name, to_interface.name
+                ),
+            )
+            .with_hint("add an adapter contract such as `contract preserves_order;`"),
+        );
+    }
+}
+
+fn check_adapter_kind_rules(
+    adapter: &AdapterDef,
+    kind: &AdapterKind,
+    from_interface: &InterfaceDef,
+    to_interface: &InterfaceDef,
+    diags: &mut Vec<Diagnostic>,
+) {
+    match kind {
+        AdapterKind::CdcFifo => {
+            if adapter.from_domain == adapter.to_domain {
+                diags.push(Diagnostic::error(
+                    "AdapterMismatch",
+                    format!(
+                        "cdc_fifo adapter `{}` must connect different clock domains",
+                        adapter.name
+                    ),
+                ));
+            }
+            require_ready_valid(adapter, from_interface, to_interface, diags);
+            require_equal_payload_width(adapter, from_interface, to_interface, diags);
+        }
+        AdapterKind::WidthAdapter => {
+            if adapter.from_domain != adapter.to_domain {
+                diags.push(Diagnostic::error(
+                    "AdapterMismatch",
+                    format!(
+                        "width_adapter `{}` must stay within one clock domain",
+                        adapter.name
+                    ),
+                ));
+            }
+            require_ready_valid(adapter, from_interface, to_interface, diags);
+            require_changed_payload_width(adapter, from_interface, to_interface, diags);
+        }
+        AdapterKind::SkidBuffer | AdapterKind::Pipeline => {
+            if adapter.from_domain != adapter.to_domain {
+                diags.push(Diagnostic::error(
+                    "AdapterMismatch",
+                    format!(
+                        "{}`{}` must stay within one clock domain",
+                        adapter_kind_label(kind),
+                        adapter.name
+                    ),
+                ));
+            }
+            if adapter.from_interface != adapter.to_interface {
+                diags.push(Diagnostic::error(
+                    "AdapterMismatch",
+                    format!(
+                        "{}`{}` must preserve interface type `{}`",
+                        adapter_kind_label(kind),
+                        adapter.name,
+                        adapter.from_interface
+                    ),
+                ));
+            }
+        }
+        AdapterKind::Custom(_) => {}
+    }
+}
+
+fn recognized_adapter_kind(kind: &Ident) -> Option<AdapterKind> {
+    let parsed = AdapterKind::from_ident(kind);
+    match &parsed {
+        AdapterKind::Custom(custom) if custom.0 != "custom" => None,
+        _ => Some(parsed),
+    }
+}
+
+fn require_ready_valid(
+    adapter: &AdapterDef,
+    from_interface: &InterfaceDef,
+    to_interface: &InterfaceDef,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let from_protocol = infer_protocol(from_interface);
+    let to_protocol = infer_protocol(to_interface);
+    if from_protocol.kind != ProtocolKind::ReadyValid
+        || to_protocol.kind != ProtocolKind::ReadyValid
+    {
+        diags.push(Diagnostic::error(
+            "ProtocolMismatch",
+            format!(
+                "adapter `{}` requires ready/valid source and sink interfaces",
+                adapter.name
+            ),
+        ));
+    }
+}
+
+fn require_equal_payload_width(
+    adapter: &AdapterDef,
+    from_interface: &InterfaceDef,
+    to_interface: &InterfaceDef,
+    diags: &mut Vec<Diagnostic>,
+) {
+    if let (Some(from_width), Some(to_width)) = (
+        ready_valid_payload_width(from_interface),
+        ready_valid_payload_width(to_interface),
+    ) {
+        if from_width != to_width {
+            diags.push(Diagnostic::error(
+                "WidthMismatch",
+                format!(
+                    "adapter `{}` requires equal ready/valid payload widths, found {} and {}",
+                    adapter.name, from_width, to_width
+                ),
+            ));
+        }
+    }
+}
+
+fn require_changed_payload_width(
+    adapter: &AdapterDef,
+    from_interface: &InterfaceDef,
+    to_interface: &InterfaceDef,
+    diags: &mut Vec<Diagnostic>,
+) {
+    match (
+        ready_valid_payload_width(from_interface),
+        ready_valid_payload_width(to_interface),
+    ) {
+        (Some(from_width), Some(to_width)) if from_width != to_width => {}
+        (Some(width), Some(_)) => diags.push(Diagnostic::error(
+            "AdapterMismatch",
+            format!(
+                "width_adapter `{}` must change payload width, but both sides are {} bits",
+                adapter.name, width
+            ),
+        )),
+        _ => diags.push(Diagnostic::error(
+            "WidthMismatch",
+            format!(
+                "width_adapter `{}` requires exactly one known ready/valid payload width on each side",
+                adapter.name
+            ),
+        )),
+    }
+}
+
+fn ready_valid_payload_width(interface: &InterfaceDef) -> Option<u32> {
+    let protocol = infer_protocol(interface);
+    if protocol.kind != ProtocolKind::ReadyValid || protocol.payload_fields.len() != 1 {
+        return None;
+    }
+    let payload_name = &protocol.payload_fields[0];
+    interface
+        .fields
+        .iter()
+        .find(|field| field.name == *payload_name)
+        .and_then(|field| scalar_width_bits(&field.ty))
+}
+
+fn adapter_kind_label(kind: &AdapterKind) -> &'static str {
+    match kind {
+        AdapterKind::CdcFifo => "cdc_fifo adapter ",
+        AdapterKind::WidthAdapter => "width_adapter ",
+        AdapterKind::SkidBuffer => "skid_buffer ",
+        AdapterKind::Pipeline => "pipeline ",
+        AdapterKind::Custom(_) => "custom adapter ",
+    }
 }
 
 pub fn build_typed_ir(design: &Design) -> Result<TypedDesign, Vec<Diagnostic>> {
@@ -869,6 +1243,69 @@ mod tests {
         );
     }
 
+    #[test]
+    fn checker_rejects_duplicate_names() {
+        let mut design = stream_design();
+        design.clock_domains.push(ClockDomain {
+            name: id("Sys"),
+            clock: id("clk2"),
+            reset: id("rst2"),
+        });
+        design.interfaces[0].fields.push(FieldDef {
+            name: id("payload"),
+            ty: ScalarType::UInt(32),
+            role: Role::Producer,
+        });
+        design.modules[0].ports.push(PortDef {
+            name: id("tx"),
+            dir: PortDir::Out,
+            interface: id("StreamU32"),
+        });
+        design.composes[0].instances.push(InstanceDef {
+            name: id("p"),
+            module: id("Producer"),
+        });
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "DuplicateDeclaration");
+        assert_has_code(&diagnostics, "DuplicateField");
+        assert_has_code(&diagnostics, "DuplicatePort");
+        assert_has_code(&diagnostics, "DuplicateInstance");
+    }
+
+    #[test]
+    fn checker_rejects_unknown_compose_domain() {
+        let mut design = stream_design();
+        design.composes[0].domain = id("Missing");
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "UnknownClockDomain");
+    }
+
+    #[test]
+    fn checker_accepts_explicit_width_adapter() {
+        let diagnostics = check_design(&width_adapter_design());
+        assert!(diagnostics.is_empty(), "{diagnostics:#?}");
+    }
+
+    #[test]
+    fn checker_rejects_unknown_adapter_kind() {
+        let mut design = width_adapter_design();
+        design.adapters[0].kind = id("magic_bridge");
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "UnknownAdapterKind");
+    }
+
+    #[test]
+    fn checker_requires_adapter_contract_for_contract_sink() {
+        let mut design = width_adapter_design();
+        design.adapters[0].attributes.clear();
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "ContractViolation");
+    }
+
     fn stream_design() -> Design {
         Design {
             clock_domains: vec![ClockDomain {
@@ -988,6 +1425,57 @@ mod tests {
         design.composes[0].domain = id("Aclk");
         design.composes[0].connections[0].adapter = Some(id("AsyncFifo32"));
         design
+    }
+
+    fn width_adapter_design() -> Design {
+        let mut design = stream_design();
+        design.interfaces.push(InterfaceDef {
+            name: id("StreamU64"),
+            domain: id("Sys"),
+            fields: vec![
+                FieldDef {
+                    name: id("payload"),
+                    ty: ScalarType::UInt(64),
+                    role: Role::Producer,
+                },
+                FieldDef {
+                    name: id("valid"),
+                    ty: ScalarType::Bool,
+                    role: Role::Producer,
+                },
+                FieldDef {
+                    name: id("ready"),
+                    ty: ScalarType::Bool,
+                    role: Role::Consumer,
+                },
+            ],
+            contracts: vec![ContractDef {
+                name: id("stable_payload"),
+                expr: "valid -> stable(payload) until ready".to_string(),
+            }],
+        });
+        design.modules[1].ports[0].interface = id("StreamU64");
+        design.adapters.push(AdapterDef {
+            name: id("Widen32To64"),
+            from_interface: id("StreamU32"),
+            from_domain: id("Sys"),
+            to_interface: id("StreamU64"),
+            to_domain: id("Sys"),
+            kind: id("width_adapter"),
+            attributes: vec![
+                (id("mode"), "zero_extend".to_string()),
+                (id("contract"), "preserves_ready_valid".to_string()),
+            ],
+        });
+        design.composes[0].connections[0].adapter = Some(id("Widen32To64"));
+        design
+    }
+
+    fn assert_has_code(diagnostics: &[Diagnostic], code: &'static str) {
+        assert!(
+            diagnostics.iter().any(|diagnostic| diagnostic.code == code),
+            "expected diagnostic code `{code}` in {diagnostics:#?}"
+        );
     }
 
     fn id(value: &str) -> Ident {

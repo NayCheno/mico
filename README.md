@@ -27,20 +27,20 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 4. Build `ModuleComposeBench` tasks from existing open-source RTL modules.
 5. Compare direct Verilog prompting vs. MICO AST prompting vs. MICO AST + compiler-feedback repair.
 
-## Status
+## Status And Reproduction
 
-This is a scaffold, not a finished compiler. The Rust code is intentionally small and dependency-light so the project can be extended in a research repository. The generation environment used to produce this package did not include a local Rust toolchain, so run the following commands on a machine with Rust installed:
+MICO now has a working Rust parser/checker/IR/codegen/CLI path, seed RTL smoke collateral, a seed ModuleComposeBench runner, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress.
 
-```bash
-cd rust_project
-cargo fmt
-cargo check
-cargo test
-cargo run -p mico_cli -- check examples/stream_fifo.mico
-cargo run -p mico_cli -- emit-sv examples/stream_fifo.mico
+For repeatable Rust and open-source RTL/EDA validation, use the persistent Ubuntu 24.04 Docker environment in `docker/eda/`. Vivado-specific flows use the Windows host Vivado installation; paper writing and PDF compilation use `paper/main.tex` with the Windows host LaTeX installation; other compilation and testing should run in Docker.
+
+Start with the end-to-end workflow in `docs/14_reproduction_workflow.md`:
+
+```powershell
+.\scripts\eda-docker.ps1 mico-verify-tools
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
+.\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 ```
-
-For repeatable Rust and open-source RTL/EDA validation, use the persistent Ubuntu 24.04 Docker environment in `docker/eda/`. See `docs/12_docker_eda_environment.md`. Vivado-specific flows use the Windows host Vivado installation; paper writing and PDF compilation use `paper/main.tex` with the Windows host LaTeX installation; other compilation and testing should run in Docker.
 
 ## License
 

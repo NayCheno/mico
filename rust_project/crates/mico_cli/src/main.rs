@@ -24,7 +24,10 @@ fn main() {
         Ok(design) => design,
         Err(errors) => {
             for e in errors {
-                eprintln!("parse error line {}: {}", e.line, e.message);
+                eprintln!(
+                    "parse error line {} column {} [{}]: {}",
+                    e.line, e.column, e.code, e.message
+                );
             }
             process::exit(1);
         }

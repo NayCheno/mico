@@ -21,4 +21,4 @@ cargo run -p mico_cli -- emit-sv examples/stream_fifo.mico
 
 ## Notes
 
-The parser is intentionally simple. Replace it with `chumsky`, `logos`, `lalrpop`, `pest`, or a hand-written recursive descent parser when the grammar stabilizes.
+The parser is a small hand-written lexer plus recursive-descent parser for the documented v0 grammar. Keep it dependency-free until the grammar or diagnostics require a parser library.

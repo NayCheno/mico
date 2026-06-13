@@ -51,3 +51,19 @@ MICO-generated SV/SVA
   -> Yosys/SymbiYosys formal for bounded properties
   -> optional commercial CDC/formal tools for industrial case studies
 ```
+
+## Current Docker smoke flow
+
+The repository includes a minimal open-source EDA smoke flow:
+
+```bash
+./scripts/eda-docker.sh bash -lc "bash scripts/eda-smoke.sh"
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
+```
+
+The script generates wrappers for `stream_fifo`, `cdc_fifo`, and `width_adapter` into ignored `build/eda-smoke/`, then runs Verilator lint and Yosys hierarchy/proc/opt/stat against `rtl/examples/mico_example_leafs.sv`. The CDC FIFO in that file is a smoke-only stub, not a CDC correctness proof. Real CDC signoff still requires a proven FIFO implementation, assertions, and CDC/formal collateral.

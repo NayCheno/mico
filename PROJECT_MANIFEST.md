@@ -13,6 +13,7 @@
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |
 | `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |
+| `docs/13_architecture_audit.md` | Baseline architecture audit, verified current state, gaps, and milestone acceptance plan. |
 | `rust_project/` | Rust workspace skeleton. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
 | `benchmarks/` | Seed benchmark plan for module composition. |

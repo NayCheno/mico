@@ -18,3 +18,45 @@ Metrics include first-pass compose success, repair turns, lint pass, simulation 
     \bottomrule
   \end{tabular}
 \end{table}
+
+\subsection{Benchmark Protocol}
+
+Each benchmark task contains a module inventory, protocol/interface library, optional adapter library, natural-language integration request, expected safety constraints, and reference validation collateral. A run records the model profile, prompt hash, first-pass compiler result, repair turns, lint result, simulation/formal result when available, unsafe rejection result for negative tasks, and generated artifacts. The same task is evaluated across baselines so that improvements can be attributed to the representation and repair loop rather than task selection.
+
+\begin{table}[t]
+  \centering
+  \caption{ModuleComposeBench task strata}
+  \begin{tabular}{lll}
+    \toprule
+    Level & Focus & Example \\
+    \midrule
+    L1 & direct streams & FIFO chain \\
+    L2 & widths/params & width adapter \\
+    L3 & protocols & bridge wrapper \\
+    L4 & CDC/RDC & async FIFO \\
+    L5 & subsystem & mixed adapters \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Current Seed Results}
+
+The current artifact includes three seed tasks: stream FIFO, CDC FIFO, and width adapter. These are not yet the full benchmark, but they validate that the compiler, SystemVerilog emitter, Verilator lint, and Yosys elaboration path are reproducible.
+
+\begin{table}[t]
+  \centering
+  \caption{Seed artifact smoke results}
+  \begin{tabular}{lccc}
+    \toprule
+    Task & Compose & Lint/elab & Sim/formal \\
+    \midrule
+    Stream FIFO & pass & pass & not yet \\
+    CDC FIFO & pass & pass & not yet \\
+    Width adapter & pass & pass & not yet \\
+    \midrule
+    Aggregate & 3/3 & 3/3 & not run \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, adding simulation/formal harnesses, and reporting QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers, and pass open-source EDA smoke checks in a controlled Docker environment.

@@ -22,3 +22,30 @@ compose Top @Sys {
 \end{verbatim}
 
 If any condition fails, the compiler must reject the graph and produce a structured diagnostic. Such diagnostics are designed to be fed into an LLM repair loop as JSON, making repairs local and auditable rather than free-form rewrites of generated RTL.
+
+\subsection{Static Semantics}
+
+The v0 checker enforces a conservative subset of the intended type system. Let an endpoint be a tuple
+\[
+  e = (\text{instance}, \text{port}, \text{interface}, \text{role}, \text{domain}, \text{fields}, \text{contracts}).
+\]
+A direct connection \(e_s \rightarrow e_t\) is legal only if \(e_s\) is a producer, \(e_t\) is a consumer, the interface protocol agrees, the clock/reset domain agrees, and each required field has a compatible width and direction. If any of these predicates fail, the graph is rejected unless an explicit adapter node states how the mismatch is resolved.
+
+\begin{table}[t]
+  \centering
+  \caption{Representative MICO v0 diagnostics}
+  \begin{tabular}{lll}
+    \toprule
+    Check & Example & Repair action \\
+    \midrule
+    name & duplicate instance & rename or delete \\
+    endpoint & unknown port & bind declared port \\
+    direction & consumer to consumer & reverse edge \\
+    width & u32 to u64 & insert width adapter \\
+    domain & Sys to Async & insert CDC adapter \\
+    contract & missing obligation & attach contract \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+This design intentionally avoids silent convenience. MICO does not insert a CDC FIFO or truncating width adapter merely because doing so would make the wrapper compile. A model or user must declare the adapter explicitly, and the compiler records it in the typed IR and generated report.

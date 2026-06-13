@@ -13,3 +13,23 @@ The MICO collaboration loop has seven stages:
 \end{enumerate}
 
 This loop deliberately separates proposal from validation. The LLM never becomes the source of correctness. Its output is constrained to data structures that the compiler can reject, repair, and compare across model profiles.
+
+The provider policy also separates cost from correctness. Smoke tests and bulk prompt development run with low-cost model profiles first. Higher-cost profiles are used only after objective gates pass: structured-output validity, compiler acceptance, and relevant RTL validation. This prevents a workflow in which cost escalation hides a weak prompt or an under-specified checker.
+
+\begin{table}[t]
+  \centering
+  \caption{Acceptance gates for LLM-generated candidates}
+  \begin{tabular}{lll}
+    \toprule
+    Gate & Tool & Rejects \\
+    \midrule
+    JSON/schema & prompt harness & malformed output \\
+    Parse/check & MICO compiler & illegal graph \\
+    Emit & code generator & unsupported lowering \\
+    Lint/elab & Verilator/Yosys & invalid SV \\
+    Sim/formal & future harnesses & behavior bugs \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Diagnostics are part of the prompt interface. The repair prompt includes the original task, module inventory, interface library, current AST, and compiler diagnostics, and asks for a minimal JSON patch. The goal is to measure whether compiler feedback reduces repair turns without letting the model rewrite unrelated structure.

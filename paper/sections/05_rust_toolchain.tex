@@ -9,4 +9,32 @@ MICO is implemented as a Rust workspace with four initial crates:
   \item \texttt{mico\_cli}: \texttt{check}, \texttt{dump-ir}, \texttt{emit-sv}, and future benchmark commands.
 \end{itemize}
 
+The compiler pipeline is deterministic:
+
+\begin{enumerate}
+  \item The frontend lexes and parses MICO source into an AST with source locations.
+  \item The IR layer resolves declarations, instances, endpoints, domains, adapter kinds, and contract metadata.
+  \item The checker rejects duplicate declarations, unknown endpoints, illegal directions, unsupported adapter kinds, width mismatches, domain mismatches, and missing contract obligations.
+  \item Code generation emits JSON IR, SystemVerilog wrappers, and SVA skeletons from checked IR only.
+  \item The CLI exposes \texttt{parse}, \texttt{check}, \texttt{build}, \texttt{dump-ir}, \texttt{emit-sv}, \texttt{emit-sva}, \texttt{verify}, and \texttt{report}.
+\end{enumerate}
+
 The first implementation stage intentionally avoids a full MLIR binding. It emits conservative SystemVerilog wrappers, structured JSON IR, and SVA skeletons. A later stage can lower the typed IR into CIRCT HW modules, ESI channels, and Verif/LTL assertions. Rust is a pragmatic implementation language for this front end because its enums, pattern matching, ownership model, and test ecosystem fit compiler passes and diagnostics well.
+
+\begin{table}[t]
+  \centering
+  \caption{Current artifact status}
+  \begin{tabular}{lll}
+    \toprule
+    Component & Status & Validation \\
+    \midrule
+    Parser & implemented & unit tests \\
+    Typed IR & implemented & unit tests \\
+    Checker & implemented & diagnostics tests \\
+    SV emitter & implemented & golden-style tests \\
+    EDA smoke & implemented & Verilator/Yosys \\
+    LLM smoke & implemented & OpenAI SDK \\
+    Sim/formal & planned & not claimed \\
+    \bottomrule
+  \end{tabular}
+\end{table}

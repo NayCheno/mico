@@ -3,3 +3,7 @@
 Adapters are explicit first-class artifacts. Width adapters, protocol bridges, pipeline stages, buffers, and CDC FIFOs must appear in the typed IR and elaboration report. A clock-domain crossing is illegal by default unless the graph declares a verified CDC adapter. Similarly, protocol adaptation is illegal unless an adapter in the library states the source and destination contracts it preserves.
 
 This design is especially important for LLM-assisted flows. If the model silently inserts glue logic, the result may compile while changing latency, backpressure, ordering, or reset semantics. MICO forces these choices into named objects that can be audited, tested, and benchmarked.
+
+Adapter legality is defined at the interface boundary. A width adapter must state the source and destination payload widths and whether the transformation is extension, narrowing with proof, packing, or unpacking. A CDC adapter must state the source and destination clock/reset domains and the synchronization mechanism. A protocol bridge must state which ordering, liveness, and backpressure properties it preserves.
+
+The current implementation supports explicit width and CDC adapter declarations for seed tasks and emits adapter instances into generated SystemVerilog wrappers. The CDC collateral used by the smoke test is intentionally small and should not be mistaken for a proof of CDC correctness. The research roadmap therefore treats simulation and formal harnesses as separate gates after lint and synthesis elaboration.

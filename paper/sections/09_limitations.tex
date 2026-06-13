@@ -1,5 +1,9 @@
-\section{Limitations and Risks}
+\section{Limitations and Threats to Validity}
 
 MICO requires an interface library and adapter library, both of which need engineering effort. A type system that is too restrictive may reduce the useful search space available to the model. CIRCT lowering also introduces integration cost. Finally, ModuleComposeBench must include realistic module-composition tasks; otherwise the benchmark could collapse into a schema-generation exercise.
 
 These risks are manageable if the project remains narrowly scoped. The first target is not a universal HDL. It is a compiler-checked interconnect layer for LLM-assisted RTL integration.
+
+There are also evaluation threats. Seed tasks are too small to support statistical claims. Verilator and Yosys smoke checks catch syntax, elaboration, and simple structural issues, but they do not prove protocol correctness. LLM provider results may vary across model versions and API settings; therefore prompts, model identifiers, profile settings, output hashes, and generated artifacts must be logged. Finally, a benchmark built only from hand-written toy modules would overstate usefulness. The full evaluation must include realistic IP wrappers, negative safety tasks, and transparent reporting of failed repairs.
+
+MICO's safety argument is consequently layered, not absolute. The compiler should prevent known illegal compositions early; RTL tools should reject invalid generated wrappers; simulation and formal harnesses should validate behavior; and human review should inspect adapter libraries, waivers, and benchmark construction.

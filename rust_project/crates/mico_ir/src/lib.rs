@@ -156,6 +156,138 @@ pub struct Design {
     pub composes: Vec<ComposeDef>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResetPolarity {
+    ActiveHigh,
+    ActiveLow,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedClockDomain {
+    pub name: Ident,
+    pub clock: Ident,
+    pub reset: Ident,
+    pub reset_polarity: ResetPolarity,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProtocolKind {
+    ReadyValid,
+    Custom,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InterfaceProtocol {
+    pub kind: ProtocolKind,
+    pub payload_fields: Vec<Ident>,
+    pub valid: Option<Ident>,
+    pub ready: Option<Ident>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedField {
+    pub name: Ident,
+    pub ty: ScalarType,
+    pub width_bits: Option<u32>,
+    pub role: Role,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedInterface {
+    pub name: Ident,
+    pub domain: Ident,
+    pub fields: Vec<TypedField>,
+    pub contracts: Vec<ContractDef>,
+    pub protocol: InterfaceProtocol,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedPort {
+    pub name: Ident,
+    pub dir: PortDir,
+    pub interface: Ident,
+    pub domain: Ident,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedModule {
+    pub name: Ident,
+    pub domain: Ident,
+    pub is_extern: bool,
+    pub ports: Vec<TypedPort>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AdapterKind {
+    CdcFifo,
+    WidthAdapter,
+    SkidBuffer,
+    Pipeline,
+    Custom(Ident),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedAdapter {
+    pub name: Ident,
+    pub from_interface: Ident,
+    pub from_domain: Ident,
+    pub to_interface: Ident,
+    pub to_domain: Ident,
+    pub kind: AdapterKind,
+    pub attributes: Vec<(Ident, String)>,
+    pub contracts: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedInstance {
+    pub name: Ident,
+    pub module: Ident,
+    pub domain: Ident,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedEndpoint {
+    pub endpoint: Endpoint,
+    pub module: Ident,
+    pub port_dir: PortDir,
+    pub interface: Ident,
+    pub domain: Ident,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedConnectionContracts {
+    pub source_interface: Vec<ContractDef>,
+    pub sink_interface: Vec<ContractDef>,
+    pub adapter_contracts: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedConnection {
+    pub from: TypedEndpoint,
+    pub to: TypedEndpoint,
+    pub adapter: Option<Ident>,
+    pub adapter_kind: Option<AdapterKind>,
+    pub contracts: TypedConnectionContracts,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedCompose {
+    pub name: Ident,
+    pub domain: Ident,
+    pub instances: Vec<TypedInstance>,
+    pub connections: Vec<TypedConnection>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedDesign {
+    pub clock_domains: Vec<TypedClockDomain>,
+    pub interfaces: Vec<TypedInterface>,
+    pub modules: Vec<TypedModule>,
+    pub adapters: Vec<TypedAdapter>,
+    pub composes: Vec<TypedCompose>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Severity {
     Error,
@@ -348,6 +480,266 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
     diags
 }
 
+pub fn build_typed_ir(design: &Design) -> Result<TypedDesign, Vec<Diagnostic>> {
+    let mut diagnostics = check_design(design);
+    if diagnostics.iter().any(|d| d.severity == Severity::Error) {
+        return Err(diagnostics);
+    }
+
+    let clock_domains = design
+        .clock_domains
+        .iter()
+        .map(|domain| TypedClockDomain {
+            name: domain.name.clone(),
+            clock: domain.clock.clone(),
+            reset: domain.reset.clone(),
+            reset_polarity: infer_reset_polarity(&domain.reset),
+        })
+        .collect::<Vec<_>>();
+
+    let interfaces = design
+        .interfaces
+        .iter()
+        .map(|interface| TypedInterface {
+            name: interface.name.clone(),
+            domain: interface.domain.clone(),
+            fields: interface
+                .fields
+                .iter()
+                .map(|field| TypedField {
+                    name: field.name.clone(),
+                    ty: field.ty.clone(),
+                    width_bits: scalar_width_bits(&field.ty),
+                    role: field.role.clone(),
+                })
+                .collect(),
+            contracts: interface.contracts.clone(),
+            protocol: infer_protocol(interface),
+        })
+        .collect::<Vec<_>>();
+
+    let modules = design
+        .modules
+        .iter()
+        .map(|module| TypedModule {
+            name: module.name.clone(),
+            domain: module.domain.clone(),
+            is_extern: module.is_extern,
+            ports: module
+                .ports
+                .iter()
+                .map(|port| TypedPort {
+                    name: port.name.clone(),
+                    dir: port.dir,
+                    interface: port.interface.clone(),
+                    domain: module.domain.clone(),
+                })
+                .collect(),
+        })
+        .collect::<Vec<_>>();
+
+    let adapters = design
+        .adapters
+        .iter()
+        .map(|adapter| TypedAdapter {
+            name: adapter.name.clone(),
+            from_interface: adapter.from_interface.clone(),
+            from_domain: adapter.from_domain.clone(),
+            to_interface: adapter.to_interface.clone(),
+            to_domain: adapter.to_domain.clone(),
+            kind: AdapterKind::from_ident(&adapter.kind),
+            attributes: adapter.attributes.clone(),
+            contracts: adapter_contracts(adapter),
+        })
+        .collect::<Vec<_>>();
+
+    let module_map: HashMap<_, _> = design
+        .modules
+        .iter()
+        .map(|module| (module.name.clone(), module))
+        .collect();
+    let interface_map: HashMap<_, _> = design
+        .interfaces
+        .iter()
+        .map(|interface| (interface.name.clone(), interface))
+        .collect();
+    let adapter_map: HashMap<_, _> = design
+        .adapters
+        .iter()
+        .map(|adapter| (adapter.name.clone(), adapter))
+        .collect();
+
+    let mut composes = Vec::new();
+    for compose in &design.composes {
+        let instance_map: HashMap<_, _> = compose
+            .instances
+            .iter()
+            .map(|instance| (instance.name.clone(), instance))
+            .collect();
+
+        let mut typed_instances = Vec::new();
+        for instance in &compose.instances {
+            match module_map.get(&instance.module) {
+                Some(module) => typed_instances.push(TypedInstance {
+                    name: instance.name.clone(),
+                    module: instance.module.clone(),
+                    domain: module.domain.clone(),
+                }),
+                None => diagnostics.push(Diagnostic::error(
+                    "InternalIrError",
+                    format!(
+                        "cannot lower instance `{}` because module `{}` is unresolved",
+                        instance.name, instance.module
+                    ),
+                )),
+            }
+        }
+
+        let mut typed_connections = Vec::new();
+        for connection in &compose.connections {
+            match (
+                resolve_endpoint(&instance_map, &module_map, &connection.from),
+                resolve_endpoint(&instance_map, &module_map, &connection.to),
+            ) {
+                (Ok((src_module, src_port)), Ok((dst_module, dst_port))) => {
+                    let adapter = connection
+                        .adapter
+                        .as_ref()
+                        .and_then(|name| adapter_map.get(name));
+                    let contracts = TypedConnectionContracts {
+                        source_interface: interface_map
+                            .get(&src_port.interface)
+                            .map(|interface| interface.contracts.clone())
+                            .unwrap_or_default(),
+                        sink_interface: interface_map
+                            .get(&dst_port.interface)
+                            .map(|interface| interface.contracts.clone())
+                            .unwrap_or_default(),
+                        adapter_contracts: adapter
+                            .map(|adapter| adapter_contracts(adapter))
+                            .unwrap_or_default(),
+                    };
+
+                    typed_connections.push(TypedConnection {
+                        from: TypedEndpoint {
+                            endpoint: connection.from.clone(),
+                            module: src_module.name.clone(),
+                            port_dir: src_port.dir,
+                            interface: src_port.interface.clone(),
+                            domain: src_module.domain.clone(),
+                        },
+                        to: TypedEndpoint {
+                            endpoint: connection.to.clone(),
+                            module: dst_module.name.clone(),
+                            port_dir: dst_port.dir,
+                            interface: dst_port.interface.clone(),
+                            domain: dst_module.domain.clone(),
+                        },
+                        adapter: connection.adapter.clone(),
+                        adapter_kind: adapter.map(|adapter| AdapterKind::from_ident(&adapter.kind)),
+                        contracts,
+                    });
+                }
+                (Err(err), _) | (_, Err(err)) => diagnostics.push(err),
+            }
+        }
+
+        composes.push(TypedCompose {
+            name: compose.name.clone(),
+            domain: compose.domain.clone(),
+            instances: typed_instances,
+            connections: typed_connections,
+        });
+    }
+
+    if diagnostics.iter().any(|d| d.severity == Severity::Error) {
+        Err(diagnostics)
+    } else {
+        Ok(TypedDesign {
+            clock_domains,
+            interfaces,
+            modules,
+            adapters,
+            composes,
+        })
+    }
+}
+
+impl AdapterKind {
+    fn from_ident(kind: &Ident) -> Self {
+        match kind.0.as_str() {
+            "cdc_fifo" | "async_fifo" => AdapterKind::CdcFifo,
+            "width_adapter" | "width" | "extend" | "slice" => AdapterKind::WidthAdapter,
+            "skid_buffer" | "skid" => AdapterKind::SkidBuffer,
+            "pipeline" | "pipe" => AdapterKind::Pipeline,
+            _ => AdapterKind::Custom(kind.clone()),
+        }
+    }
+}
+
+fn scalar_width_bits(ty: &ScalarType) -> Option<u32> {
+    match ty {
+        ScalarType::Bool => Some(1),
+        ScalarType::UInt(width) => Some(*width),
+        ScalarType::Named(_) => None,
+    }
+}
+
+fn infer_reset_polarity(reset: &Ident) -> ResetPolarity {
+    let name = reset.0.to_ascii_lowercase();
+    if name.ends_with("_n") || name.ends_with("rstn") || name.ends_with("resetn") {
+        ResetPolarity::ActiveLow
+    } else if name == "rst" || name == "reset" || name.ends_with("_rst") || name.ends_with("_reset")
+    {
+        ResetPolarity::ActiveHigh
+    } else {
+        ResetPolarity::Unknown
+    }
+}
+
+fn infer_protocol(interface: &InterfaceDef) -> InterfaceProtocol {
+    let valid = interface
+        .fields
+        .iter()
+        .find(|field| {
+            field.role == Role::Producer && field.name.0 == "valid" && field.ty == ScalarType::Bool
+        })
+        .map(|field| field.name.clone());
+    let ready = interface
+        .fields
+        .iter()
+        .find(|field| {
+            field.role == Role::Consumer && field.name.0 == "ready" && field.ty == ScalarType::Bool
+        })
+        .map(|field| field.name.clone());
+    let payload_fields = interface
+        .fields
+        .iter()
+        .filter(|field| field.role == Role::Producer && field.name.0 != "valid")
+        .map(|field| field.name.clone())
+        .collect::<Vec<_>>();
+
+    InterfaceProtocol {
+        kind: if valid.is_some() && ready.is_some() {
+            ProtocolKind::ReadyValid
+        } else {
+            ProtocolKind::Custom
+        },
+        payload_fields,
+        valid,
+        ready,
+    }
+}
+
+fn adapter_contracts(adapter: &AdapterDef) -> Vec<String> {
+    adapter
+        .attributes
+        .iter()
+        .filter(|(name, _)| name.0 == "contract")
+        .map(|(_, value)| value.clone())
+        .collect()
+}
+
 fn resolve_endpoint<'a>(
     instances: &HashMap<Ident, &'a InstanceDef>,
     modules: &HashMap<Ident, &'a ModuleDef>,
@@ -392,5 +784,213 @@ mod tests {
     fn check_empty_design() {
         let d = Design::default();
         assert!(check_design(&d).is_empty());
+    }
+
+    #[test]
+    fn typed_ir_infers_ready_valid_protocol_and_widths() {
+        let typed = build_typed_ir(&stream_design()).unwrap();
+
+        assert_eq!(
+            typed.clock_domains[0].reset_polarity,
+            ResetPolarity::ActiveHigh
+        );
+        assert_eq!(typed.interfaces[0].protocol.kind, ProtocolKind::ReadyValid);
+        assert_eq!(typed.interfaces[0].protocol.payload_fields[0].0, "payload");
+        assert_eq!(typed.interfaces[0].fields[0].width_bits, Some(32));
+        assert_eq!(typed.interfaces[0].fields[1].width_bits, Some(1));
+    }
+
+    #[test]
+    fn typed_ir_resolves_endpoint_and_contract_metadata() {
+        let typed = build_typed_ir(&stream_design()).unwrap();
+        let connection = &typed.composes[0].connections[0];
+
+        assert_eq!(connection.from.endpoint.to_string(), "p.tx");
+        assert_eq!(connection.from.module.0, "Producer");
+        assert_eq!(connection.from.port_dir, PortDir::Out);
+        assert_eq!(connection.from.interface.0, "StreamU32");
+        assert_eq!(
+            connection.contracts.source_interface[0].name.0,
+            "stable_payload"
+        );
+        assert!(connection.adapter.is_none());
+    }
+
+    #[test]
+    fn typed_ir_preserves_adapter_kind_and_contracts() {
+        let typed = build_typed_ir(&cdc_design()).unwrap();
+
+        assert_eq!(
+            typed.clock_domains[0].reset_polarity,
+            ResetPolarity::ActiveLow
+        );
+        assert_eq!(typed.adapters[0].kind, AdapterKind::CdcFifo);
+        assert_eq!(typed.adapters[0].contracts, vec!["preserves_order"]);
+        assert_eq!(
+            typed.composes[0].connections[0].adapter_kind,
+            Some(AdapterKind::CdcFifo)
+        );
+        assert_eq!(
+            typed.composes[0].connections[0].contracts.adapter_contracts,
+            vec!["preserves_order"]
+        );
+    }
+
+    #[test]
+    fn typed_ir_rejects_invalid_design() {
+        let mut design = stream_design();
+        design.interfaces.push(InterfaceDef {
+            name: id("StreamU64"),
+            domain: id("Sys"),
+            fields: vec![FieldDef {
+                name: id("payload"),
+                ty: ScalarType::UInt(64),
+                role: Role::Producer,
+            }],
+            contracts: vec![],
+        });
+        design.modules.push(ModuleDef {
+            name: id("Sink64"),
+            domain: id("Sys"),
+            is_extern: true,
+            ports: vec![PortDef {
+                name: id("rx"),
+                dir: PortDir::In,
+                interface: id("StreamU64"),
+            }],
+        });
+        design.composes[0].instances[1].module = id("Sink64");
+
+        let diagnostics = build_typed_ir(&design).unwrap_err();
+        assert!(
+            diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "InterfaceMismatch")
+        );
+    }
+
+    fn stream_design() -> Design {
+        Design {
+            clock_domains: vec![ClockDomain {
+                name: id("Sys"),
+                clock: id("clk"),
+                reset: id("rst"),
+            }],
+            interfaces: vec![InterfaceDef {
+                name: id("StreamU32"),
+                domain: id("Sys"),
+                fields: vec![
+                    FieldDef {
+                        name: id("payload"),
+                        ty: ScalarType::UInt(32),
+                        role: Role::Producer,
+                    },
+                    FieldDef {
+                        name: id("valid"),
+                        ty: ScalarType::Bool,
+                        role: Role::Producer,
+                    },
+                    FieldDef {
+                        name: id("ready"),
+                        ty: ScalarType::Bool,
+                        role: Role::Consumer,
+                    },
+                ],
+                contracts: vec![ContractDef {
+                    name: id("stable_payload"),
+                    expr: "valid -> stable(payload) until ready".to_string(),
+                }],
+            }],
+            modules: vec![
+                ModuleDef {
+                    name: id("Producer"),
+                    domain: id("Sys"),
+                    is_extern: true,
+                    ports: vec![PortDef {
+                        name: id("tx"),
+                        dir: PortDir::Out,
+                        interface: id("StreamU32"),
+                    }],
+                },
+                ModuleDef {
+                    name: id("Consumer"),
+                    domain: id("Sys"),
+                    is_extern: true,
+                    ports: vec![PortDef {
+                        name: id("rx"),
+                        dir: PortDir::In,
+                        interface: id("StreamU32"),
+                    }],
+                },
+            ],
+            adapters: vec![],
+            composes: vec![ComposeDef {
+                name: id("Top"),
+                domain: id("Sys"),
+                instances: vec![
+                    InstanceDef {
+                        name: id("p"),
+                        module: id("Producer"),
+                    },
+                    InstanceDef {
+                        name: id("c"),
+                        module: id("Consumer"),
+                    },
+                ],
+                connections: vec![ConnectDef {
+                    from: Endpoint {
+                        instance: id("p"),
+                        port: id("tx"),
+                    },
+                    to: Endpoint {
+                        instance: id("c"),
+                        port: id("rx"),
+                    },
+                    adapter: None,
+                }],
+            }],
+        }
+    }
+
+    fn cdc_design() -> Design {
+        let mut design = stream_design();
+        design.clock_domains = vec![
+            ClockDomain {
+                name: id("Aclk"),
+                clock: id("aclk"),
+                reset: id("arst_n"),
+            },
+            ClockDomain {
+                name: id("Bclk"),
+                clock: id("bclk"),
+                reset: id("brst_n"),
+            },
+        ];
+        design.interfaces[0].domain = id("Aclk");
+        design.interfaces.push(InterfaceDef {
+            name: id("StreamU32B"),
+            domain: id("Bclk"),
+            fields: design.interfaces[0].fields.clone(),
+            contracts: design.interfaces[0].contracts.clone(),
+        });
+        design.modules[0].domain = id("Aclk");
+        design.modules[1].domain = id("Bclk");
+        design.modules[1].ports[0].interface = id("StreamU32B");
+        design.adapters.push(AdapterDef {
+            name: id("AsyncFifo32"),
+            from_interface: id("StreamU32"),
+            from_domain: id("Aclk"),
+            to_interface: id("StreamU32B"),
+            to_domain: id("Bclk"),
+            kind: id("cdc_fifo"),
+            attributes: vec![(id("contract"), "preserves_order".to_string())],
+        });
+        design.composes[0].domain = id("Aclk");
+        design.composes[0].connections[0].adapter = Some(id("AsyncFifo32"));
+        design
+    }
+
+    fn id(value: &str) -> Ident {
+        Ident::from(value)
     }
 }

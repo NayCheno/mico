@@ -29,6 +29,19 @@ mico_codegen   SystemVerilog and JSON emitters.
 mico_cli       Command line tool.
 ```
 
+## Parsed design vs typed IR
+
+The parser produces a loose `Design` that mirrors source declarations and keeps user input fallible. The checker owns semantic validity. After `check_design` succeeds, `build_typed_ir` lowers `Design` into `TypedDesign`, which resolves endpoint metadata and records:
+
+- clock/reset metadata, including inferred reset polarity;
+- interface fields with role, scalar type, and known bit width;
+- inferred protocol metadata such as ready/valid payload, valid, and ready fields;
+- adapter kind and adapter contract attributes;
+- compose instances and resolved connection endpoints with module, port direction, interface, and domain metadata;
+- source interface, sink interface, and adapter contracts associated with each connection.
+
+Backends and benchmark/report flows should move toward `TypedDesign` instead of consuming parser-shaped `Design` directly.
+
 ## CIRCT lowering plan
 
 | MICO concept | CIRCT target |

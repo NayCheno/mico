@@ -1,0 +1,58 @@
+provider:
+  name: opencode-go
+  api: openai-chat-completions
+  base_url: https://opencode.ai/zen/go/v1
+  chat_completions_path: /chat/completions
+  models_path: /models
+  api_key_env: OPENCODE_GO_API_KEY
+  api_key: null
+
+policy:
+  default_profile: smoke
+  escalation_order:
+    - smoke
+    - low_cost_crosscheck
+    - quality_code
+    - quality_reasoning
+  promotion_gate:
+    min_tasks: 20
+    pass_rate_at_least: 0.80
+    max_new_safety_regressions: 0
+    require_compiler_pass: true
+    require_rtl_validation_pass: true
+
+profiles:
+  smoke:
+    model: deepseek-v4-flash
+    tier: low_cost
+    purpose: cheapest first-pass prompt, schema, and harness smoke tests
+    temperature: 0.1
+    max_tokens: 1024
+
+  low_cost_crosscheck:
+    model: mimo-v2.5
+    tier: low_cost
+    purpose: second cheap model for prompt sensitivity and regression checks
+    temperature: 0.1
+    max_tokens: 1024
+
+  quality_code:
+    model: kimi-k2.7-code
+    tier: high_quality
+    purpose: escalate after low-cost profiles pass compiler and RTL gates
+    temperature: 0.1
+    max_tokens: 2048
+
+  quality_reasoning:
+    model: glm-5.1
+    tier: high_quality
+    purpose: expensive reasoning crosscheck for ambiguous integration tasks
+    temperature: 0.1
+    max_tokens: 2048
+
+  quality_deepseek:
+    model: deepseek-v4-pro
+    tier: high_quality
+    purpose: alternative expensive profile for final comparison runs
+    temperature: 0.1
+    max_tokens: 2048

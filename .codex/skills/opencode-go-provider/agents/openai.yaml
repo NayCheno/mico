@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenCode Go Provider"
+  short_description: "OpenAI-compatible Go model provider"
+  default_prompt: "Use $opencode-go-provider to configure and smoke-test an OpenCode Go LLM provider."

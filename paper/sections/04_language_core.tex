@@ -1,0 +1,24 @@
+\section{MICO Language Core}
+
+MICO v0 has five core objects: clock domains, interfaces, extern modules, adapters, and compose graphs. A connection is legal only if both instances and ports exist, the source role is an output, the destination role is an input, the interface identities match or an explicit adapter exists, the clock domains match or an explicit CDC adapter exists, and the attached contracts satisfy refinement obligations.
+
+\begin{verbatim}
+clockdom Sys(clk, rst);
+
+interface StreamU32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload:
+    valid -> stable(payload) until ready;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst f: Fifo;
+  inst c: Consumer;
+  connect p.tx -> f.input;
+  connect f.output -> c.rx;
+}
+\end{verbatim}
+
+If any condition fails, the compiler must reject the graph and produce a structured diagnostic. Such diagnostics are designed to be fed into an LLM repair loop as JSON, making repairs local and auditable rather than free-form rewrites of generated RTL.

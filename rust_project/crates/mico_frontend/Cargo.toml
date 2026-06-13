@@ -1,0 +1,12 @@
+[package]
+name = "mico_frontend"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+mico_ir = { path = "../mico_ir" }
+
+[lib]
+path = "src/lib.rs"

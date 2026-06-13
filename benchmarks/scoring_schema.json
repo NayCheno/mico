@@ -1,0 +1,21 @@
+{
+  "task_id": "string",
+  "model": "string",
+  "baseline": "string",
+  "compose_pass_1": "bool",
+  "repair_turns": "integer",
+  "lint_pass": "bool",
+  "sim_pass": "bool",
+  "formal_pass": "bool",
+  "unsafe_rejection": "bool",
+  "qor_delta": {
+    "area_pct": "number",
+    "timing_pct": "number",
+    "latency_cycles": "integer"
+  },
+  "connection_entropy": {
+    "primitive_signal_edges": "integer",
+    "semantic_interface_edges": "integer",
+    "ratio": "number"
+  }
+}

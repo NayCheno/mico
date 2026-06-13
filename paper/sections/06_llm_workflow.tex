@@ -1,0 +1,15 @@
+\section{LLM Collaboration Workflow}
+
+The MICO collaboration loop has seven stages:
+
+\begin{enumerate}
+  \item Inventory modules, ports, protocols, domains, and adapters.
+  \item Ask the LLM to propose interface schemas.
+  \item Ask the LLM to propose a composition graph.
+  \item Run compiler checks and return structured diagnostics.
+  \item Ask the LLM for a minimal JSON patch.
+  \item Run lint, simulation, formal, synthesis, or Vivado checks as appropriate.
+  \item Produce a traceability report from compiler artifacts.
+\end{enumerate}
+
+This loop deliberately separates proposal from validation. The LLM never becomes the source of correctness. Its output is constrained to data structures that the compiler can reject, repair, and compare across model profiles.

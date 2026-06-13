@@ -1,0 +1,7 @@
+\section{Related Work}
+
+SystemVerilog interfaces, Chisel bundles and bulk connections, Amaranth wiring, and CIRCT ESI all demonstrate that interface abstraction has practical value~\cite{chisel_interfaces,amaranth_wiring,circt_esi}. MICO differs in its objective. It targets the integration of existing RTL/IP modules, not complete hardware description. It restricts LLM output to structured AST/JSON forms, not arbitrary host-language code. It also treats clock/reset domains, protocol contracts, adapter synthesis, and formal collateral as part of the interface type system.
+
+CPPL is the closest recent work~\cite{cppl2026}. If MICO merely claimed ``structured language plus CIRCT,'' it would overlap too much with CPPL. The boundary is narrower: CPPL targets LLM-friendly circuit generation, while MICO targets LLM-friendly module interconnect and integration. Its central objects are interfaces, clock domains, contracts, adapters, and compose graphs.
+
+CIRCT provides a natural downstream target. The HW dialect aligns with Verilog modules, ESI provides typed channels and valid/ready wrapping, and Verif/LTL can represent assertions and temporal properties~\cite{circt_hw,circt_esi}. Anvil and AutoSVA further motivate treating timing safety and module interaction properties as language or tooling concerns rather than informal comments~\cite{anvil2025,autosva2021}.

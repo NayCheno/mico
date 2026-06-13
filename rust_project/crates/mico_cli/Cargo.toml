@@ -1,0 +1,15 @@
+[package]
+name = "mico_cli"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "mico"
+path = "src/main.rs"
+
+[dependencies]
+mico_ir = { path = "../mico_ir" }
+mico_frontend = { path = "../mico_frontend" }
+mico_codegen = { path = "../mico_codegen" }

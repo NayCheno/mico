@@ -1,0 +1,14 @@
+flowchart LR
+  A[Existing RTL/IP Modules] --> B[Interface Extractor / Manual Schema]
+  B --> C[MICO Source / JSON AST]
+  D[LLM Compose Agent] --> C
+  C --> E[Rust Frontend]
+  E --> F[Typed MICO IR]
+  F --> G[Semantic Checker]
+  G -->|diagnostics| D
+  G --> H[Adapter Planner]
+  H --> I[SV/SVA Codegen]
+  H --> J[CIRCT HW/ESI/Verif Lowering]
+  I --> K[Lint / Simulation / Formal / Synthesis]
+  J --> K
+  K -->|structured reports| D

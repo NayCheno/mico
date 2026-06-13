@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "Disciplined git commit workflow"
+  default_prompt: "Use $git-commit to stage focused changes and create an intentional commit."

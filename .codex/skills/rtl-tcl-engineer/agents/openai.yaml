@@ -1,0 +1,4 @@
+interface:
+  display_name: "RTL Tcl Engineer"
+  short_description: "RTL project and Tcl flow patterns"
+  default_prompt: "Use $rtl-tcl-engineer to structure an RTL block and generate the Tcl flow templates."

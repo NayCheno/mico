@@ -1,0 +1,5 @@
+\section{Limitations and Risks}
+
+MICO requires an interface library and adapter library, both of which need engineering effort. A type system that is too restrictive may reduce the useful search space available to the model. CIRCT lowering also introduces integration cost. Finally, ModuleComposeBench must include realistic module-composition tasks; otherwise the benchmark could collapse into a schema-generation exercise.
+
+These risks are manageable if the project remains narrowly scoped. The first target is not a universal HDL. It is a compiler-checked interconnect layer for LLM-assisted RTL integration.

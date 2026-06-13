@@ -1,0 +1,20 @@
+# Project Manifest
+
+| Path | Purpose |
+|---|---|
+| `paper/main.tex` | Authoritative IEEE-style LaTeX entrypoint for the MICO paper; compile with Windows host LaTeX. |
+| `paper/sections/` | Split TeX section files included by `paper/main.tex`. |
+| `paper/related_work.bib` | BibTeX references for HDL, CIRCT, LLM-for-RTL, verification. |
+| `paper/*.md` | Historical drafts and notes; convert substantive content into `paper/main.tex`. |
+| `docs/01_language_spec_v0.md` | Minimal MICO syntax and static semantics. |
+| `docs/02_architecture.md` | Compiler architecture and lowering plan. |
+| `docs/03_llm_protocol.md` | How LLMs interact with MICO without being trusted for correctness. |
+| `config/llm-provider.example.yaml` | OpenCode Go provider template with OpenAI-compatible base URL, model profiles, and key handling policy. |
+| `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
+| `docs/08_roadmap.md` | Month-by-month roadmap. |
+| `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |
+| `rust_project/` | Rust workspace skeleton. |
+| `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
+| `benchmarks/` | Seed benchmark plan for module composition. |
+| `prompts/` | Prompt templates and JSON schema for LLM output. |
+| `source/` | Uploaded and edited source reports. |

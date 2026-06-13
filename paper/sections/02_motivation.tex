@@ -1,0 +1,21 @@
+\section{Motivation: Connection Entropy}
+
+We use connection entropy to describe the amplification from semantic design intent to primitive RTL connections:
+
+\begin{equation}
+  CE = \frac{\text{primitive signal edges}}{\text{semantic interface edges}}.
+\end{equation}
+
+A designer may intend a simple chain such as \texttt{producer.tx -> fifo.in -> consumer.rx}. In primitive RTL, that chain expands into many individual signal connections. As connection entropy grows, LLMs are more likely to omit ports, reverse ready/valid direction, mismatch payload widths, confuse reset polarity, cross clock domains without synchronization, generate inconsistent parameters, or produce wrappers that simulate only because the testbench misses the actual protocol bug.
+
+Prompt engineering can reduce some failures, but it does not change the underlying problem: free-form RTL text generation leaves too many coupled correctness obligations in one target string. MICO instead constrains the output space. The model proposes a structured design graph, adapter plan, and contract skeleton. The compiler rejects unsafe connections and returns structured diagnostics that can drive a repair prompt.
+
+The design principles are direct:
+
+\begin{itemize}
+  \item LLMs produce candidates, not trusted RTL.
+  \item Direction, width, protocol, and domain mismatches are compile-time errors.
+  \item CDC and RDC crossings require explicit adapters.
+  \item Automatically inserted buffers, pipelines, width adapters, or CDC FIFOs must appear in an elaboration report.
+  \item Verification collateral is generated from interface contracts.
+\end{itemize}

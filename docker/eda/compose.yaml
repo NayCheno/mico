@@ -1,0 +1,18 @@
+services:
+  eda:
+    build:
+      context: ../..
+      dockerfile: docker/eda/Dockerfile
+    image: mico-eda:ubuntu24.04
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace
+      - mico-cargo-registry:/opt/rust/cargo/registry
+      - mico-cargo-git:/opt/rust/cargo/git
+    command: /bin/bash
+
+volumes:
+  mico-cargo-registry:
+    name: mico-cargo-registry
+  mico-cargo-git:
+    name: mico-cargo-git

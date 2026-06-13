@@ -1,0 +1,51 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{url}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\title{MICO: Contract-Guided Module Composition for LLM-Assisted RTL Integration}
+
+\author{
+\IEEEauthorblockN{MICO Research Team}
+\IEEEauthorblockA{Research Scaffold}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Large language models can generate small Verilog fragments, but real RTL integration remains brittle because correctness depends on port binding, direction, width, handshake protocol, clock/reset domains, CDC/RDC handling, wrappers, and adapter selection. This paper presents MICO, a module-interface-contract-oriented hardware front-end language and Rust compiler framework. Rather than asking an LLM to emit final RTL directly, MICO restricts model output to interface schemas, module instance graphs, connection topology, adapter plans, and contract skeletons. A deterministic compiler then performs name resolution, interface compatibility checks, protocol/domain checks, adapter legality validation, and emits traceable SystemVerilog wrappers, SVA collateral, and future CIRCT HW/ESI/Verif/LTL IR. The paper defines the problem, language core, compiler architecture, and ModuleComposeBench evaluation plan, arguing that LLM-assisted hardware design should move from free-form RTL text generation toward compiler-checked module composition.
+\end{abstract}
+
+\begin{IEEEkeywords}
+RTL integration, large language models, hardware description languages, static checking, module composition, SystemVerilog
+\end{IEEEkeywords}
+
+\input{sections/01_introduction}
+\input{sections/02_motivation}
+\input{sections/03_related_work}
+\input{sections/04_language_core}
+\input{sections/05_rust_toolchain}
+\input{sections/06_llm_workflow}
+\input{sections/07_adapters}
+\input{sections/08_evaluation}
+\input{sections/09_limitations}
+\input{sections/10_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{related_work}
+
+\end{document}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paper LaTeX Writer"
+  short_description: "Host LaTeX workflow for papers"
+  default_prompt: "Use $paper-latex-writer to write and compile the MICO paper with the host LaTeX toolchain."

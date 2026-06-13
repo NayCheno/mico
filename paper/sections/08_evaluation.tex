@@ -1,0 +1,20 @@
+\section{Evaluation Plan: ModuleComposeBench}
+
+ModuleComposeBench evaluates whether a model can integrate existing RTL/IP modules, not merely generate standalone Verilog. Tasks include wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC insertion, and unsafe ambiguity rejection.
+
+Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO AST prompting without compiler-feedback repair, and MICO AST prompting with compiler-feedback repair.
+
+\begin{table}[t]
+  \centering
+  \caption{Evaluation dimensions}
+  \begin{tabular}{lll}
+    \toprule
+    Dimension & Direct RTL & MICO \\
+    \midrule
+    Output & RTL text & Typed compose graph \\
+    Error boundary & Simulation/review & Compiler + RTL tools \\
+    Repair unit & Code rewrite & JSON AST patch \\
+    CDC handling & Often implicit & Explicit adapter \\
+    \bottomrule
+  \end{tabular}
+\end{table}

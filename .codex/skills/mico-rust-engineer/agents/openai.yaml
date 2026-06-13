@@ -1,0 +1,4 @@
+interface:
+  display_name: "MICO Rust Engineer"
+  short_description: "Rust compiler workflow for MICO"
+  default_prompt: "Use $mico-rust-engineer to implement the next MICO Rust compiler milestone."

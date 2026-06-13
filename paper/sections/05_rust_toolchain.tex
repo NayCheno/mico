@@ -1,0 +1,12 @@
+\section{Rust Compiler Framework}
+
+MICO is implemented as a Rust workspace with four initial crates:
+
+\begin{itemize}
+  \item \texttt{mico\_ir}: AST, typed IR, diagnostics, and semantic checks.
+  \item \texttt{mico\_frontend}: lexer, parser, source maps, and recovery.
+  \item \texttt{mico\_codegen}: JSON IR, SystemVerilog, and SVA emission.
+  \item \texttt{mico\_cli}: \texttt{check}, \texttt{dump-ir}, \texttt{emit-sv}, and future benchmark commands.
+\end{itemize}
+
+The first implementation stage intentionally avoids a full MLIR binding. It emits conservative SystemVerilog wrappers, structured JSON IR, and SVA skeletons. A later stage can lower the typed IR into CIRCT HW modules, ESI channels, and Verif/LTL assertions. Rust is a pragmatic implementation language for this front end because its enums, pattern matching, ownership model, and test ecosystem fit compiler passes and diagnostics well.

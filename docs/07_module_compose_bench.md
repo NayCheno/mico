@@ -58,3 +58,19 @@ Include intentionally invalid tasks to measure rejection ability:
 - missing reset synchronizer;
 - ambiguous shorthand connection;
 - unsafe truncation.
+
+## Current seed runner
+
+The repository includes a seed runner for the first three tasks:
+
+```bash
+./scripts/eda-docker.sh bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+```
+
+The runner reads `benchmarks/module_compose_bench_manifest.yaml`, runs `mico_cli check`, emits SystemVerilog wrappers, and executes Verilator and Yosys smoke checks against `rtl/examples/mico_example_leafs.sv`. It writes JSON results under ignored `build/bench/`. The current runner records `sim_pass=false` and `formal_pass=false` because simulation and formal harnesses are not implemented yet.

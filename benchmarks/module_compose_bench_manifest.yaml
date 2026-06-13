@@ -12,15 +12,30 @@ seed_tasks:
   - id: T001_stream_fifo
     level: L1
     path: tasks/T001_stream_fifo
+    mico_source: rust_project/examples/stream_fifo.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [direct_connect, ready_valid]
+    expected:
+      compose_pass: true
+      lint_pass: true
   - id: T002_cdc_fifo
     level: L4
     path: tasks/T002_cdc_fifo
+    mico_source: rust_project/examples/cdc_fifo.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [clock_domain_mismatch, explicit_cdc_adapter]
+    expected:
+      compose_pass: true
+      lint_pass: true
   - id: T003_width_adapter
     level: L2
     path: tasks/T003_width_adapter
+    mico_source: rust_project/examples/width_adapter.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [width_mismatch, explicit_width_adapter]
+    expected:
+      compose_pass: true
+      lint_pass: true
 metrics:
   - Compose-Pass@1
   - Repair-Turns

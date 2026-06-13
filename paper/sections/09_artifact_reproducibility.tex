@@ -1,0 +1,33 @@
+\section{Artifact Reproducibility}
+
+MICO is packaged as a reproducible research artifact rather than a prompt-only demonstration. Rust compilation, unit tests, open-source RTL checks, benchmark seeds, and provider smoke tests run through repository scripts. Non-Vivado compilation and validation use the Ubuntu 24.04 Docker EDA environment; Vivado and LaTeX are host-tool exceptions.
+
+\begin{table}[t]
+  \centering
+  \caption{Current reproducibility gates}
+  \begin{tabular}{lll}
+    \toprule
+    Gate & Evidence & Status \\
+    \midrule
+    Rust & fmt/check/test & pass \\
+    EDA & Verilator+Yosys & pass \\
+    Bench & 3 seed tasks & 3/3 \\
+    LLM & JSON smoke & pass \\
+    Paper & latexmk & pass \\
+    Vivado & not required & n/a \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The release candidate checklist is:
+
+\begin{itemize}
+  \item freeze the Docker image recipe, Rust toolchain, prompts, provider profiles, and benchmark manifests;
+  \item run Rust format, check, and tests from a clean checkout;
+  \item run Verilator/Yosys smoke checks and ModuleComposeBench seed scoring;
+  \item run LLM provider validation with a redacted local configuration and record model/profile identifiers;
+  \item compile the paper with the host LaTeX toolchain and inspect citation, reference, and layout warnings;
+  \item verify that generated PDFs, build outputs, local YAML files, logs, and credentials are absent from the staged source tree.
+\end{itemize}
+
+For final submission, this checklist must be extended with full benchmark results, simulation/formal harness outputs, QoR reports, and archived prompts/responses for every evaluated model profile.

@@ -59,6 +59,10 @@ Backends and benchmark/report flows should move toward `TypedDesign` instead of 
 - v1 adds optional SystemVerilog interface emission.
 - v2 adds CIRCT emission.
 
+### SystemVerilog v0 naming convention
+
+The v0 SystemVerilog emitter flattens each interface field into primitive module ports named `<port>_<field>`, such as `tx_payload`, `tx_valid`, and `tx_ready`. Direct connection wires use `<src_inst>_<src_port>__<dst_inst>_<dst_port>_<field>`. Explicit adapters are emitted as named instances with `in_<field>` and `out_<field>` ports. Same-domain adapters use `clk`/`rst`; CDC adapters use `src_clk`/`src_rst` and `dst_clk`/`dst_rst`.
+
 ## Error handling
 
 All diagnostics should support:

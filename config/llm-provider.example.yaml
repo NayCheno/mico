@@ -14,6 +14,7 @@ policy:
     - low_cost_crosscheck
     - quality_code
     - quality_reasoning
+    - quality_deepseek
   promotion_gate:
     min_tasks: 20
     pass_rate_at_least: 0.80

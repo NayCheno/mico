@@ -10,6 +10,7 @@
 | `docs/02_architecture.md` | Compiler architecture and lowering plan. |
 | `docs/03_llm_protocol.md` | How LLMs interact with MICO without being trusted for correctness. |
 | `config/llm-provider.example.yaml` | OpenCode Go provider template with OpenAI-compatible base URL, model profiles, and key handling policy. |
+| `scripts/llm-provider-smoke.py` | SDK-backed provider validation and smoke request script; writes sanitized outputs under ignored `build/llm/`. |
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |
 | `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |

@@ -18,6 +18,20 @@ The LLM is never the source of correctness. It proposes structured design edits.
 
 Use `$opencode-go-provider` for OpenCode Go model access. Provider settings live in `config/llm-provider.example.yaml`; copy it to ignored local config before adding credentials. Use an SDK client, preferably the OpenAI SDK, with the OpenAI-compatible base URL `https://opencode.ai/zen/go/v1`; keep the API key in `OPENCODE_GO_API_KEY` or an ignored local YAML file.
 
+Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, and the API key source from YAML, calls Chat Completions through the OpenAI Python SDK, and writes sanitized JSON output under ignored `build/llm/`.
+
+Validate configuration without a paid request:
+
+```powershell
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
+```
+
+Run the cheap smoke profile:
+
+```powershell
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --output build/llm/provider_smoke.json
+```
+
 Run early prompt, schema, and benchmark harness tests with low-cost profiles first:
 
 1. `deepseek-v4-flash`

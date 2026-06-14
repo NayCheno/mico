@@ -4,7 +4,7 @@ Audit date: 2026-06-14.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, seed benchmark runner, LLM provider
+smoke flow, source-level JSON AST path, 57-task seed benchmark runner, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
 experiments + paper" artifact: large-scale LLM baselines, case studies, full
 formal coverage, timing QoR, and paper tables remain open milestones.
@@ -139,23 +139,25 @@ Current limitations:
 
 ### ModuleComposeBench
 
-`benchmarks/module_compose_bench_manifest.yaml` currently contains twelve seed
-tasks:
+`benchmarks/module_compose_bench_manifest.yaml` currently contains 57 seed
+tasks with required natural-language requests, module/interface/adapter
+inventories, expected diagnostics, and RTL collateral. The current deterministic
+scope is:
 
-| Task | Type | Level | Purpose |
-|---|---|---|---|
-| `T001_stream_fifo` | positive | L1 | FIFO stream chain |
-| `T002_cdc_fifo` | positive | L4 | explicit CDC adapter |
-| `T003_width_adapter` | positive | L2 | explicit width adapter |
-| `T004_direct_stream` | positive | L1 | direct ready/valid wiring |
-| `T005_invalid_width_no_adapter` | negative | L2 | reject width mismatch without adapter |
-| `T006_direct_cdc_without_adapter` | negative | L4 | reject direct CDC |
-| `T007_reversed_direction` | negative | L1 | reject reversed connection direction |
-| `T008_width_missing_contract` | negative | L2 | reject width adapter missing sink guarantee |
-| `T009_width_unknown_contract` | negative | L2 | reject unknown adapter guarantee |
-| `T010_width_wrong_contract_kind` | negative | L2 | reject guarantee invalid for width adapter |
-| `T011_cdc_missing_contract` | negative | L4 | reject CDC adapter missing sink guarantee |
-| `T012_cdc_wrong_contract_kind` | negative | L4 | reject guarantee invalid for CDC adapter |
+| Level | Total | Positive | Negative | Focus |
+|---|---:|---:|---:|---|
+| L1 | 10 | 9 | 1 | direct same-domain stream wiring |
+| L2 | 13 | 7 | 6 | width and parameter adaptation |
+| L3 | 10 | 6 | 4 | latency/backpressure and protocol seeds |
+| L4 | 10 | 5 | 5 | CDC/RDC adapter and rejection seeds |
+| L5 | 8 | 3 | 5 | bus/register wrapper seeds |
+| L6 | 6 | 1 | 5 | multi-IP subsystem seeds |
+
+The current expected result is 57/57 expected outcomes, 31/31 positive
+compose-pass, 31/31 positive lint/elaboration pass, 26/26 unsafe rejection, and
+57/57 JSON AST path equivalence. Supported subsets remain 4/4 positive
+simulations, 2/2 selected bounded formal proofs, and 4/4 structural QoR
+comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
 records expected diagnostic codes for negative tasks, emits SV/SVA/trace
@@ -164,9 +166,9 @@ supported, and writes `schema_version = mico.bench.results.v0`.
 
 Current limitations:
 
-- The benchmark is twelve seed tasks, not the target 50+ task suite.
-- L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem tasks
-  are not represented at publishable scale.
+- L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem entries
+  are seed approximations over the existing smoke RTL collateral, not dedicated
+  subsystem case studies.
 - Natural-language prompts, model baselines, repair loops, statistical
   aggregation, full formal coverage, and broader QoR are still pending.
 
@@ -191,7 +193,7 @@ Current limitations:
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section deliberately describe the artifact
-as a twelve-task seed result with four positive seed simulations and two
+as a 57-task deterministic seed result with four positive seed simulations and two
 selected bounded formal proofs plus structural Yosys QoR summaries. They do
 not claim full per-task formal proof, timing QoR, arbitrary LTL, or multi-model
 pass-rate improvements. Host LaTeX is the repository policy for paper builds.
@@ -226,10 +228,9 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Expand ModuleComposeBench to 50+ tasks across L1-L6.
-2. Add LLM batch baselines and compiler-feedback repair loops.
-3. Generate paper tables from benchmark artifacts.
-4. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
+1. Add LLM batch baselines and compiler-feedback repair loops over the 57-task manifest.
+2. Generate paper tables from benchmark artifacts.
+3. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
    validation scripts.
 
 ## Claim Boundary
@@ -238,6 +239,8 @@ Current claims supported by the repository:
 
 - MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
   small v0 language.
+- The 57-task manifest meets the publishable-scale deterministic benchmark
+  threshold and spans L1-L6 with 31 positive and 26 negative tasks.
 - The compiler rejects key unsafe seed cases: missing width adaptation, direct
   CDC, reversed direction, missing adapter guarantees, unknown adapter
   guarantees, and adapter guarantees invalid for their kind.
@@ -256,7 +259,6 @@ Current claims supported by the repository:
 
 Claims not yet supported:
 
-- 50-task benchmark maturity.
 - Multi-model or multi-baseline LLM pass-rate improvements.
 - Simulation coverage beyond the four positive seed tasks.
 - Formal proof coverage beyond the selected direct and width seeds.

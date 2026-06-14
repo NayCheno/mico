@@ -1,0 +1,15 @@
+clockdom Sys(clk, rst);
+
+extern module Producer @Sys {
+  out tx: MissingStream;
+}
+
+extern module Consumer @Sys {
+  in rx: MissingStream;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst c: Consumer;
+  connect p.tx -> c.rx;
+}

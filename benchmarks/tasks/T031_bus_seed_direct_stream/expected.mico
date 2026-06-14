@@ -1,0 +1,21 @@
+clockdom Sys(clk, rst);
+
+interface RegisterLikeStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: RegisterLikeStream;
+}
+
+extern module Consumer @Sys {
+  in rx: RegisterLikeStream;
+}
+
+compose Top @Sys {
+  inst register_source: Producer;
+  inst register_sink: Consumer;
+  connect register_source.tx -> register_sink.rx;
+}

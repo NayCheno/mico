@@ -1,0 +1,22 @@
+clockdom Sys(clk, rst);
+
+interface MonitorStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+  contract fire_event: valid && ready;
+}
+
+extern module Producer @Sys {
+  out tx: MonitorStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: MonitorStream32;
+}
+
+compose Top @Sys {
+  inst monitor_src: Producer;
+  inst monitor_sink: Consumer;
+  connect monitor_src.tx -> monitor_sink.rx;
+}

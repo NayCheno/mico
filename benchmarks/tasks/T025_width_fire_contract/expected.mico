@@ -1,0 +1,33 @@
+clockdom Sys(clk, rst);
+
+interface Fire32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract fire: valid & ready;
+}
+
+interface Fire64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract fire: valid & ready;
+}
+
+extern module Source32 @Sys {
+  out tx: Fire32;
+}
+
+extern module Sink64 @Sys {
+  in rx: Fire64;
+}
+
+adapter Widen32To64 from Fire32@Sys to Fire64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst source32: Source32;
+  inst sink64: Sink64;
+  adapt source32.tx -> Widen32To64 -> sink64.rx;
+}

@@ -1,0 +1,22 @@
+clockdom Sys(clk, rst);
+
+interface FireStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+  contract fire: valid & ready;
+}
+
+extern module Producer @Sys {
+  out tx: FireStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: FireStream32;
+}
+
+compose Top @Sys {
+  inst source: Producer;
+  inst sink: Consumer;
+  connect source.tx -> sink.rx;
+}

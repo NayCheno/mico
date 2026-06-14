@@ -5,7 +5,7 @@
 - Finalize novelty against CPPL, Chisel, Amaranth, CIRCT/ESI, Anvil, AutoSVA.
 - Freeze MICO v0 grammar.
 - Define ModuleComposeBench schema.
-- Choose first 10 tasks.
+- Seed ModuleComposeBench with deterministic tasks.
 
 ## Phase 1: Rust compiler MVP
 
@@ -41,7 +41,7 @@
 
 ## Phase 5: Benchmark and paper
 
-- Expand ModuleComposeBench to 50+ tasks.
+- Maintain the 57-task ModuleComposeBench seed manifest and add dedicated L3/L5/L6 case-study RTL.
 - Run baselines.
 - Report pass rates, repair turns, PPA, formal results.
 - Prepare open-source artifact.

@@ -1,0 +1,34 @@
+clockdom ProducerClk(aclk, arst_n);
+clockdom ConsumerClk(bclk, brst_n);
+
+interface DmaStream @ProducerClk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface AesStream @ConsumerClk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Dma @ProducerClk {
+  out tx: DmaStream;
+}
+
+extern module Aes @ConsumerClk {
+  in rx: AesStream;
+}
+
+adapter AsyncFifo32 from DmaStream@ProducerClk to AesStream@ConsumerClk {
+  kind cdc_fifo;
+  depth 2;
+  contract preserves_order;
+}
+
+compose Top @ProducerClk {
+  inst in_dma: Dma;
+  inst out_aes: Aes;
+  adapt in_dma.tx -> AsyncFifo32 -> out_aes.rx;
+}

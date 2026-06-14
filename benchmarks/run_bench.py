@@ -62,13 +62,57 @@ def load_manifest(path: Path) -> dict[str, Any]:
 def manifest_tasks(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     tasks = manifest.get("tasks")
     if isinstance(tasks, list):
-        return tasks
+        validated = [validate_task_metadata(task) for task in tasks]
+        minimum_tasks = manifest.get("minimum_tasks")
+        if isinstance(minimum_tasks, int) and len(validated) < minimum_tasks:
+            raise ValueError(
+                f"manifest declares minimum_tasks={minimum_tasks}, found {len(validated)}"
+            )
+        return validated
 
     # Backward compatibility for older manifests.
     seed_tasks = manifest.get("seed_tasks", [])
     if isinstance(seed_tasks, list) and all(isinstance(task, dict) for task in seed_tasks):
-        return seed_tasks
+        return [validate_task_metadata(task) for task in seed_tasks]
     raise ValueError("manifest must contain a tasks list")
+
+
+def validate_task_metadata(task: Any) -> dict[str, Any]:
+    if not isinstance(task, dict):
+        raise ValueError("benchmark task must be a YAML mapping")
+    task_id = task.get("id", "<unknown>")
+    required_strings = ["id", "level", "type", "path", "request", "mico_source", "rtl_collateral"]
+    for key in required_strings:
+        value = task.get(key)
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"task {task_id} is missing non-empty string field {key}")
+
+    if task["level"] not in {"L1", "L2", "L3", "L4", "L5", "L6"}:
+        raise ValueError(f"task {task_id} has invalid level {task['level']}")
+    if task["type"] not in {"positive", "negative"}:
+        raise ValueError(f"task {task_id} has invalid type {task['type']}")
+
+    for key in ["module_inventory", "interface_inventory", "adapter_inventory"]:
+        value = task.get(key)
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            raise ValueError(f"task {task_id} must define {key} as a string list")
+
+    expected = task.get("expected")
+    if not isinstance(expected, dict):
+        raise ValueError(f"task {task_id} is missing expected metadata")
+    for key in ["compose_pass", "lint_pass", "diagnostics"]:
+        if key not in expected:
+            raise ValueError(f"task {task_id} expected metadata is missing {key}")
+    if not isinstance(expected["compose_pass"], bool):
+        raise ValueError(f"task {task_id} expected.compose_pass must be boolean")
+    if not isinstance(expected["lint_pass"], bool):
+        raise ValueError(f"task {task_id} expected.lint_pass must be boolean")
+    diagnostics = expected["diagnostics"]
+    if not isinstance(diagnostics, list) or not all(
+        isinstance(item, str) for item in diagnostics
+    ):
+        raise ValueError(f"task {task_id} expected.diagnostics must be a string list")
+    return task
 
 
 def task_source(repo: Path, task: dict[str, Any]) -> Path:
@@ -605,11 +649,11 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
 
     lint_pass = verilator_pass and sva_lint_pass and iverilog_pass and yosys_pass
     if expected_accept and not formal_enabled:
-        notes = ["formal_pass is not run because this seed task has no formal harness."]
+        notes = ["formal_pass is not run because this task has no formal harness."]
     else:
         notes = []
     if expected_accept and not qor_enabled:
-        notes.append("qor is not run because this seed task has no QoR reference wrapper.")
+        notes.append("qor is not run because this task has no QoR reference wrapper.")
     if qor_available:
         notes.append("QoR timing is not reported by the current structural Yosys stat flow.")
 

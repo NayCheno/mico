@@ -1,0 +1,20 @@
+clockdom Sys(clk, rst);
+
+interface RawStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Producer @Sys {
+  out tx: RawStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: RawStream32;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst c: Consumer;
+  connect p.tx -> c.rx;
+}

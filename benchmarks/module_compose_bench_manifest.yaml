@@ -1,18 +1,28 @@
 name: ModuleComposeBench
-version: 0.1.0
+version: 0.2.0
+minimum_tasks: 50
 purpose: Evaluate LLM-assisted RTL module composition with typed interfaces, contracts, adapters, and clock-domain checks.
+scope_notes:
+  - The deterministic compiler baseline covers 57 hand-written seed tasks.
+  - L1/L2/L4 tasks use committed smoke RTL collateral for lint/elaboration.
+  - L3/L5/L6 entries are publishable-scale seed approximations until dedicated latency, bus, and subsystem RTL case studies are added.
+  - Simulation, formal, and QoR denominators include only tasks with committed harnesses or reference wrappers.
 levels:
   L1: same-domain direct interface connections
   L2: width and parameter adaptation
-  L3: backpressure and latency adapters
-  L4: CDC/RDC adapters
-  L5: bus bridge/register wrappers
-  L6: multi-IP subsystem integration
+  L3: backpressure and latency adapter seeds
+  L4: CDC/RDC adapter and rejection seeds
+  L5: bus bridge/register wrapper seeds
+  L6: multi-IP subsystem integration seeds
 tasks:
   - id: T001_stream_fifo
     level: L1
     type: positive
     path: tasks/T001_stream_fifo
+    request: Connect Producer.tx through Fifo to Consumer.rx on Sys using StreamU32 ready-valid flow control.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
     mico_source: rust_project/examples/stream_fifo.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_stream_fifo.sv
@@ -20,16 +30,21 @@ tasks:
     qor_reference: benchmarks/qor/reference/T001_stream_fifo_ref.sv
     qor_top: Top
     qor_reference_top: Top
-    expected_features: [direct_connect, ready_valid]
+    expected_features: [direct_connect, fifo_chain, ready_valid]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
       qor_available: true
+      diagnostics: []
   - id: T002_cdc_fifo
     level: L4
     type: positive
     path: tasks/T002_cdc_fifo
+    request: Bridge Dma.tx from Aclk to Aes.rx on Bclk through explicit AsyncFifo32 CDC adapter.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32A, StreamU32B]
+    adapter_inventory: [AsyncFifo32]
     mico_source: rust_project/examples/cdc_fifo.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_cdc_fifo.sv
@@ -43,10 +58,15 @@ tasks:
       lint_pass: true
       sim_pass: true
       qor_available: true
+      diagnostics: []
   - id: T003_width_adapter
     level: L2
     type: positive
     path: tasks/T003_width_adapter
+    request: Connect Source32.tx to Sink64.rx on Sys by inserting the explicit Widen32To64 width adapter.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: [Widen32To64]
     mico_source: rust_project/examples/width_adapter.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_width_adapter.sv
@@ -64,10 +84,15 @@ tasks:
       sim_pass: true
       formal_pass: true
       qor_available: true
+      diagnostics: []
   - id: T004_direct_stream
     level: L1
     type: positive
     path: tasks/T004_direct_stream
+    request: Directly connect Producer.tx to Consumer.rx on the Sys ready-valid stream.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
     mico_source: benchmarks/tasks/T004_direct_stream/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_direct_stream.sv
@@ -85,10 +110,15 @@ tasks:
       sim_pass: true
       formal_pass: true
       qor_available: true
+      diagnostics: []
   - id: T005_invalid_width_no_adapter
     level: L2
     type: negative
     path: tasks/T005_invalid_width_no_adapter
+    request: Reject a direct Source32.tx to Sink64.rx connection when no width adapter is declared.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: []
     mico_source: rust_project/examples/invalid_width.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [unsafe_width_without_adapter, compiler_rejection]
@@ -100,6 +130,10 @@ tasks:
     level: L4
     type: negative
     path: tasks/T006_direct_cdc_without_adapter
+    request: Reject a direct Dma.tx to Aes.rx connection across Aclk and Bclk without a CDC adapter.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32A, StreamU32B]
+    adapter_inventory: []
     mico_source: benchmarks/tasks/T006_direct_cdc_without_adapter/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [unsafe_cdc_without_adapter, compiler_rejection]
@@ -111,6 +145,10 @@ tasks:
     level: L1
     type: negative
     path: tasks/T007_reversed_direction
+    request: Reject a reversed connection that drives Producer.tx from Consumer.rx.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
     mico_source: benchmarks/tasks/T007_reversed_direction/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [direction_mismatch, compiler_rejection]
@@ -122,6 +160,10 @@ tasks:
     level: L2
     type: negative
     path: tasks/T008_width_missing_contract
+    request: Reject a width adapter whose guarantees do not cover the sink stable-payload requirement.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T008_width_missing_contract/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [missing_contract_guarantee, compiler_rejection]
@@ -133,6 +175,10 @@ tasks:
     level: L2
     type: negative
     path: tasks/T009_width_unknown_contract
+    request: Reject a width adapter that advertises an unknown contract guarantee.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T009_width_unknown_contract/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [unknown_contract_guarantee, compiler_rejection]
@@ -144,6 +190,10 @@ tasks:
     level: L2
     type: negative
     path: tasks/T010_width_wrong_contract_kind
+    request: Reject a width adapter that claims a guarantee reserved for CDC adapters.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T010_width_wrong_contract_kind/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [wrong_contract_guarantee_kind, compiler_rejection]
@@ -155,6 +205,10 @@ tasks:
     level: L4
     type: negative
     path: tasks/T011_cdc_missing_contract
+    request: Reject a CDC adapter whose guarantees do not cover the sink stable-payload requirement.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32A, StreamU32B]
+    adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T011_cdc_missing_contract/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [missing_cdc_contract_guarantee, compiler_rejection]
@@ -166,6 +220,10 @@ tasks:
     level: L4
     type: negative
     path: tasks/T012_cdc_wrong_contract_kind
+    request: Reject a CDC adapter that claims a guarantee reserved for width adapters.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32A, StreamU32B]
+    adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T012_cdc_wrong_contract_kind/invalid.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [wrong_cdc_contract_guarantee_kind, compiler_rejection]
@@ -173,10 +231,681 @@ tasks:
       compose_pass: false
       lint_pass: false
       diagnostics: [ContractViolation]
-seed_tasks:
-  - id: T001_stream_fifo
-  - id: T002_cdc_fifo
-  - id: T003_width_adapter
+  - id: T013_direct_stream_alt_names
+    level: L1
+    type: positive
+    path: tasks/T013_direct_stream_alt_names
+    request: Connect Producer.tx to Consumer.rx using renamed instances and a Packet32 ready-valid interface.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [Packet32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T013_direct_stream_alt_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, renamed_instances]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T014_direct_stream_fire_contract
+    level: L3
+    type: positive
+    path: tasks/T014_direct_stream_fire_contract
+    request: Connect Producer.tx to Consumer.rx while preserving a ready-valid fire contract.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [FireStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T014_direct_stream_fire_contract/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [fire_contract, ready_valid]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T015_fifo_chain_alt_names
+    level: L1
+    type: positive
+    path: tasks/T015_fifo_chain_alt_names
+    request: Connect Producer through Fifo to Consumer using alternate instance names on PacketStream32.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [PacketStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T015_fifo_chain_alt_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [fifo_chain, renamed_instances]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T016_fifo_chain_fire_contract
+    level: L3
+    type: positive
+    path: tasks/T016_fifo_chain_fire_contract
+    request: Connect Producer through Fifo to Consumer while preserving fire and stable-payload contracts.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [FireStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T016_fifo_chain_fire_contract/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [fifo_chain, fire_contract]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T017_direct_stream_contractless
+    level: L3
+    type: positive
+    path: tasks/T017_direct_stream_contractless
+    request: Accept a direct same-domain ready-valid stream connection with no explicit contract block.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [RawStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T017_direct_stream_contractless/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [contractless_seed, direct_connect]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T018_fifo_chain_contractless
+    level: L3
+    type: positive
+    path: tasks/T018_fifo_chain_contractless
+    request: Accept a FIFO stream chain without explicit contracts when interfaces and domains match.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [RawStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T018_fifo_chain_contractless/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [contractless_seed, fifo_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T019_latency_seed_fifo_chain
+    level: L3
+    type: positive
+    path: tasks/T019_latency_seed_fifo_chain
+    request: Model a latency-buffer seed by placing a FIFO stage between Producer and Consumer.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [LatencyStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T019_latency_seed_fifo_chain/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_seed, fifo_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T020_latency_seed_direct
+    level: L3
+    type: positive
+    path: tasks/T020_latency_seed_direct
+    request: Model a latency-free direct ready-valid seed between Producer and Consumer.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [LatencyStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T020_latency_seed_direct/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_seed, direct_connect]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T021_width_alt_interfaces
+    level: L2
+    type: positive
+    path: tasks/T021_width_alt_interfaces
+    request: Widen Source32.tx from NarrowStream to Sink64.rx on WideStream with Widen32To64.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [NarrowStream, WideStream]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T021_width_alt_interfaces/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, renamed_interfaces]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T022_width_with_latency_attr
+    level: L2
+    type: positive
+    path: tasks/T022_width_with_latency_attr
+    request: Widen a 32-bit stream to a 64-bit stream while retaining declared adapter attributes.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [Stream32A, Stream64A]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T022_width_with_latency_attr/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, adapter_attribute]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T023_width_renamed_instances
+    level: L2
+    type: positive
+    path: tasks/T023_width_renamed_instances
+    request: Widen a 32-bit source to a 64-bit sink with descriptive instance names.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [In32, Out64]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T023_width_renamed_instances/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, renamed_instances]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T024_width_contractless
+    level: L2
+    type: positive
+    path: tasks/T024_width_contractless
+    request: Accept an explicit width adapter when raw ready-valid interfaces have no contract requirements.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [Raw32, Raw64]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T024_width_contractless/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, contractless_seed]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T025_width_fire_contract
+    level: L2
+    type: positive
+    path: tasks/T025_width_fire_contract
+    request: Widen a fire-contract stream from Source32 to Sink64 using Widen32To64.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [Fire32, Fire64]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T025_width_fire_contract/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, fire_contract]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T026_width_alt_stream_names
+    level: L2
+    type: positive
+    path: tasks/T026_width_alt_stream_names
+    request: Widen Pixel32 input stream to Pixel64 output stream for an image-style data path seed.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [Pixel32, Pixel64]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T026_width_alt_stream_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, renamed_interfaces]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T027_cdc_alt_instances
+    level: L4
+    type: positive
+    path: tasks/T027_cdc_alt_instances
+    request: Bridge renamed DMA and AES instances across SrcClk and DstClk with AsyncFifo32.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [SrcStream, DstStream]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T027_cdc_alt_instances/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [cdc_adapter, renamed_instances]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T028_cdc_assumed_ready_valid
+    level: L4
+    type: positive
+    path: tasks/T028_cdc_assumed_ready_valid
+    request: Bridge a ready-valid DMA stream from Aclk to Bclk through AsyncFifo32 with declared CDC guarantees.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [CdcIn, CdcOut]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T028_cdc_assumed_ready_valid/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [cdc_adapter, contract_guarantee]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T029_cdc_contractless
+    level: L4
+    type: positive
+    path: tasks/T029_cdc_contractless
+    request: Accept an explicit CDC adapter between raw ready-valid streams when no contract is required.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [RawCdcIn, RawCdcOut]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T029_cdc_contractless/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [cdc_adapter, contractless_seed]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T030_cdc_alt_stream_names
+    level: L4
+    type: positive
+    path: tasks/T030_cdc_alt_stream_names
+    request: Bridge DmaStream to AesStream across ProducerClk and ConsumerClk using AsyncFifo32.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [DmaStream, AesStream]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T030_cdc_alt_stream_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [cdc_adapter, renamed_interfaces]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T031_bus_seed_direct_stream
+    level: L5
+    type: positive
+    path: tasks/T031_bus_seed_direct_stream
+    request: Model a register-like wrapper seed by directly wiring a Producer control stream to a Consumer status stream.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [RegisterLikeStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T031_bus_seed_direct_stream/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [bus_wrapper_seed, direct_connect]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T032_subsystem_seed_fifo_chain
+    level: L6
+    type: positive
+    path: tasks/T032_subsystem_seed_fifo_chain
+    request: Model a three-block subsystem seed with ingress Producer, buffering Fifo, and egress Consumer.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [SubsystemStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T032_subsystem_seed_fifo_chain/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [subsystem_seed, fifo_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T033_unknown_adapter_kind
+    level: L3
+    type: negative
+    path: tasks/T033_unknown_adapter_kind
+    request: Reject a latency/protocol adapter declaration whose kind is not in the v0 adapter library.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [MysteryAdapter]
+    mico_source: benchmarks/tasks/T033_unknown_adapter_kind/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_adapter_kind, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownAdapterKind]
+  - id: T034_unknown_module
+    level: L6
+    type: negative
+    path: tasks/T034_unknown_module
+    request: Reject a subsystem seed that instantiates a module absent from the inventory.
+    module_inventory: [Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T034_unknown_module/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_module, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownModule]
+  - id: T035_unknown_port
+    level: L5
+    type: negative
+    path: tasks/T035_unknown_port
+    request: Reject a register-wrapper style seed that names a nonexistent producer port.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T035_unknown_port/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_port, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownPort]
+  - id: T036_unknown_interface
+    level: L5
+    type: negative
+    path: tasks/T036_unknown_interface
+    request: Reject a wrapper seed whose module ports reference an interface absent from the inventory.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: []
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T036_unknown_interface/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_interface, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownInterface]
+  - id: T037_duplicate_instance
+    level: L6
+    type: negative
+    path: tasks/T037_duplicate_instance
+    request: Reject a subsystem seed that declares the same instance name twice.
+    module_inventory: [Producer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T037_duplicate_instance/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [duplicate_instance, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DuplicateInstance]
+  - id: T038_duplicate_port
+    level: L5
+    type: negative
+    path: tasks/T038_duplicate_port
+    request: Reject a wrapper module declaration with two ports named tx.
+    module_inventory: [Producer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T038_duplicate_port/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [duplicate_port, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DuplicatePort]
+  - id: T039_duplicate_field
+    level: L5
+    type: negative
+    path: tasks/T039_duplicate_field
+    request: Reject a bus/register style interface that declares duplicate payload fields.
+    module_inventory: [Producer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T039_duplicate_field/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [duplicate_field, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DuplicateField]
+  - id: T040_unknown_clock_domain
+    level: L6
+    type: negative
+    path: tasks/T040_unknown_clock_domain
+    request: Reject a subsystem seed whose interface references an undeclared clock domain.
+    module_inventory: [Producer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T040_unknown_clock_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_clock_domain, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownClockDomain]
+  - id: T041_same_domain_cdc_fifo
+    level: L4
+    type: negative
+    path: tasks/T041_same_domain_cdc_fifo
+    request: Reject a CDC FIFO adapter declaration whose source and sink domains are the same.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T041_same_domain_cdc_fifo/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [same_domain_cdc_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T042_width_adapter_cross_domain
+    level: L2
+    type: negative
+    path: tasks/T042_width_adapter_cross_domain
+    request: Reject a width adapter that attempts to cross from Aclk to Bclk.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32A, StreamU64B]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T042_width_adapter_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter_domain_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T043_skid_buffer_cross_domain
+    level: L3
+    type: negative
+    path: tasks/T043_skid_buffer_cross_domain
+    request: Reject a skid-buffer latency adapter that attempts to cross clock domains.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [Skid32]
+    mico_source: benchmarks/tasks/T043_skid_buffer_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_adapter_domain_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T044_pipeline_width_change
+    level: L3
+    type: negative
+    path: tasks/T044_pipeline_width_change
+    request: Reject a pipeline latency adapter that changes payload width.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32, StreamU64]
+    adapter_inventory: [Pipe32]
+    mico_source: benchmarks/tasks/T044_pipeline_width_change/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [pipeline_width_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T045_cdc_width_mismatch
+    level: L4
+    type: negative
+    path: tasks/T045_cdc_width_mismatch
+    request: Reject a CDC FIFO adapter whose source and sink ready-valid payload widths differ.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32A, StreamU64B]
+    adapter_inventory: [AsyncFifo32]
+    mico_source: benchmarks/tasks/T045_cdc_width_mismatch/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [cdc_width_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [WidthMismatch]
+  - id: T046_width_adapter_same_width
+    level: L2
+    type: negative
+    path: tasks/T046_width_adapter_same_width
+    request: Reject a width adapter declaration that maps StreamU32 to StreamU32 without changing width.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T046_width_adapter_same_width/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter_same_width, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T047_adapter_protocol_mismatch
+    level: L3
+    type: negative
+    path: tasks/T047_adapter_protocol_mismatch
+    request: Reject a width adapter between token-style interfaces that do not satisfy ready-valid protocol requirements.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [TokenSource, TokenSink]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T047_adapter_protocol_mismatch/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [protocol_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ProtocolMismatch]
+  - id: T048_direct_protocol_mismatch
+    level: L5
+    type: negative
+    path: tasks/T048_direct_protocol_mismatch
+    request: Reject a direct bridge between source-only and sink-only wrapper interfaces with incompatible types.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [SourceOnly, SinkOnly]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T048_direct_protocol_mismatch/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_protocol_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+  - id: T049_unknown_adapter_application
+    level: L6
+    type: negative
+    path: tasks/T049_unknown_adapter_application
+    request: Reject a subsystem connection that references an adapter absent from the declared adapter inventory.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T049_unknown_adapter_application/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_adapter_application, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownAdapter]
+  - id: T050_unknown_instance
+    level: L6
+    type: negative
+    path: tasks/T050_unknown_instance
+    request: Reject a subsystem connection that references an instance not declared in the compose block.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T050_unknown_instance/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_instance, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownInstance]
+  - id: T051_direct_stream_control_alias
+    level: L1
+    type: positive
+    path: tasks/T051_direct_stream_control_alias
+    request: Directly wire a control stream from Producer to Consumer using descriptive control-path instance names.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [ControlStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T051_direct_stream_control_alias/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, control_stream_seed]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T052_fifo_chain_status_alias
+    level: L1
+    type: positive
+    path: tasks/T052_fifo_chain_status_alias
+    request: Route a status stream from Producer through Fifo to Consumer using renamed status-path instances.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [StatusStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T052_fifo_chain_status_alias/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [fifo_chain, status_stream_seed]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T053_direct_stream_monitor_contract
+    level: L1
+    type: positive
+    path: tasks/T053_direct_stream_monitor_contract
+    request: Directly connect a monitor stream while retaining stable-payload and fire-event contract text.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [MonitorStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T053_direct_stream_monitor_contract/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, fire_contract]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T054_fifo_chain_raw_alias
+    level: L1
+    type: positive
+    path: tasks/T054_fifo_chain_raw_alias
+    request: Route a raw queue stream through Producer, Fifo, and Consumer without explicit contracts.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [RawQueueStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T054_fifo_chain_raw_alias/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [fifo_chain, contractless_seed]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T055_direct_stream_short_names
+    level: L1
+    type: positive
+    path: tasks/T055_direct_stream_short_names
+    request: Directly connect short-named Producer and Consumer instances over a short-named ready-valid interface.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [S]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T055_direct_stream_short_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, short_names]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T056_register_seed_fifo_chain
+    level: L5
+    type: positive
+    path: tasks/T056_register_seed_fifo_chain
+    request: Model a register wrapper data path by buffering a register write stream before a status sink.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [RegisterBusStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T056_register_seed_fifo_chain/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [bus_wrapper_seed, fifo_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T057_control_status_width_seed
+    level: L5
+    type: positive
+    path: tasks/T057_control_status_width_seed
+    request: Model a control/status wrapper seed by widening a 32-bit control word into a 64-bit status word.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [CtrlWord32, StatusWord64]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T057_control_status_width_seed/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [bus_wrapper_seed, width_adapter]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
 metrics:
   - Compose-Pass@1
   - Repair-Turns

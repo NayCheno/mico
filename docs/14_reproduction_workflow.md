@@ -66,25 +66,27 @@ Run the open-source RTL smoke flow in Docker:
 
 The smoke flow emits wrappers and SVA skeletons for stream FIFO, CDC FIFO, and width adapter examples. It checks wrappers with Verilator, Icarus, and Yosys, checks SVA skeletons with Verilator, and runs a minimal SymbiYosys smoke proof. The CDC leaf is smoke-only collateral, not a formal CDC proof.
 
-## ModuleComposeBench Seeds
+## ModuleComposeBench
 
-Run the seed benchmark runner:
+Run the deterministic benchmark runner:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 ```
 
-Expected current seed result:
+Expected current benchmark result:
 
-- `expected_outcome_pass: 12/12`
-- `compose_pass_1: 4/4` for positive tasks
-- `lint_pass: 4/4` for positive tasks
+- `expected_outcome_pass: 57/57`
+- `compose_pass_1: 31/31` for positive tasks
+- `lint_pass: 31/31` for positive tasks
 - `sim_pass: 4/4` for positive tasks with committed Icarus testbenches
 - `formal_pass: 2/2` for formal-enabled direct stream and width adapter tasks
 - `qor_available: 4/4` for positive tasks with committed reference wrappers
-- `unsafe_rejection: 8/8` for negative tasks
-- `json_ast_path: 12/12` for source-to-AST-to-check equivalence
+- `unsafe_rejection: 26/26` for negative tasks
+- `json_ast_path: 57/57` for source-to-AST-to-check equivalence
 - CDC formal proof and timing QoR remain not run.
+- L3/L5/L6 tasks are deterministic seed approximations until dedicated
+  latency, bus, and subsystem RTL case studies are committed.
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 
@@ -148,7 +150,7 @@ Before publishing a result or submission artifact:
 - Docker tool verification passes.
 - Rust format, check, and tests pass.
 - EDA smoke passes with Verilator, Icarus, Yosys, and the SymbiYosys smoke proof.
-- ModuleComposeBench seed runner writes a JSON result under `build/bench/` with
+- ModuleComposeBench runner writes a JSON result under `build/bench/` with
   expected, lint, simulation, selected formal, QoR, and unsafe-rejection
   summaries.
 - LLM provider validate-only passes; authenticated smoke passes when a local key is configured.

@@ -1,0 +1,21 @@
+clockdom Sys(clk, rst);
+
+interface S @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: S;
+}
+
+extern module Consumer @Sys {
+  in rx: S;
+}
+
+compose Top @Sys {
+  inst a: Producer;
+  inst b: Consumer;
+  connect a.tx -> b.rx;
+}

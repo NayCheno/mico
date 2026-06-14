@@ -36,7 +36,17 @@
 
 ## Dataset construction
 
-Start with 50 tasks:
+The current deterministic seed manifest has 57 tasks:
+
+- 10 L1 direct stream wiring tasks;
+- 13 L2 parameter/width tasks;
+- 10 L3 adapter/backpressure/latency seed tasks;
+- 10 L4 CDC/RDC tasks;
+- 8 L5 bus/register wrapper seed tasks;
+- 6 L6 subsystem integration seed tasks.
+
+The full LLM evaluation should preserve at least this 50+ task scale while
+adding dedicated non-smoke L3/L5/L6 RTL case studies:
 
 - 10 direct stream wiring tasks;
 - 10 parameter/width tasks;

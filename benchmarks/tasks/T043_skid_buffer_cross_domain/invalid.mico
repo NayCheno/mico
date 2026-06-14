@@ -1,0 +1,26 @@
+clockdom Aclk(aclk, arst_n);
+clockdom Bclk(bclk, brst_n);
+
+interface StreamU32 @Aclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Dma @Aclk {
+  out tx: StreamU32;
+}
+
+extern module Aes @Bclk {
+  in rx: StreamU32;
+}
+
+adapter Skid32 from StreamU32@Aclk to StreamU32@Bclk {
+  kind skid_buffer;
+  contract preserves_ready_valid;
+}
+
+compose Top @Aclk {
+  inst dma: Dma;
+  inst aes: Aes;
+  adapt dma.tx -> Skid32 -> aes.rx;
+}

@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface PacketStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: PacketStream32;
+}
+
+extern module Fifo @Sys {
+  in input: PacketStream32;
+  out output: PacketStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: PacketStream32;
+}
+
+compose Top @Sys {
+  inst source: Producer;
+  inst queue: Fifo;
+  inst sink: Consumer;
+  connect source.tx -> queue.input;
+  connect queue.output -> sink.rx;
+}

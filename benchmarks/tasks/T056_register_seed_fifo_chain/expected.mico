@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface RegisterBusStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: RegisterBusStream;
+}
+
+extern module Fifo @Sys {
+  in input: RegisterBusStream;
+  out output: RegisterBusStream;
+}
+
+extern module Consumer @Sys {
+  in rx: RegisterBusStream;
+}
+
+compose Top @Sys {
+  inst reg_write_source: Producer;
+  inst reg_buffer: Fifo;
+  inst reg_status_sink: Consumer;
+  connect reg_write_source.tx -> reg_buffer.input;
+  connect reg_buffer.output -> reg_status_sink.rx;
+}

@@ -1,0 +1,30 @@
+clockdom Aclk(aclk, arst_n);
+clockdom Bclk(bclk, brst_n);
+
+interface StreamU32A @Aclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+interface StreamU64B @Bclk {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Source32 @Aclk {
+  out tx: StreamU32A;
+}
+
+extern module Sink64 @Bclk {
+  in rx: StreamU64B;
+}
+
+adapter AsyncFifo32 from StreamU32A@Aclk to StreamU64B@Bclk {
+  kind cdc_fifo;
+}
+
+compose Top @Aclk {
+  inst s: Source32;
+  inst t: Sink64;
+  adapt s.tx -> AsyncFifo32 -> t.rx;
+}

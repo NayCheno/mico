@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface SubsystemStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: SubsystemStream;
+}
+
+extern module Fifo @Sys {
+  in input: SubsystemStream;
+  out output: SubsystemStream;
+}
+
+extern module Consumer @Sys {
+  in rx: SubsystemStream;
+}
+
+compose Top @Sys {
+  inst ingress: Producer;
+  inst buffer0: Fifo;
+  inst egress: Consumer;
+  connect ingress.tx -> buffer0.input;
+  connect buffer0.output -> egress.rx;
+}

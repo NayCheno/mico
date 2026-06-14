@@ -1,0 +1,27 @@
+clockdom Sys(clk, rst);
+
+interface TokenSource @Sys {
+  producer payload:u32;
+}
+
+interface TokenSink @Sys {
+  consumer payload:u32;
+}
+
+extern module Source32 @Sys {
+  out tx: TokenSource;
+}
+
+extern module Sink64 @Sys {
+  in rx: TokenSink;
+}
+
+adapter Widen32To64 from TokenSource@Sys to TokenSink@Sys {
+  kind width_adapter;
+}
+
+compose Top @Sys {
+  inst s: Source32;
+  inst t: Sink64;
+  adapt s.tx -> Widen32To64 -> t.rx;
+}

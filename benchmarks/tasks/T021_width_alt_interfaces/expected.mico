@@ -1,0 +1,33 @@
+clockdom Sys(clk, rst);
+
+interface NarrowStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface WideStream @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Source32 @Sys {
+  out tx: NarrowStream;
+}
+
+extern module Sink64 @Sys {
+  in rx: WideStream;
+}
+
+adapter Widen32To64 from NarrowStream@Sys to WideStream@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst src: Source32;
+  inst dst: Sink64;
+  adapt src.tx -> Widen32To64 -> dst.rx;
+}

@@ -1,0 +1,33 @@
+clockdom Sys(clk, rst);
+
+interface Pixel32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface Pixel64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Source32 @Sys {
+  out tx: Pixel32;
+}
+
+extern module Sink64 @Sys {
+  in rx: Pixel64;
+}
+
+adapter Widen32To64 from Pixel32@Sys to Pixel64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst pixels_in: Source32;
+  inst pixels_out: Sink64;
+  adapt pixels_in.tx -> Widen32To64 -> pixels_out.rx;
+}

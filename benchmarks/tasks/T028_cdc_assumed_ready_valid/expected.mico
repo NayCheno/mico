@@ -1,0 +1,35 @@
+clockdom Aclk(aclk, arst_n);
+clockdom Bclk(bclk, brst_n);
+
+interface CdcIn @Aclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface CdcOut @Bclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Dma @Aclk {
+  out tx: CdcIn;
+}
+
+extern module Aes @Bclk {
+  in rx: CdcOut;
+}
+
+adapter AsyncFifo32 from CdcIn@Aclk to CdcOut@Bclk {
+  kind cdc_fifo;
+  depth 8;
+  contract preserves_ready_valid;
+  contract cdc_fifo_assumed;
+}
+
+compose Top @Aclk {
+  inst dma0: Dma;
+  inst aes0: Aes;
+  adapt dma0.tx -> AsyncFifo32 -> aes0.rx;
+}

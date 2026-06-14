@@ -1,0 +1,31 @@
+clockdom Aclk(aclk, arst_n);
+clockdom Bclk(bclk, brst_n);
+
+interface RawCdcIn @Aclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+interface RawCdcOut @Bclk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Dma @Aclk {
+  out tx: RawCdcIn;
+}
+
+extern module Aes @Bclk {
+  in rx: RawCdcOut;
+}
+
+adapter AsyncFifo32 from RawCdcIn@Aclk to RawCdcOut@Bclk {
+  kind cdc_fifo;
+  depth 4;
+}
+
+compose Top @Aclk {
+  inst dma: Dma;
+  inst aes: Aes;
+  adapt dma.tx -> AsyncFifo32 -> aes.rx;
+}

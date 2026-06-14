@@ -1,0 +1,23 @@
+clockdom Sys(clk, rst);
+
+interface SourceOnly @Sys {
+  producer payload:u32;
+}
+
+interface SinkOnly @Sys {
+  consumer payload:u32;
+}
+
+extern module Source32 @Sys {
+  out tx: SourceOnly;
+}
+
+extern module Sink64 @Sys {
+  in rx: SinkOnly;
+}
+
+compose Top @Sys {
+  inst s: Source32;
+  inst t: Sink64;
+  connect s.tx -> t.rx;
+}

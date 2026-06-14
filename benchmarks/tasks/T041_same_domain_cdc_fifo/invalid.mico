@@ -1,0 +1,24 @@
+clockdom Sys(clk, rst);
+
+interface StreamU32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Producer @Sys {
+  out tx: StreamU32;
+}
+
+extern module Consumer @Sys {
+  in rx: StreamU32;
+}
+
+adapter AsyncFifo32 from StreamU32@Sys to StreamU32@Sys {
+  kind cdc_fifo;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst c: Consumer;
+  adapt p.tx -> AsyncFifo32 -> c.rx;
+}

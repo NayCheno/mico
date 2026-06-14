@@ -1,0 +1,27 @@
+clockdom Sys(clk, rst);
+
+interface RawQueueStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Producer @Sys {
+  out tx: RawQueueStream32;
+}
+
+extern module Fifo @Sys {
+  in input: RawQueueStream32;
+  out output: RawQueueStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: RawQueueStream32;
+}
+
+compose Top @Sys {
+  inst raw_src: Producer;
+  inst raw_fifo: Fifo;
+  inst raw_sink: Consumer;
+  connect raw_src.tx -> raw_fifo.input;
+  connect raw_fifo.output -> raw_sink.rx;
+}

@@ -1,0 +1,33 @@
+clockdom Sys(clk, rst);
+
+interface CtrlWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface StatusWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Source32 @Sys {
+  out tx: CtrlWord32;
+}
+
+extern module Sink64 @Sys {
+  in rx: StatusWord64;
+}
+
+adapter Widen32To64 from CtrlWord32@Sys to StatusWord64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst ctrl_source: Source32;
+  inst status_sink: Sink64;
+  adapt ctrl_source.tx -> Widen32To64 -> status_sink.rx;
+}

@@ -1,0 +1,15 @@
+clockdom Sys(clk, rst);
+
+interface StreamU32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+extern module Producer @Sys {
+  out tx: StreamU32;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst p: Producer;
+}

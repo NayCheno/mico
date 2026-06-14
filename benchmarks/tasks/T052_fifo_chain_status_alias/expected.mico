@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface StatusStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: StatusStream32;
+}
+
+extern module Fifo @Sys {
+  in input: StatusStream32;
+  out output: StatusStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: StatusStream32;
+}
+
+compose Top @Sys {
+  inst status_src: Producer;
+  inst status_fifo: Fifo;
+  inst status_sink: Consumer;
+  connect status_src.tx -> status_fifo.input;
+  connect status_fifo.output -> status_sink.rx;
+}

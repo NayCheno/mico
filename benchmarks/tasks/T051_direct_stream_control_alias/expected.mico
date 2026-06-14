@@ -1,0 +1,21 @@
+clockdom Sys(clk, rst);
+
+interface ControlStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: ControlStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: ControlStream32;
+}
+
+compose Top @Sys {
+  inst producer_a: Producer;
+  inst consumer_a: Consumer;
+  connect producer_a.tx -> consumer_a.rx;
+}

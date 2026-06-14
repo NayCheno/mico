@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface LatencyStream32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: LatencyStream32;
+}
+
+extern module Fifo @Sys {
+  in input: LatencyStream32;
+  out output: LatencyStream32;
+}
+
+extern module Consumer @Sys {
+  in rx: LatencyStream32;
+}
+
+compose Top @Sys {
+  inst producer0: Producer;
+  inst fifo0: Fifo;
+  inst consumer0: Consumer;
+  connect producer0.tx -> fifo0.input;
+  connect fifo0.output -> consumer0.rx;
+}

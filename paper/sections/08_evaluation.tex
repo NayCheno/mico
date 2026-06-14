@@ -32,16 +32,17 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
     \midrule
     L1 & direct streams & FIFO chain \\
     L2 & widths/params & width adapter \\
-    L3 & protocols & bridge wrapper \\
+    L3 & latency/protocol seeds & skid/pipeline checks \\
     L4 & CDC/RDC & async FIFO \\
-    L5 & subsystem & mixed adapters \\
+    L5 & bus/register seeds & control/status wrapper \\
+    L6 & subsystem seeds & multi-block chain \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Current Seed Results}
 
-The current artifact includes twelve seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus eight negative tasks covering missing width adaptation, direct CDC without an adapter, reversed direction, missing adapter contract guarantees, unknown guarantees, and guarantees invalid for a specific adapter kind. These are not yet the full benchmark, but they validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, positive-seed Icarus simulations, selected bounded SymbiYosys proofs, structural QoR aggregation, and benchmark aggregation path are reproducible.
+The current artifact includes 57 deterministic seed tasks: 31 positive composition tasks and 26 negative rejection tasks. The manifest spans L1--L6, including same-domain stream wiring, width adaptation, latency/backpressure seeds, CDC/RDC adapter tasks, bus/register wrapper seeds, subsystem seeds, and unsafe examples for direct CDC, width mismatches, reversed direction, missing or invalid contract guarantees, unknown declarations, duplicate declarations, protocol mismatches, and adapter misuse. The L3/L5/L6 entries are still seed approximations over the committed smoke RTL collateral rather than dedicated subsystem case studies, but they validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, positive-seed Icarus simulations, selected bounded SymbiYosys proofs, structural QoR aggregation, and benchmark aggregation path are reproducible.
 
 \begin{table}[t]
   \centering
@@ -50,15 +51,16 @@ The current artifact includes twelve seed tasks: four positive composition tasks
     \toprule
     Metric & Result & Scope \\
     \midrule
-    Expected outcome & 12/12 & all seed tasks \\
-    Compose pass & 4/4 & positive tasks \\
-    Lint/elab pass & 4/4 & positive tasks \\
-    Simulation pass & 4/4 & positive tasks \\
+    Expected outcome & 57/57 & all seed tasks \\
+    Compose pass & 31/31 & positive tasks \\
+    Lint/elab pass & 31/31 & positive tasks \\
+    Simulation pass & 4/4 & harness-enabled positives \\
     Selected formal pass & 2/2 & direct + width seeds \\
-    Structural QoR & 4/4 & positive tasks \\
-    Unsafe rejection & 8/8 & negative tasks \\
+    Structural QoR & 4/4 & reference-enabled positives \\
+    Unsafe rejection & 26/26 & negative tasks \\
+    JSON AST path & 57/57 & source-to-AST checks \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, extending simulation and formal harnesses, and reporting richer QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-seed simulations, prove the selected direct and width seed properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, and pass open-source EDA smoke checks in a controlled Docker environment.
+The paper therefore does not claim final LLM pass-rate improvements yet. The CCF-A submission target still requires running multiple LLM baselines, extending simulation and formal harnesses, adding dedicated subsystem case studies, and reporting richer QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute supported positive-seed simulations, prove the selected direct and width seed properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, and pass open-source EDA smoke checks in a controlled Docker environment.

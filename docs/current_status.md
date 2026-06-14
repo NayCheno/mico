@@ -35,10 +35,12 @@ This file is the short, traceable status page for the current repository. Use
   adapter seed tasks.
 - Structural Yosys QoR extraction for positive seed wrappers, compared against
   committed hand-written reference wrappers with generated CSV/TeX summaries.
-- Twelve ModuleComposeBench seed tasks with four positives and eight negatives.
+- 57 ModuleComposeBench seed tasks with required natural-language requests,
+  module/interface/adapter inventories, expected diagnostics, and explicit RTL
+  collateral.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
-- IEEE-style paper draft with conservative twelve-seed-task claims.
+- IEEE-style paper draft with conservative deterministic benchmark claims.
 
 ## Not Yet Implemented
 
@@ -50,30 +52,32 @@ This file is the short, traceable status page for the current repository. Use
 - Formal harnesses beyond the selected direct stream and width adapter seeds.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing/Vivado QoR and technology-mapped delay reporting.
-- 50+ task ModuleComposeBench suite.
 - LLM batch runner, baselines, compiler-feedback repair loop, caching, and
   failure taxonomy.
+- Dedicated non-smoke L3/L5/L6 RTL case studies beyond the current seed
+  approximations.
 - Paper tables generated from committed benchmark artifacts.
 - Reproducible subsystem case studies.
 - Full release-candidate validation script.
 
-## Current Seed Benchmark Boundary
+## Current ModuleComposeBench Boundary
 
-Current deterministic seed scope:
+Current deterministic benchmark scope:
 
-- Positive tasks: `T001_stream_fifo`, `T002_cdc_fifo`,
-  `T003_width_adapter`, `T004_direct_stream`.
-- Negative tasks: `T005_invalid_width_no_adapter`,
-  `T006_direct_cdc_without_adapter`, `T007_reversed_direction`,
-  `T008_width_missing_contract`, `T009_width_unknown_contract`,
-  `T010_width_wrong_contract_kind`, `T011_cdc_missing_contract`,
-  `T012_cdc_wrong_contract_kind`.
-- Expected current result: expected outcome 12/12, positive compose 4/4,
-  positive lint/elaboration smoke 4/4, positive simulation 4/4, unsafe
-  rejection 8/8, JSON AST path 12/12, selected bounded formal 2/2, structural
+- Total tasks: 57, with 31 positives and 26 negatives.
+- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 8, and L6 6.
+- The deterministic compiler baseline includes same-domain stream wiring,
+  width adaptation, latency/backpressure seed tasks, CDC/RDC adapter tasks,
+  bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
+- Expected current result: expected outcome 57/57, positive compose 31/31,
+  positive lint/elaboration smoke 31/31, positive simulation 4/4, unsafe
+  rejection 26/26, JSON AST path 57/57, selected bounded formal 2/2, structural
   QoR available 4/4.
 - `formal_pass` is claimed only for formal-enabled direct stream and width
   adapter seeds; CDC proof and timing QoR remain intentionally unclaimed.
+- L3/L5/L6 entries are seed approximations that exercise compiler and wrapper
+  paths over the existing smoke RTL collateral. They are not substitutes for the
+  planned subsystem case studies.
 
 ## Validation Commands
 

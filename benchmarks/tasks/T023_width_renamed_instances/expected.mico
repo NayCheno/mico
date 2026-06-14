@@ -1,0 +1,32 @@
+clockdom Sys(clk, rst);
+
+interface In32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface Out64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Source32 @Sys {
+  out tx: In32;
+}
+
+extern module Sink64 @Sys {
+  in rx: Out64;
+}
+
+adapter Widen32To64 from In32@Sys to Out64@Sys {
+  kind width_adapter;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst narrow_source: Source32;
+  inst wide_sink: Sink64;
+  adapt narrow_source.tx -> Widen32To64 -> wide_sink.rx;
+}

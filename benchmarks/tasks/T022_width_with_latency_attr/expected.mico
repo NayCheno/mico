@@ -1,0 +1,34 @@
+clockdom Sys(clk, rst);
+
+interface Stream32A @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface Stream64A @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Source32 @Sys {
+  out tx: Stream32A;
+}
+
+extern module Sink64 @Sys {
+  in rx: Stream64A;
+}
+
+adapter Widen32To64 from Stream32A@Sys to Stream64A@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  latency 0;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst s0: Source32;
+  inst t0: Sink64;
+  adapt s0.tx -> Widen32To64 -> t0.rx;
+}

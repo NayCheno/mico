@@ -25,7 +25,12 @@ set tasks {
   {T001_stream_fifo rtl/examples/mico_example_leafs.sv build/bench/T001_stream_fifo/top.sv benchmarks/qor/reference/T001_stream_fifo_ref.sv {clk}}
   {T003_width_adapter rtl/examples/mico_example_leafs.sv build/bench/T003_width_adapter/top.sv benchmarks/qor/reference/T003_width_adapter_ref.sv {clk}}
   {T058_streaming_accelerator_case rtl/case_studies/mico_case_studies.sv build/bench/T058_streaming_accelerator_case/top.sv benchmarks/qor/reference/T058_streaming_accelerator_case_ref.sv {clk}}
+  {T059_width_protocol_bridge_case rtl/case_studies/mico_case_studies.sv build/bench/T059_width_protocol_bridge_case/top.sv benchmarks/qor/reference/T059_width_protocol_bridge_case_ref.sv {clk}}
+  {T060_register_status_case rtl/case_studies/mico_case_studies.sv build/bench/T060_register_status_case/top.sv benchmarks/qor/reference/T060_register_status_case_ref.sv {clk}}
+  {T061_protocol_bridge_case rtl/case_studies/mico_case_studies.sv build/bench/T061_protocol_bridge_case/top.sv benchmarks/qor/reference/T061_protocol_bridge_case_ref.sv {clk}}
+  {T062_multi_ip_telemetry_case rtl/case_studies/mico_case_studies.sv build/bench/T062_multi_ip_telemetry_case/top.sv benchmarks/qor/reference/T062_multi_ip_telemetry_case_ref.sv {clk}}
   {T063_axi_apb_wrapper_case rtl/case_studies/mico_case_studies.sv build/bench/T063_axi_apb_wrapper_case/top.sv benchmarks/qor/reference/T063_axi_apb_wrapper_case_ref.sv {clk}}
+  {T064_video_filter_pipeline_case rtl/case_studies/mico_case_studies.sv build/bench/T064_video_filter_pipeline_case/top.sv benchmarks/qor/reference/T064_video_filter_pipeline_case_ref.sv {clk}}
 }
 
 proc json_escape {value} {

@@ -84,7 +84,7 @@ The current repository supports these claims when the release gate passes:
 - Nine reference-enabled positive tasks have structural Yosys area/wire and
   generic mapped-cell QoR summaries against committed hand-written wrappers.
 - A dedicated host-Vivado subset script synthesizes measurement-only copies for
-  four representative tasks (`T001`, `T003`, `T058`, and held-out `T063`) on
+  nine representative tasks (`T001`, `T003`, and `T058`--`T064`) on
   `xc7a35tcpg236-1` and reports LUT/FF/BRAM/DSP plus WNS summaries under
   ignored `build/reports/vivado-host/`.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
@@ -120,7 +120,7 @@ The current repository must not claim:
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, routed implementation, bitstream generation,
   technology-mapped delay claims for the complete benchmark, or Vivado QoR
-  beyond the dedicated four-task out-of-context subset.
+  beyond the dedicated nine-task out-of-context subset.
 - Arbitrary LTL proving or complete temporal contract verification.
 - Semantic correctness of arbitrary model-proposed repairs beyond the compiler,
   schema, and EDA gates that accept or reject the patched result.

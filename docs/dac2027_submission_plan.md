@@ -32,6 +32,32 @@ The DAC 2027 research CFP and submission deadline are not committed in this
 repository. When the official CFP appears, update this document, the paper
 schedule, and the release gate dates before claiming submission readiness.
 
+## CFP Monitor
+
+Latest manual check: 2026-06-14.
+
+| Item | Current record |
+|---|---|
+| Official DAC 2027 event page | Published at `https://dac.com/2026/events/dac-2027`; lists July 10--16, 2027 at the San Jose Convention Center. |
+| DAC 2027 Research CFP | Not published in the reviewed DAC 2026 web tree or IEEE CEDA announcements at this snapshot. |
+| Research manuscript deadline | Not published for DAC 2027. Do not infer a submission-ready deadline from prior years. |
+| Provisional page limit | Use the DAC 2026 research FAQ convention as a planning constraint only: six manuscript pages plus one references-only page. Replace when the DAC 2027 CFP appears. |
+| Provisional review policy | Treat the submission as double-blind, with no author names or affiliations in the manuscript, following the DAC 2026 FAQ until DAC 2027 publishes its own rules. |
+| Provisional topic fit | AI, Electronic Design Automation, Design, Systems, and Verification/Validation are the nearest DAC 2026-style topic areas; re-map to DAC 2027 topics when available. |
+
+Monthly update rule:
+
+- Re-check the official DAC 2027 event page, DAC call-for-contributions pages,
+  and IEEE CEDA announcements.
+- If the official Research CFP appears, update the deadline, abstract deadline,
+  page limit, anonymity policy, conflict-of-interest policy, rebuttal/review
+  policy, artifact policy, and topic taxonomy in this file before changing
+  paper claims.
+- Set the internal artifact and paper freeze no later than six weeks before the
+  official manuscript deadline. Until the DAC 2027 deadline is known, use
+  2026-10-07 as the conservative provisional freeze date, based on the DAC 2026
+  mid-November research-manuscript cadence.
+
 ## Claim Branches
 
 The paper must choose exactly one main contribution branch before final
@@ -120,9 +146,9 @@ Internal hard stops are used until the official DAC 2027 CFP is available.
 | 2026-07 | Claim freeze and full-check baseline | current deterministic evidence reproduced |
 | 2026-08 | LLM prompt/model pilot | nonzero structured positive pass or clear negative taxonomy |
 | 2026-09 | Full LLM matrix and split policy | dev/test or held-out result basis fixed |
-| 2026-10 | Verification, QoR, and case-study hardening | directed simulation/formal and QoR denominators increased |
-| 2026-11 | DAC paper full draft v1 | tables, statistics, threats, and related work complete |
-| 2026-12 | Artifact release candidate | manifest, hashes, sanitized results, and release guide complete |
+| 2026-10 | Provisional paper/artifact freeze | directed verification, QoR, paper, and release manifest ready no later than the six-week safety margin |
+| 2026-11 | Submission sprint if DAC follows the 2026 cadence | only CFP-driven formatting, metadata, COI, and anonymity fixes remain |
+| 2026-12 | Post-submission archive hardening | immutable external archive and release tag only after human approval |
 
 ## Environment Policy
 

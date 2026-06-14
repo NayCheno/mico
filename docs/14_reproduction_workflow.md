@@ -138,6 +138,10 @@ Generate aggregate CSV and paper-table snippets from deterministic results:
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_validate.json --aggregate-result build/bench/aggregate_results.json"
 ```
 
+The schema validation command also checks
+`benchmarks/module_compose_bench_manifest.yaml` against
+`benchmarks/manifest_schema.json`.
+
 This writes `build/bench/aggregate_results.json`, deterministic CSVs under
 `build/bench/`, and LaTeX snippets under `build/paper_tables/`. The
 deterministic aggregation includes the main result table, per-level breakdown,

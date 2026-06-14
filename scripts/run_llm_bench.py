@@ -128,14 +128,19 @@ def resolve_profiles(config: dict[str, Any], names: list[str]) -> list[Profile]:
 
 def load_tasks(manifest_path: Path, task_ids: set[str] | None, limit: int | None) -> list[dict[str, Any]]:
     manifest = load_yaml(manifest_path)
+    validate_split_policy(manifest)
     tasks = manifest.get("tasks")
     if not isinstance(tasks, list):
         raise ValueError("benchmark manifest must contain a tasks list")
     selected = []
+    seen: set[str] = set()
     for task in tasks:
         if not isinstance(task, dict):
             raise ValueError("benchmark task must be a mapping")
         task_id = str(task.get("id", ""))
+        if task_id in seen:
+            raise ValueError(f"duplicate task id {task_id}")
+        seen.add(task_id)
         if task_ids is not None and task_id not in task_ids:
             continue
         validate_task(task)
@@ -143,6 +148,21 @@ def load_tasks(manifest_path: Path, task_ids: set[str] | None, limit: int | None
         if limit is not None and len(selected) >= limit:
             break
     return selected
+
+
+def validate_split_policy(manifest: dict[str, Any]) -> None:
+    policy = manifest.get("split_policy")
+    if not isinstance(policy, dict):
+        raise ValueError("benchmark manifest must define split_policy")
+    public_dev = policy.get("public_dev")
+    held_out = policy.get("held_out")
+    controls = policy.get("prompt_leakage_controls")
+    if not isinstance(public_dev, dict) or not public_dev.get("task_selector"):
+        raise ValueError("split_policy.public_dev.task_selector is required")
+    if not isinstance(held_out, dict) or not held_out.get("release_policy"):
+        raise ValueError("split_policy.held_out.release_policy is required")
+    if not isinstance(controls, list) or not all(isinstance(item, str) and item for item in controls):
+        raise ValueError("split_policy.prompt_leakage_controls must be a non-empty string list")
 
 
 def validate_task(task: dict[str, Any]) -> None:
@@ -157,15 +177,32 @@ def validate_task(task: dict[str, Any]) -> None:
         "module_inventory",
         "interface_inventory",
         "adapter_inventory",
+        "expected_features",
         "expected",
     ]:
         if key not in task:
             raise ValueError(f"task {task_id} is missing {key}")
     if task["type"] not in {"positive", "negative"}:
         raise ValueError(f"task {task_id} has invalid type")
+    for key in ["module_inventory", "interface_inventory", "adapter_inventory", "expected_features"]:
+        value = task.get(key)
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            raise ValueError(f"task {task_id} must define {key} as a string list")
+    if not task["expected_features"]:
+        raise ValueError(f"task {task_id} must define at least one expected feature")
     expected = task["expected"]
-    if not isinstance(expected, dict) or "diagnostics" not in expected:
-        raise ValueError(f"task {task_id} must include expected diagnostics")
+    if not isinstance(expected, dict):
+        raise ValueError(f"task {task_id} must include expected metadata")
+    for key in ["compose_pass", "lint_pass", "diagnostics"]:
+        if key not in expected:
+            raise ValueError(f"task {task_id} expected metadata is missing {key}")
+    if not isinstance(expected["compose_pass"], bool) or not isinstance(expected["lint_pass"], bool):
+        raise ValueError(f"task {task_id} expected pass fields must be boolean")
+    diagnostics = expected["diagnostics"]
+    if not isinstance(diagnostics, list) or not all(isinstance(item, str) for item in diagnostics):
+        raise ValueError(f"task {task_id} must include string expected diagnostics")
+    if task["type"] == "negative" and not diagnostics:
+        raise ValueError(f"negative task {task_id} must list expected diagnostics")
 
 
 def run(

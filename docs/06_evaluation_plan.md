@@ -56,6 +56,12 @@ expanding the dedicated non-smoke L3/L5/L6 RTL case-study set:
 - 5 bus bridge tasks;
 - 5 subsystem integration tasks.
 
+The committed manifest is the public-development split. A final LLM advantage
+claim requires a separately versioned held-out split that is not used for prompt
+iteration. Prompt construction may use task requests, inventories, and
+interface/module declarations, but it must not include committed expected
+compose bodies, diagnostics, testbench checks, or QoR references.
+
 ## Ablations
 
 - No contract checks.

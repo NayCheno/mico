@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import yaml
 from jsonschema import validators
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
@@ -18,6 +19,7 @@ from referencing.jsonschema import DRAFT202012
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 SCHEMA_FILES = {
+    "bench_manifest": REPO_ROOT / "benchmarks" / "manifest_schema.json",
     "diagnostics": REPO_ROOT / "schemas" / "diagnostics.schema.json",
     "ast": REPO_ROOT / "schemas" / "mico_ast.schema.json",
     "ir": REPO_ROOT / "schemas" / "mico_ir.schema.json",
@@ -49,6 +51,11 @@ def load_json(path: Path) -> Any:
         return json.load(fh)
 
 
+def load_yaml(path: Path) -> Any:
+    with path.open("r", encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
+
 def load_schemas() -> Registry:
     registry = Registry()
     for path in SCHEMA_FILES.values():
@@ -76,6 +83,27 @@ def validate_instance(
 ) -> None:
     schema = load_json(SCHEMA_FILES[schema_name])
     instance = load_json(artifact)
+    validator = make_validator(schema, registry)
+    errors = sorted(validator.iter_errors(instance), key=lambda err: list(err.path))
+    if errors:
+        print(f"ERROR: {name} failed {schema_name} schema: {display(artifact)}", file=sys.stderr)
+        for error in errors[:20]:
+            location = "/".join(str(part) for part in error.path) or "<root>"
+            print(f"  - {location}: {error.message}", file=sys.stderr)
+        if len(errors) > 20:
+            print(f"  ... {len(errors) - 20} more errors", file=sys.stderr)
+        raise SystemExit(1)
+    print(f"OK {name}: {display(artifact)}")
+
+
+def validate_yaml_instance(
+    name: str,
+    schema_name: str,
+    artifact: Path,
+    registry: Registry,
+) -> None:
+    schema = load_json(SCHEMA_FILES[schema_name])
+    instance = load_yaml(artifact)
     validator = make_validator(schema, registry)
     errors = sorted(validator.iter_errors(instance), key=lambda err: list(err.path))
     if errors:
@@ -239,6 +267,11 @@ def main() -> int:
     )
     parser.add_argument("--no-generate-smoke", action="store_true")
     parser.add_argument("--bench-result", action="append", default=[])
+    parser.add_argument(
+        "--bench-manifest",
+        default="benchmarks/module_compose_bench_manifest.yaml",
+        help="ModuleComposeBench YAML manifest to validate against benchmarks/manifest_schema.json.",
+    )
     parser.add_argument("--llm-run", action="append", default=[])
     parser.add_argument("--llm-bench", action="append", default=[])
     parser.add_argument("--aggregate-result", action="append", default=[])
@@ -254,6 +287,13 @@ def main() -> int:
         generated = generate_smoke_records(repo_path(args.output_dir), repo_path(args.llm_config))
         for key, values in generated.items():
             artifacts.setdefault(key, []).extend(values)
+
+    if args.bench_manifest:
+        manifest_path = repo_path(args.bench_manifest)
+        if not manifest_path.exists():
+            print(f"ERROR: missing bench manifest: {display(manifest_path)}", file=sys.stderr)
+            return 1
+        validate_yaml_instance("bench_manifest", "bench_manifest", manifest_path, registry)
 
     append_paths(artifacts, "bench", args.bench_result)
     append_paths(artifacts, "llm_run", args.llm_run)

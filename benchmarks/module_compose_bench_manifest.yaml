@@ -15,6 +15,17 @@ levels:
   L4: CDC/RDC adapter and rejection seeds
   L5: bus bridge/register wrapper seeds
   L6: multi-IP subsystem integration seeds
+split_policy:
+  public_dev:
+    description: All committed tasks in this manifest are public development tasks used for deterministic regression, documentation, and prompt debugging.
+    task_selector: T001-T062
+  held_out:
+    status: external_not_committed
+    description: Final LLM advantage claims require a separately versioned held-out task manifest that is not used for prompt iteration before scoring.
+    release_policy: Archive sanitized held-out manifest, prompts, result JSON, and aggregate hashes as release assets after scoring; do not commit secrets or raw provider payloads.
+  prompt_leakage_controls:
+    - LLM prompts include the natural-language request, inventories, and interface/module declarations but strip compose bodies from committed expected MICO sources.
+    - Expected solutions, diagnostics, testbenches, formal harnesses, and QoR references are committed for deterministic reproduction and are not inserted into benchmark prompts.
 tasks:
   - id: T001_stream_fifo
     level: L1

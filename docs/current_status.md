@@ -53,12 +53,16 @@ This file is the short, traceable status page for the current repository. Use
   optional LLM batch records into CSV plus LaTeX table snippets for main
   results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
   token/cost, paired comparisons, and failure taxonomy.
-- JSON Schema validation gate for diagnostics, source AST, typed IR,
-  traceability, repair patches, deterministic benchmark results, LLM run
+- JSON Schema validation gate for the ModuleComposeBench manifest,
+  diagnostics, source AST, typed IR, traceability, repair patches,
+  deterministic benchmark results, LLM run
   records, LLM benchmark records, and aggregate results.
 - 62 ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
   collateral, and five dedicated subsystem case studies.
+- Documented public-development and held-out split policy. The committed
+  manifest is the public development split; prompt construction strips expected
+  compose bodies from MICO sources to avoid solution leakage.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
 - Batch LLM benchmark runner for the 62-task manifest with Direct Verilog,

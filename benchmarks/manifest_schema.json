@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/benchmarks/manifest_schema.json",
+  "title": "ModuleComposeBench manifest v0",
+  "type": "object",
+  "required": [
+    "name",
+    "version",
+    "minimum_tasks",
+    "purpose",
+    "scope_notes",
+    "levels",
+    "split_policy",
+    "tasks",
+    "metrics"
+  ],
+  "properties": {
+    "name": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "minimum_tasks": {"type": "integer", "minimum": 1},
+    "purpose": {"type": "string", "minLength": 1},
+    "scope_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "levels": {
+      "type": "object",
+      "required": ["L1", "L2", "L3", "L4", "L5", "L6"],
+      "properties": {
+        "L1": {"type": "string", "minLength": 1},
+        "L2": {"type": "string", "minLength": 1},
+        "L3": {"type": "string", "minLength": 1},
+        "L4": {"type": "string", "minLength": 1},
+        "L5": {"type": "string", "minLength": 1},
+        "L6": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "split_policy": {
+      "type": "object",
+      "required": ["public_dev", "held_out", "prompt_leakage_controls"],
+      "properties": {
+        "public_dev": {
+          "type": "object",
+          "required": ["description", "task_selector"],
+          "properties": {
+            "description": {"type": "string", "minLength": 1},
+            "task_selector": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        },
+        "held_out": {
+          "type": "object",
+          "required": ["status", "description", "release_policy"],
+          "properties": {
+            "status": {"type": "string", "enum": ["external_not_committed", "not_applicable"]},
+            "description": {"type": "string", "minLength": 1},
+            "release_policy": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        },
+        "prompt_leakage_controls": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/task"}
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "string_list": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "id",
+        "level",
+        "type",
+        "path",
+        "request",
+        "module_inventory",
+        "interface_inventory",
+        "adapter_inventory",
+        "mico_source",
+        "rtl_collateral",
+        "expected_features",
+        "expected"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^T[0-9]{3}_[A-Za-z0-9_]+$"},
+        "level": {"type": "string", "enum": ["L1", "L2", "L3", "L4", "L5", "L6"]},
+        "type": {"type": "string", "enum": ["positive", "negative"]},
+        "path": {"type": "string", "minLength": 1},
+        "request": {"type": "string", "minLength": 12},
+        "module_inventory": {"$ref": "#/$defs/string_list"},
+        "interface_inventory": {"$ref": "#/$defs/string_list"},
+        "adapter_inventory": {"$ref": "#/$defs/string_list"},
+        "mico_source": {"type": "string", "minLength": 1},
+        "rtl_collateral": {"type": "string", "minLength": 1},
+        "sim_testbench": {"type": "string", "minLength": 1},
+        "sim_top": {"type": "string", "minLength": 1},
+        "formal_harness": {"type": "string", "minLength": 1},
+        "formal_top": {"type": "string", "minLength": 1},
+        "formal_depth": {"type": "integer", "minimum": 1},
+        "qor_reference": {"type": "string", "minLength": 1},
+        "qor_top": {"type": "string", "minLength": 1},
+        "qor_reference_top": {"type": "string", "minLength": 1},
+        "expected_features": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "expected": {
+          "type": "object",
+          "required": ["compose_pass", "lint_pass", "diagnostics"],
+          "properties": {
+            "compose_pass": {"type": "boolean"},
+            "lint_pass": {"type": "boolean"},
+            "sim_pass": {"type": "boolean"},
+            "formal_pass": {"type": "boolean"},
+            "qor_available": {"type": "boolean"},
+            "diagnostics": {"$ref": "#/$defs/string_list"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "dependentRequired": {
+        "sim_testbench": ["sim_top"],
+        "sim_top": ["sim_testbench"],
+        "formal_harness": ["formal_top"],
+        "formal_top": ["formal_harness"],
+        "qor_reference": ["qor_top", "qor_reference_top"]
+      },
+      "additionalProperties": false
+    }
+  }
+}

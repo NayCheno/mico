@@ -163,7 +163,10 @@ Current limitations:
 `benchmarks/module_compose_bench_manifest.yaml` currently contains 62 tasks:
 57 hand-written seeds plus 5 dedicated subsystem case studies with required
 natural-language requests, module/interface/adapter inventories, expected
-diagnostics, and RTL collateral. The current deterministic scope is:
+diagnostics, expected feature tags, and RTL collateral. The manifest is checked
+against `benchmarks/manifest_schema.json`, and the runner also verifies
+committed task, source, RTL, simulation, formal, and QoR paths. The current
+deterministic scope is:
 
 | Level | Total | Positive | Negative | Focus |
 |---|---:|---:|---:|---|
@@ -184,6 +187,12 @@ structural plus generic-mapped QoR comparisons.
 records expected diagnostic codes for negative tasks, emits SV/SVA/trace
 artifacts for positive tasks, runs open-source EDA smoke checks where
 supported, and writes `schema_version = mico.bench.results.v0`.
+
+The committed task set is documented as the public development split. Held-out
+LLM claims require a separately versioned manifest and sanitized result archive
+that is not used for prompt iteration. The batch prompt builder includes task
+requests, inventories, and interface/module declarations, but strips committed
+`compose` bodies from expected MICO sources before constructing prompts.
 
 Current limitations:
 

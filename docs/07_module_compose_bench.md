@@ -9,26 +9,36 @@ A benchmark for LLM-assisted composition of existing RTL/IP modules. It evaluate
 ```yaml
 id: T001_stream_fifo
 level: L1
-description: Connect producer -> fifo -> consumer using StreamU32.
+type: positive
+path: tasks/T001_stream_fifo
 request: Connect Producer.tx through Fifo to Consumer.rx on Sys using StreamU32 ready-valid flow control.
-inputs:
-  modules:
-    - Producer
-    - Fifo
-    - Consumer
-  interface_library:
-    - StreamU32
-requirements:
-  - p.tx connects to f.input
-  - f.output connects to c.rx
-  - all endpoints are in Sys clock domain
+module_inventory: [Producer, Fifo, Consumer]
+interface_inventory: [StreamU32]
+adapter_inventory: []
+mico_source: rust_project/examples/stream_fifo.mico
+rtl_collateral: rtl/examples/mico_example_leafs.sv
+sim_testbench: benchmarks/sim/tb_stream_fifo.sv
+sim_top: tb_stream_fifo
+qor_reference: benchmarks/qor/reference/T001_stream_fifo_ref.sv
+qor_top: Top
+qor_reference_top: Top
+expected_features: [direct_connect, fifo_chain, ready_valid]
 expected:
   compose_pass: true
   lint_pass: true
   sim_pass: true
-  formal_pass: false
   qor_available: true
+  diagnostics: []
 ```
+
+The machine-checked manifest schema is
+`benchmarks/manifest_schema.json`. It requires task IDs, level/type, public
+request text, inventories, MICO source, RTL collateral, expected features, and
+expected diagnostics. Optional simulation, formal, and QoR fields are paired
+with their required top modules. `benchmarks/run_bench.py` additionally checks
+that committed paths exist, task IDs are unique, every level has at least one
+positive and one negative task, and negative tasks declare expected diagnostic
+codes.
 
 ## Levels
 
@@ -62,6 +72,22 @@ Include intentionally invalid tasks to measure rejection ability:
 - ambiguous shorthand connection;
 - unsafe truncation.
 
+## Split And Leakage Policy
+
+The committed `T001`--`T062` tasks are the public development split. They are
+used for deterministic regression, documentation, prompt debugging, and
+artifact reproduction. Full LLM advantage claims require a separately versioned
+held-out manifest that is not used during prompt iteration; sanitized held-out
+prompts, results, aggregate hashes, and manifest metadata should be archived as
+release assets after scoring.
+
+Prompt construction intentionally separates public requests from committed
+solutions. The LLM batch runner includes the natural-language request,
+inventories, and interface/module declarations, but strips the `compose` body
+from committed expected MICO sources. Expected solutions, diagnostics,
+testbenches, formal harnesses, and QoR references remain committed for
+deterministic reproduction and are not inserted into benchmark prompts.
+
 ## Current runner
 
 The repository includes a deterministic runner for the current positive and
@@ -78,7 +104,8 @@ On Windows PowerShell:
 ```
 
 The runner reads `benchmarks/module_compose_bench_manifest.yaml`, validates
-required task metadata, runs `mico_cli check --format json`, emits
+required task metadata and committed collateral paths, runs
+`mico_cli check --format json`, emits
 SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and
 executes Verilator, Icarus, and Yosys smoke checks against
 `rtl/examples/mico_example_leafs.sv` and dedicated case-study collateral under

@@ -59,10 +59,12 @@ def load_manifest(path: Path) -> dict[str, Any]:
     return data
 
 
-def manifest_tasks(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+def manifest_tasks(manifest: dict[str, Any], repo: Path) -> list[dict[str, Any]]:
     tasks = manifest.get("tasks")
     if isinstance(tasks, list):
-        validated = [validate_task_metadata(task) for task in tasks]
+        validate_split_policy(manifest)
+        validated = [validate_task_metadata(task, repo) for task in tasks]
+        validate_task_set(validated)
         minimum_tasks = manifest.get("minimum_tasks")
         if isinstance(minimum_tasks, int) and len(validated) < minimum_tasks:
             raise ValueError(
@@ -73,11 +75,40 @@ def manifest_tasks(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     # Backward compatibility for older manifests.
     seed_tasks = manifest.get("seed_tasks", [])
     if isinstance(seed_tasks, list) and all(isinstance(task, dict) for task in seed_tasks):
-        return [validate_task_metadata(task) for task in seed_tasks]
+        validated = [validate_task_metadata(task, repo) for task in seed_tasks]
+        validate_task_set(validated)
+        return validated
     raise ValueError("manifest must contain a tasks list")
 
 
-def validate_task_metadata(task: Any) -> dict[str, Any]:
+def validate_split_policy(manifest: dict[str, Any]) -> None:
+    policy = manifest.get("split_policy")
+    if not isinstance(policy, dict):
+        raise ValueError("manifest must define split_policy")
+    public_dev = policy.get("public_dev")
+    held_out = policy.get("held_out")
+    controls = policy.get("prompt_leakage_controls")
+    if not isinstance(public_dev, dict) or not public_dev.get("task_selector"):
+        raise ValueError("split_policy.public_dev.task_selector is required")
+    if not isinstance(held_out, dict) or not held_out.get("release_policy"):
+        raise ValueError("split_policy.held_out.release_policy is required")
+    if not isinstance(controls, list) or not all(isinstance(item, str) and item for item in controls):
+        raise ValueError("split_policy.prompt_leakage_controls must be a non-empty string list")
+
+
+def repo_required_path(repo: Path, task_id: str, value: Any, key: str, *, directory: bool = False) -> Path:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"task {task_id} has invalid {key}")
+    path = repo / value
+    if directory:
+        if not path.is_dir():
+            raise ValueError(f"task {task_id} {key} does not exist as a directory: {value}")
+    elif not path.is_file():
+        raise ValueError(f"task {task_id} {key} does not exist as a file: {value}")
+    return path
+
+
+def validate_task_metadata(task: Any, repo: Path) -> dict[str, Any]:
     if not isinstance(task, dict):
         raise ValueError("benchmark task must be a YAML mapping")
     task_id = task.get("id", "<unknown>")
@@ -92,10 +123,19 @@ def validate_task_metadata(task: Any) -> dict[str, Any]:
     if task["type"] not in {"positive", "negative"}:
         raise ValueError(f"task {task_id} has invalid type {task['type']}")
 
+    repo_required_path(repo / "benchmarks", str(task_id), task["path"], "path", directory=True)
+    repo_required_path(repo, str(task_id), task["mico_source"], "mico_source")
+    repo_required_path(repo, str(task_id), task["rtl_collateral"], "rtl_collateral")
+
     for key in ["module_inventory", "interface_inventory", "adapter_inventory"]:
         value = task.get(key)
         if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
             raise ValueError(f"task {task_id} must define {key} as a string list")
+    expected_features = task.get("expected_features")
+    if not isinstance(expected_features, list) or not all(
+        isinstance(item, str) and item for item in expected_features
+    ):
+        raise ValueError(f"task {task_id} must define expected_features as a non-empty string list")
 
     expected = task.get("expected")
     if not isinstance(expected, dict):
@@ -112,7 +152,50 @@ def validate_task_metadata(task: Any) -> dict[str, Any]:
         isinstance(item, str) for item in diagnostics
     ):
         raise ValueError(f"task {task_id} expected.diagnostics must be a string list")
+    if task["type"] == "positive" and not expected["compose_pass"]:
+        raise ValueError(f"positive task {task_id} must expect compose_pass")
+    if task["type"] == "negative" and expected["compose_pass"]:
+        raise ValueError(f"negative task {task_id} must not expect compose_pass")
+    if task["type"] == "negative" and not diagnostics:
+        raise ValueError(f"negative task {task_id} must list expected diagnostics")
+
+    sim_testbench = task.get("sim_testbench")
+    sim_top = task.get("sim_top")
+    if (sim_testbench is None) != (sim_top is None):
+        raise ValueError(f"task {task_id} must define sim_testbench and sim_top together")
+    if sim_testbench is not None:
+        repo_required_path(repo, str(task_id), sim_testbench, "sim_testbench")
+
+    formal_harness = task.get("formal_harness")
+    formal_top = task.get("formal_top")
+    if (formal_harness is None) != (formal_top is None):
+        raise ValueError(f"task {task_id} must define formal_harness and formal_top together")
+    if formal_harness is not None:
+        repo_required_path(repo, str(task_id), formal_harness, "formal_harness")
+
+    qor_reference = task.get("qor_reference")
+    if qor_reference is not None:
+        repo_required_path(repo, str(task_id), qor_reference, "qor_reference")
+        for key in ["qor_top", "qor_reference_top"]:
+            if not isinstance(task.get(key), str) or not task[key]:
+                raise ValueError(f"task {task_id} must define {key} with qor_reference")
     return task
+
+
+def validate_task_set(tasks: list[dict[str, Any]]) -> None:
+    seen: set[str] = set()
+    per_level: dict[str, dict[str, int]] = {
+        level: {"positive": 0, "negative": 0} for level in ["L1", "L2", "L3", "L4", "L5", "L6"]
+    }
+    for task in tasks:
+        task_id = str(task["id"])
+        if task_id in seen:
+            raise ValueError(f"duplicate task id {task_id}")
+        seen.add(task_id)
+        per_level[str(task["level"])][str(task["type"])] += 1
+    for level, counts in per_level.items():
+        if counts["positive"] == 0 or counts["negative"] == 0:
+            raise ValueError(f"{level} must include at least one positive and one negative task")
 
 
 def task_source(repo: Path, task: dict[str, Any]) -> Path:
@@ -1312,7 +1395,7 @@ def main() -> int:
     manifest_path = repo / args.manifest
     manifest = load_manifest(manifest_path)
     build_dir = (repo / args.output).parent
-    tasks = manifest_tasks(manifest)
+    tasks = manifest_tasks(manifest, repo)
 
     results = [run_task(repo, task, build_dir) for task in tasks]
     summary = aggregate_results(results)

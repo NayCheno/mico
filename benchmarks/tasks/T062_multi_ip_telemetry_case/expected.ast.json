@@ -1,0 +1,206 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "Telemetry32",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "Telemetry64",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u64",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseTelemetrySource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "Telemetry32"
+        }
+      ]
+    },
+    {
+      "name": "CaseTelemetryFilter",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "input",
+          "direction": "in",
+          "interface": "Telemetry32"
+        },
+        {
+          "name": "output",
+          "direction": "out",
+          "interface": "Telemetry32"
+        }
+      ]
+    },
+    {
+      "name": "CaseTelemetryAccumulator64",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "Telemetry64"
+        },
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "Telemetry64"
+        }
+      ]
+    },
+    {
+      "name": "CaseHostSink64",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "Telemetry64"
+        }
+      ]
+    }
+  ],
+  "adapters": [
+    {
+      "name": "CaseWiden32To64",
+      "from_interface": "Telemetry32",
+      "from_domain": "Sys",
+      "to_interface": "Telemetry64",
+      "to_domain": "Sys",
+      "kind": "width_adapter",
+      "attributes": [
+        {
+          "name": "mode",
+          "value": "zero_extend"
+        },
+        {
+          "name": "contract",
+          "value": "preserves_ready_valid"
+        }
+      ]
+    }
+  ],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "source",
+          "module": "CaseTelemetrySource"
+        },
+        {
+          "name": "filter",
+          "module": "CaseTelemetryFilter"
+        },
+        {
+          "name": "accum",
+          "module": "CaseTelemetryAccumulator64"
+        },
+        {
+          "name": "host",
+          "module": "CaseHostSink64"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "source",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "filter",
+            "port": "input"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "filter",
+            "port": "output"
+          },
+          "to": {
+            "instance": "accum",
+            "port": "rx"
+          },
+          "adapter": "CaseWiden32To64"
+        },
+        {
+          "from": {
+            "instance": "accum",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "host",
+            "port": "rx"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

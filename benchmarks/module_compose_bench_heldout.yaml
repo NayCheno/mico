@@ -1,0 +1,237 @@
+name: ModuleComposeBenchHeldOut
+version: 0.1.0
+minimum_tasks: 12
+purpose: Held-out scoring manifest for DAC 2027 prompt and case-study validation.
+scope_notes:
+  - This manifest is not used for prompt iteration; final LLM claims must report it separately from the public development manifest.
+  - It adds three dedicated held-out subsystem cases, bringing the committed case-study corpus from 5 public-dev cases to 8 total cases.
+  - The held-out cases cover AXI/APB wrapper composition, video-style pipeline composition, and explicit CDC event/status composition.
+  - T063--T065 have committed MICO source, RTL collateral, directed simulation, QoR references, and paired negative variants T066--T068.
+  - CDC correctness remains out of scope; the CDC case uses smoke FIFO collateral and may only be claimed as explicit-adapter gating plus smoke validation.
+levels:
+  L1: same-domain direct interface connections
+  L2: width and parameter adaptation
+  L3: backpressure and latency adapter seeds
+  L4: CDC/RDC adapter and rejection seeds
+  L5: bus bridge/register wrapper seeds
+  L6: multi-IP subsystem integration seeds
+split_policy:
+  public_dev:
+    description: No tasks in this manifest are used for prompt debugging or few-shot prompt iteration.
+    task_selector: none
+  held_out:
+    status: committed_held_out
+    description: T063--T068 are dedicated held-out scoring cases; the remaining seed tasks provide fixed per-level calibration coverage for the runner.
+    release_policy: Archive sanitized held-out prompts, result JSON, aggregate hashes, and this manifest hash as release assets after scoring.
+  prompt_leakage_controls:
+    - Prompt builders must strip expected compose bodies from MICO sources for held-out scoring.
+    - Held-out expected sources, diagnostics, testbenches, and QoR references must not be used as few-shot examples.
+    - Result records include the manifest path and manifest SHA-256 to bind scores to this held-out split.
+tasks:
+  - id: T013_direct_stream_alt_names
+    level: L1
+    type: positive
+    path: tasks/T013_direct_stream_alt_names
+    request: Connect Producer.tx to Consumer.rx using renamed instances and a Packet32 ready-valid interface.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [Packet32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T013_direct_stream_alt_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, renamed_instances]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T007_reversed_direction
+    level: L1
+    type: negative
+    path: tasks/T007_reversed_direction
+    request: Reject a reversed connection that drives Producer.tx from Consumer.rx.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T007_reversed_direction/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direction_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+  - id: T021_width_alt_interfaces
+    level: L2
+    type: positive
+    path: tasks/T021_width_alt_interfaces
+    request: Widen Source32.tx from NarrowStream to Sink64.rx on WideStream with Widen32To64.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [NarrowStream, WideStream]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T021_width_alt_interfaces/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter, renamed_interfaces]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T042_width_adapter_cross_domain
+    level: L2
+    type: negative
+    path: tasks/T042_width_adapter_cross_domain
+    request: Reject a width adapter that attempts to cross from Aclk to Bclk.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32A, StreamU64B]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T042_width_adapter_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter_domain_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T019_latency_seed_fifo_chain
+    level: L3
+    type: positive
+    path: tasks/T019_latency_seed_fifo_chain
+    request: Model a latency-buffer seed by placing a FIFO stage between Producer and Consumer.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [LatencyStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T019_latency_seed_fifo_chain/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_seed, fifo_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T043_skid_buffer_cross_domain
+    level: L3
+    type: negative
+    path: tasks/T043_skid_buffer_cross_domain
+    request: Reject a skid-buffer latency adapter that attempts to cross clock domains.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [Skid32]
+    mico_source: benchmarks/tasks/T043_skid_buffer_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_adapter_domain_misuse, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T065_cdc_event_status_case
+    level: L4
+    type: positive
+    path: tasks/T065_cdc_event_status_case
+    request: Bridge an event stream from SrcClk to a status sink on DstClk through an explicit CaseAsyncFifo32 CDC adapter.
+    module_inventory: [CaseEventSource, CaseEventStatusSink]
+    interface_inventory: [EventStream, StatusStream]
+    adapter_inventory: [CaseAsyncFifo32]
+    mico_source: benchmarks/tasks/T065_cdc_event_status_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T065_cdc_event_status_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_cdc_event_status_case.sv
+    sim_top: tb_cdc_event_status_case
+    qor_reference: benchmarks/qor/reference/T065_cdc_event_status_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, cdc_subsystem, explicit_cdc_adapter, smoke_only_cdc, directed_simulation, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T068_cdc_without_adapter_case
+    level: L4
+    type: negative
+    path: tasks/T068_cdc_without_adapter_case
+    request: Reject a direct event/status connection across SrcClk and DstClk without the CaseAsyncFifo32 CDC adapter.
+    module_inventory: [CaseEventSource, CaseEventStatusSink]
+    interface_inventory: [EventStream, StatusStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T068_cdc_without_adapter_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, unsafe_cdc_without_adapter, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch, ClockDomainMismatch]
+  - id: T063_axi_apb_wrapper_case
+    level: L5
+    type: positive
+    path: tasks/T063_axi_apb_wrapper_case
+    request: Connect an AXI-lite-like command source through an AXI-to-APB bridge into an APB-like peripheral sink.
+    module_inventory: [CaseAxiLiteSource, CaseAxiToApbBridge, CaseApbPeripheralSink]
+    interface_inventory: [AxiLiteCmd, ApbReq]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T063_axi_apb_wrapper_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T063_axi_apb_wrapper_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_axi_apb_wrapper_case.sv
+    sim_top: tb_axi_apb_wrapper_case
+    qor_reference: benchmarks/qor/reference/T063_axi_apb_wrapper_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, axi_apb_wrapper, protocol_bridge, directed_simulation, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T066_apb_direct_protocol_mismatch_case
+    level: L5
+    type: negative
+    path: tasks/T066_apb_direct_protocol_mismatch_case
+    request: Reject a direct AXI-lite command to APB peripheral connection when the bridge module is omitted.
+    module_inventory: [CaseAxiLiteSource, CaseApbPeripheralSink]
+    interface_inventory: [AxiLiteCmd, ApbReq]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T066_apb_direct_protocol_mismatch_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, protocol_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+  - id: T064_video_filter_pipeline_case
+    level: L6
+    type: positive
+    path: tasks/T064_video_filter_pipeline_case
+    request: Connect a pixel stream through a line buffer and threshold filter into a frame sink.
+    module_inventory: [CasePixelSource, CaseLineBuffer, CaseThresholdFilter, CaseFrameSink]
+    interface_inventory: [PixelStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T064_video_filter_pipeline_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T064_video_filter_pipeline_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_video_filter_pipeline_case.sv
+    sim_top: tb_video_filter_pipeline_case
+    qor_reference: benchmarks/qor/reference/T064_video_filter_pipeline_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, video_pipeline, filter_chain, directed_simulation, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T067_video_reversed_direction_case
+    level: L6
+    type: negative
+    path: tasks/T067_video_reversed_direction_case
+    request: Reject a video-pipeline composition that drives the pixel source from the frame sink.
+    module_inventory: [CasePixelSource, CaseFrameSink]
+    interface_inventory: [PixelStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T067_video_reversed_direction_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, direction_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+metrics:
+  - Compose-Pass@1
+  - Repair-Turns
+  - Lint-Pass
+  - Sim-Pass
+  - Formal-Pass
+  - Unsafe-Rejection
+  - QoR-Delta
+  - Connection-Entropy-Reduction

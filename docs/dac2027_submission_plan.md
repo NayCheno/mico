@@ -92,6 +92,9 @@ Supported now:
   and generated smoke harnesses for the rest.
 - 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
+- Held-out manifest with 12 scoring tasks, including three additional
+  subsystem case studies and three paired negative variants; deterministic
+  held-out scoring currently passes 12/12 expected outcomes.
 - Sanitized low-cost LLM matrix summary showing a negative result.
 
 Unsupported now:

@@ -1,0 +1,160 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "AccelStream",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseDmaSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "AccelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseSkidBuffer",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "input",
+          "direction": "in",
+          "interface": "AccelStream"
+        },
+        {
+          "name": "output",
+          "direction": "out",
+          "interface": "AccelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseXorFilter",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "input",
+          "direction": "in",
+          "interface": "AccelStream"
+        },
+        {
+          "name": "output",
+          "direction": "out",
+          "interface": "AccelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseResultSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "AccelStream"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "dma",
+          "module": "CaseDmaSource"
+        },
+        {
+          "name": "skid",
+          "module": "CaseSkidBuffer"
+        },
+        {
+          "name": "filter",
+          "module": "CaseXorFilter"
+        },
+        {
+          "name": "sink",
+          "module": "CaseResultSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "dma",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "skid",
+            "port": "input"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "skid",
+            "port": "output"
+          },
+          "to": {
+            "instance": "filter",
+            "port": "input"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "filter",
+            "port": "output"
+          },
+          "to": {
+            "instance": "sink",
+            "port": "rx"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

@@ -150,6 +150,10 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -1324,6 +1328,7 @@ def main() -> int:
             "timestamp_utc": utc_now(),
             "sdk": "openai-python",
             "manifest": display_path(manifest_path),
+            "manifest_sha256": sha256_file(manifest_path),
             "config": display_path(config_path),
             "profiles": profile_names,
             "baselines": baseline_names,

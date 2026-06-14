@@ -927,6 +927,7 @@ tasks:
     interface_inventory: [AccelStream]
     adapter_inventory: []
     mico_source: benchmarks/tasks/T058_streaming_accelerator_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T058_streaming_accelerator_case/expected.ast.json
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_streaming_accelerator_case.sv
     sim_top: tb_streaming_accelerator_case
@@ -950,6 +951,7 @@ tasks:
     interface_inventory: [SensorWord32, AccelWord64]
     adapter_inventory: [CaseWiden32To64]
     mico_source: benchmarks/tasks/T059_width_protocol_bridge_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T059_width_protocol_bridge_case/expected.ast.json
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_width_protocol_bridge_case.sv
     sim_top: tb_width_protocol_bridge_case
@@ -970,6 +972,7 @@ tasks:
     interface_inventory: [RegWord]
     adapter_inventory: []
     mico_source: benchmarks/tasks/T060_register_status_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T060_register_status_case/expected.ast.json
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_register_status_case.sv
     sim_top: tb_register_status_case
@@ -990,6 +993,7 @@ tasks:
     interface_inventory: [ProtoReq, ProtoRsp]
     adapter_inventory: []
     mico_source: benchmarks/tasks/T061_protocol_bridge_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T061_protocol_bridge_case/expected.ast.json
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_protocol_bridge_case.sv
     sim_top: tb_protocol_bridge_case
@@ -1010,6 +1014,7 @@ tasks:
     interface_inventory: [Telemetry32, Telemetry64]
     adapter_inventory: [CaseWiden32To64]
     mico_source: benchmarks/tasks/T062_multi_ip_telemetry_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T062_multi_ip_telemetry_case/expected.ast.json
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_multi_ip_telemetry_case.sv
     sim_top: tb_multi_ip_telemetry_case

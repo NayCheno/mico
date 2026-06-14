@@ -131,11 +131,32 @@ Expected current benchmark result:
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 
+Run the held-out split separately:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/heldout_results.json"
+```
+
+Expected held-out result:
+
+- `expected_outcome_pass: 12/12`
+- `compose_pass_1: 6/6`
+- `lint_pass: 6/6`
+- `sim_pass: 6/6`
+- `formal_pass: 5/5`
+- `qor_available: 3/3`
+- `unsafe_rejection: 6/6`
+- `json_ast_path: 12/12`
+
+Both public-dev and held-out benchmark JSON records include the manifest path
+and manifest SHA-256.
+
 Generate aggregate CSV and paper-table snippets from deterministic results:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_validate.json --aggregate-result build/bench/aggregate_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/heldout_results.json"
 ```
 
 The schema validation command also checks

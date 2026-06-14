@@ -1,0 +1,21 @@
+clockdom Sys(clk, rst);
+
+interface PixelStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CasePixelSource @Sys {
+  out tx: PixelStream;
+}
+
+extern module CaseFrameSink @Sys {
+  in rx: PixelStream;
+}
+
+compose Top @Sys {
+  inst source: CasePixelSource;
+  inst sink: CaseFrameSink;
+  connect sink.rx -> source.tx;
+}

@@ -10,11 +10,12 @@
     },
     "benchmark": {
       "type": "object",
-      "required": ["name", "version", "manifest"],
+      "required": ["name", "version", "manifest", "manifest_sha256"],
       "properties": {
         "name": {"type": "string"},
         "version": {"type": "string"},
-        "manifest": {"type": "string"}
+        "manifest": {"type": "string"},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       },
       "additionalProperties": false
     },

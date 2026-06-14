@@ -1,0 +1,27 @@
+clockdom Sys(clk, rst);
+
+interface AxiLiteCmd @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface ApbReq @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseAxiLiteSource @Sys {
+  out req: AxiLiteCmd;
+}
+
+extern module CaseApbPeripheralSink @Sys {
+  in req: ApbReq;
+}
+
+compose Top @Sys {
+  inst axi: CaseAxiLiteSource;
+  inst periph: CaseApbPeripheralSink;
+  connect axi.req -> periph.req;
+}

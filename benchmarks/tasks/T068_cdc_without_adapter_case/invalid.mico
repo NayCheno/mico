@@ -1,0 +1,28 @@
+clockdom SrcClk(aclk, arst_n);
+clockdom DstClk(bclk, brst_n);
+
+interface EventStream @SrcClk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface StatusStream @DstClk {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseEventSource @SrcClk {
+  out tx: EventStream;
+}
+
+extern module CaseEventStatusSink @DstClk {
+  in rx: StatusStream;
+}
+
+compose Top @SrcClk {
+  inst source: CaseEventSource;
+  inst sink: CaseEventStatusSink;
+  connect source.tx -> sink.rx;
+}

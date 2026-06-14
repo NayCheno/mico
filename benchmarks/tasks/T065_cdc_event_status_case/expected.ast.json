@@ -1,0 +1,147 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "SrcClk",
+      "clock": "aclk",
+      "reset": "arst_n"
+    },
+    {
+      "name": "DstClk",
+      "clock": "bclk",
+      "reset": "brst_n"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "EventStream",
+      "domain": "SrcClk",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "StatusStream",
+      "domain": "DstClk",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseEventSource",
+      "domain": "SrcClk",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "EventStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseEventStatusSink",
+      "domain": "DstClk",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "StatusStream"
+        }
+      ]
+    }
+  ],
+  "adapters": [
+    {
+      "name": "CaseAsyncFifo32",
+      "from_interface": "EventStream",
+      "from_domain": "SrcClk",
+      "to_interface": "StatusStream",
+      "to_domain": "DstClk",
+      "kind": "cdc_fifo",
+      "attributes": [
+        {
+          "name": "depth",
+          "value": "4"
+        },
+        {
+          "name": "contract",
+          "value": "preserves_order"
+        }
+      ]
+    }
+  ],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "SrcClk",
+      "instances": [
+        {
+          "name": "source",
+          "module": "CaseEventSource"
+        },
+        {
+          "name": "sink",
+          "module": "CaseEventStatusSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "source",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "sink",
+            "port": "rx"
+          },
+          "adapter": "CaseAsyncFifo32"
+        }
+      ]
+    }
+  ]
+}

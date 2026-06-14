@@ -1,0 +1,128 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "RegWord",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseApbCommandSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "req",
+          "direction": "out",
+          "interface": "RegWord"
+        }
+      ]
+    },
+    {
+      "name": "CaseRegisterFile",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "write",
+          "direction": "in",
+          "interface": "RegWord"
+        },
+        {
+          "name": "status",
+          "direction": "out",
+          "interface": "RegWord"
+        }
+      ]
+    },
+    {
+      "name": "CaseStatusSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "status",
+          "direction": "in",
+          "interface": "RegWord"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "cmd",
+          "module": "CaseApbCommandSource"
+        },
+        {
+          "name": "regs",
+          "module": "CaseRegisterFile"
+        },
+        {
+          "name": "sink",
+          "module": "CaseStatusSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "cmd",
+            "port": "req"
+          },
+          "to": {
+            "instance": "regs",
+            "port": "write"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "regs",
+            "port": "status"
+          },
+          "to": {
+            "instance": "sink",
+            "port": "status"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

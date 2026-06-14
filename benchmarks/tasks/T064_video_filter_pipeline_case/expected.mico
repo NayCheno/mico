@@ -1,0 +1,35 @@
+clockdom Sys(clk, rst);
+
+interface PixelStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CasePixelSource @Sys {
+  out tx: PixelStream;
+}
+
+extern module CaseLineBuffer @Sys {
+  in input: PixelStream;
+  out output: PixelStream;
+}
+
+extern module CaseThresholdFilter @Sys {
+  in input: PixelStream;
+  out output: PixelStream;
+}
+
+extern module CaseFrameSink @Sys {
+  in rx: PixelStream;
+}
+
+compose Top @Sys {
+  inst source: CasePixelSource;
+  inst linebuf: CaseLineBuffer;
+  inst filter: CaseThresholdFilter;
+  inst sink: CaseFrameSink;
+  connect source.tx -> linebuf.input;
+  connect linebuf.output -> filter.input;
+  connect filter.output -> sink.rx;
+}

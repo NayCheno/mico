@@ -283,4 +283,170 @@ module CaseTelemetryAccumulator64 (
   wire unused_inputs = clk ^ rst;
 endmodule
 
+module CaseAxiLiteSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] req_payload,
+  output logic        req_valid,
+  input  logic        req_ready
+);
+  always_comb begin
+    req_payload = 32'h0000_0044;
+    req_valid = !rst;
+  end
+
+  wire unused_inputs = clk ^ req_ready;
+endmodule
+
+module CaseAxiToApbBridge (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] axi_payload,
+  input  logic        axi_valid,
+  output logic        axi_ready,
+  output logic [31:0] apb_payload,
+  output logic        apb_valid,
+  input  logic        apb_ready
+);
+  always_comb begin
+    apb_payload = axi_payload | 32'h0000_1000;
+    apb_valid = axi_valid;
+    axi_ready = apb_ready;
+  end
+
+  wire unused_inputs = clk ^ rst;
+endmodule
+
+module CaseApbPeripheralSink (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] req_payload,
+  input  logic        req_valid,
+  output logic        req_ready
+);
+  always_comb begin
+    req_ready = !rst;
+  end
+
+  wire unused_inputs = clk ^ req_valid ^ req_payload[0];
+endmodule
+
+module CasePixelSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] tx_payload,
+  output logic        tx_valid,
+  input  logic        tx_ready
+);
+  always_comb begin
+    tx_payload = 32'h0000_0033;
+    tx_valid = !rst;
+  end
+
+  wire unused_inputs = clk ^ tx_ready;
+endmodule
+
+module CaseLineBuffer (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] input_payload,
+  input  logic        input_valid,
+  output logic        input_ready,
+  output logic [31:0] output_payload,
+  output logic        output_valid,
+  input  logic        output_ready
+);
+  always_comb begin
+    output_payload = input_payload + 32'h0000_0001;
+    output_valid = input_valid;
+    input_ready = output_ready;
+  end
+
+  wire unused_inputs = clk ^ rst;
+endmodule
+
+module CaseThresholdFilter (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] input_payload,
+  input  logic        input_valid,
+  output logic        input_ready,
+  output logic [31:0] output_payload,
+  output logic        output_valid,
+  input  logic        output_ready
+);
+  always_comb begin
+    output_payload = input_payload | 32'h8000_0000;
+    output_valid = input_valid;
+    input_ready = output_ready;
+  end
+
+  wire unused_inputs = clk ^ rst;
+endmodule
+
+module CaseFrameSink (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] rx_payload,
+  input  logic        rx_valid,
+  output logic        rx_ready
+);
+  always_comb begin
+    rx_ready = !rst;
+  end
+
+  wire unused_inputs = clk ^ rx_valid ^ rx_payload[0];
+endmodule
+
+module CaseEventSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] tx_payload,
+  output logic        tx_valid,
+  input  logic        tx_ready
+);
+  always_comb begin
+    tx_payload = 32'h0000_0e11;
+    tx_valid = rst;
+  end
+
+  wire unused_inputs = clk ^ tx_ready;
+endmodule
+
+module CaseEventStatusSink (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] rx_payload,
+  input  logic        rx_valid,
+  output logic        rx_ready
+);
+  always_comb begin
+    rx_ready = rst;
+  end
+
+  wire unused_inputs = clk ^ rx_valid ^ rx_payload[0];
+endmodule
+
+// Smoke-only CDC adapter stub. It is not a CDC correctness proof.
+module CaseAsyncFifo32 (
+  input  logic        src_clk,
+  input  logic        src_rst,
+  input  logic        dst_clk,
+  input  logic        dst_rst,
+  input  logic [31:0] in_payload,
+  input  logic        in_valid,
+  output logic        in_ready,
+  output logic [31:0] out_payload,
+  output logic        out_valid,
+  input  logic        out_ready
+);
+  always_comb begin
+    out_payload = in_payload;
+    out_valid = in_valid;
+    in_ready = out_ready;
+  end
+
+  wire unused_inputs = src_clk ^ src_rst ^ dst_clk ^ dst_rst;
+endmodule
+
 `default_nettype wire

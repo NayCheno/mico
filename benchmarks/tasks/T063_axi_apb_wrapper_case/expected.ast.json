@@ -1,0 +1,155 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "AxiLiteCmd",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "ApbReq",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseAxiLiteSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "req",
+          "direction": "out",
+          "interface": "AxiLiteCmd"
+        }
+      ]
+    },
+    {
+      "name": "CaseAxiToApbBridge",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "axi",
+          "direction": "in",
+          "interface": "AxiLiteCmd"
+        },
+        {
+          "name": "apb",
+          "direction": "out",
+          "interface": "ApbReq"
+        }
+      ]
+    },
+    {
+      "name": "CaseApbPeripheralSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "req",
+          "direction": "in",
+          "interface": "ApbReq"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "axi",
+          "module": "CaseAxiLiteSource"
+        },
+        {
+          "name": "bridge",
+          "module": "CaseAxiToApbBridge"
+        },
+        {
+          "name": "periph",
+          "module": "CaseApbPeripheralSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "axi",
+            "port": "req"
+          },
+          "to": {
+            "instance": "bridge",
+            "port": "axi"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "bridge",
+            "port": "apb"
+          },
+          "to": {
+            "instance": "periph",
+            "port": "req"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

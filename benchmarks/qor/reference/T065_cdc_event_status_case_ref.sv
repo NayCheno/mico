@@ -1,0 +1,46 @@
+`default_nettype none
+
+module Top(
+  input logic aclk,
+  input logic arst_n,
+  input logic bclk,
+  input logic brst_n
+);
+  logic [31:0] source_tx__caseasyncfifo32_0_in_payload;
+  logic source_tx__caseasyncfifo32_0_in_valid;
+  logic source_tx__caseasyncfifo32_0_in_ready;
+  logic [31:0] caseasyncfifo32_0__sink_rx_payload;
+  logic caseasyncfifo32_0__sink_rx_valid;
+  logic caseasyncfifo32_0__sink_rx_ready;
+
+  CaseEventSource source (
+    .clk(aclk),
+    .rst(arst_n),
+    .tx_payload(source_tx__caseasyncfifo32_0_in_payload),
+    .tx_valid(source_tx__caseasyncfifo32_0_in_valid),
+    .tx_ready(source_tx__caseasyncfifo32_0_in_ready)
+  );
+
+  CaseEventStatusSink sink (
+    .clk(bclk),
+    .rst(brst_n),
+    .rx_payload(caseasyncfifo32_0__sink_rx_payload),
+    .rx_valid(caseasyncfifo32_0__sink_rx_valid),
+    .rx_ready(caseasyncfifo32_0__sink_rx_ready)
+  );
+
+  CaseAsyncFifo32 caseasyncfifo32_0 (
+    .src_clk(aclk),
+    .src_rst(arst_n),
+    .dst_clk(bclk),
+    .dst_rst(brst_n),
+    .in_payload(source_tx__caseasyncfifo32_0_in_payload),
+    .in_valid(source_tx__caseasyncfifo32_0_in_valid),
+    .in_ready(source_tx__caseasyncfifo32_0_in_ready),
+    .out_payload(caseasyncfifo32_0__sink_rx_payload),
+    .out_valid(caseasyncfifo32_0__sink_rx_valid),
+    .out_ready(caseasyncfifo32_0__sink_rx_ready)
+  );
+endmodule
+
+`default_nettype wire

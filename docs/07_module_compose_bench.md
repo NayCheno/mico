@@ -34,11 +34,11 @@ expected:
 The machine-checked manifest schema is
 `benchmarks/manifest_schema.json`. It requires task IDs, level/type, public
 request text, inventories, MICO source, RTL collateral, expected features, and
-expected diagnostics. Optional simulation, formal, and QoR fields are paired
-with their required top modules. `benchmarks/run_bench.py` additionally checks
-that committed paths exist, task IDs are unique, every level has at least one
-positive and one negative task, and negative tasks declare expected diagnostic
-codes.
+expected diagnostics. Optional JSON AST fixture, simulation, formal, and QoR
+fields are paired with their required files or top modules.
+`benchmarks/run_bench.py` additionally checks that committed paths exist, task
+IDs are unique, every level has at least one positive and one negative task,
+and negative tasks declare expected diagnostic codes.
 
 ## Levels
 
@@ -74,12 +74,17 @@ Include intentionally invalid tasks to measure rejection ability:
 
 ## Split And Leakage Policy
 
-The committed `T001`--`T062` tasks are the public development split. They are
-used for deterministic regression, documentation, prompt debugging, and
-artifact reproduction. Full LLM advantage claims require a separately versioned
-held-out manifest that is not used during prompt iteration; sanitized held-out
-prompts, results, aggregate hashes, and manifest metadata should be archived as
-release assets after scoring.
+The committed `T001`--`T062` tasks in
+`benchmarks/module_compose_bench_manifest.yaml` are the public development
+split. They are used for deterministic regression, documentation, prompt
+debugging, and artifact reproduction. The separate
+`benchmarks/module_compose_bench_heldout.yaml` manifest is the held-out scoring
+split. It includes three additional subsystem case studies (`T063`--`T065`),
+their paired negative variants (`T066`--`T068`), and fixed seed calibration
+tasks that cover L1--L3. Full LLM advantage claims must report public-dev and
+held-out results separately; sanitized held-out prompts, results, aggregate
+hashes, and manifest metadata should be archived as release assets after
+scoring.
 
 Prompt construction intentionally separates public requests from committed
 solutions. The LLM batch runner includes the natural-language request,
@@ -87,6 +92,8 @@ inventories, and interface/module declarations, but strips the `compose` body
 from committed expected MICO sources. Expected solutions, diagnostics,
 testbenches, formal harnesses, and QoR references remain committed for
 deterministic reproduction and are not inserted into benchmark prompts.
+Both deterministic and LLM benchmark result records include the manifest path
+and SHA-256 hash so scores are bound to the evaluated split.
 
 ## Current runner
 
@@ -135,12 +142,14 @@ or Vivado result is claimed. The runner writes `qor_summary.csv` and
 `qor_summary.tex` under ignored `build/bench/`.
 Negative tasks are scored by expected compiler rejection and expected diagnostic
 codes. It writes a `mico.bench.results.v0` JSON object under ignored
-`build/bench/` with `summary` aggregation plus per-task results. The current
-runner aggregates `formal_pass` over formal-enabled tasks and `qor` over
-QoR-enabled positive tasks.
+`build/bench/` with the manifest hash, `summary` aggregation, and per-task
+results. The current runner aggregates `formal_pass` over formal-enabled tasks
+and `qor` over QoR-enabled positive tasks.
 L3/L5/L6 still contain seed approximations, but T058--T062 add dedicated
 streaming, width-bridge, register/status, protocol-bridge, and telemetry
 subsystem RTL case studies.
+The held-out manifest adds T063--T065 for AXI/APB wrapper, video pipeline, and
+explicit CDC event/status case studies.
 
 ## Paper Table Aggregation
 

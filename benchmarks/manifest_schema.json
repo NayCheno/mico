@@ -54,7 +54,7 @@
           "type": "object",
           "required": ["status", "description", "release_policy"],
           "properties": {
-            "status": {"type": "string", "enum": ["external_not_committed", "not_applicable"]},
+            "status": {"type": "string", "enum": ["external_not_committed", "committed_held_out", "not_applicable"]},
             "description": {"type": "string", "minLength": 1},
             "release_policy": {"type": "string", "minLength": 1}
           },
@@ -112,6 +112,7 @@
         "interface_inventory": {"$ref": "#/$defs/string_list"},
         "adapter_inventory": {"$ref": "#/$defs/string_list"},
         "mico_source": {"type": "string", "minLength": 1},
+        "json_ast_fixture": {"type": "string", "minLength": 1},
         "rtl_collateral": {"type": "string", "minLength": 1},
         "sim_testbench": {"type": "string", "minLength": 1},
         "sim_top": {"type": "string", "minLength": 1},

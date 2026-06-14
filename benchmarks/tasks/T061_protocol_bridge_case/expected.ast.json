@@ -1,0 +1,155 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "ProtoReq",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "ProtoRsp",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseProtocolSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "req",
+          "direction": "out",
+          "interface": "ProtoReq"
+        }
+      ]
+    },
+    {
+      "name": "CaseProtocolBridge",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "req",
+          "direction": "in",
+          "interface": "ProtoReq"
+        },
+        {
+          "name": "rsp",
+          "direction": "out",
+          "interface": "ProtoRsp"
+        }
+      ]
+    },
+    {
+      "name": "CaseProtocolSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rsp",
+          "direction": "in",
+          "interface": "ProtoRsp"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "source",
+          "module": "CaseProtocolSource"
+        },
+        {
+          "name": "bridge",
+          "module": "CaseProtocolBridge"
+        },
+        {
+          "name": "sink",
+          "module": "CaseProtocolSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "source",
+            "port": "req"
+          },
+          "to": {
+            "instance": "bridge",
+            "port": "req"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "bridge",
+            "port": "rsp"
+          },
+          "to": {
+            "instance": "sink",
+            "port": "rsp"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

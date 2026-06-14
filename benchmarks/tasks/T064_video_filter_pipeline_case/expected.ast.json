@@ -1,0 +1,160 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "PixelStream",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CasePixelSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "PixelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseLineBuffer",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "input",
+          "direction": "in",
+          "interface": "PixelStream"
+        },
+        {
+          "name": "output",
+          "direction": "out",
+          "interface": "PixelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseThresholdFilter",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "input",
+          "direction": "in",
+          "interface": "PixelStream"
+        },
+        {
+          "name": "output",
+          "direction": "out",
+          "interface": "PixelStream"
+        }
+      ]
+    },
+    {
+      "name": "CaseFrameSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "PixelStream"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "source",
+          "module": "CasePixelSource"
+        },
+        {
+          "name": "linebuf",
+          "module": "CaseLineBuffer"
+        },
+        {
+          "name": "filter",
+          "module": "CaseThresholdFilter"
+        },
+        {
+          "name": "sink",
+          "module": "CaseFrameSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "source",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "linebuf",
+            "port": "input"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "linebuf",
+            "port": "output"
+          },
+          "to": {
+            "instance": "filter",
+            "port": "input"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "filter",
+            "port": "output"
+          },
+          "to": {
+            "instance": "sink",
+            "port": "rx"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

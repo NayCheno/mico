@@ -57,12 +57,16 @@ This file is the short, traceable status page for the current repository. Use
   diagnostics, source AST, typed IR, traceability, repair patches,
   deterministic benchmark results, LLM run
   records, LLM benchmark records, and aggregate results.
-- 62 ModuleComposeBench tasks with required natural-language requests,
+- 62 public-development ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
   collateral, and five dedicated subsystem case studies.
-- Documented public-development and held-out split policy. The committed
-  manifest is the public development split; prompt construction strips expected
-  compose bodies from MICO sources to avoid solution leakage.
+- Documented public-development and held-out split policy. The committed main
+  manifest is the public development split; the separate held-out manifest adds
+  12 scoring tasks, including three new subsystem cases and three paired
+  negative variants. Prompt construction strips expected compose bodies from
+  MICO sources to avoid solution leakage.
+- Deterministic and LLM benchmark result records include the evaluated manifest
+  path and SHA-256 hash.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
 - Batch LLM benchmark runner for the 62-task manifest with Direct Verilog,
@@ -103,7 +107,8 @@ This file is the short, traceable status page for the current repository. Use
   any positive pass-rate improvement claims.
 - Complete generated paper-table snippet integration and final statistical
   appendix.
-- Broader subsystem case studies beyond the five committed deterministic cases.
+- Broader subsystem case studies beyond the current five public-dev plus three
+  held-out deterministic cases.
 - Immutable release tag; the current policy uses a reviewable release branch
   first, then tags only after final artifact approval.
 
@@ -126,6 +131,12 @@ Current deterministic benchmark scope:
 - L3/L5/L6 include seed approximations plus the dedicated T058--T062 streaming,
   width-bridge, register/status, protocol-bridge, and telemetry subsystem case
   studies.
+- Held-out split: `benchmarks/module_compose_bench_heldout.yaml` has 12 tasks
+  with six positives and six negatives, including T063--T065 held-out case
+  studies for AXI/APB wrapper, video pipeline, and explicit CDC event/status
+  composition. Its expected current result is 12/12 expected outcome, 6/6
+  positive lint/sim, 5/5 single-clock formal smoke, 3/3 QoR, 6/6 unsafe
+  rejection, and 12/12 JSON AST path.
 
 ## Validation Commands
 

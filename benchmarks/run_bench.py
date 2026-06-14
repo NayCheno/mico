@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import subprocess
 import sys
@@ -57,6 +58,10 @@ def load_manifest(path: Path) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError("benchmark manifest must be a YAML mapping")
     return data
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def manifest_tasks(manifest: dict[str, Any], repo: Path) -> list[dict[str, Any]]:
@@ -126,6 +131,9 @@ def validate_task_metadata(task: Any, repo: Path) -> dict[str, Any]:
     repo_required_path(repo / "benchmarks", str(task_id), task["path"], "path", directory=True)
     repo_required_path(repo, str(task_id), task["mico_source"], "mico_source")
     repo_required_path(repo, str(task_id), task["rtl_collateral"], "rtl_collateral")
+    json_ast_fixture = task.get("json_ast_fixture")
+    if json_ast_fixture is not None:
+        repo_required_path(repo, str(task_id), json_ast_fixture, "json_ast_fixture")
 
     for key in ["module_inventory", "interface_inventory", "adapter_inventory"]:
         value = task.get(key)
@@ -1408,6 +1416,7 @@ def main() -> int:
             "name": manifest.get("name", "ModuleComposeBench"),
             "version": manifest.get("version", "0.0.0"),
             "manifest": str(manifest_path.relative_to(repo)).replace("\\", "/"),
+            "manifest_sha256": sha256_file(manifest_path),
         },
         "generated_tables": {
             "qor_csv": str(qor_csv.relative_to(repo)).replace("\\", "/"),

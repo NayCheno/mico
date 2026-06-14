@@ -11,7 +11,7 @@ MICO is packaged as a reproducible research artifact rather than a prompt-only d
     \midrule
     Rust & fmt/check/test & pass \\
     EDA & Verilator/Icarus/Yosys/SBY & pass \\
-    Bench & 62 tasks & outcome/lint/sim/formal/QoR pass \\
+    Bench & dev + held-out & pass \\
     LLM & batch validate/offline & pass \\
     Paper & host latexmk/pdflatex & pass \\
     Vivado & not required & n/a \\
@@ -24,7 +24,7 @@ The release candidate checklist is:
 \begin{itemize}
   \item freeze the Docker image recipe, Rust toolchain, prompts, provider profiles, and benchmark manifests;
   \item run Rust format, check, and tests from a clean checkout;
-  \item run Verilator, Icarus, Yosys, and SymbiYosys smoke checks plus 62-task ModuleComposeBench scoring and aggregate table generation;
+  \item run Verilator, Icarus, Yosys, and SymbiYosys smoke checks plus public-development and held-out ModuleComposeBench scoring and aggregate table generation;
   \item run LLM provider validation and batch-runner validate/offline checks with a redacted local configuration and record model/profile identifiers;
   \item compile the paper with the documented Windows-host LaTeX toolchain, or add LaTeX to the Docker image before claiming a Docker PDF build;
   \item verify that generated PDFs, build outputs, local YAML files, logs, and credentials are absent from the staged source tree.
@@ -39,4 +39,4 @@ The core reproduction commands are:
   \item Paper PDF build: \texttt{latexmk} on \texttt{paper/main.tex}.
 \end{itemize}
 
-For final submission, this checklist must be extended with full paid LLM baseline results, broader simulation/formal harness outputs, richer QoR reports, more diverse subsystem case-study artifacts, and archived prompts/responses for every evaluated model profile.
+For final submission, this checklist must be extended with full paid LLM baseline results, broader simulation/formal harness outputs, richer QoR reports, archived held-out prompts/results, and archived prompts/responses for every evaluated model profile.

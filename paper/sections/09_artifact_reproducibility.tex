@@ -12,11 +12,22 @@ MICO is packaged as a reproducible artifact, not a prompt-only demonstration. Ru
     Rust & fmt/check/test & pass \\
     EDA & Verilator/Icarus/Yosys/SBY & pass \\
     Bench & dev + held-out & pass \\
-    LLM & batch validate/offline & pass \\
-    Vivado & four-task OOC subset & pass \\
+    LLM & validate + authenticated v2 matrix & pass \\
+    Vivado & nine-task OOC subset & pass \\
     Paper & host latexmk/pdflatex & pass \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The release workflow freezes the Docker recipe, Rust toolchain, prompts, provider profiles, manifests, and result hashes; runs the benchmark and aggregate table generator; validates LLM configuration without exposing credentials; optionally executes authenticated provider subsets with redacted records; runs the Vivado subset when reporting Xilinx evidence; and verifies that PDFs, logs, build outputs, local YAML files, raw provider payloads, and secrets are absent from the staged source tree. Core commands are \texttt{benchmarks/run\_bench.py}, \texttt{benchmarks/aggregate\_results.py}, \texttt{scripts/run\_llm\_bench.py}, \path{scripts/vivado-qor-subset.tcl}, and host \texttt{latexmk}.
+The release workflow freezes the Docker recipe, Rust toolchain, prompts,
+provider profiles, manifests, and result hashes; runs the benchmark and
+aggregate table generator; validates LLM configuration without exposing
+credentials; executes authenticated provider matrices with redacted records when
+claims depend on them; runs the Vivado subset when reporting Xilinx evidence;
+and verifies that PDFs, logs, build outputs, local YAML files, raw provider
+payloads, and secrets are absent from the staged source tree. Core commands are
+\texttt{benchmarks/run\_bench.py}, \texttt{benchmarks/aggregate\_results.py},
+\texttt{scripts/run\_llm\_bench.py}, \path{scripts/vivado-qor-subset.tcl}, and
+host \texttt{latexmk}. The deterministic and LLM result tables in this paper are
+included from generated \LaTeX{} snippets under ignored \texttt{build/} paths so
+paper edits do not hand-maintain the main counts.

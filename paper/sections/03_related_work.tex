@@ -2,6 +2,14 @@
 
 VerilogEval, RTLCoder, OpenLLM-RTL, and ChipNeMo show that LLMs can be evaluated and adapted for hardware tasks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025,chipnemo2023}. These works motivate better benchmarks and domain context, but the artifact emitted by a model is still often RTL text. MICO is complementary: it does not assume the model has become trustworthy. It narrows the model's output to a checked composition representation and uses compiler diagnostics plus RTL tools as the acceptance boundary.
 
+The evaluation target is also different. Existing RTL-generation benchmarks
+stress module synthesis from functional descriptions. MICO stresses integration
+failure modes that appear after modules already exist: endpoint binding,
+direction, width, protocol, domain, adapter, and unsafe negative cases. This
+lets the paper measure not only whether a candidate wrapper compiles, but also
+whether the flow rejects compositions that a permissive text-generation prompt
+could accidentally wire together.
+
 SystemVerilog interfaces, Chisel bundles and bulk connections, Amaranth wiring, and CIRCT ESI all demonstrate that interface abstraction has practical value~\cite{chisel_interfaces,amaranth_wiring,circt_esi}. MICO differs in its objective. It targets the integration of existing RTL/IP modules, not complete hardware description. It restricts LLM output to structured AST/JSON forms, not arbitrary host-language code. It also treats clock/reset domains, protocol contracts, adapter synthesis, and formal collateral as part of the interface type system.
 
 CPPL is the closest recent work~\cite{cppl2026}. If MICO merely claimed ``structured language plus CIRCT,'' it would overlap too much with CPPL. The boundary is narrower: CPPL targets LLM-friendly circuit generation, while MICO targets LLM-friendly module interconnect and integration. Its central objects are interfaces, clock domains, contracts, adapters, and compose graphs.

@@ -6,37 +6,81 @@ The current artifact answers five evidence-bounded questions: whether intended c
 
 \subsection{Deterministic Results}
 
-The public-development manifest has 62 tasks: 36 positives and 26 negatives across L1--L6. A separate held-out manifest adds 12 scoring tasks, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, and paired negative variants. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash.
+The public-development manifest has 62 tasks: 36 positives and 26 negatives across L1--L6. A separate held-out manifest has 20 scoring tasks: 10 positives and 10 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, and paired negative variants. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash.
 
 \begin{table}[t]
   \centering
-  \caption{Deterministic results generated from aggregate JSON}
+  \caption{Public-development deterministic results generated from aggregate JSON}
   \input{../build/paper_tables/deterministic_summary.tex}
 \end{table}
 
-The eight subsystem case studies use dedicated RTL under \texttt{rtl/case\_studies/}: T058 streaming accelerator, T059 width/protocol bridge, T060 register/status wrapper, T061 request/response protocol bridge, T062 telemetry chain, and held-out T063--T065 for AXI/APB, video, and CDC event/status composition. All pass the same compiler, JSON AST, lint/elaboration, simulation, selected formal, and QoR gates as the seed tasks. CDC remains an explicit-adapter smoke validation, not a CDC correctness proof.
+\begin{table}[t]
+  \centering
+  \caption{Held-out deterministic results generated from aggregate JSON}
+  \input{../build/paper_tables/heldout_m5/deterministic_summary.tex}
+\end{table}
 
-Simulation covers all 36 positives. Twenty tasks use committed directed testbenches and the remaining 16 use generated ready/valid smoke harnesses from traceability reports. Bounded formal smoke covers 31 single-clock positives: 14 committed directed monitors and 17 generated monitors. Structural and generic-mapped Yosys QoR is available for 9/9 reference-enabled tasks.
+The 12 subsystem positive case studies use dedicated RTL under
+\texttt{rtl/case\_studies/}: five public-development tasks for streaming,
+width/protocol bridging, register/status, request/response, and telemetry, plus
+seven held-out tasks for AXI/APB, video, CDC event/status, telemetry filtering,
+protocol bridging, and register/status variants. They pass the same compiler,
+JSON AST, lint/elaboration, simulation, selected formal, and QoR gates as their
+manifest denominators. CDC remains an explicit-adapter smoke validation, not a
+CDC correctness proof.
 
-A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl} through the pinned Windows launcher. It synthesizes measurement-only copies of T001, T003, T058, and held-out T063 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT counts are 16/16, 22/22, 31/31, and 16/16, respectively; WNS is positive for all rows. This is representative out-of-context evidence, not board-level implementation or all-task timing closure.
+Simulation covers all 36 public positives and all 10 held-out positives. In the
+public-development split, 28 tasks use committed directed testbenches and the
+remaining 8 use generated ready/valid smoke harnesses from traceability
+reports. Bounded formal smoke covers 31 public single-clock positives: 20
+committed directed monitors and 11 generated monitors. The held-out split adds
+10/10 positive simulations and 9/9 single-clock formal smoke checks. Structural
+and generic-mapped Yosys QoR is available for all 9 reference-enabled public
+tasks and all 3 held-out QoR-enabled tasks.
+
+A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
+through the pinned Windows launcher. It synthesizes measurement-only copies of
+T001, T003, T058--T064 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT
+counts match on all nine rows, and WNS is positive for all generated and
+reference copies. This is representative out-of-context evidence, not
+board-level implementation or all-task timing closure.
 
 \subsection{LLM Matrix}
 
-The batch runner supports Direct Verilog, SystemVerilog-interface, MICO source, MICO JSON AST, and JSON AST repair baselines. The current authenticated low-cost matrix ran 62 tasks across two low-cost profiles and five baselines, for 620 attempts. It is a negative result under the current prompts/models.
+The batch runner supports Direct Verilog, SystemVerilog-interface, MICO source,
+MICO JSON AST, and JSON AST repair baselines. The v2 authenticated matrix ran
+the 62-task public-development split and the 20-task held-out split across
+three tested OpenCode Go profiles and five baselines, for 1,230 total attempts.
+The public-development and held-out tables are generated from the same aggregate
+JSON used by the release workflow.
 
-\begin{table}[t]
+\begin{table*}[t]
   \centering
-  \caption{Authenticated low-cost LLM matrix summary}
-  \begin{tabular}{lll}
-    \toprule
-    Metric & Result & Scope \\
-    \midrule
-    Positive compiler pass & 0/36 & MICO baselines \\
-    Positive RTL lint pass & 0/36 & Direct/SV-interface \\
-    Unsafe rejection & 15--18/26 & MICO baselines \\
-    JSON validity & 15--25/62 & profile/baseline dependent \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+  \caption{Authenticated LLM matrix summary generated from aggregate JSON}
+  \resizebox{\textwidth}{!}{\input{../build/paper_tables/llm_summary.tex}}
+\end{table*}
 
-These data do not support a pass-rate-improvement claim. They do support the artifact contribution: prompts and responses are hashed, compiler/EDA failures are classified, validate-only runs are not counted as failures, and repair turns are represented as auditable JSON patches. A future positive paper requires nonzero structured positive passes and paired comparisons across at least two profiles; otherwise the correct framing is a compiler-gated benchmark/tool paper plus negative LLM study.
+\begin{table*}[t]
+  \centering
+  \caption{JSON AST repair paired comparisons generated from aggregate JSON}
+  \resizebox{\textwidth}{!}{\input{../build/paper_tables/llm_paired_comparisons.tex}}
+\end{table*}
+
+For the tested profiles, the schema-guided MICO JSON AST repair baseline reaches
+36/36 positive compiler and lint passes on the public-development split and
+10/10 on the held-out split in every profile. It also rejects 26/26 public unsafe
+tasks and 10/10 held-out unsafe tasks in every profile. Direct Verilog and
+SystemVerilog-interface prompts never reach positive lint pass rates comparable
+to the structured baselines: their best rows are 8/36 public positives and 2/10
+held-out positives. The MICO-source baseline produces MICO-looking text but has
+0 positive compiler passes in the matrix, illustrating that the structured JSON
+AST representation, not merely the DSL vocabulary, is doing most of the work.
+
+Repair is beneficial but bounded. Compared with direct Verilog,
+\texttt{mico\_json\_ast\_repair} has 105 wins, 0 losses, and 81 ties on the
+public split, and 30 wins, 0 losses, and 30 ties on held-out. Compared with
+plain \texttt{mico\_json\_ast}, repair adds 11 public wins and 2 held-out wins.
+All accepted repair-turn wins in this run are attributed to the recorded
+\texttt{deterministic\_adapter\_instance\_collapse} fallback, so the paper claims
+compiler-feedback repair for a common adapter-as-instance error pattern rather
+than broad autonomous semantic repair.

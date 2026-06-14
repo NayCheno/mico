@@ -10,7 +10,12 @@ This paper makes four contributions:
   \item a typed module-composition formulation for LLM-assisted RTL integration;
   \item the MICO language and Rust compiler path for checked graphs, diagnostics, JSON AST repair, SV/SVA emit, and traceability;
   \item ModuleComposeBench, with public-development and held-out manifests, positive/negative tasks, case studies, simulation, formal smoke, and QoR collateral;
-  \item an evidence-backed artifact boundary showing deterministic success and a negative authenticated low-cost LLM matrix.
+  \item an authenticated full-matrix evaluation showing that schema-guided JSON AST composition and compiler-feedback repair improve tested LLM integration correctness and unsafe rejection over direct RTL, SystemVerilog-interface, and MICO-source prompting.
 \end{enumerate}
 
-The artifact does not replace HDLs or downstream verification. It attacks the integration layer where engineers already rely on structure, naming discipline, and review checklists, and where LLMs are most exposed to textual consistency failures.
+The positive LLM claim is deliberately narrow. It covers the tested profiles,
+prompts, manifests, schemas, and compiler gates; it does not make the LLM a
+source of correctness. The artifact does not replace HDLs or downstream
+verification. It attacks the integration layer where engineers already rely on
+structure, naming discipline, and review checklists, and where LLMs are most
+exposed to textual consistency failures.

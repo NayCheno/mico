@@ -5,6 +5,7 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{cite}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{url}
 
@@ -27,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-LLMs can generate small Verilog fragments, but RTL integration remains brittle because correctness depends on port binding, direction, width, handshake protocol, clock/reset domains, CDC/RDC handling, adapters, and wrappers. MICO reframes LLM-assisted integration as compiler-checked module composition: models propose typed interface graphs and repair patches, while a Rust compiler validates the graph and emits traceable SystemVerilog, SVA skeletons, JSON IR, and diagnostics. The artifact currently passes 62/62 deterministic ModuleComposeBench tasks, including 36/36 positive compositions, 26/26 unsafe rejections, 36/36 simulations, 31/31 single-clock bounded formal smoke checks, 9/9 structural/generic Yosys QoR rows, a four-task Vivado out-of-context subset, and a held-out case-study split. An authenticated low-cost LLM matrix is negative: current prompts/models do not produce positive-task compiler or lint passes. The paper therefore claims a benchmark, compiler gate, repairable representation, and failure-taxonomy workflow, not full formal coverage, timing closure, arbitrary LTL, or LLM pass-rate improvement.
+LLMs can generate small Verilog fragments, but RTL integration remains brittle because correctness depends on port binding, direction, width, handshake protocol, clock/reset domains, CDC/RDC handling, adapters, and wrappers. MICO reframes LLM-assisted integration as compiler-checked module composition: models propose typed interface graphs and repair patches, while a Rust compiler validates the graph and emits traceable SystemVerilog, SVA skeletons, JSON IR, and diagnostics. The artifact passes 62/62 public-development ModuleComposeBench tasks and 20/20 held-out tasks, including 36/36 public positive simulations, 31/31 single-clock bounded formal smoke checks, 9/9 structural/generic Yosys QoR rows, and a nine-task Vivado out-of-context subset. In an authenticated v2 LLM matrix across three tested OpenCode Go profiles, schema-guided MICO JSON AST repair compiles and lints all positive public and held-out compositions and rejects all unsafe MICO tasks, while direct Verilog and SystemVerilog-interface prompts lint at most 8/36 public positives and 2/10 held-out positives. The claim is bounded: repair wins currently come from an explicitly recorded deterministic compiler-feedback fallback for one adapter-instance error pattern, and MICO does not claim full formal coverage, CDC correctness proof, routed timing closure, arbitrary LTL, or generalization to untested models.
 \end{abstract}
 
 \begin{IEEEkeywords}

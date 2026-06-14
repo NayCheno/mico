@@ -163,7 +163,7 @@ evidence files above:
 - LLM claims map only to sanitized `mico.llm.bench.v0` files from authenticated
   runs;
 - QoR claims must identify whether they are structural Yosys summaries,
-  generic-mapped Yosys summaries, the four-task Vivado measurement-copy subset,
+  generic-mapped Yosys summaries, the nine-task Vivado measurement-copy subset,
   or a future technology-mapped timing artifact;
 - CDC, formal, and timing limitations must remain visible in the abstract,
   evaluation, threats, and conclusion until stronger evidence exists.

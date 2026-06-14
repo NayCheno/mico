@@ -2,6 +2,10 @@
 
 Audit date: 2026-06-14.
 
+The authoritative claim and environment boundary for this snapshot is
+`docs/claim_boundary.md`; this audit explains the implementation evidence and
+remaining gaps behind that boundary.
+
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
 smoke flow, source-level JSON AST path, 60-task benchmark runner, benchmark
@@ -234,10 +238,11 @@ The current snapshot is validated with these commands from the repository root:
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 ```
 
-All Rust, Python, benchmark, and open-source EDA validation must run in the
-repository Docker environment. Host Vivado is allowed only for Vivado-specific
-flows through `scripts/run-vivado-host.ps1`. Host LaTeX is allowed only for the
-paper workflow.
+All Rust, Python, benchmark, LLM, paper-table, and open-source EDA validation
+must run in the repository Docker environment. Host Vivado is allowed only for
+Vivado-specific flows through `scripts/run-vivado-host.ps1`, which is pinned to
+`D:\Application\vivado\2025.2\Vivado`. Host LaTeX is allowed only for final
+paper PDF compilation from `paper/main.tex`.
 
 ## Priority Gap List
 

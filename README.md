@@ -21,17 +21,24 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 
 ## Current next milestones
 
-1. Run and archive the full paid low-cost LLM baseline matrix when cost settings are configured.
-2. Broaden simulation, formal, and QoR coverage beyond the current enabled subsets.
-3. Promote generated paper-table snippets into the final evidence-driven evaluation.
+1. Keep the current claim boundary frozen and evidence-backed; see
+   `docs/claim_boundary.md`.
+2. Run and archive the full paid low-cost LLM baseline matrix when cost settings are configured.
+3. Broaden simulation, formal, and QoR coverage beyond the current enabled subsets.
+4. Promote generated paper-table snippets into the final evidence-driven evaluation.
 
 ## Status And Reproduction
 
 MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for positive seeds, per-task Icarus simulation harnesses for supported positive and case-study tasks, selected bounded SymbiYosys harnesses for direct, width, and streaming case-study properties, structural Yosys QoR summaries for supported positive tasks, a 60-task ModuleComposeBench runner with required task metadata and three dedicated subsystem case studies, an aggregate-results generator for CSV/TeX paper tables, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The paper is still a submission candidate in progress and does not yet claim full per-task formal coverage, timing QoR, arbitrary LTL, or multi-model pass-rate improvements.
 
-For the current claim boundary, read `docs/current_status.md` and `docs/13_architecture_audit.md`.
+For the current claim boundary, read `docs/claim_boundary.md`,
+`docs/current_status.md`, and `docs/13_architecture_audit.md`.
 
-For repeatable Rust and open-source RTL/EDA validation, use the persistent Ubuntu 24.04 Docker environment in `docker/eda/`. Vivado-specific flows use the Windows host Vivado installation; paper writing and PDF compilation use `paper/main.tex` with the Windows host LaTeX installation; other compilation and testing should run in Docker.
+For repeatable Rust, Python, benchmark, LLM, paper-table, and open-source
+RTL/EDA validation, use the persistent Ubuntu 24.04 Docker environment in
+`docker/eda/`. The only host-tool exceptions are Vivado-specific flows through
+the pinned Windows Vivado installation and final paper PDF compilation from
+`paper/main.tex` with the Windows host LaTeX installation.
 
 Start with the end-to-end workflow in `docs/14_reproduction_workflow.md`:
 

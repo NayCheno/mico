@@ -3,7 +3,8 @@
 Snapshot date: 2026-06-14.
 
 This file is the short, traceable status page for the current repository. Use
-`docs/13_architecture_audit.md` for the detailed audit and
+`docs/claim_boundary.md` for the authoritative claim boundary,
+`docs/13_architecture_audit.md` for the detailed audit, and
 `docs/14_reproduction_workflow.md` for reproduction commands.
 
 ## Implemented
@@ -118,7 +119,9 @@ Host exceptions:
 
 - Vivado-only flows must use `D:\Application\vivado\2025.2\Vivado` through
   `scripts/run-vivado-host.ps1`.
-- Paper PDF builds use Windows-host LaTeX with `paper/main.tex`.
+- Final paper PDF builds use Windows-host LaTeX with `paper/main.tex`.
+  Paper-related Python/statistical validation and generated table production
+  still run in Docker.
 
 Never commit `build/`, `rust_project/target/`, logs, PDFs, Vivado project
 outputs, local YAML configs, or API keys.

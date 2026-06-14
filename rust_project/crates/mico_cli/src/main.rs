@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 use std::process;
 
-use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog};
+use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog, emit_traceability_report};
 use mico_frontend::{ParseError, parse_mico};
 use mico_ir::{Design, Diagnostic, Severity, TypedDesign, build_typed_ir, check_design};
 use serde_json::{Value, json};
@@ -15,6 +15,7 @@ enum Command {
     DumpIr,
     EmitSv,
     EmitSva,
+    EmitTrace,
     Verify,
     Report,
 }
@@ -61,6 +62,10 @@ fn main() {
         Command::EmitSva => {
             let _typed = build_or_exit(&design, cli.format);
             print!("{}", emit_sva_skeleton(&design));
+        }
+        Command::EmitTrace => {
+            let typed = build_or_exit(&design, cli.format);
+            print!("{}", emit_traceability_report(&typed));
         }
         Command::Verify => {
             let typed = build_or_exit(&design, cli.format);
@@ -122,6 +127,7 @@ fn parse_simple_command(command: &str) -> Result<Command, String> {
         "dump-ir" | "emit-json" => Ok(Command::DumpIr),
         "emit-sv" => Ok(Command::EmitSv),
         "emit-sva" => Ok(Command::EmitSva),
+        "emit-trace" | "trace" => Ok(Command::EmitTrace),
         "verify" => Ok(Command::Verify),
         "report" => Ok(Command::Report),
         _ => Err(format!("unknown command `{command}`")),
@@ -133,12 +139,13 @@ fn parse_emit_format(format: &str) -> Result<Command, String> {
         "json" | "ir" => Ok(Command::DumpIr),
         "sv" | "systemverilog" => Ok(Command::EmitSv),
         "sva" => Ok(Command::EmitSva),
+        "trace" | "traceability" => Ok(Command::EmitTrace),
         _ => Err(format!("unknown emit format `{format}`")),
     }
 }
 
 fn usage() -> &'static str {
-    "usage: mico [--format text|json] <parse|check|build|dump-ir|emit-sv|emit-sva|verify|report> <file.mico>\n       mico [--format text|json] emit <json|sv|sva> <file.mico>"
+    "usage: mico [--format text|json] <parse|check|build|dump-ir|emit-sv|emit-sva|emit-trace|verify|report> <file.mico>\n       mico [--format text|json] emit <json|sv|sva|trace> <file.mico>"
 }
 
 fn read_source_or_exit(path: &str, format: OutputFormat) -> String {
@@ -485,6 +492,19 @@ mod tests {
             parse_args(&args).unwrap(),
             CliArgs {
                 command: Command::EmitSv,
+                path: "input.mico".to_string(),
+                format: OutputFormat::Text,
+            }
+        );
+    }
+
+    #[test]
+    fn parses_trace_emit_alias() {
+        let args = strings(&["mico", "emit", "trace", "input.mico"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::EmitTrace,
                 path: "input.mico".to_string(),
                 format: OutputFormat::Text,
             }

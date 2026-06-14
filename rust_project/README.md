@@ -14,6 +14,7 @@ cargo run -p mico_cli -- build examples/stream_fifo.mico
 cargo run -p mico_cli -- dump-ir examples/stream_fifo.mico
 cargo run -p mico_cli -- emit-sv examples/stream_fifo.mico
 cargo run -p mico_cli -- emit sv examples/stream_fifo.mico
+cargo run -p mico_cli -- emit trace examples/stream_fifo.mico
 cargo run -p mico_cli -- verify examples/stream_fifo.mico
 cargo run -p mico_cli -- report examples/stream_fifo.mico
 ```

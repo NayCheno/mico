@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/traceability.schema.json",
+  "title": "MICO traceability report v0",
+  "type": "object",
+  "required": ["schema_version", "kind", "composes"],
+  "properties": {
+    "schema_version": {
+      "const": "mico.traceability.v0"
+    },
+    "kind": {
+      "const": "traceability_report"
+    },
+    "composes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/compose_trace"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "compose_trace": {
+      "type": "object",
+      "required": [
+        "name",
+        "domain",
+        "top_module",
+        "sva_module",
+        "clock_reset_ports",
+        "wires",
+        "connections",
+        "sva_properties"
+      ],
+      "properties": {
+        "name": {"type": "string"},
+        "domain": {"type": "string"},
+        "top_module": {"type": "string"},
+        "sva_module": {"type": "string"},
+        "clock_reset_ports": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "wires": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/wire"}
+        },
+        "connections": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/connection_trace"}
+        },
+        "sva_properties": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/sva_property"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "wire": {
+      "type": "object",
+      "required": ["name", "width_bits"],
+      "properties": {
+        "name": {"type": "string"},
+        "width_bits": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "integer", "minimum": 1}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "connection_trace": {
+      "type": "object",
+      "required": ["index", "kind", "from", "to", "adapter", "adapter_instance", "field_bindings"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "kind": {"type": "string", "enum": ["connect", "adapt"]},
+        "from": {"$ref": "mico_ir.schema.json#/$defs/endpoint"},
+        "to": {"$ref": "mico_ir.schema.json#/$defs/endpoint"},
+        "adapter": {
+          "anyOf": [{"type": "null"}, {"type": "string"}]
+        },
+        "adapter_instance": {
+          "anyOf": [{"type": "null"}, {"type": "string"}]
+        },
+        "field_bindings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/field_binding"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "field_binding": {
+      "type": "object",
+      "required": ["endpoint", "field", "role", "signal", "width_bits"],
+      "properties": {
+        "endpoint": {"type": "string"},
+        "field": {"type": "string"},
+        "role": {"type": "string", "enum": ["producer", "consumer"]},
+        "signal": {"type": "string"},
+        "width_bits": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "integer", "minimum": 1}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sva_property": {
+      "type": "object",
+      "required": ["name", "kind", "endpoint", "interface", "domain", "clock", "reset", "payload", "valid", "ready"],
+      "properties": {
+        "name": {"type": "string"},
+        "kind": {"type": "string", "const": "ready_valid_stable_payload"},
+        "endpoint": {"type": "string"},
+        "interface": {"type": "string"},
+        "domain": {"type": "string"},
+        "clock": {"type": "string"},
+        "reset": {"type": "string"},
+        "payload": {"type": "string"},
+        "valid": {"type": "string"},
+        "ready": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

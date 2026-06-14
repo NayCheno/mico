@@ -10,6 +10,14 @@ MICO should generate:
 - formal harnesses for selected adapters;
 - traceability report mapping MICO endpoints to RTL wires.
 
+The current compiler emits the first traceability contract through:
+
+```bash
+cargo run -p mico_cli -- emit trace examples/stream_fifo.mico
+```
+
+The report schema is `schemas/traceability.schema.json`. It maps each checked MICO connection to generated SV field wires and to the ready/valid stable-payload assertion skeletons emitted by `emit-sva`.
+
 ## Interface contract examples
 
 ### Ready/valid safety

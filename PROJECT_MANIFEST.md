@@ -25,5 +25,6 @@
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
 | `benchmarks/` | Twelve-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
+| `benchmarks/sim/` | Icarus/VVP SystemVerilog testbenches for positive seed simulation. |
 | `prompts/` | Prompt templates and JSON schema for LLM output. |
 | `source/` | Uploaded and edited source reports. |

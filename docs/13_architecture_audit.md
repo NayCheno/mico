@@ -6,8 +6,8 @@ This audit supersedes the initial scaffold audit. The repository is now a workin
 research prototype with a Rust parser/checker/codegen path, open-source EDA
 smoke flow, source-level JSON AST path, seed benchmark runner, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
-experiments + paper" artifact: simulation, formal, QoR, large-scale LLM
-baselines, case studies, and paper tables remain open milestones.
+experiments + paper" artifact: formal, QoR, large-scale LLM baselines, case
+studies, and paper tables remain open milestones.
 
 ## Sources Reviewed
 
@@ -115,6 +115,8 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
+ModuleComposeBench also has Icarus/VVP simulation harnesses for the four
+positive seed tasks and reports `sim_pass: 4/4` in the deterministic runner.
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -123,7 +125,6 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- No per-task simulation testbenches are committed.
 - No per-task formal harnesses are committed.
 - No QoR parser or report aggregation exists.
 - Adapter correctness boundaries are documented but not yet backed by full
@@ -160,7 +161,7 @@ Current limitations:
 - L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem tasks
   are not represented at publishable scale.
 - Natural-language prompts, model baselines, repair loops, statistical
-  aggregation, simulation, formal, and QoR are still pending.
+  aggregation, formal, and QoR are still pending.
 
 ### LLM Provider Workflow
 
@@ -183,9 +184,9 @@ Current limitations:
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section deliberately describe the artifact
-as a twelve-task seed result and do not claim per-task simulation, formal proof,
-QoR, arbitrary LTL, or multi-model pass-rate improvements. Host LaTeX is the
-repository policy for paper builds.
+as a twelve-task seed result with four positive seed simulations and do not
+claim per-task formal proof, QoR, arbitrary LTL, or multi-model pass-rate
+improvements. Host LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
@@ -217,7 +218,7 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Add per-task simulation and selected formal harnesses.
+1. Add selected formal harnesses.
 2. Add QoR parsing and aggregation.
 3. Expand ModuleComposeBench to 50+ tasks across L1-L6.
 4. Add LLM batch baselines and compiler-feedback repair loops.
@@ -238,6 +239,7 @@ Current claims supported by the repository:
 - Positive seed wrappers pass open-source lint/elaboration smoke checks.
 - Positive seed SV/SVA/traceability output is covered by committed golden
   fixtures.
+- Positive seed simulations pass with committed Icarus/VVP testbenches.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
 
@@ -245,7 +247,7 @@ Claims not yet supported:
 
 - 50-task benchmark maturity.
 - Multi-model or multi-baseline LLM pass-rate improvements.
-- Per-task simulation pass rates.
+- Simulation coverage beyond the four positive seed tasks.
 - Per-task formal proofs.
 - QoR overhead or timing conclusions.
 - CDC correctness proof for the smoke FIFO collateral.

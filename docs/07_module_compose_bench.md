@@ -73,4 +73,14 @@ On Windows PowerShell:
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 ```
 
-The runner reads `benchmarks/module_compose_bench_manifest.yaml`, runs `mico_cli check --format json`, emits SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and executes Verilator, Icarus, and Yosys smoke checks against `rtl/examples/mico_example_leafs.sv`. Negative tasks are scored by expected compiler rejection and expected diagnostic codes. It writes a `mico.bench.results.v0` JSON object under ignored `build/bench/` with `summary` aggregation plus per-task results. The current runner records `sim_pass=false`, `formal_pass=false`, and `qor.available=false` because per-task simulation, formal harnesses, and QoR parsing are not implemented yet.
+The runner reads `benchmarks/module_compose_bench_manifest.yaml`, runs
+`mico_cli check --format json`, emits SystemVerilog/SVA/traceability artifacts
+for accepted positive tasks, and executes Verilator, Icarus, and Yosys smoke
+checks against `rtl/examples/mico_example_leafs.sv`. Positive seed tasks with
+`sim_testbench` and `sim_top` also compile with Icarus and execute with `vvp`;
+simulation stdout/stderr artifacts are written under ignored `build/bench/`.
+Negative tasks are scored by expected compiler rejection and expected diagnostic
+codes. It writes a `mico.bench.results.v0` JSON object under ignored
+`build/bench/` with `summary` aggregation plus per-task results. The current
+runner records `formal_pass=false` and `qor.available=false` because per-task
+formal harnesses and QoR parsing are not implemented yet.

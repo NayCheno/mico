@@ -77,16 +77,15 @@
       "additionalProperties": false
     },
     "aggregate_count_with_status": {
-      "allOf": [
-        {"$ref": "#/$defs/aggregate_count"},
-        {
-          "type": "object",
-          "required": ["status"],
-          "properties": {
-            "status": {"type": "string"}
-          }
-        }
-      ]
+      "type": "object",
+      "required": ["passed", "total", "rate", "status"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0},
+        "rate": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "status": {"type": "string"}
+      },
+      "additionalProperties": false
     },
     "result": {
       "type": "object",
@@ -109,6 +108,7 @@
         "eda",
         "sim_pass",
         "sim_status",
+        "sim_result",
         "formal_pass",
         "formal_status",
         "unsafe_rejection",
@@ -200,6 +200,20 @@
         },
         "sim_pass": {"type": "boolean"},
         "sim_status": {"type": "string"},
+        "sim_result": {
+          "type": "object",
+          "required": ["enabled", "compile_pass", "run_pass", "testbench", "top", "stdout", "stderr"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "compile_pass": {"type": "boolean"},
+            "run_pass": {"type": "boolean"},
+            "testbench": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "top": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "stdout": {"type": "string"},
+            "stderr": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
         "formal_pass": {"type": "boolean"},
         "formal_status": {"type": "string"},
         "unsafe_rejection": {"type": "boolean"},
@@ -244,6 +258,9 @@
             "ast_json",
             "typed_ir_dsl",
             "typed_ir_json",
+            "sim_vvp",
+            "sim_stdout",
+            "sim_stderr",
             "rtl_collateral"
           ],
           "properties": {
@@ -254,6 +271,9 @@
             "ast_json": {"type": "string"},
             "typed_ir_dsl": {"type": "string"},
             "typed_ir_json": {"type": "string"},
+            "sim_vvp": {"type": "string"},
+            "sim_stdout": {"type": "string"},
+            "sim_stderr": {"type": "string"},
             "rtl_collateral": {"type": "string"}
           },
           "additionalProperties": false

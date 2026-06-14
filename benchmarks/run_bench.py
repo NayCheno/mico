@@ -13,26 +13,39 @@ from typing import Any
 import yaml
 
 
-def run(cmd: list[str], cwd: Path, stdout_path: Path | None = None) -> subprocess.CompletedProcess[str]:
+def run(
+    cmd: list[str],
+    cwd: Path,
+    stdout_path: Path | None = None,
+    stderr_path: Path | None = None,
+) -> subprocess.CompletedProcess[str]:
     stdout = subprocess.PIPE
-    handle = None
+    stderr = subprocess.PIPE
+    stdout_handle = None
+    stderr_handle = None
     if stdout_path is not None:
         stdout_path.parent.mkdir(parents=True, exist_ok=True)
-        handle = stdout_path.open("w", encoding="utf-8")
-        stdout = handle
+        stdout_handle = stdout_path.open("w", encoding="utf-8")
+        stdout = stdout_handle
+    if stderr_path is not None:
+        stderr_path.parent.mkdir(parents=True, exist_ok=True)
+        stderr_handle = stderr_path.open("w", encoding="utf-8")
+        stderr = stderr_handle
     try:
         result = subprocess.run(
             cmd,
             cwd=cwd,
             stdout=stdout,
-            stderr=subprocess.PIPE,
+            stderr=stderr,
             text=True,
             check=False,
         )
     finally:
-        if handle is not None:
-            handle.close()
-    if result.returncode != 0 and result.stderr:
+        if stdout_handle is not None:
+            stdout_handle.close()
+        if stderr_handle is not None:
+            stderr_handle.close()
+    if result.returncode != 0 and result.stderr and stderr_path is None:
         print(result.stderr, file=sys.stderr, end="")
     return result
 
@@ -69,6 +82,24 @@ def task_rtl(repo: Path, task: dict[str, Any]) -> Path:
     if not isinstance(collateral, str) or not collateral:
         raise ValueError(f"task {task.get('id', '<unknown>')} has invalid rtl_collateral")
     return repo / collateral
+
+
+def task_sim_testbench(repo: Path, task: dict[str, Any]) -> Path | None:
+    testbench = task.get("sim_testbench")
+    if testbench is None:
+        return None
+    if not isinstance(testbench, str) or not testbench:
+        raise ValueError(f"task {task.get('id', '<unknown>')} has invalid sim_testbench")
+    return repo / testbench
+
+
+def task_sim_top(task: dict[str, Any]) -> str | None:
+    sim_top = task.get("sim_top")
+    if sim_top is None:
+        return None
+    if not isinstance(sim_top, str) or not sim_top:
+        raise ValueError(f"task {task.get('id', '<unknown>')} has invalid sim_top")
+    return sim_top
 
 
 def cli_source_arg(repo: Path, source: Path) -> str:
@@ -120,6 +151,8 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     task_type = str(task.get("type", "positive"))
     source = task_source(repo, task)
     rtl = task_rtl(repo, task)
+    sim_testbench = task_sim_testbench(repo, task)
+    sim_top = task_sim_top(task)
     task_build_dir = build_dir / task_id
     wrapper = task_build_dir / "top.sv"
     sva = task_build_dir / "top_sva.sv"
@@ -128,6 +161,9 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     dsl_ir = task_build_dir / "typed_ir_dsl.json"
     json_ir = task_build_dir / "typed_ir_json.json"
     vvp = task_build_dir / "top.vvp"
+    sim_vvp = task_build_dir / "sim.vvp"
+    sim_stdout = task_build_dir / "sim.stdout.txt"
+    sim_stderr = task_build_dir / "sim.stderr.txt"
 
     rust_project = repo / "rust_project"
     source_arg = cli_source_arg(repo, source)
@@ -206,6 +242,11 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     sva_lint_pass = False
     iverilog_pass = False
     yosys_pass = False
+    sim_enabled = sim_testbench is not None and sim_top is not None
+    sim_compile_pass = False
+    sim_run_pass = False
+    sim_pass = False
+    sim_status = "not_run" if expected_accept else "rejected"
     if compose_pass and expected_accept:
         emit_sv = run(
             ["cargo", "run", "-q", "-p", "mico_cli", "--", "emit-sv", source_arg],
@@ -276,6 +317,35 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         )
         sva_lint_pass = sva_lint.returncode == 0
 
+    if emit_sv_pass and expected_accept and sim_enabled:
+        sim_compile = run(
+            [
+                "iverilog",
+                "-g2012",
+                "-s",
+                sim_top,
+                "-o",
+                str(sim_vvp),
+                str(rtl),
+                str(wrapper),
+                str(sim_testbench),
+            ],
+            repo,
+            stdout_path=sim_stdout,
+            stderr_path=sim_stderr,
+        )
+        sim_compile_pass = sim_compile.returncode == 0
+        if sim_compile_pass:
+            sim_run = run(
+                ["vvp", str(sim_vvp)],
+                repo,
+                stdout_path=sim_stdout,
+                stderr_path=sim_stderr,
+            )
+            sim_run_pass = sim_run.returncode == 0
+        sim_pass = sim_compile_pass and sim_run_pass
+        sim_status = "pass" if sim_pass else "failed"
+
     lint_pass = verilator_pass and sva_lint_pass and iverilog_pass and yosys_pass
     return {
         "task_id": task_id,
@@ -312,8 +382,19 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "iverilog_elab_pass": iverilog_pass,
             "yosys_elab_pass": yosys_pass,
         },
-        "sim_pass": False,
-        "sim_status": "not_run",
+        "sim_pass": sim_pass,
+        "sim_status": sim_status,
+        "sim_result": {
+            "enabled": sim_enabled,
+            "compile_pass": sim_compile_pass,
+            "run_pass": sim_run_pass,
+            "testbench": str(sim_testbench.relative_to(repo)).replace("\\", "/")
+            if sim_testbench is not None
+            else None,
+            "top": sim_top,
+            "stdout": str(sim_stdout.relative_to(repo)).replace("\\", "/"),
+            "stderr": str(sim_stderr.relative_to(repo)).replace("\\", "/"),
+        },
         "formal_pass": False,
         "formal_status": "not_run",
         "unsafe_rejection": unsafe_rejection,
@@ -341,10 +422,13 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "ast_json": str(ast_json.relative_to(repo)).replace("\\", "/"),
             "typed_ir_dsl": str(dsl_ir.relative_to(repo)).replace("\\", "/"),
             "typed_ir_json": str(json_ir.relative_to(repo)).replace("\\", "/"),
+            "sim_vvp": str(sim_vvp.relative_to(repo)).replace("\\", "/"),
+            "sim_stdout": str(sim_stdout.relative_to(repo)).replace("\\", "/"),
+            "sim_stderr": str(sim_stderr.relative_to(repo)).replace("\\", "/"),
             "rtl_collateral": str(rtl.relative_to(repo)).replace("\\", "/"),
         },
         "notes": [
-            "sim_pass and formal_pass are false because per-task simulation and formal harnesses are not implemented yet.",
+            "formal_pass is false because per-task formal harnesses are not implemented yet.",
             "qor is not available until a synthesis QoR parser is added.",
         ],
     }
@@ -354,6 +438,7 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(results)
     positives = [item for item in results if item["expected_compose_pass"]]
     negatives = [item for item in results if not item["expected_compose_pass"]]
+    sim_enabled = [item for item in positives if item["sim_result"]["enabled"]]
 
     def count(items: list[dict[str, Any]], key: str) -> int:
         return sum(1 for item in items if item.get(key) is True)
@@ -393,12 +478,7 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "total": total,
             "rate": json_ast_expected / total if total else 0.0,
         },
-        "sim_pass": {
-            "passed": count(positives, "sim_pass"),
-            "total": len(positives),
-            "rate": 0.0,
-            "status": "not_run",
-        },
+        "sim_pass": aggregate_with_status(sim_enabled, count(sim_enabled, "sim_pass")),
         "formal_pass": {
             "passed": count(positives, "formal_pass"),
             "total": len(positives),
@@ -409,6 +489,22 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "available_tasks": sum(1 for item in results if item["qor"]["available"]),
             "status": "not_run",
         },
+    }
+
+
+def aggregate_with_status(items: list[dict[str, Any]], passed: int) -> dict[str, Any]:
+    total = len(items)
+    if total == 0:
+        status = "not_run"
+        rate = 0.0
+    else:
+        rate = passed / total
+        status = "pass" if passed == total else "partial"
+    return {
+        "passed": passed,
+        "total": total,
+        "rate": rate,
+        "status": status,
     }
 
 
@@ -456,6 +552,7 @@ def main() -> int:
     )
     print(f"compose_pass_1: {summary['compose_pass_1']['passed']}/{summary['compose_pass_1']['total']}")
     print(f"lint_pass: {summary['lint_pass']['passed']}/{summary['lint_pass']['total']}")
+    print(f"sim_pass: {summary['sim_pass']['passed']}/{summary['sim_pass']['total']}")
     print(
         "unsafe_rejection: "
         f"{summary['unsafe_rejection']['passed']}/{summary['unsafe_rejection']['total']}"
@@ -469,6 +566,7 @@ def main() -> int:
         0
         if summary["expected_outcome_pass"]["passed"] == summary["expected_outcome_pass"]["total"]
         and summary["lint_pass"]["passed"] == summary["lint_pass"]["total"]
+        and summary["sim_pass"]["passed"] == summary["sim_pass"]["total"]
         else 1
     )
 

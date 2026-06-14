@@ -6,7 +6,7 @@ MICO should generate:
 
 - SystemVerilog wrapper/top;
 - SVA assertion modules for each interface contract;
-- cocotb smoke tests for each compose graph;
+- SystemVerilog or cocotb smoke tests for each compose graph;
 - formal harnesses for selected adapters;
 - traceability report mapping MICO endpoints to RTL wires.
 

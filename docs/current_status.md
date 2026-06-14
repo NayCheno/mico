@@ -30,6 +30,7 @@ This file is the short, traceable status page for the current repository. Use
 - Golden SV/SVA/traceability fixture tests for the four positive seed tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
+- Per-task Icarus simulation harnesses for the four positive seed tasks.
 - Twelve ModuleComposeBench seed tasks with four positives and eight negatives.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
@@ -42,7 +43,6 @@ This file is the short, traceable status page for the current repository. Use
 - Full repair patch ingestion and application; the patch schema exists, but
   the compiler does not yet apply patches.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Per-task simulation harnesses.
 - Per-task formal harnesses beyond the minimal smoke proof.
 - QoR parser and report aggregation.
 - 50+ task ModuleComposeBench suite.
@@ -64,10 +64,10 @@ Current deterministic seed scope:
   `T010_width_wrong_contract_kind`, `T011_cdc_missing_contract`,
   `T012_cdc_wrong_contract_kind`.
 - Expected current result: expected outcome 12/12, positive compose 4/4,
-  positive lint/elaboration smoke 4/4, unsafe rejection 8/8, JSON AST path
-  12/12.
-- `sim_pass`, `formal_pass`, and `qor.available` are intentionally not claimed
-  until the corresponding harnesses and parsers are implemented.
+  positive lint/elaboration smoke 4/4, positive simulation 4/4, unsafe
+  rejection 8/8, JSON AST path 12/12.
+- `formal_pass` and `qor.available` are intentionally not claimed until the
+  corresponding harnesses and parsers are implemented.
 
 ## Validation Commands
 

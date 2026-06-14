@@ -270,7 +270,7 @@ impl<'a> Parser<'a> {
 
     fn parse_clockdom(&mut self) {
         self.expect_keyword("clockdom");
-        let name = self.expect_ident("clock domain name");
+        let name = self.expect_ident_spanned("clock domain name");
         self.expect_symbol(Symbol::LParen, "`(`");
         let clock = self.expect_ident("clock signal");
         self.expect_symbol(Symbol::Comma, "`,`");
@@ -280,7 +280,8 @@ impl<'a> Parser<'a> {
             self.recover_to_statement_end();
         }
 
-        if let (Some(name), Some(clock), Some(reset)) = (name, clock, reset) {
+        if let (Some((name, name_span)), Some(clock), Some(reset)) = (name, clock, reset) {
+            self.design.source_map.record_clock_domain(&name, name_span);
             self.design
                 .clock_domains
                 .push(ClockDomain { name, clock, reset });
@@ -289,7 +290,7 @@ impl<'a> Parser<'a> {
 
     fn parse_interface(&mut self) {
         self.expect_keyword("interface");
-        let name = self.expect_ident("interface name");
+        let name = self.expect_ident_spanned("interface name");
         self.expect_symbol(Symbol::At, "`@`");
         let domain = self.expect_ident("clock domain");
         if !self.expect_symbol(Symbol::LBrace, "`{`") {
@@ -299,16 +300,17 @@ impl<'a> Parser<'a> {
 
         let mut fields = Vec::new();
         let mut contracts = Vec::new();
+        let interface_name = name.as_ref().map(|(name, _)| name.clone());
         while !self.is_eof() && !self.at_symbol(Symbol::RBrace) {
             if self.at_keyword("producer") {
                 self.bump();
-                self.parse_fields(Role::Producer, &mut fields);
+                self.parse_fields(interface_name.as_ref(), Role::Producer, &mut fields);
             } else if self.at_keyword("consumer") {
                 self.bump();
-                self.parse_fields(Role::Consumer, &mut fields);
+                self.parse_fields(interface_name.as_ref(), Role::Consumer, &mut fields);
             } else if self.at_keyword("contract") {
                 self.bump();
-                if let Some(contract) = self.parse_interface_contract() {
+                if let Some(contract) = self.parse_interface_contract(interface_name.as_ref()) {
                     contracts.push(contract);
                 }
             } else {
@@ -321,7 +323,8 @@ impl<'a> Parser<'a> {
         }
         self.expect_symbol(Symbol::RBrace, "`}`");
 
-        if let (Some(name), Some(domain)) = (name, domain) {
+        if let (Some((name, name_span)), Some(domain)) = (name, domain) {
+            self.design.source_map.record_interface(&name, name_span);
             self.design.interfaces.push(InterfaceDef {
                 name,
                 domain,
@@ -331,9 +334,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_fields(&mut self, role: Role, fields: &mut Vec<FieldDef>) {
+    fn parse_fields(
+        &mut self,
+        interface_name: Option<&Ident>,
+        role: Role,
+        fields: &mut Vec<FieldDef>,
+    ) {
         loop {
-            let Some(name) = self.expect_ident("field name") else {
+            let Some((name, name_span)) = self.expect_ident_spanned("field name") else {
                 self.recover_to_statement_end();
                 return;
             };
@@ -342,6 +350,11 @@ impl<'a> Parser<'a> {
                 self.recover_to_statement_end();
                 return;
             };
+            if let Some(interface_name) = interface_name {
+                self.design
+                    .source_map
+                    .record_interface_field(interface_name, &name, name_span);
+            }
             fields.push(FieldDef {
                 name,
                 ty: ScalarType::parse(&ty.0),
@@ -359,20 +372,36 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_interface_contract(&mut self) -> Option<ContractDef> {
-        let name = self.expect_ident("contract name");
+    fn parse_interface_contract(&mut self, interface_name: Option<&Ident>) -> Option<ContractDef> {
+        let name = self.expect_ident_spanned("contract name");
         if !self.expect_symbol(Symbol::Colon, "`:`") {
             self.recover_to_statement_end();
-            return name.map(|name| ContractDef {
-                name,
-                expr: String::new(),
+            return name.map(|(name, name_span)| {
+                if let Some(interface_name) = interface_name {
+                    self.design.source_map.record_interface_contract(
+                        interface_name,
+                        &name,
+                        name_span,
+                    );
+                }
+                ContractDef {
+                    name,
+                    expr: String::new(),
+                }
             });
         }
         let expr = self.raw_until_statement_end();
         if !self.expect_symbol(Symbol::Semicolon, "`;`") {
             self.recover_to_statement_end();
         }
-        name.map(|name| ContractDef { name, expr })
+        name.map(|(name, name_span)| {
+            if let Some(interface_name) = interface_name {
+                self.design
+                    .source_map
+                    .record_interface_contract(interface_name, &name, name_span);
+            }
+            ContractDef { name, expr }
+        })
     }
 
     fn parse_module(&mut self) {
@@ -383,7 +412,7 @@ impl<'a> Parser<'a> {
             self.expect_keyword("module");
             false
         };
-        let name = self.expect_ident("module name");
+        let name = self.expect_ident_spanned("module name");
         self.expect_symbol(Symbol::At, "`@`");
         let domain = self.expect_ident("clock domain");
         if !self.expect_symbol(Symbol::LBrace, "`{`") {
@@ -392,6 +421,7 @@ impl<'a> Parser<'a> {
         }
 
         let mut ports = Vec::new();
+        let module_name = name.as_ref().map(|(name, _)| name.clone());
         while !self.is_eof() && !self.at_symbol(Symbol::RBrace) {
             let dir = if self.consume_keyword("in") {
                 Some(PortDir::In)
@@ -408,13 +438,18 @@ impl<'a> Parser<'a> {
             let Some(dir) = dir else {
                 continue;
             };
-            let port_name = self.expect_ident("port name");
+            let port_name = self.expect_ident_spanned("port name");
             self.expect_symbol(Symbol::Colon, "`:`");
             let interface = self.expect_ident("interface name");
             if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                 self.recover_to_statement_end();
             }
-            if let (Some(name), Some(interface)) = (port_name, interface) {
+            if let (Some((name, name_span)), Some(interface)) = (port_name, interface) {
+                if let Some(module_name) = &module_name {
+                    self.design
+                        .source_map
+                        .record_module_port(module_name, &name, name_span);
+                }
                 ports.push(PortDef {
                     name,
                     dir,
@@ -424,7 +459,8 @@ impl<'a> Parser<'a> {
         }
         self.expect_symbol(Symbol::RBrace, "`}`");
 
-        if let (Some(name), Some(domain)) = (name, domain) {
+        if let (Some((name, name_span)), Some(domain)) = (name, domain) {
+            self.design.source_map.record_module(&name, name_span);
             self.design.modules.push(ModuleDef {
                 name,
                 domain,
@@ -436,7 +472,7 @@ impl<'a> Parser<'a> {
 
     fn parse_adapter(&mut self) {
         self.expect_keyword("adapter");
-        let name = self.expect_ident("adapter name");
+        let name = self.expect_ident_spanned("adapter name");
         self.expect_keyword("from");
         let from_interface = self.expect_ident("source interface");
         self.expect_symbol(Symbol::At, "`@`");
@@ -452,25 +488,45 @@ impl<'a> Parser<'a> {
 
         let mut kind = Ident::from("custom");
         let mut attributes = Vec::new();
+        let adapter_name = name.as_ref().map(|(name, _)| name.clone());
         while !self.is_eof() && !self.at_symbol(Symbol::RBrace) {
             if self.consume_keyword("kind") {
-                if let Some(parsed_kind) = self.expect_ident("adapter kind") {
+                if let Some((parsed_kind, kind_span)) = self.expect_ident_spanned("adapter kind") {
+                    if let Some(adapter_name) = &adapter_name {
+                        self.design
+                            .source_map
+                            .record_adapter_kind(adapter_name, kind_span);
+                    }
                     kind = parsed_kind;
                 }
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
                 }
             } else if self.at_keyword("contract") {
-                self.bump();
+                let contract_span = self.bump().map(|token| token.span);
                 let value = self.raw_until_statement_end();
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
                 }
+                if let (Some(adapter_name), Some(contract_span)) = (&adapter_name, contract_span) {
+                    self.design.source_map.record_adapter_attribute(
+                        adapter_name,
+                        value.as_str(),
+                        contract_span,
+                    );
+                }
                 attributes.push((Ident::from("contract"), value));
-            } else if let Some(attr_name) = self.consume_ident() {
+            } else if let Some((attr_name, attr_span)) = self.consume_ident_spanned() {
                 let value = self.raw_until_statement_end();
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
+                }
+                if let Some(adapter_name) = &adapter_name {
+                    self.design.source_map.record_adapter_attribute(
+                        adapter_name,
+                        value.as_str(),
+                        attr_span,
+                    );
                 }
                 attributes.push((attr_name, value));
             } else {
@@ -484,13 +540,14 @@ impl<'a> Parser<'a> {
         self.expect_symbol(Symbol::RBrace, "`}`");
 
         if let (
-            Some(name),
+            Some((name, name_span)),
             Some(from_interface),
             Some(from_domain),
             Some(to_interface),
             Some(to_domain),
         ) = (name, from_interface, from_domain, to_interface, to_domain)
         {
+            self.design.source_map.record_adapter(&name, name_span);
             self.design.adapters.push(AdapterDef {
                 name,
                 from_interface,
@@ -505,7 +562,7 @@ impl<'a> Parser<'a> {
 
     fn parse_compose(&mut self) {
         self.expect_keyword("compose");
-        let name = self.expect_ident("compose name");
+        let name = self.expect_ident_spanned("compose name");
         self.expect_symbol(Symbol::At, "`@`");
         let domain = self.expect_ident("clock domain");
         if !self.expect_symbol(Symbol::LBrace, "`{`") {
@@ -515,15 +572,23 @@ impl<'a> Parser<'a> {
 
         let mut instances = Vec::new();
         let mut connections = Vec::new();
+        let compose_name = name.as_ref().map(|(name, _)| name.clone());
         while !self.is_eof() && !self.at_symbol(Symbol::RBrace) {
             if self.consume_keyword("inst") {
-                let inst_name = self.expect_ident("instance name");
+                let inst_name = self.expect_ident_spanned("instance name");
                 self.expect_symbol(Symbol::Colon, "`:`");
                 let module = self.expect_ident("module name");
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
                 }
-                if let (Some(name), Some(module)) = (inst_name, module) {
+                if let (Some((name, name_span)), Some(module)) = (inst_name, module) {
+                    if let Some(compose_name) = &compose_name {
+                        self.design.source_map.record_compose_instance(
+                            compose_name,
+                            &name,
+                            name_span,
+                        );
+                    }
                     instances.push(InstanceDef { name, module });
                 }
             } else if self.consume_keyword("connect") {
@@ -533,12 +598,30 @@ impl<'a> Parser<'a> {
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
                 }
-                if let (Some(from), Some(to)) = (from, to) {
-                    connections.push(ConnectDef {
+                if let (Some((from, from_span)), Some((to, to_span))) = (from, to) {
+                    let connection = ConnectDef {
                         from,
                         to,
                         adapter: None,
-                    });
+                    };
+                    if let Some(compose_name) = &compose_name {
+                        self.design.source_map.record_endpoint(
+                            compose_name,
+                            &connection.from,
+                            from_span,
+                        );
+                        self.design.source_map.record_endpoint(
+                            compose_name,
+                            &connection.to,
+                            to_span,
+                        );
+                        self.design.source_map.record_connection(
+                            compose_name,
+                            &connection,
+                            from_span.covering(to_span),
+                        );
+                    }
+                    connections.push(connection);
                 }
             } else if self.consume_keyword("adapt") {
                 let from = self.parse_endpoint();
@@ -549,12 +632,32 @@ impl<'a> Parser<'a> {
                 if !self.expect_symbol(Symbol::Semicolon, "`;`") {
                     self.recover_to_statement_end();
                 }
-                if let (Some(from), Some(adapter), Some(to)) = (from, adapter, to) {
-                    connections.push(ConnectDef {
+                if let (Some((from, from_span)), Some(adapter), Some((to, to_span))) =
+                    (from, adapter, to)
+                {
+                    let connection = ConnectDef {
                         from,
                         to,
                         adapter: Some(adapter),
-                    });
+                    };
+                    if let Some(compose_name) = &compose_name {
+                        self.design.source_map.record_endpoint(
+                            compose_name,
+                            &connection.from,
+                            from_span,
+                        );
+                        self.design.source_map.record_endpoint(
+                            compose_name,
+                            &connection.to,
+                            to_span,
+                        );
+                        self.design.source_map.record_connection(
+                            compose_name,
+                            &connection,
+                            from_span.covering(to_span),
+                        );
+                    }
+                    connections.push(connection);
                 }
             } else {
                 self.error_current(
@@ -566,7 +669,8 @@ impl<'a> Parser<'a> {
         }
         self.expect_symbol(Symbol::RBrace, "`}`");
 
-        if let (Some(name), Some(domain)) = (name, domain) {
+        if let (Some((name, name_span)), Some(domain)) = (name, domain) {
+            self.design.source_map.record_compose(&name, name_span);
             self.design.composes.push(ComposeDef {
                 name,
                 domain,
@@ -576,11 +680,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_endpoint(&mut self) -> Option<Endpoint> {
-        let instance = self.expect_ident("endpoint instance")?;
+    fn parse_endpoint(&mut self) -> Option<(Endpoint, SourceSpan)> {
+        let (instance, instance_span) = self.expect_ident_spanned("endpoint instance")?;
         self.expect_symbol(Symbol::Dot, "`.`");
-        let port = self.expect_ident("endpoint port")?;
-        Some(Endpoint { instance, port })
+        let (port, port_span) = self.expect_ident_spanned("endpoint port")?;
+        let span = instance_span.covering(port_span);
+        Some((Endpoint { instance, port }, span))
     }
 
     fn raw_until_statement_end(&mut self) -> String {
@@ -640,11 +745,15 @@ impl<'a> Parser<'a> {
     }
 
     fn expect_ident(&mut self, label: &'static str) -> Option<Ident> {
+        self.expect_ident_spanned(label).map(|(ident, _)| ident)
+    }
+
+    fn expect_ident_spanned(&mut self, label: &'static str) -> Option<(Ident, SourceSpan)> {
         match self.bump() {
             Some(Token {
                 kind: TokenKind::Ident(value),
-                ..
-            }) => Some(Ident::from(value.as_str())),
+                span,
+            }) => Some((Ident::from(value.as_str()), span)),
             Some(token) => {
                 self.errors.push(ParseError::new(
                     token.span,
@@ -664,9 +773,9 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn consume_ident(&mut self) -> Option<Ident> {
+    fn consume_ident_spanned(&mut self) -> Option<(Ident, SourceSpan)> {
         match self.peek().map(|t| &t.kind) {
-            Some(TokenKind::Ident(_)) => self.expect_ident("identifier"),
+            Some(TokenKind::Ident(_)) => self.expect_ident_spanned("identifier"),
             _ => None,
         }
     }

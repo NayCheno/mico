@@ -6,7 +6,12 @@
       "labels": [
         {
           "message": "source endpoint must be an output",
-          "span": null,
+          "span": {
+            "column": 11,
+            "end": 294,
+            "line": 19,
+            "start": 290
+          },
           "style": "primary"
         }
       ],
@@ -23,7 +28,12 @@
       ],
       "repair_action": "reverse_connection",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 11,
+        "end": 294,
+        "line": 19,
+        "start": 290
+      }
     },
     {
       "code": "DirectionMismatch",
@@ -31,7 +41,12 @@
       "labels": [
         {
           "message": "sink endpoint must be an input",
-          "span": null,
+          "span": {
+            "column": 19,
+            "end": 302,
+            "line": 19,
+            "start": 298
+          },
           "style": "primary"
         }
       ],
@@ -48,7 +63,12 @@
       ],
       "repair_action": "reverse_connection",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 19,
+        "end": 302,
+        "line": 19,
+        "start": 298
+      }
     }
   ],
   "ok": false,

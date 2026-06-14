@@ -1348,6 +1348,7 @@ mod tests {
                     adapter: None,
                 }],
             }],
+            source_map: SourceMap::default(),
         }
     }
 

@@ -8,7 +8,12 @@
       "labels": [
         {
           "message": "source and adapter guarantees do not cover sink contract requirements",
-          "span": null,
+          "span": {
+            "column": 11,
+            "end": 44,
+            "line": 3,
+            "start": 35
+          },
           "style": "primary"
         }
       ],
@@ -29,7 +34,12 @@
       ],
       "repair_action": "add_contract",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 11,
+        "end": 44,
+        "line": 3,
+        "start": 35
+      }
     }
   ],
   "ok": false,

@@ -8,7 +8,12 @@
       "labels": [
         {
           "message": "adapter kind is not in the v0 library",
-          "span": null,
+          "span": {
+            "column": 8,
+            "end": 385,
+            "line": 22,
+            "start": 373
+          },
           "style": "primary"
         }
       ],
@@ -25,7 +30,12 @@
       ],
       "repair_action": "use_known_adapter_kind",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 8,
+        "end": 385,
+        "line": 22,
+        "start": 373
+      }
     }
   ],
   "ok": false,

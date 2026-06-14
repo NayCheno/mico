@@ -8,7 +8,12 @@
       "labels": [
         {
           "message": "direct connection crosses interface types",
-          "span": null,
+          "span": {
+            "column": 11,
+            "end": 552,
+            "line": 27,
+            "start": 536
+          },
           "style": "primary"
         }
       ],
@@ -33,7 +38,12 @@
       ],
       "repair_action": "use_adapter",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 11,
+        "end": 552,
+        "line": 27,
+        "start": 536
+      }
     },
     {
       "code": "ClockDomainMismatch",
@@ -43,7 +53,12 @@
       "labels": [
         {
           "message": "direct connection crosses clock domains",
-          "span": null,
+          "span": {
+            "column": 11,
+            "end": 552,
+            "line": 27,
+            "start": 536
+          },
           "style": "primary"
         }
       ],
@@ -68,7 +83,12 @@
       ],
       "repair_action": "use_adapter",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 11,
+        "end": 552,
+        "line": 27,
+        "start": 536
+      }
     }
   ],
   "ok": false,

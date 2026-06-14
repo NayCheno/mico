@@ -8,7 +8,12 @@
       "labels": [
         {
           "message": "direct connection crosses interface types",
-          "span": null,
+          "span": {
+            "column": 11,
+            "end": 387,
+            "line": 24,
+            "start": 375
+          },
           "style": "primary"
         }
       ],
@@ -33,7 +38,12 @@
       ],
       "repair_action": "use_adapter",
       "severity": "error",
-      "span": null
+      "span": {
+        "column": 11,
+        "end": 387,
+        "line": 24,
+        "start": 375
+      }
     }
   ],
   "ok": false,

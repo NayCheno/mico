@@ -27,6 +27,26 @@ pub struct SourceSpan {
     pub column: usize,
 }
 
+impl SourceSpan {
+    pub fn covering(self, other: SourceSpan) -> Self {
+        if self.start <= other.start {
+            Self {
+                start: self.start,
+                end: self.end.max(other.end),
+                line: self.line,
+                column: self.column,
+            }
+        } else {
+            Self {
+                start: other.start,
+                end: other.end.max(self.end),
+                line: other.line,
+                column: other.column,
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalarType {
     Bool,
@@ -340,6 +360,179 @@ pub struct Design {
     pub modules: Vec<ModuleDef>,
     pub adapters: Vec<AdapterDef>,
     pub composes: Vec<ComposeDef>,
+    pub source_map: SourceMap,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct SourceMap {
+    clock_domains: HashMap<String, SourceSpan>,
+    interfaces: HashMap<String, SourceSpan>,
+    interface_fields: HashMap<String, SourceSpan>,
+    interface_contracts: HashMap<String, SourceSpan>,
+    modules: HashMap<String, SourceSpan>,
+    module_ports: HashMap<String, SourceSpan>,
+    adapters: HashMap<String, SourceSpan>,
+    adapter_kinds: HashMap<String, SourceSpan>,
+    adapter_attributes: HashMap<String, SourceSpan>,
+    composes: HashMap<String, SourceSpan>,
+    compose_instances: HashMap<String, SourceSpan>,
+    connections: HashMap<String, SourceSpan>,
+    endpoints: HashMap<String, SourceSpan>,
+}
+
+impl SourceMap {
+    pub fn record_clock_domain(&mut self, name: &Ident, span: SourceSpan) {
+        self.clock_domains.insert(name.0.clone(), span);
+    }
+
+    pub fn clock_domain(&self, name: &Ident) -> Option<SourceSpan> {
+        self.clock_domains.get(&name.0).copied()
+    }
+
+    pub fn record_interface(&mut self, name: &Ident, span: SourceSpan) {
+        self.interfaces.insert(name.0.clone(), span);
+    }
+
+    pub fn interface(&self, name: &Ident) -> Option<SourceSpan> {
+        self.interfaces.get(&name.0).copied()
+    }
+
+    pub fn record_interface_field(&mut self, interface: &Ident, field: &Ident, span: SourceSpan) {
+        self.interface_fields
+            .insert(scoped_key(interface, field), span);
+    }
+
+    pub fn interface_field(&self, interface: &Ident, field: &Ident) -> Option<SourceSpan> {
+        self.interface_fields
+            .get(&scoped_key(interface, field))
+            .copied()
+    }
+
+    pub fn record_interface_contract(
+        &mut self,
+        interface: &Ident,
+        contract: &Ident,
+        span: SourceSpan,
+    ) {
+        self.interface_contracts
+            .insert(scoped_key(interface, contract), span);
+    }
+
+    pub fn interface_contract(&self, interface: &Ident, contract: &Ident) -> Option<SourceSpan> {
+        self.interface_contracts
+            .get(&scoped_key(interface, contract))
+            .copied()
+    }
+
+    pub fn record_module(&mut self, name: &Ident, span: SourceSpan) {
+        self.modules.insert(name.0.clone(), span);
+    }
+
+    pub fn module(&self, name: &Ident) -> Option<SourceSpan> {
+        self.modules.get(&name.0).copied()
+    }
+
+    pub fn record_module_port(&mut self, module: &Ident, port: &Ident, span: SourceSpan) {
+        self.module_ports.insert(scoped_key(module, port), span);
+    }
+
+    pub fn module_port(&self, module: &Ident, port: &Ident) -> Option<SourceSpan> {
+        self.module_ports.get(&scoped_key(module, port)).copied()
+    }
+
+    pub fn record_adapter(&mut self, name: &Ident, span: SourceSpan) {
+        self.adapters.insert(name.0.clone(), span);
+    }
+
+    pub fn adapter(&self, name: &Ident) -> Option<SourceSpan> {
+        self.adapters.get(&name.0).copied()
+    }
+
+    pub fn record_adapter_kind(&mut self, adapter: &Ident, span: SourceSpan) {
+        self.adapter_kinds.insert(adapter.0.clone(), span);
+    }
+
+    pub fn adapter_kind(&self, adapter: &Ident) -> Option<SourceSpan> {
+        self.adapter_kinds.get(&adapter.0).copied()
+    }
+
+    pub fn record_adapter_attribute(&mut self, adapter: &Ident, value: &str, span: SourceSpan) {
+        self.adapter_attributes
+            .insert(format!("{}:{value}", adapter.0), span);
+    }
+
+    pub fn adapter_attribute(&self, adapter: &Ident, value: &str) -> Option<SourceSpan> {
+        self.adapter_attributes
+            .get(&format!("{}:{value}", adapter.0))
+            .copied()
+    }
+
+    pub fn record_compose(&mut self, name: &Ident, span: SourceSpan) {
+        self.composes.insert(name.0.clone(), span);
+    }
+
+    pub fn compose(&self, name: &Ident) -> Option<SourceSpan> {
+        self.composes.get(&name.0).copied()
+    }
+
+    pub fn record_compose_instance(&mut self, compose: &Ident, instance: &Ident, span: SourceSpan) {
+        self.compose_instances
+            .insert(scoped_key(compose, instance), span);
+    }
+
+    pub fn compose_instance(&self, compose: &Ident, instance: &Ident) -> Option<SourceSpan> {
+        self.compose_instances
+            .get(&scoped_key(compose, instance))
+            .copied()
+    }
+
+    pub fn record_endpoint(&mut self, compose: &Ident, endpoint: &Endpoint, span: SourceSpan) {
+        self.endpoints.insert(endpoint_key(compose, endpoint), span);
+    }
+
+    pub fn endpoint(&self, compose: &Ident, endpoint: &Endpoint) -> Option<SourceSpan> {
+        self.endpoints
+            .get(&endpoint_key(compose, endpoint))
+            .copied()
+    }
+
+    pub fn record_connection(
+        &mut self,
+        compose: &Ident,
+        connection: &ConnectDef,
+        span: SourceSpan,
+    ) {
+        self.connections
+            .insert(connection_key(compose, connection), span);
+    }
+
+    pub fn connection(&self, compose: &Ident, connection: &ConnectDef) -> Option<SourceSpan> {
+        self.connections
+            .get(&connection_key(compose, connection))
+            .copied()
+    }
+}
+
+fn scoped_key(scope: &Ident, name: &Ident) -> String {
+    format!("{}.{}", scope.0, name.0)
+}
+
+fn endpoint_key(compose: &Ident, endpoint: &Endpoint) -> String {
+    format!("{}:{}", compose.0, endpoint)
+}
+
+fn connection_key(compose: &Ident, connection: &ConnectDef) -> String {
+    format!(
+        "{}:{}->{}:{}",
+        compose.0,
+        connection.from,
+        connection.to,
+        connection
+            .adapter
+            .as_ref()
+            .map(|adapter| adapter.0.as_str())
+            .unwrap_or("")
+    )
 }
 
 pub const MICO_AST_SCHEMA_VERSION: &str = "mico.ast.v0";
@@ -426,6 +619,7 @@ impl AstDocument {
                 modules: self.modules,
                 adapters: self.adapters.into_iter().map(AdapterDef::from).collect(),
                 composes: self.composes,
+                source_map: SourceMap::default(),
             })
         } else {
             Err(diagnostics)
@@ -724,6 +918,13 @@ impl Diagnostic {
         self
     }
 
+    pub fn with_optional_span(mut self, span: Option<SourceSpan>) -> Self {
+        if let Some(span) = span {
+            self.span = Some(span);
+        }
+        self
+    }
+
     pub fn with_label(mut self, style: LabelStyle, message: impl Into<String>) -> Self {
         self.labels.push(DiagnosticLabel {
             style,
@@ -745,6 +946,18 @@ impl Diagnostic {
             span: Some(span),
         });
         self
+    }
+
+    pub fn with_optional_spanned_label(
+        self,
+        style: LabelStyle,
+        message: impl Into<String>,
+        span: Option<SourceSpan>,
+    ) -> Self {
+        match span {
+            Some(span) => self.with_spanned_label(style, message, span),
+            None => self.with_label(style, message),
+        }
     }
 
     pub fn with_node(mut self, kind: &'static str, name: impl fmt::Display) -> Self {
@@ -1029,7 +1242,127 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
         }
     }
 
+    attach_semantic_spans(&mut diags, design);
     diags
+}
+
+fn attach_semantic_spans(diags: &mut [Diagnostic], design: &Design) {
+    for diagnostic in diags {
+        if diagnostic.span.is_some() {
+            continue;
+        }
+        let Some(span) = diagnostic_span_from_nodes(diagnostic, design) else {
+            continue;
+        };
+        diagnostic.span = Some(span);
+        if let Some(label) = diagnostic
+            .labels
+            .iter_mut()
+            .find(|label| label.style == LabelStyle::Primary && label.span.is_none())
+        {
+            label.span = Some(span);
+        }
+    }
+}
+
+fn diagnostic_span_from_nodes(diagnostic: &Diagnostic, design: &Design) -> Option<SourceSpan> {
+    let endpoint_spans = diagnostic
+        .nodes
+        .iter()
+        .filter(|node| node.kind == "endpoint")
+        .filter_map(|node| Endpoint::parse(&node.name))
+        .filter_map(|endpoint| endpoint_span(design, &endpoint))
+        .collect::<Vec<_>>();
+    if let Some(span) = endpoint_spans
+        .iter()
+        .copied()
+        .reduce(|acc, span| acc.covering(span))
+    {
+        return Some(span);
+    }
+
+    for kind in ["field", "port", "instance", "adapter_kind", "contract"] {
+        if let Some(span) = diagnostic
+            .nodes
+            .iter()
+            .find(|node| node.kind == kind)
+            .and_then(|node| span_for_node(design, diagnostic, node))
+        {
+            return Some(span);
+        }
+    }
+
+    for node in &diagnostic.nodes {
+        if let Some(span) = span_for_node(design, diagnostic, node) {
+            return Some(span);
+        }
+    }
+    None
+}
+
+fn span_for_node(
+    design: &Design,
+    diagnostic: &Diagnostic,
+    node: &DiagnosticNode,
+) -> Option<SourceSpan> {
+    match node.kind {
+        "clock_domain" => design
+            .source_map
+            .clock_domain(&Ident::from(node.name.as_str())),
+        "interface" => design
+            .source_map
+            .interface(&Ident::from(node.name.as_str())),
+        "field" => {
+            let (interface, field) = split_scoped_name(&node.name)?;
+            design.source_map.interface_field(&interface, &field)
+        }
+        "module" => design.source_map.module(&Ident::from(node.name.as_str())),
+        "port" => {
+            let (module, port) = split_scoped_name(&node.name)?;
+            design.source_map.module_port(&module, &port)
+        }
+        "adapter" => design.source_map.adapter(&Ident::from(node.name.as_str())),
+        "adapter_kind" => {
+            adapter_node(diagnostic).and_then(|adapter| design.source_map.adapter_kind(&adapter))
+        }
+        "contract" => adapter_node(diagnostic)
+            .and_then(|adapter| design.source_map.adapter_attribute(&adapter, &node.name)),
+        "compose" => design.source_map.compose(&Ident::from(node.name.as_str())),
+        "instance" => instance_span(design, &Ident::from(node.name.as_str())),
+        "endpoint" => {
+            Endpoint::parse(&node.name).and_then(|endpoint| endpoint_span(design, &endpoint))
+        }
+        _ => None,
+    }
+}
+
+fn split_scoped_name(value: &str) -> Option<(Ident, Ident)> {
+    let (scope, name) = value.split_once('.')?;
+    Some((Ident::from(scope), Ident::from(name)))
+}
+
+fn adapter_node(diagnostic: &Diagnostic) -> Option<Ident> {
+    diagnostic
+        .nodes
+        .iter()
+        .find(|node| node.kind == "adapter")
+        .map(|node| Ident::from(node.name.as_str()))
+}
+
+fn instance_span(design: &Design, instance: &Ident) -> Option<SourceSpan> {
+    design
+        .composes
+        .iter()
+        .filter_map(|compose| design.source_map.compose_instance(&compose.name, instance))
+        .next()
+}
+
+fn endpoint_span(design: &Design, endpoint: &Endpoint) -> Option<SourceSpan> {
+    design
+        .composes
+        .iter()
+        .filter_map(|compose| design.source_map.endpoint(&compose.name, endpoint))
+        .next()
 }
 
 fn check_top_level_duplicates(design: &Design, diags: &mut Vec<Diagnostic>) {
@@ -2274,6 +2607,7 @@ mod tests {
                     adapter: None,
                 }],
             }],
+            source_map: SourceMap::default(),
         }
     }
 

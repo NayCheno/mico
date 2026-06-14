@@ -47,9 +47,11 @@ The PowerShell wrapper prints the host Docker version, runs
 paper with host LaTeX. The Docker gate verifies tools, runs Rust
 fmt/check/tests, runs EDA smoke, runs the deterministic benchmark, validates the
 LLM provider config without provider requests, plans the full LLM baseline
-matrix without provider requests, regenerates aggregate result tables, validates
-JSON outputs against the repository JSON Schemas, and writes
-`build/release/full_check_manifest.json`.
+matrix without provider requests, runs the held-out benchmark split,
+regenerates aggregate result tables for both public-development and held-out
+results, validates JSON outputs against the repository JSON Schemas, and writes
+`build/release/full_check_manifest.json`. With `-WithLatex`, the wrapper also
+updates the manifest with the final paper PDF hash after the host LaTeX build.
 
 Linux/WSL equivalent:
 
@@ -60,9 +62,15 @@ latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 
 Read the top-level `RELEASE_CHECKLIST.md` before publishing a release branch or
 tag. The generated release manifest records tool versions, prompt hashes,
-selected model/profile metadata, benchmark manifest hash, result JSON hashes,
-and the latest paper commit hash; it is an ignored build artifact and must not
-be committed.
+selected model/profile metadata, public-development and held-out benchmark
+manifest hashes, result JSON hashes, optional Vivado subset hashes, the latest
+paper commit hash, and the final paper PDF hash when available; it is an
+ignored build artifact and must not be committed. Package the review ZIP and
+sidecar with:
+
+```powershell
+.\scripts\make-release-bundle.ps1
+```
 
 ## Rust Compiler
 

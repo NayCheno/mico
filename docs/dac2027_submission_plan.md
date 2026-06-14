@@ -155,10 +155,16 @@ git diff --check
 
 The generated `build/release/full_check_manifest.json` must be reviewed or
 archived externally together with hashes for deterministic benchmark results,
-sanitized LLM results, prompt templates, benchmark manifests, aggregate tables,
-and the final paper PDF.
+held-out benchmark results, sanitized LLM results, prompt templates, benchmark
+manifests, aggregate tables, optional Vivado subset summaries, and the final
+paper PDF. The review bundle is generated with:
+
+```powershell
+.\scripts\make-release-bundle.ps1
+```
 
 Baseline evidence records:
 
 - `docs/dac2027_full_check_baseline_2026-06-14.md`
 - `docs/17_llm_prompt_redesign_pilot.md`
+- `docs/21_artifact_release_candidate.md`

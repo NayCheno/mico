@@ -122,7 +122,9 @@ The release gate produces evidence under ignored `build/` paths. These files
 must be reviewed or archived externally before stronger claims are made:
 
 - `build/bench/seed_results.json`
+- `build/bench/heldout_results.json`
 - `build/bench/aggregate_results.json`
+- `build/bench/aggregate_heldout_results.json`
 - `build/llm/provider_validate.json`
 - `build/llm/bench_validate.json`
 - optional sanitized authenticated LLM result files under `build/llm/`

@@ -96,8 +96,12 @@ This file is the short, traceable status page for the current repository. Use
   `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch
   application to this CLI path.
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
-  `scripts/full-check.ps1`, plus a top-level release checklist and generated
-  `build/release/full_check_manifest.json` metadata record.
+  `scripts/full-check.ps1`, plus a top-level release checklist, generated
+  `build/release/full_check_manifest.json` metadata record, and
+  `scripts/make-release-bundle.ps1` review ZIP/sidecar packager. The release
+  gate records public-development and held-out benchmark hashes, sanitized LLM
+  validate-only hashes, optional Vivado subset hashes, and the final paper PDF
+  hash when `-WithLatex` is used.
 - IEEE-style paper draft compressed to a five-page DAC-style manuscript, with a
   generated deterministic summary table, conservative deterministic benchmark
   claims, and a negative authenticated low-cost LLM matrix summary.
@@ -117,8 +121,9 @@ This file is the short, traceable status page for the current repository. Use
   integration beyond the deterministic summary table.
 - Broader subsystem case studies beyond the current five public-dev plus three
   held-out deterministic cases.
-- Immutable release tag; the current policy uses a reviewable release branch
-  first, then tags only after final artifact approval.
+- Immutable release tag, GitHub Release, or Zenodo archive; the current policy
+  uses a reviewable release branch and generated bundle first, then publishes
+  permanent archives only after final artifact approval.
 
 ## Current ModuleComposeBench Boundary
 

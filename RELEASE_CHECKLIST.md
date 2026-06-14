@@ -50,8 +50,10 @@ The release manifest records:
 - Python version;
 - prompt SHA-256 hashes for files under `prompts/`;
 - selected LLM model/profile metadata with API keys redacted;
-- benchmark manifest SHA-256 hash;
-- result JSON SHA-256 hashes for deterministic, LLM validate-only, provider validate-only, and aggregate outputs;
+- public-development and held-out benchmark manifest SHA-256 hashes;
+- result JSON SHA-256 hashes for deterministic, held-out, LLM validate-only, provider validate-only, and aggregate outputs;
+- optional Vivado subset summary hashes when host Vivado evidence exists;
+- final paper PDF SHA-256 hash when `-WithLatex` is used;
 - current source commit hash and latest paper commit hash.
 
 The release bundle manifest records:
@@ -59,7 +61,7 @@ The release bundle manifest records:
 - source archive hash;
 - full-check manifest hash;
 - final `paper/main.pdf` SHA-256 hash;
-- included schema, prompt, deterministic result, validate-only LLM result, sanitized LLM summary, table, and reproduction-guide file hashes;
+- included schema, prompt, benchmark manifest, deterministic result, held-out result, validate-only LLM result, sanitized LLM summary, Vivado summary, table, and reproduction-guide file hashes;
 - generated bundle SHA-256 sidecar path.
 
 ## Required Checks
@@ -68,9 +70,11 @@ The release bundle manifest records:
 - `cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace` passes in Docker.
 - `bash scripts/eda-smoke.sh` passes in Docker.
 - `python3 benchmarks/run_bench.py --output build/bench/seed_results.json` passes in Docker.
+- `python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/heldout_results.json` passes in Docker.
 - `python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only --output build/llm/provider_validate.json` passes in Docker without provider requests.
 - `python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json` passes in Docker without provider requests.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_validate.json --out-json build/bench/aggregate_results.json` passes in Docker.
+- `python3 benchmarks/aggregate_results.py --bench-result build/bench/heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_heldout_results.json --out-dir build/bench/heldout_tables --paper-table-dir build/paper_tables/heldout` passes in Docker.
 - `python3 -m json.tool` validates every generated JSON result used by the release manifest.
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.
 - `.\scripts\make-release-bundle.ps1` passes after the final source commit and writes the artifact ZIP plus `.sha256` sidecar.

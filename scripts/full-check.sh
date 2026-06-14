@@ -83,6 +83,9 @@ run_step "Docker tool verification" mico-verify-tools
 run_step "Rust fmt/check/test" bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 run_step "EDA smoke" bash scripts/eda-smoke.sh
 run_step "Deterministic benchmark" python3 benchmarks/run_bench.py --output build/bench/seed_results.json
+run_step "Held-out benchmark" python3 benchmarks/run_bench.py \
+    --manifest benchmarks/module_compose_bench_heldout.yaml \
+    --output build/bench/heldout_results.json
 run_step "LLM provider validate-only" python3 scripts/llm-provider-smoke.py \
     --config "${llm_config}" \
     --profile "${provider_profile}" \
@@ -97,11 +100,24 @@ run_step "Aggregate benchmark and LLM records" python3 benchmarks/aggregate_resu
     --bench-result build/bench/seed_results.json \
     --llm-result build/llm/bench_validate.json \
     --out-json build/bench/aggregate_results.json
+run_step "Aggregate held-out benchmark records" python3 benchmarks/aggregate_results.py \
+    --bench-result build/bench/heldout_results.json \
+    --manifest benchmarks/module_compose_bench_heldout.yaml \
+    --out-json build/bench/aggregate_heldout_results.json \
+    --out-dir build/bench/heldout_tables \
+    --paper-table-dir build/paper_tables/heldout
 run_step "JSON schema validation" python3 scripts/validate_json_schemas.py \
     --bench-result build/bench/seed_results.json \
+    --bench-result build/bench/heldout_results.json \
     --llm-run build/llm/provider_validate.json \
     --llm-bench build/llm/bench_validate.json \
-    --aggregate-result build/bench/aggregate_results.json
+    --aggregate-result build/bench/aggregate_results.json \
+    --aggregate-result build/bench/aggregate_heldout_results.json
+run_step "Held-out manifest schema validation" python3 scripts/validate_json_schemas.py \
+    --no-generate-smoke \
+    --bench-manifest benchmarks/module_compose_bench_heldout.yaml \
+    --bench-result build/bench/heldout_results.json \
+    --aggregate-result build/bench/aggregate_heldout_results.json
 
 tracked_generated="$(
     git ls-files -- \
@@ -254,9 +270,20 @@ def load_llm_metadata(path: Path) -> dict[str, Any]:
 
 result_paths = [
     "build/bench/seed_results.json",
+    "build/bench/heldout_results.json",
     "build/llm/provider_validate.json",
     "build/llm/bench_validate.json",
     "build/bench/aggregate_results.json",
+    "build/bench/aggregate_heldout_results.json",
+]
+manifest_paths = [
+    "benchmarks/module_compose_bench_manifest.yaml",
+    "benchmarks/module_compose_bench_heldout.yaml",
+]
+vivado_subset_paths = [
+    "build/reports/vivado-host/vivado_qor_subset_summary.json",
+    "build/reports/vivado-host/vivado_qor_subset_summary.csv",
+    "build/reports/vivado-host/vivado_qor_subset_delta.csv",
 ]
 
 payload = {
@@ -285,10 +312,28 @@ payload = {
         "path": "benchmarks/module_compose_bench_manifest.yaml",
         "sha256": sha256_file(repo / "benchmarks/module_compose_bench_manifest.yaml"),
     },
+    "benchmark_manifests": [
+        {"path": rel, "sha256": sha256_file(repo / rel)}
+        for rel in manifest_paths
+    ],
     "result_json_hashes": [
         {"path": rel, "sha256": sha256_file(repo / rel)}
         for rel in result_paths
     ],
+    "vivado_subset": {
+        "host_tool_exception": True,
+        "available": any((repo / rel).exists() for rel in vivado_subset_paths),
+        "artifacts": [
+            {"path": rel, "sha256": sha256_file(repo / rel)}
+            for rel in vivado_subset_paths
+            if (repo / rel).exists()
+        ],
+    },
+    "paper_pdf": {
+        "path": "paper/main.pdf",
+        "sha256": sha256_file(repo / "paper/main.pdf"),
+        "note": "Updated by scripts/full-check.ps1 after host LaTeX when -WithLatex is used.",
+    },
     "generated_output_policy": {
         "tracked_generated_files": (git_text([
             "ls-files",

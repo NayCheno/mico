@@ -126,14 +126,44 @@ try {
     Copy-BundleTree "prompts" "prompts"
     Copy-BundleFile "README.md" "README.md"
     Copy-BundleFile "RELEASE_CHECKLIST.md" "RELEASE_CHECKLIST.md"
-    Copy-BundleFile "docs/14_reproduction_workflow.md" "docs/14_reproduction_workflow.md"
-    Copy-BundleFile "docs/16_llm_matrix_results.md" "docs/16_llm_matrix_results.md"
+    Copy-BundleFile "config/llm-provider.example.yaml" "config/llm-provider.example.yaml"
+    Copy-BundleFile "benchmarks/module_compose_bench_manifest.yaml" "manifests/module_compose_bench_manifest.yaml"
+    Copy-BundleFile "benchmarks/module_compose_bench_heldout.yaml" "manifests/module_compose_bench_heldout.yaml"
+    $docFiles = @(
+        "docs/14_reproduction_workflow.md",
+        "docs/15_case_studies.md",
+        "docs/16_llm_matrix_results.md",
+        "docs/17_llm_prompt_redesign_pilot.md",
+        "docs/18_directed_verification_hardening.md",
+        "docs/19_vivado_qor_subset.md",
+        "docs/20_paper_dac_ready.md",
+        "docs/21_artifact_release_candidate.md",
+        "docs/claim_boundary.md",
+        "docs/current_status.md",
+        "docs/dac2027_submission_plan.md"
+    )
+    foreach ($doc in $docFiles) {
+        Copy-BundleFile $doc $doc
+    }
     Copy-BundleFile $Manifest "release/full_check_manifest.json"
     Copy-BundleFile "build/bench/seed_results.json" "results/deterministic/seed_results.json"
+    Copy-BundleFile "build/bench/heldout_results.json" "results/deterministic/heldout_results.json"
     Copy-BundleFile "build/bench/aggregate_results.json" "results/deterministic/aggregate_results.json"
+    Copy-BundleFile "build/bench/aggregate_heldout_results.json" "results/deterministic/aggregate_heldout_results.json"
     Copy-BundleFile "build/llm/provider_validate.json" "results/llm_validate/provider_validate.json"
     Copy-BundleFile "build/llm/bench_validate.json" "results/llm_validate/bench_validate.json"
     Copy-BundleFile "paper/main.pdf" "paper/main.pdf"
+
+    $vivadoFiles = @(
+        "build/reports/vivado-host/vivado_qor_subset_summary.json",
+        "build/reports/vivado-host/vivado_qor_subset_summary.csv",
+        "build/reports/vivado-host/vivado_qor_subset_delta.csv"
+    )
+    foreach ($file in $vivadoFiles) {
+        if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {
+            Copy-BundleFile $file ("results/vivado/" + (Split-Path -Leaf $file))
+        }
+    }
 
     $tableFiles = @(
         "build/bench/deterministic_summary.csv",
@@ -153,6 +183,9 @@ try {
         if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {
             Copy-BundleFile $file ("tables/" + (Split-Path -Leaf $file))
         }
+    }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/heldout_tables") -PathType Container) {
+        Copy-BundleTree "build/bench/heldout_tables" "tables/heldout"
     }
 
     $forbiddenBundlePaths = Get-ChildItem -LiteralPath $script:stageRoot -Recurse -File | Where-Object {

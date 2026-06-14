@@ -17,7 +17,14 @@ Linux/WSL:
 latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 ```
 
-The Docker gate writes `build/release/full_check_manifest.json`. This file is a generated build artifact and must not be committed.
+The Docker gate writes `build/release/full_check_manifest.json`. This file is a generated build artifact and must not be committed. After the final gate passes, package the review archive with:
+
+```powershell
+.\scripts\make-release-bundle.ps1
+```
+
+The bundle and its `.sha256` sidecar are also generated build artifacts under
+`build/release/`.
 
 ## Evidence Storage Policy
 
@@ -47,6 +54,14 @@ The release manifest records:
 - result JSON SHA-256 hashes for deterministic, LLM validate-only, provider validate-only, and aggregate outputs;
 - current source commit hash and latest paper commit hash.
 
+The release bundle manifest records:
+
+- source archive hash;
+- full-check manifest hash;
+- final `paper/main.pdf` SHA-256 hash;
+- included schema, prompt, deterministic result, validate-only LLM result, sanitized LLM summary, table, and reproduction-guide file hashes;
+- generated bundle SHA-256 sidecar path.
+
 ## Required Checks
 
 - `mico-verify-tools` passes in Docker.
@@ -58,6 +73,7 @@ The release manifest records:
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_validate.json --out-json build/bench/aggregate_results.json` passes in Docker.
 - `python3 -m json.tool` validates every generated JSON result used by the release manifest.
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.
+- `.\scripts\make-release-bundle.ps1` passes after the final source commit and writes the artifact ZIP plus `.sha256` sidecar.
 - `git status --short` is empty before publishing the release branch or tag.
 
 ## Authenticated LLM Result Handling
@@ -77,6 +93,9 @@ After the final source commit for a release candidate, rerun:
 
 The generated `build/release/full_check_manifest.json` must describe that final
 commit hash before a release branch is published or an immutable tag is created.
+Run `.\scripts\make-release-bundle.ps1` only after that final full-check pass so
+the bundle manifest, paper PDF hash, and bundle sidecar all describe the same
+source revision.
 
 ## Do Not Commit
 

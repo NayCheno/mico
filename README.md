@@ -2,15 +2,15 @@
 
 **MICO** = **M**odule–**I**nterface–**C**ontract–**O**riented HDL.
 
-This package is a research starter kit for a Rust-based language and compiler framework that targets LLM-assisted RTL module composition. The intended scope is deliberately narrow: use LLMs to propose module interface schemas, composition graphs, adapter plans, and contract skeletons; use a deterministic compiler to check direction, width, protocol, clock/reset domain, and contract obligations; then lower the checked design to SystemVerilog and, later, CIRCT HW/ESI/Verif/LTL.
+This package is a Rust-based research prototype for LLM-assisted RTL module composition. The intended scope is deliberately narrow: use LLMs to propose module interface schemas, composition graphs, adapter plans, and contract skeletons; use a deterministic compiler to check direction, width, protocol, clock/reset domain, and contract obligations; then lower the checked design to SystemVerilog and, later, CIRCT HW/ESI/Verif/LTL.
 
 ## What is included
 
 ```text
 paper/              IEEE-style LaTeX paper source, split sections, references, figures, and historical notes
 docs/               Language spec, architecture, LLM workflow, evaluation plan, roadmap, risks
-rust_project/       Rust workspace skeleton for parser/IR/checker/codegen/CLI
-benchmarks/         ModuleComposeBench seed manifest and scoring schema
+rust_project/       Rust workspace for parser/IR/checker/codegen/CLI
+benchmarks/         ModuleComposeBench seed manifest, task set, and runner
 prompts/            Prompt templates and structured-output schemas
 source/             Original/edited input reports used as research context
 ```
@@ -19,17 +19,21 @@ source/             Original/edited input reports used as research context
 
 Direct Verilog generation asks an LLM to solve too many coupled problems in one textual target: local logic, module binding, port naming, protocol semantics, timing domains, resets, wrappers, and validation. MICO instead treats module composition as a typed graph synthesis problem. The LLM is a proposal engine; the compiler is the authority.
 
-## Recommended first milestone
+## Current next milestones
 
-1. Implement the Rust frontend for the minimal grammar in `docs/01_language_spec_v0.md`.
-2. Add semantic checks for role compatibility, interface identity, width equality, and clock-domain equality.
-3. Emit conservative SystemVerilog wrappers for existing leaf RTL modules.
-4. Build `ModuleComposeBench` tasks from existing open-source RTL modules.
-5. Compare direct Verilog prompting vs. MICO AST prompting vs. MICO AST + compiler-feedback repair.
+1. Add structured semantic diagnostic spans, graph nodes, labels, and repair actions.
+2. Add schema-validated MICO JSON AST input and repair patch ingestion.
+3. Turn the ready/valid contract subset into parsed, checkable compiler data.
+4. Add golden SV/SVA/traceability fixtures plus per-task simulation/formal/QoR support.
+5. Expand ModuleComposeBench from the seven seed tasks to a publishable 50+ task suite.
+6. Add LLM baseline and compiler-feedback repair-loop runners.
+7. Generate paper tables from benchmark artifacts and keep claims aligned with results.
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/IR/codegen/CLI path, seed RTL smoke collateral, a seed ModuleComposeBench runner, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, seed RTL smoke collateral, a seven-task ModuleComposeBench runner, schema-versioned diagnostic/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim per-task simulation, formal proof, QoR, or multi-model pass-rate improvements.
+
+For the current claim boundary, read `docs/current_status.md` and `docs/13_architecture_audit.md`.
 
 For repeatable Rust and open-source RTL/EDA validation, use the persistent Ubuntu 24.04 Docker environment in `docker/eda/`. Vivado-specific flows use the Windows host Vivado installation; paper writing and PDF compilation use `paper/main.tex` with the Windows host LaTeX installation; other compilation and testing should run in Docker.
 

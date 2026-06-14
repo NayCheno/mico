@@ -15,10 +15,12 @@
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |
 | `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |
-| `docs/13_architecture_audit.md` | Baseline architecture audit, verified current state, gaps, and milestone acceptance plan. |
+| `docs/13_architecture_audit.md` | Current architecture audit, implemented state, claim boundary, gaps, and next priority order. |
 | `docs/14_reproduction_workflow.md` | Clean-checkout reproduction workflow covering Docker Rust/EDA, benchmarks, LLM provider smoke, host Vivado, and host LaTeX. |
-| `rust_project/` | Rust workspace skeleton. |
+| `docs/current_status.md` | Short status page summarizing implemented features, non-claims, seed benchmark boundary, and validation commands. |
+| `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, and CLI JSON behavior. |
+| `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | Seed benchmark plan for module composition. |
+| `benchmarks/` | Seven-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
 | `prompts/` | Prompt templates and JSON schema for LLM output. |
 | `source/` | Uploaded and edited source reports. |

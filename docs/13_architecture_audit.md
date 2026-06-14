@@ -1,147 +1,231 @@
-# MICO Architecture Audit and Milestone Plan
+# MICO Current Architecture Audit
 
 Audit date: 2026-06-14.
 
-Baseline commit reviewed: `15e8d3b chore: initialize MICO research scaffold`.
+This audit supersedes the initial scaffold audit. The repository is now a working
+research prototype with a Rust parser/checker/codegen path, open-source EDA
+smoke flow, seed benchmark runner, LLM provider validation script, and a
+cautiously worded paper draft. It is still not a complete "engineering +
+experiments + paper" artifact: simulation, formal, QoR, large-scale LLM
+baselines, case studies, and paper tables remain open milestones.
 
 ## Sources Reviewed
 
-- Top-level project material: `README.md`, `PROJECT_MANIFEST.md`, `.gitignore`, `CHANGELOG.md`.
-- Product and research specs: `docs/00_project_plan.md` through `docs/12_docker_eda_environment.md`.
-- Rust compiler workspace: `rust_project/Cargo.toml`, crate manifests, `mico_ir`, `mico_frontend`, `mico_codegen`, `mico_cli`, examples, and smoke script.
-- RTL/EDA environment: `docker/eda/Dockerfile`, `docker/eda/compose.yaml`, `docker/eda/verify-tools.sh`, `scripts/eda-docker.*`, and `scripts/run-vivado-host.ps1`.
-- Benchmark and prompt assets: `benchmarks/`, `prompts/`, and `config/llm-provider.example.yaml`.
-- Paper source: `paper/main.tex`, `paper/sections/*.tex`, `paper/related_work.bib`, and positioning notes.
-- Local engineering policies: `.codex/skills/mico-rust-engineer`, `.codex/skills/rtl-tcl-engineer`, `.codex/skills/opencode-go-provider`, `.codex/skills/paper-latex-writer`, and `.codex/skills/git-commit`.
+- Top-level package: `README.md`, `PROJECT_MANIFEST.md`, `.gitignore`, and
+  `CHANGELOG.md`.
+- Product specs and workflow docs: `docs/01_language_spec_v0.md`,
+  `docs/02_architecture.md`, `docs/03_llm_protocol.md`,
+  `docs/06_evaluation_plan.md`, `docs/12_docker_eda_environment.md`,
+  `docs/14_reproduction_workflow.md`, and `docs/diagnostics.md`.
+- Rust workspace: `rust_project/Cargo.toml`, `rust_project/examples/*.mico`,
+  and the `mico_ir`, `mico_frontend`, `mico_codegen`, and `mico_cli` crates.
+- RTL and EDA flow: `rtl/examples/mico_example_leafs.sv`,
+  `scripts/eda-smoke.sh`, `scripts/eda-docker.ps1`,
+  `scripts/eda-docker.sh`, and `scripts/run-vivado-host.ps1`.
+- Benchmark and LLM assets: `benchmarks/module_compose_bench_manifest.yaml`,
+  `benchmarks/run_bench.py`, `schemas/*.schema.json`, `prompts/`, and
+  `scripts/llm-provider-smoke.py`.
+- Paper source: `paper/main.tex`, `paper/sections/*.tex`, and
+  `paper/related_work.bib`.
 
-`config/llm-provider.local.yaml` exists and is ignored by git. The audit only validated its structure and did not print or commit any secret value.
+Local provider configuration under `config/*.local.yaml` is intentionally
+ignored and must not be committed or printed. The repository-owned provider
+scripts report only redacted key presence and source metadata.
 
-## Baseline Validation
+## Current Implementation
 
-The following commands were run from the repository root unless noted otherwise.
+### Rust Frontend And IR
 
-| Area | Command | Result |
-|---|---|---|
-| Docker EDA tools | `.\scripts\eda-docker.ps1 mico-verify-tools` | Passed. Docker image `mico-eda:ubuntu24.04` is present with Rust 1.96.0, Yosys 0.33, Verilator 5.020, Icarus 12.0, GHDL 4.1.0, Tcl 8.6.14, Z3 4.8.12, OpenAI Python SDK 2.41.1, and PyYAML 6.0.1. |
-| Rust formatting | `.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check"` | Passed. |
-| Rust check | `.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo check --workspace"` | Passed. |
-| Rust tests | `.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo test --workspace"` | Passed; current suite has only scaffold unit tests. |
-| CLI positive smoke | `.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -p mico_cli -- check examples/stream_fifo.mico"` | Passed. |
-| CLI IR/SV smoke | `.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -p mico_cli -- dump-ir examples/stream_fifo.mico >/tmp/mico_ir.json && cargo run -p mico_cli -- emit-sv examples/stream_fifo.mico >/tmp/mico_top.sv"` | Passed. |
-| CLI negative smoke | `.\scripts\eda-docker.ps1 bash -lc 'cd rust_project && ! cargo run -p mico_cli -- check examples/invalid_width.mico'` | Passed; `InterfaceMismatch` is reported. |
-| LLM provider config | `.\scripts\eda-docker.ps1 python3 .codex/skills/opencode-go-provider/scripts/opencode_go_smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only` | Passed; SDK path is OpenAI Python, profile is `smoke`, model is `deepseek-v4-flash`, base URL is `https://opencode.ai/zen/go/v1`. No paid request was made. |
-| Paper build | `latexmk -g -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` | Passed on Windows host LaTeX; output is 3 pages. Warnings are underfull boxes and IEEEtran camera-ready reminders, with no missing citations or missing figures. |
+The frontend is no longer line-oriented. `mico_frontend` now contains a
+hand-written lexer, token stream, byte/line/column `SourceSpan`, parser
+diagnostics, recursive parser support for `clockdom`, `interface`, `module`,
+`adapter`, and `compose`, line comments, multiline contract text, and basic
+syntax recovery.
 
-## Current State
+`mico_ir` owns the parsed design model, typed IR model, semantic diagnostics,
+adapter kind model, protocol inference, reset polarity inference, and typed
+connection metadata. Implemented semantic checks include duplicate top-level
+declarations, duplicate fields, duplicate ports, duplicate compose instances,
+unknown domains/interfaces/modules/instances/ports/adapters, direction
+mismatch, direct interface mismatch, direct clock-domain mismatch, adapter
+endpoint mismatch, known adapter kind validation, ready/valid width checks, and
+basic contract-preservation attributes for adapters.
 
-### Product Definition
+Current limitations:
 
-The repository has a coherent research scope: MICO is a module-interface-contract-oriented language for composing existing RTL/IP, not a general HDL. The docs correctly frame the LLM as a proposal engine and the compiler plus EDA tools as the authority. The novelty boundary against CPPL, Chisel, Amaranth, CIRCT/ESI, Anvil, and AutoSVA is documented.
+- Semantic diagnostics still lack source spans, graph nodes, primary/secondary
+  labels, and structured repair actions.
+- Contracts are still mostly string/attribute based; the compiler does not yet
+  parse a contract AST or prove source/adapter/sink obligation coverage.
+- JSON AST input and repair patch ingestion are not implemented.
 
-Current risk: the docs are stronger than the implementation. The project should avoid claiming CCF-A artifact maturity until the Rust compiler, generated RTL, benchmark runner, and experiments catch up.
+### Codegen And CLI
 
-### Rust Compiler
+`mico_codegen` emits deterministic `serde_json` typed IR with
+`schema_version = mico.ir.v0`, conservative SystemVerilog wrappers,
+ready/valid SVA skeleton modules, and traceability JSON with
+`schema_version = mico.traceability.v0`. Generated wrappers use
+``default_nettype none``, flatten interface fields into primitive wires,
+instantiate leaf modules, instantiate explicit adapters, and pass clock/reset
+signals to CDC adapters.
 
-The workspace is small and clean:
+`mico_cli` supports:
 
-- `mico_ir` owns AST-like structs, diagnostics, and basic semantic checks.
-- `mico_frontend` parses the v0 examples with a line-oriented parser.
-- `mico_codegen` emits debug JSON-like text, SV wrapper comments, and SVA contract comments.
-- `mico_cli` supports `check`, `dump-ir`, `emit-sv`, and `emit-sva`.
+- `parse`
+- `check`
+- `build`
+- `dump-ir`
+- `emit-sv`
+- `emit-sva`
+- `emit-trace`
+- `verify`
+- `report`
 
-Implemented checks include unknown clock domains, unknown interfaces, unknown modules, unknown instances, unknown ports, direction mismatch, direct interface mismatch, direct clock-domain mismatch, unknown adapter, and adapter endpoint mismatch.
+The CLI supports `--format text|json` for diagnostic-bearing commands and emits
+the diagnostics envelope documented in `docs/diagnostics.md` and
+`schemas/diagnostics.schema.json`. The `verify` command currently reports
+compiler and typed-IR status only; it does not invoke Verilator, Yosys, Icarus,
+or SymbiYosys directly.
 
-Major gaps:
+Current limitations:
 
-- No lexer, token stream, column spans, source map, or robust recovery.
-- No duplicate-name checks.
-- `compose` domain validity is not checked.
-- Interface field width and role compatibility are not deeply checked.
-- Contract compatibility is represented but not checked.
-- Adapter kind semantics are not validated beyond endpoint types/domains.
-- JSON output is debug-oriented string construction, not a stable `serde_json` schema.
-- SystemVerilog output records checked interface edges as comments but does not lower fields to primitive wires or instantiate adapters.
-- CLI argument parsing and machine-readable diagnostics are not yet production surfaces.
+- CLI argument parsing is still hand-written.
+- `verify` is not yet an end-to-end EDA runner.
+- JSON diagnostics reserve semantic span/node fields but currently emit `null`
+  spans and empty node/label arrays for checker diagnostics.
 
-### RTL/EDA Flow
+### RTL And EDA Flow
 
-The Docker EDA image and wrapper scripts are real and verified. This is a good reproducibility base.
+The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
+generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
+`width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
+hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
 
-Major gaps:
+The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
+smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
+not required for seed results; when Vivado is needed, the only allowed host
+root is `D:\Application\vivado\2025.2\Vivado`.
 
-- No committed RTL leaf modules, testbenches, formal harnesses, filelists, or generated wrapper output fixtures.
-- No project-level Yosys, Verilator, Icarus, cocotb, or SymbiYosys flow scripts.
-- No batch Tcl flow in `scripts/` yet, aside from the host Vivado launcher and skill-local templates.
-- No report directory schema or score aggregation from EDA outcomes.
+Current limitations:
 
-### Benchmarks
+- No per-task simulation testbenches are committed.
+- No per-task formal harnesses are committed.
+- No QoR parser or report aggregation exists.
+- Adapter correctness boundaries are documented but not yet backed by full
+  properties.
 
-`ModuleComposeBench` is specified and has three seed task directories: stream FIFO, CDC FIFO, and width adapter.
+### ModuleComposeBench
 
-Major gaps:
+`benchmarks/module_compose_bench_manifest.yaml` currently contains seven seed
+tasks:
 
-- No executable benchmark runner.
-- No task manifests with input modules, expected outputs, or negative cases.
-- No direct RTL, SV-interface, MICO-source, MICO-JSON, or repair-loop baselines.
-- Current scope is 3 seed tasks, far below the minimum 50 tasks stated in the scorecard.
+| Task | Type | Level | Purpose |
+|---|---|---|---|
+| `T001_stream_fifo` | positive | L1 | FIFO stream chain |
+| `T002_cdc_fifo` | positive | L4 | explicit CDC adapter |
+| `T003_width_adapter` | positive | L2 | explicit width adapter |
+| `T004_direct_stream` | positive | L1 | direct ready/valid wiring |
+| `T005_invalid_width_no_adapter` | negative | L2 | reject width mismatch without adapter |
+| `T006_direct_cdc_without_adapter` | negative | L4 | reject direct CDC |
+| `T007_reversed_direction` | negative | L1 | reject reversed connection direction |
+
+`benchmarks/run_bench.py` executes the deterministic compiler baseline,
+records expected diagnostic codes for negative tasks, emits SV/SVA/trace
+artifacts for positive tasks, runs open-source EDA smoke checks where
+supported, and writes `schema_version = mico.bench.results.v0`.
+
+Current limitations:
+
+- The benchmark is seven seed tasks, not the target 50+ task suite.
+- L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem tasks
+  are not represented at publishable scale.
+- Natural-language prompts, model baselines, repair loops, statistical
+  aggregation, simulation, formal, and QoR are still pending.
 
 ### LLM Provider Workflow
 
-The provider policy is aligned with the repository requirements: OpenAI-compatible Chat Completions through an SDK, cheap profiles first, high-cost escalation only after compiler and RTL gates pass, and local secrets ignored by git.
+`scripts/llm-provider-smoke.py` is now a repository-owned SDK-backed OpenAI
+Chat Completions validation and smoke script. It reads provider configuration
+from `config/llm-provider.example.yaml` or an ignored local config, validates
+profile/model/base URL shape, records prompt SHA-256, model/profile metadata,
+repair turns, optional compiler and EDA JSON artifact attachments, token usage,
+and cost fields in a sanitized `mico.llm.run.v0` record.
 
-Major gaps:
+Current limitations:
 
-- The smoke script currently lives under `.codex/skills`, not as a repo-owned workflow script.
-- No Rust or Python benchmark harness consumes `config/llm-provider.local.yaml`.
-- No prompt hash, model/profile, compiler result, RTL validation result, or cost/result logging exists.
-- No structured repair loop is wired from compiler diagnostics to `prompts/repair_prompt_template.md`.
+- There is no prompt-to-MICO batch benchmark runner.
+- Compiler diagnostics are not automatically fed into a repair prompt.
+- Direct Verilog, SV interface, MICO source, MICO JSON, and MICO JSON + repair
+  baselines are not yet implemented.
+- No retry/resume/cache/rate-limit or failure taxonomy exists for paid runs.
 
 ### Paper
 
-The paper compiles and has a defensible framing: MICO targets compiler-checked module composition rather than direct free-form RTL generation.
+The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
+The current abstract and evaluation section deliberately describe the artifact
+as a seven-task seed result and do not claim per-task simulation, formal proof,
+QoR, or multi-model pass-rate improvements. Host LaTeX is the repository policy
+for paper builds.
 
-Major gaps:
+Current limitations:
 
-- It is currently a 3-page position manuscript, not a full CCF-A submission candidate.
-- Evaluation section describes planned metrics but contains no experimental results.
-- No artifact appendix/checklist, reproducibility package description, benchmark table, model table, or statistical analysis exists.
-- Claims must remain conditional until benchmark and EDA evidence exists.
+- The paper is still an evidence-limited submission candidate, not a complete
+  experimental paper.
+- Tables are manually maintained rather than generated from committed result
+  aggregation scripts.
+- Case studies, ablations, confidence intervals, token/cost tables, and full
+  reproducibility hashes are pending.
 
-## Engineering Decisions For Next Iterations
+## Validation Gates For This Snapshot
 
-- Parser path: start with a hand-written lexer and recursive-descent parser for v0. Add `logos`/`chumsky` only if the grammar or diagnostics complexity justifies the dependency.
-- JSON path: make `serde`/`serde_json` the first nontrivial dependency when JSON IR and machine diagnostics become a durable interface.
-- Adapter policy: v0 must reject implicit CDC, width, or protocol adaptation. Explicit adapters are allowed only when the adapter declaration matches endpoint interface/domain metadata and the adapter kind is known.
-- CDC claim: treat CDC FIFO adapters as named black boxes until an RTL implementation, assertions, and flow collateral exist. Do not claim CDC correctness from type matching alone.
-- Codegen path: generate conservative SV first: `default_nettype none`, explicit primitive wires, deterministic instance ordering, adapter instances, and traceability comments.
-- LLM path: use cheap `smoke` profile for provider and prompt harness checks. Do not escalate to high-cost profiles until compiler acceptance and RTL validation gates pass on a seed set.
-- Paper path: update claims only after implementation and experiments produce reproducible evidence.
+The M0 baseline is validated with these commands from the repository root:
 
-## Milestone Plan
+```powershell
+.\scripts\eda-docker.ps1 mico-verify-tools
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
+.\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
+```
 
-Each milestone should be an atomic commit or split into smaller atomic commits if the diff grows beyond a reviewable unit. Before each commit, run `git status --short`, `git diff`, relevant validation, and `git diff --check`. Do not stage ignored local config, generated PDFs, LaTeX temporaries, Rust `target`, build reports, logs, or secrets.
+All Rust, Python, benchmark, and open-source EDA validation must run in the
+repository Docker environment. Host Vivado is allowed only for Vivado-specific
+flows through `scripts/run-vivado-host.ps1`. Host LaTeX is allowed only for the
+paper workflow.
 
-| Planned commit | Goal | Implementation scope | Acceptance gates |
-|---|---|---|---|
-| `docs: audit MICO architecture and milestones` | Establish baseline and execution plan. | This document and manifest linkage only. | Markdown review, `git diff --check`, no generated artifacts staged. |
-| `feat(parser): complete MICO grammar and diagnostics` | Replace line parser with v0 grammar support and stable parser diagnostics. | Lexer/token model, recursive-descent parser, spans, recovery, grammar fixtures, parse tests. | Docker `cargo fmt --check`, `cargo check --workspace`, `cargo test --workspace`, CLI parse/check fixtures. |
-| `feat(ir): add contract-aware intermediate representation` | Separate parsed AST from typed IR and encode interface contracts/domains/widths. | Typed IDs or interned symbols, domain/port/interface metadata, contract placeholders, deterministic ordering. | Unit tests for IR construction and lowering from AST; JSON debug output remains deterministic. |
-| `feat(checker): implement semantic and contract checks` | Make checker authoritative for v0 composition safety. | Duplicate declarations, compose domains, field compatibility, adapter kind legality, CDC rejection, width adapter policy, diagnostic hints. | Positive/negative fixtures assert diagnostic codes; invalid CDC/width/direction tasks rejected. |
-| `feat(codegen): emit SystemVerilog adapters and wrappers` | Emit reviewable synthesizable SV for checked direct and explicit-adapter graphs. | Primitive wire lowering, instance port mapping, adapter instantiation, SVA skeleton expansion, golden tests. | `emit-sv` golden tests; Verilator/Yosys smoke on generated wrapper where leaf stubs exist. |
-| `feat(cli): provide end-to-end MICO commands` | Make CLI scriptable for users and benchmark automation. | `clap` commands for `parse`, `check`, `build`, `emit`, `verify`, `report`; JSON diagnostics mode; stable exit codes. | CLI integration tests and smoke script update. |
-| `test(eda): add reproducible RTL verification flows` | Turn generated SV into EDA-checked artifacts. | RTL stubs/adapters, filelists, Verilator lint, Yosys hierarchy/synth smoke, optional Vivado batch entry. | Docker Verilator/Yosys pass; no Vivado dependency for open-source smoke. |
-| `test(bench): implement benchmark runner and scoring` | Make ModuleComposeBench executable. | Task manifests, runner, result schema writer, seed tasks for stream FIFO, CDC FIFO, width adapter, negative cases. | Runner executes seed tasks and emits scorecard JSON matching schema. |
-| `feat(llm): integrate configured provider workflow` | Wire provider config to prompt and repair experiments without leaking secrets. | Repo-owned SDK script/harness, local YAML loading, profile selection, prompt hash/result logging, smoke request option. | `--validate-only` passes; authenticated smoke passes when local key is present; no key in output/diff. |
-| `docs: document developer and reproduction workflow` | Make the artifact reproducible from a clean checkout. | README and docs for Docker, Rust, EDA, LLM, paper, Vivado exception, troubleshooting. | Fresh-command checklist validated in Docker and host LaTeX. |
-| `paper: upgrade manuscript to CCF-A candidate` | Convert position paper into evidence-backed submission draft. | Method details, implementation, benchmark, experiments, result tables, related work, threats. | `latexmk -cd -pdf` passes; tables and citations complete; claims match results. |
-| `paper: finalize reproducibility and submission checklist` | Prepare artifact and submission readiness package. | Artifact checklist, reproducibility appendix, final limitations, release checklist, camera-ready cleanup. | Paper compile passes; README/docs align with final artifact; working tree clean after commit. |
+## Priority Gap List
 
-## Immediate Next Work
+The next work should proceed in this order:
 
-The next engineering commit should be `feat(parser): complete MICO grammar and diagnostics`, but it should be split if needed:
+1. Add source spans, graph nodes, labels, and suggested repair actions to
+   semantic diagnostics.
+2. Add schema-validated JSON AST input and repair patch schemas.
+3. Parse and check a v0 ready/valid contract subset.
+4. Add codegen golden tests for SV, SVA, and traceability outputs.
+5. Add per-task simulation and selected formal harnesses.
+6. Add QoR parsing and aggregation.
+7. Expand ModuleComposeBench to 50+ tasks across L1-L6.
+8. Add LLM batch baselines and compiler-feedback repair loops.
+9. Generate paper tables from benchmark artifacts.
+10. Add subsystem case studies and release-candidate validation scripts.
 
-1. Add source spans and parser diagnostics without changing semantics.
-2. Add a lexer/token model and recursive-descent parser for the documented v0 grammar.
-3. Add parser fixtures and CLI behavior tests.
+## Claim Boundary
 
-This sequence keeps user-facing diagnostics stable before deeper IR and checker changes.
+Current claims supported by the repository:
+
+- MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
+  small v0 language.
+- The compiler rejects key unsafe seed cases: missing width adaptation, direct
+  CDC, and reversed direction.
+- Positive seed wrappers pass open-source lint/elaboration smoke checks.
+- The LLM provider path can validate redacted OpenAI-compatible configuration
+  and write sanitized run metadata.
+
+Claims not yet supported:
+
+- 50-task benchmark maturity.
+- Multi-model or multi-baseline LLM pass-rate improvements.
+- Per-task simulation pass rates.
+- Per-task formal proofs.
+- QoR overhead or timing conclusions.
+- CDC correctness proof for the smoke FIFO collateral.

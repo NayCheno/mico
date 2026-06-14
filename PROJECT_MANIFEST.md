@@ -12,11 +12,13 @@
 | `config/llm-provider.example.yaml` | OpenCode Go provider template with OpenAI-compatible base URL, model profiles, and key handling policy. |
 | `scripts/llm-provider-smoke.py` | SDK-backed provider validation and smoke request script; writes sanitized outputs under ignored `build/llm/`. |
 | `scripts/run_llm_bench.py` | Batch ModuleComposeBench LLM runner with five baselines, caching, compiler/EDA scoring, and JSON-AST repair-loop plumbing. |
+| `benchmarks/aggregate_results.py` | Aggregates deterministic and optional LLM benchmark JSON into CSV and TeX table snippets under ignored `build/`. |
 | `schemas/mico_ast.schema.json` | Source-level MICO JSON AST schema used by `dump-ast-json`, `check-json`, and JSON AST baselines. |
 | `schemas/mico_repair_patch.schema.json` | Minimal compiler-feedback repair patch schema for instance, connection, adapter, endpoint, and contract-attribute edits. |
 | `schemas/traceability.schema.json` | Generated traceability report schema for source references, SV signals, leaf ports, adapter boundaries, and SVA contract IDs. |
 | `schemas/llm_run.schema.json` | Sanitized LLM validate/smoke run record schema with prompt hash, profile, repair, compiler, EDA, usage, and cost metadata. |
 | `schemas/llm_bench.schema.json` | Sanitized LLM benchmark batch result schema for validate-only, offline-fixture, and execute modes. |
+| `schemas/aggregate_results.schema.json` | Aggregate benchmark result schema covering deterministic metrics, QoR rows, ablations, LLM summaries, repair turns, cost/tokens, paired comparisons, and failure taxonomy. |
 | `prompts/llm_bench_baselines.yaml` | Deterministic baseline-specific response instructions for Direct Verilog, SV interface, MICO source, MICO JSON AST, and JSON AST + repair. |
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |
@@ -27,7 +29,7 @@
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | 57-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
+| `benchmarks/` | 57-task ModuleComposeBench seed suite, manifest, runner, result aggregator, and scoring schema. |
 | `benchmarks/formal/` | SymbiYosys harness monitors for selected seed formal checks. |
 | `benchmarks/qor/` | Hand-written reference wrappers for structural Yosys QoR comparison. |
 | `benchmarks/sim/` | Icarus/VVP SystemVerilog testbenches for positive seed simulation. |

@@ -64,6 +64,18 @@ adding dedicated non-smoke L3/L5/L6 RTL case studies:
 - No adapter library.
 - No retrieval over module inventory.
 
+## Result Aggregation
+
+`benchmarks/aggregate_results.py` merges deterministic ModuleComposeBench JSON
+with optional sanitized LLM batch records. It emits `mico.aggregate.results.v0`
+JSON, CSV tables under `build/bench/`, and LaTeX snippets under
+`build/paper_tables/` for main results, per-level denominators and confidence
+intervals, unsafe diagnostics, structural QoR, conservative ablations,
+repair-turn distributions, token/cost accounting, paired comparisons, and
+failure taxonomy. Unsupported metrics must remain marked as `not_run` or
+`not_applicable` in their source records and must not be treated as zero-pass
+failures.
+
 ## Expected result pattern
 
 MICO should outperform direct Verilog on composition correctness and repair efficiency, while remaining comparable on final SV quality and PPA for direct connections. Adapter-heavy tasks may show QoR tradeoffs; those must be reported transparently.

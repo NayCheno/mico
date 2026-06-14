@@ -28,6 +28,12 @@ responses by prompt/profile/model hash, evaluates MICO outputs through the
 compiler, runs open-source lint/elaboration for accepted positive candidates,
 and writes sanitized `mico.llm.bench.v0` output.
 
+Use `benchmarks/aggregate_results.py` to merge one or more sanitized LLM batch
+outputs with deterministic benchmark results. The aggregate record preserves
+validate-only attempts as not-scored rows and emits repair-turn, token/cost,
+paired-comparison, and failure-taxonomy CSV/TeX tables without exposing local
+provider secrets.
+
 LLM run records use `schemas/llm_run.schema.json` with schema version `mico.llm.run.v0`. They include:
 
 - provider name, API root, config path, API key source, and whether a key was present;

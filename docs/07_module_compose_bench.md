@@ -105,3 +105,28 @@ runner aggregates `formal_pass` over formal-enabled tasks and `qor` over
 QoR-enabled positive tasks.
 L3/L5/L6 entries are compiler and wrapper seed approximations until dedicated
 latency, bus, and subsystem RTL case studies are added.
+
+## Paper Table Aggregation
+
+Generate paper-ready aggregate artifacts from the deterministic benchmark JSON:
+
+```bash
+./scripts/eda-docker.sh bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+```
+
+The aggregator writes `schema_version = mico.aggregate.results.v0` to
+`build/bench/aggregate_results.json`, emits CSV tables under `build/bench/`,
+and emits LaTeX snippets under `build/paper_tables/`. Deterministic outputs
+cover the main result table, per-level breakdown, unsafe diagnostic taxonomy,
+structural QoR rows, and conservative ablation/counterfactual rows. When
+`--llm-result build/llm/<run>.json` is supplied, it also emits LLM baseline
+summary, repair-turn distribution, token/cost, paired comparison, and failure
+taxonomy tables. These generated artifacts remain ignored build outputs; paper
+claims should cite the generating command and input JSON rather than hand-copying
+numbers without provenance.

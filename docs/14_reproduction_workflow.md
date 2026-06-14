@@ -90,6 +90,18 @@ Expected current benchmark result:
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 
+Generate aggregate CSV and paper-table snippets from deterministic results:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+```
+
+This writes `build/bench/aggregate_results.json`, deterministic CSVs under
+`build/bench/`, and LaTeX snippets under `build/paper_tables/`. The
+deterministic aggregation includes the main result table, per-level breakdown,
+unsafe diagnostic taxonomy, structural QoR rows, and ablation/counterfactual
+rows.
+
 ## LLM Provider
 
 Create a local provider config from the template if one does not already exist:
@@ -135,6 +147,17 @@ requests:
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke --task-id T004_direct_stream --task-id T005_invalid_width_no_adapter --offline-fixture --output build/llm/bench_offline_fixture.json"
 ```
 
+Merge deterministic and LLM batch artifacts into one aggregate result:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_validate.json --llm-result build/llm/bench_offline_fixture.json"
+```
+
+When LLM result files are supplied, the aggregator also emits LLM summary,
+repair-turn distribution, token/cost, paired comparison, and failure taxonomy
+CSV/TeX outputs. Validate-only runs are marked as not scored and are not counted
+as failed pass-rate evidence.
+
 Authenticated benchmark execution is opt-in and writes ignored artifacts under
 `build/llm/`. Run full matrices only when local cost settings and budget are
 intentional:
@@ -174,6 +197,8 @@ Before publishing a result or submission artifact:
 - ModuleComposeBench runner writes a JSON result under `build/bench/` with
   expected, lint, simulation, selected formal, QoR, and unsafe-rejection
   summaries.
+- Benchmark aggregation writes `build/bench/aggregate_results.json` plus CSV and
+  TeX snippets under ignored build directories.
 - LLM provider validate-only passes; the batch LLM runner can generate the
   validate-only matrix and offline-fixture smoke outputs; authenticated smoke
   runs only when a local key and budget are configured.

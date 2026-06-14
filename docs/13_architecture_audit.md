@@ -4,10 +4,12 @@ Audit date: 2026-06-14.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, 57-task seed benchmark runner, LLM provider
+smoke flow, source-level JSON AST path, 57-task seed benchmark runner, benchmark
+aggregation script, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
-experiments + paper" artifact: large-scale LLM baselines, case studies, full
-formal coverage, timing QoR, and paper tables remain open milestones.
+experiments + paper" artifact: full paid LLM pass-rate matrices, dedicated case
+studies, full formal coverage, timing QoR, and final paper-table integration
+remain open milestones.
 
 ## Sources Reviewed
 
@@ -23,7 +25,8 @@ formal coverage, timing QoR, and paper tables remain open milestones.
   `scripts/eda-smoke.sh`, `scripts/eda-docker.ps1`,
   `scripts/eda-docker.sh`, and `scripts/run-vivado-host.ps1`.
 - Benchmark and LLM assets: `benchmarks/module_compose_bench_manifest.yaml`,
-  `benchmarks/run_bench.py`, `schemas/*.schema.json`, `prompts/`,
+  `benchmarks/run_bench.py`, `benchmarks/aggregate_results.py`,
+  `schemas/*.schema.json`, `prompts/`,
   `scripts/llm-provider-smoke.py`, and `scripts/run_llm_bench.py`.
 - Paper source: `paper/main.tex`, `paper/sections/*.tex`, and
   `paper/related_work.bib`.
@@ -169,8 +172,8 @@ Current limitations:
 - L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem entries
   are seed approximations over the existing smoke RTL collateral, not dedicated
   subsystem case studies.
-- Natural-language prompts, model baselines, repair loops, statistical
-  aggregation, full formal coverage, and broader QoR are still pending.
+- Full formal coverage, broader QoR, and dedicated subsystem validation
+  collateral are still pending.
 
 ### LLM Provider Workflow
 
@@ -194,8 +197,8 @@ repair-patch applicator for the JSON AST repair baseline. Batch records use
 Current limitations:
 
 - Full paid low-cost and cross-model result matrices are not committed.
-- The current runner records per-attempt failure status, but paper-ready failure
-  taxonomy aggregation is still pending.
+- Failure taxonomy, repair-turn, token/cost, and paired-comparison aggregation
+  are available when sanitized LLM batch result JSON files are supplied.
 - Cost estimates still require local ignored profile rates.
 
 ### Paper
@@ -211,10 +214,10 @@ Current limitations:
 
 - The paper is still an evidence-limited submission candidate, not a complete
   experimental paper.
-- Tables are manually maintained rather than generated from committed result
-  aggregation scripts.
-- Case studies, ablations, confidence intervals, token/cost tables, and full
-  reproducibility hashes are pending.
+- Generated table snippets are available under ignored `build/paper_tables/`,
+  but the paper source still carries conservative seed-result text until final
+  paid result matrices are archived.
+- Dedicated case studies and full reproducibility hashes are pending.
 
 ## Validation Gates For This Snapshot
 
@@ -225,6 +228,7 @@ The current snapshot is validated with these commands from the repository root:
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 ```
@@ -238,10 +242,10 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Generate paper tables from deterministic and LLM benchmark artifacts.
-2. Run and archive full low-cost LLM baseline matrices when cost settings are configured.
-3. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
+1. Run and archive full low-cost LLM baseline matrices when cost settings are configured.
+2. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
    validation scripts.
+3. Promote generated aggregate table snippets into the final paper evaluation.
 
 ## Claim Boundary
 
@@ -269,6 +273,10 @@ Current claims supported by the repository:
 - The LLM benchmark runner can plan the full 57-task low-cost baseline matrix,
   validate offline compiler/EDA scoring paths, and execute authenticated
   provider subsets without storing secrets.
+- `benchmarks/aggregate_results.py` can merge deterministic and optional LLM
+  batch artifacts into CSV and TeX tables for deterministic summaries,
+  per-level rates, QoR, ablations, repair turns, token/cost, paired comparison,
+  and failure taxonomy.
 
 Claims not yet supported:
 

@@ -35,6 +35,10 @@ This file is the short, traceable status page for the current repository. Use
   adapter seed tasks.
 - Structural Yosys QoR extraction for positive seed wrappers, compared against
   committed hand-written reference wrappers with generated CSV/TeX summaries.
+- Aggregate benchmark result generator that merges deterministic results and
+  optional LLM batch records into CSV plus LaTeX table snippets for main
+  results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
+  token/cost, paired comparisons, and failure taxonomy.
 - 57 ModuleComposeBench seed tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, and explicit RTL
   collateral.
@@ -59,10 +63,10 @@ This file is the short, traceable status page for the current repository. Use
 - Timing/Vivado QoR and technology-mapped delay reporting.
 - Committed full paid multi-profile LLM baseline result artifacts and pass-rate
   claims.
-- LLM failure-taxonomy aggregation beyond per-attempt status records.
 - Dedicated non-smoke L3/L5/L6 RTL case studies beyond the current seed
   approximations.
-- Paper tables generated from committed benchmark artifacts.
+- Direct inclusion of generated paper-table snippets in the final submission
+  text.
 - Reproducible subsystem case studies.
 - Full release-candidate validation script.
 
@@ -94,6 +98,7 @@ Run Rust, Python, benchmark, and open-source EDA validation inside Docker:
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 ```

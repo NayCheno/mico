@@ -1,21 +1,226 @@
 {
-  "task_id": "string",
-  "model": "string",
-  "baseline": "string",
-  "compose_pass_1": "bool",
-  "repair_turns": "integer",
-  "lint_pass": "bool",
-  "sim_pass": "bool",
-  "formal_pass": "bool",
-  "unsafe_rejection": "bool",
-  "qor_delta": {
-    "area_pct": "number",
-    "timing_pct": "number",
-    "latency_cycles": "integer"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/benchmarks/scoring_schema.json",
+  "title": "ModuleComposeBench results v0",
+  "type": "object",
+  "required": ["schema_version", "benchmark", "summary", "results"],
+  "properties": {
+    "schema_version": {
+      "const": "mico.bench.results.v0"
+    },
+    "benchmark": {
+      "type": "object",
+      "required": ["name", "version", "manifest"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "manifest": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/result"}
+    }
   },
-  "connection_entropy": {
-    "primitive_signal_edges": "integer",
-    "semantic_interface_edges": "integer",
-    "ratio": "number"
+  "additionalProperties": false,
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_tasks",
+        "positive_tasks",
+        "negative_tasks",
+        "expected_outcome_pass",
+        "compose_pass_1",
+        "lint_pass",
+        "unsafe_rejection",
+        "sim_pass",
+        "formal_pass",
+        "qor"
+      ],
+      "properties": {
+        "total_tasks": {"type": "integer", "minimum": 0},
+        "positive_tasks": {"type": "integer", "minimum": 0},
+        "negative_tasks": {"type": "integer", "minimum": 0},
+        "expected_outcome_pass": {"$ref": "#/$defs/aggregate_count"},
+        "compose_pass_1": {"$ref": "#/$defs/aggregate_count"},
+        "lint_pass": {"$ref": "#/$defs/aggregate_count"},
+        "unsafe_rejection": {"$ref": "#/$defs/aggregate_count"},
+        "sim_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
+        "formal_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
+        "qor": {
+          "type": "object",
+          "required": ["available_tasks", "status"],
+          "properties": {
+            "available_tasks": {"type": "integer", "minimum": 0},
+            "status": {"type": "string"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "aggregate_count": {
+      "type": "object",
+      "required": ["passed", "total", "rate"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0},
+        "rate": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      },
+      "additionalProperties": false
+    },
+    "aggregate_count_with_status": {
+      "allOf": [
+        {"$ref": "#/$defs/aggregate_count"},
+        {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "task_id",
+        "level",
+        "type",
+        "model",
+        "baseline",
+        "expected_compose_pass",
+        "expected_outcome_pass",
+        "compose_pass_1",
+        "compiler_result",
+        "repair_turns",
+        "emit_sv_pass",
+        "emit_sva_pass",
+        "emit_trace_pass",
+        "lint_pass",
+        "eda",
+        "sim_pass",
+        "sim_status",
+        "formal_pass",
+        "formal_status",
+        "unsafe_rejection",
+        "qor_delta",
+        "qor",
+        "connection_entropy",
+        "artifacts",
+        "notes"
+      ],
+      "properties": {
+        "task_id": {"type": "string"},
+        "level": {"type": "string"},
+        "type": {"type": "string", "enum": ["positive", "negative"]},
+        "model": {"type": "string"},
+        "baseline": {"type": "string"},
+        "expected_compose_pass": {"type": "boolean"},
+        "expected_outcome_pass": {"type": "boolean"},
+        "compose_pass_1": {"type": "boolean"},
+        "compiler_result": {
+          "type": "object",
+          "required": [
+            "exit_code",
+            "diagnostic_codes",
+            "expected_diagnostics",
+            "expected_diagnostic_match"
+          ],
+          "properties": {
+            "exit_code": {"type": "integer"},
+            "diagnostic_codes": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "expected_diagnostics": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "expected_diagnostic_match": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        },
+        "repair_turns": {"type": "integer", "minimum": 0},
+        "emit_sv_pass": {"type": "boolean"},
+        "emit_sva_pass": {"type": "boolean"},
+        "emit_trace_pass": {"type": "boolean"},
+        "lint_pass": {"type": "boolean"},
+        "eda": {
+          "type": "object",
+          "required": [
+            "verilator_lint_pass",
+            "sva_lint_pass",
+            "iverilog_elab_pass",
+            "yosys_elab_pass"
+          ],
+          "properties": {
+            "verilator_lint_pass": {"type": "boolean"},
+            "sva_lint_pass": {"type": "boolean"},
+            "iverilog_elab_pass": {"type": "boolean"},
+            "yosys_elab_pass": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        },
+        "sim_pass": {"type": "boolean"},
+        "sim_status": {"type": "string"},
+        "formal_pass": {"type": "boolean"},
+        "formal_status": {"type": "string"},
+        "unsafe_rejection": {"type": "boolean"},
+        "qor_delta": {
+          "type": "object",
+          "required": ["area_pct", "timing_pct", "latency_cycles"],
+          "properties": {
+            "area_pct": {"type": "number"},
+            "timing_pct": {"type": "number"},
+            "latency_cycles": {"type": "integer"}
+          },
+          "additionalProperties": false
+        },
+        "qor": {
+          "type": "object",
+          "required": ["available", "source", "area_cells", "timing_ns"],
+          "properties": {
+            "available": {"type": "boolean"},
+            "source": {"type": "string"},
+            "area_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "timing_ns": {"anyOf": [{"type": "null"}, {"type": "number"}]}
+          },
+          "additionalProperties": false
+        },
+        "connection_entropy": {
+          "type": "object",
+          "required": ["primitive_signal_edges", "semantic_interface_edges", "ratio"],
+          "properties": {
+            "primitive_signal_edges": {"type": "integer", "minimum": 0},
+            "semantic_interface_edges": {"type": "integer", "minimum": 0},
+            "ratio": {"type": "number", "minimum": 0.0}
+          },
+          "additionalProperties": false
+        },
+        "artifacts": {
+          "type": "object",
+          "required": ["mico_source", "wrapper", "sva", "traceability", "rtl_collateral"],
+          "properties": {
+            "mico_source": {"type": "string"},
+            "wrapper": {"type": "string"},
+            "sva": {"type": "string"},
+            "traceability": {"type": "string"},
+            "rtl_collateral": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
   }
 }

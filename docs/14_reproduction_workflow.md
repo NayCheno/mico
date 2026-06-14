@@ -76,9 +76,11 @@ Run the seed benchmark runner:
 
 Expected current seed result:
 
-- `compose_pass_1: 3/3`
-- `lint_pass: 3/3`
-- `sim_pass=false` and `formal_pass=false` in JSON output until simulation and formal harnesses are implemented.
+- `expected_outcome_pass: 7/7`
+- `compose_pass_1: 4/4` for positive tasks
+- `lint_pass: 4/4` for positive tasks
+- `unsafe_rejection: 3/3` for negative tasks
+- `sim_pass=false`, `formal_pass=false`, and `qor.available=false` in per-task JSON output until those harnesses/parsers are implemented.
 
 ## LLM Provider
 

@@ -8,9 +8,10 @@ levels:
   L4: CDC/RDC adapters
   L5: bus bridge/register wrappers
   L6: multi-IP subsystem integration
-seed_tasks:
+tasks:
   - id: T001_stream_fifo
     level: L1
+    type: positive
     path: tasks/T001_stream_fifo
     mico_source: rust_project/examples/stream_fifo.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
@@ -20,6 +21,7 @@ seed_tasks:
       lint_pass: true
   - id: T002_cdc_fifo
     level: L4
+    type: positive
     path: tasks/T002_cdc_fifo
     mico_source: rust_project/examples/cdc_fifo.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
@@ -29,6 +31,7 @@ seed_tasks:
       lint_pass: true
   - id: T003_width_adapter
     level: L2
+    type: positive
     path: tasks/T003_width_adapter
     mico_source: rust_project/examples/width_adapter.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
@@ -36,6 +39,53 @@ seed_tasks:
     expected:
       compose_pass: true
       lint_pass: true
+  - id: T004_direct_stream
+    level: L1
+    type: positive
+    path: tasks/T004_direct_stream
+    mico_source: benchmarks/tasks/T004_direct_stream/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direct_connect, ready_valid]
+    expected:
+      compose_pass: true
+      lint_pass: true
+  - id: T005_invalid_width_no_adapter
+    level: L2
+    type: negative
+    path: tasks/T005_invalid_width_no_adapter
+    mico_source: rust_project/examples/invalid_width.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unsafe_width_without_adapter, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+  - id: T006_direct_cdc_without_adapter
+    level: L4
+    type: negative
+    path: tasks/T006_direct_cdc_without_adapter
+    mico_source: benchmarks/tasks/T006_direct_cdc_without_adapter/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unsafe_cdc_without_adapter, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch, ClockDomainMismatch]
+  - id: T007_reversed_direction
+    level: L1
+    type: negative
+    path: tasks/T007_reversed_direction
+    mico_source: benchmarks/tasks/T007_reversed_direction/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direction_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+seed_tasks:
+  - id: T001_stream_fifo
+  - id: T002_cdc_fifo
+  - id: T003_width_adapter
 metrics:
   - Compose-Pass@1
   - Repair-Turns

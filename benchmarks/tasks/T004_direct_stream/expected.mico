@@ -1,0 +1,21 @@
+clockdom Sys(clk, rst);
+
+interface StreamU32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module Producer @Sys {
+  out tx: StreamU32;
+}
+
+extern module Consumer @Sys {
+  in rx: StreamU32;
+}
+
+compose Top @Sys {
+  inst p: Producer;
+  inst c: Consumer;
+  connect p.tx -> c.rx;
+}

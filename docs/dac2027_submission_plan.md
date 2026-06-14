@@ -149,3 +149,7 @@ The generated `build/release/full_check_manifest.json` must be reviewed or
 archived externally together with hashes for deterministic benchmark results,
 sanitized LLM results, prompt templates, benchmark manifests, aggregate tables,
 and the final paper PDF.
+
+Baseline evidence records:
+
+- `docs/dac2027_full_check_baseline_2026-06-14.md`

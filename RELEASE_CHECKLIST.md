@@ -60,6 +60,24 @@ The release manifest records:
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.
 - `git status --short` is empty before publishing the release branch or tag.
 
+## Authenticated LLM Result Handling
+
+The authenticated low-cost matrix summary is committed as
+`docs/16_llm_matrix_results.md`. The corresponding raw execute result,
+response cache, prompts, and per-attempt artifacts stay under ignored
+`build/llm/` paths and should be attached to a release only as sanitized
+external artifacts after review. Do not move provider caches, raw responses,
+local YAML, or API keys into git.
+
+After the final source commit for a release candidate, rerun:
+
+```powershell
+.\scripts\full-check.ps1 -WithLatex
+```
+
+The generated `build/release/full_check_manifest.json` must describe that final
+commit hash before a release branch is published or an immutable tag is created.
+
 ## Do Not Commit
 
 Do not commit `build/`, `target/`, `rust_project/target/`, `logs`, `reports`, Vivado project output, generated PDFs, LaTeX temporaries, local YAML files, API keys, provider responses, or caches. The full-check script also fails if any generated-output path from the release policy is already tracked by Git.

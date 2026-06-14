@@ -98,6 +98,10 @@ try {
     $commit = (& git rev-parse HEAD).Trim()
     $shortCommit = (& git rev-parse --short HEAD).Trim()
     $branch = (& git branch --show-current).Trim()
+    $worktreeStatus = @()
+    if ($status.Trim().Length -gt 0) {
+        $worktreeStatus = @($status -split "`n")
+    }
     $outputRoot = Resolve-RepoPath $OutputDir
     New-Item -ItemType Directory -Force -Path $outputRoot | Out-Null
     $outputRoot = (Resolve-Path -LiteralPath $outputRoot).Path
@@ -183,12 +187,19 @@ try {
         }
     }
 
+    $zipLeaf = "$BundleName-$shortCommit.zip"
+    $shaLeaf = "$zipLeaf.sha256"
+
     $artifactManifest = [ordered]@{
         schema_version = "mico.release.bundle.v0"
         generated_at_utc = (Get-Date).ToUniversalTime().ToString("o")
         source_commit_hash = $commit
         source_branch = $branch
-        worktree_status_short = if ($status.Trim().Length -eq 0) { @() } else { $status -split "`n" }
+        worktree_status_short = $worktreeStatus
+        bundle = [ordered]@{
+            zip_path = $zipLeaf
+            sha256_sidecar_path = $shaLeaf
+        }
         full_check_manifest = [ordered]@{
             path = "release/full_check_manifest.json"
             sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\full_check_manifest.json")
@@ -210,8 +221,8 @@ try {
     $artifactManifestPath = Join-Path $script:stageRoot "artifact_manifest.json"
     $artifactManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $artifactManifestPath -Encoding utf8
 
-    $zipPath = Join-Path $outputRoot "$BundleName-$shortCommit.zip"
-    $shaPath = "$zipPath.sha256"
+    $zipPath = Join-Path $outputRoot $zipLeaf
+    $shaPath = Join-Path $outputRoot $shaLeaf
     if (Test-Path -LiteralPath $zipPath) {
         Remove-Item -LiteralPath $zipPath -Force
     }

@@ -4,7 +4,10 @@ ModuleComposeBench evaluates whether a model can integrate existing RTL/IP modul
 
 Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO source prompting, MICO JSON AST prompting without compiler-feedback repair, and MICO JSON AST prompting with compiler-feedback repair.
 
-The evaluation is organized around five research questions:
+The evaluation is organized around five research questions. These questions
+match the current deterministic artifact boundary. A future DAC-ready version
+must add a sixth question only if a new authenticated LLM matrix supports a
+positive structured-output or repair-loop advantage.
 
 \begin{itemize}
   \item RQ1: does the checked representation accept intended module compositions?
@@ -121,3 +124,9 @@ The artifact includes a batch runner for five baselines and JSON-AST repair-loop
 Here S is the smoke profile, L is the low-cost cross-check profile, DV is direct Verilog, SVI is SystemVerilog-interface prompting, MS is MICO source, JA is MICO JSON AST, and JAR is JSON AST with repair. The dominant failures are invalid JSON responses, model refusals or explicit rejections, and compiler rejection of malformed MICO source or JSON AST. For paired comparisons over 124 comparable profile-task pairs, JSON-AST repair ties dominate: it records 4--12 repair wins, 4--8 baseline wins, and 104--113 ties depending on the paired baseline. These data support the artifact and failure-taxonomy workflow, not a pass-rate-improvement claim.
 
 The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate and execute LLM benchmark prompts through sanitized records, and pass open-source EDA smoke checks in a controlled Docker environment.
+
+For a DAC 2027 research manuscript, this negative matrix leaves two valid
+routes. If stronger prompts and profiles produce nonzero positive structured
+passes with supported paired comparisons, the paper can become a positive
+LLM-improvement study. If they do not, the claim must remain a benchmark,
+compiler-gate, repairability, and failure-taxonomy contribution.

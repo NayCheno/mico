@@ -5,7 +5,29 @@ Snapshot date: 2026-06-14.
 This file is the authoritative boundary between evidence-backed MICO claims and
 work that remains unsupported. It should be read together with
 `docs/current_status.md`, `docs/13_architecture_audit.md`, and
-`docs/14_reproduction_workflow.md`.
+`docs/14_reproduction_workflow.md`. DAC 2027 submission planning lives in
+`docs/dac2027_submission_plan.md`; this file remains the source of truth for
+what the repository may currently claim.
+
+## Submission Target Boundary
+
+The primary full-paper target is DAC 2027 Research Track / Research Manuscript.
+The current repository is not yet DAC-ready as a full research submission. It is
+a strong deterministic artifact candidate with an explicitly negative
+low-cost LLM matrix.
+
+The final paper must choose one branch before submission:
+
+- positive LLM-improvement paper, only after a new authenticated matrix shows
+  nonzero positive compiler/lint pass rates and a statistically supported MICO
+  structured-output advantage;
+- negative LLM study plus compiler-gated benchmark/tool paper, if improved
+  prompts and model profiles still fail but the deterministic benchmark,
+  failure taxonomy, and reproducible artifact become the main contribution.
+
+Until that evidence exists, README, documentation, and paper text must not
+claim that MICO improves LLM pass rate over direct RTL or
+SystemVerilog-interface prompting.
 
 ## Environment Policy
 

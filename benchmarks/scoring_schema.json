@@ -50,7 +50,9 @@
         "unsafe_rejection",
         "json_ast_path",
         "sim_pass",
+        "sim_mode_counts",
         "formal_pass",
+        "formal_mode_counts",
         "qor"
       ],
       "properties": {
@@ -63,7 +65,9 @@
         "unsafe_rejection": {"$ref": "#/$defs/aggregate_count"},
         "json_ast_path": {"$ref": "#/$defs/aggregate_count"},
         "sim_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
+        "sim_mode_counts": {"$ref": "#/$defs/mode_counts"},
         "formal_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
+        "formal_mode_counts": {"$ref": "#/$defs/mode_counts"},
         "qor": {
           "type": "object",
           "required": ["available_tasks", "total", "status", "avg_area_delta_pct", "avg_wire_delta_pct", "avg_mapped_cell_delta_pct"],
@@ -100,6 +104,10 @@
         "status": {"type": "string"}
       },
       "additionalProperties": false
+    },
+    "mode_counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
     },
     "result": {
       "type": "object",

@@ -133,13 +133,13 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Nine tasks,
-including the five dedicated subsystem case studies, use committed directed
-Icarus/VVP testbenches; the remaining accepted positive tasks use generated
-ready/valid smoke harnesses derived from traceability JSON. It reports
-`formal_pass: 31/31` over the single-clock formal smoke denominator: three
-committed directed harnesses plus generated ready/valid formal harnesses for the
-remaining single-clock positives.
+ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Twenty tasks,
+including the five public-development subsystem case studies, use committed
+directed Icarus/VVP testbenches; the remaining accepted positive tasks use
+generated ready/valid smoke harnesses derived from traceability JSON. It
+reports `formal_pass: 31/31` over the single-clock formal smoke denominator:
+fourteen committed directed harnesses plus generated ready/valid formal
+harnesses for the remaining single-clock positives.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
 references, and reports `qor_available: 9/9`.
@@ -151,7 +151,7 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to single-clock smoke properties, with only three
+- Formal coverage is limited to single-clock smoke properties, with fourteen
   task-specific directed monitors.
 - QoR is structural area/wire accounting plus a generic mapped-cell proxy; it is
   not timing closure, technology-mapped delay, or Vivado QoR.
@@ -307,10 +307,10 @@ Current claims supported by the repository:
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - Selected sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- All 36 positive tasks pass Icarus/VVP simulation; nine use committed
-  directed testbenches and the rest use generated ready/valid smoke harnesses.
+- All 36 positive tasks pass Icarus/VVP simulation; 20 use committed directed
+  testbenches and the rest use generated ready/valid smoke harnesses.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
-  checks; three use committed directed monitors and the rest use generated
+  checks; 14 use committed directed monitors and the rest use generated
   ready/valid formal harnesses.
 - Five dedicated subsystem case studies have committed RTL, MICO source,
   simulation testbenches, and structural/generic-mapped QoR references.
@@ -330,7 +330,7 @@ Claims not yet supported:
 
 - Multi-model or multi-baseline LLM pass-rate improvements.
 - Full paid LLM benchmark matrix results committed as artifact data.
-- Full directed functional simulation coverage beyond the nine committed
+- Full directed functional simulation coverage beyond the 20 committed
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke
   denominator.

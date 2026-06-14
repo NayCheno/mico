@@ -86,10 +86,10 @@ Supported now:
 - 62 ModuleComposeBench tasks with 36 positive and 26 negative tasks.
 - 62/62 expected deterministic outcomes.
 - 36/36 positive lint/elaboration smoke.
-- 36/36 positive Icarus smoke simulations, with nine directed harnesses and
-  generated ready/valid smoke harnesses for the rest.
-- 31/31 single-clock bounded formal smoke checks, with three directed monitors
-  and generated smoke harnesses for the rest.
+- 36/36 positive Icarus smoke simulations, with 20 directed harnesses and
+  generated ready/valid smoke harnesses for the remaining 16 positives.
+- 31/31 single-clock bounded formal smoke checks, with 14 directed monitors
+  and generated smoke harnesses for the remaining 17 single-clock positives.
 - 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
 - Held-out manifest with 12 scoring tasks, including three additional

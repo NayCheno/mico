@@ -253,10 +253,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T013_direct_stream_alt_names/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_alt_names.sv
+    sim_top: tb_direct_stream_alt_names
+    formal_harness: benchmarks/formal/tb_direct_stream_alt_names_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, renamed_instances]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T014_direct_stream_fire_contract
     level: L3
@@ -268,10 +275,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T014_direct_stream_fire_contract/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_fire_contract.sv
+    sim_top: tb_direct_stream_fire_contract
+    formal_harness: benchmarks/formal/tb_direct_stream_fire_contract_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [fire_contract, ready_valid]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T015_fifo_chain_alt_names
     level: L1
@@ -283,10 +297,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T015_fifo_chain_alt_names/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_fifo_chain_alt_names.sv
+    sim_top: tb_fifo_chain_alt_names
+    formal_harness: benchmarks/formal/tb_fifo_chain_alt_names_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [fifo_chain, renamed_instances]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T016_fifo_chain_fire_contract
     level: L3
@@ -298,10 +319,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T016_fifo_chain_fire_contract/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_fifo_chain_fire_contract.sv
+    sim_top: tb_fifo_chain_fire_contract
+    formal_harness: benchmarks/formal/tb_fifo_chain_fire_contract_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [fifo_chain, fire_contract]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T017_direct_stream_contractless
     level: L3
@@ -313,10 +341,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T017_direct_stream_contractless/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_contractless.sv
+    sim_top: tb_direct_stream_contractless
+    formal_harness: benchmarks/formal/tb_direct_stream_contractless_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [contractless_seed, direct_connect]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T018_fifo_chain_contractless
     level: L3
@@ -328,10 +363,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T018_fifo_chain_contractless/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_fifo_chain_contractless.sv
+    sim_top: tb_fifo_chain_contractless
+    formal_harness: benchmarks/formal/tb_fifo_chain_contractless_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [contractless_seed, fifo_chain]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T019_latency_seed_fifo_chain
     level: L3
@@ -343,10 +385,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T019_latency_seed_fifo_chain/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_latency_seed_fifo_chain.sv
+    sim_top: tb_latency_seed_fifo_chain
+    formal_harness: benchmarks/formal/tb_latency_seed_fifo_chain_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [latency_seed, fifo_chain]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T020_latency_seed_direct
     level: L3
@@ -358,10 +407,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T020_latency_seed_direct/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_latency_seed_direct.sv
+    sim_top: tb_latency_seed_direct
+    formal_harness: benchmarks/formal/tb_latency_seed_direct_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [latency_seed, direct_connect]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T021_width_alt_interfaces
     level: L2
@@ -373,10 +429,17 @@ tasks:
     adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T021_width_alt_interfaces/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_width_alt_interfaces.sv
+    sim_top: tb_width_alt_interfaces
+    formal_harness: benchmarks/formal/tb_width_alt_interfaces_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [width_adapter, renamed_interfaces]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T022_width_with_latency_attr
     level: L2
@@ -388,10 +451,17 @@ tasks:
     adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T022_width_with_latency_attr/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_width_with_latency_attr.sv
+    sim_top: tb_width_with_latency_attr
+    formal_harness: benchmarks/formal/tb_width_with_latency_attr_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [width_adapter, adapter_attribute]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T023_width_renamed_instances
     level: L2
@@ -403,10 +473,17 @@ tasks:
     adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T023_width_renamed_instances/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_width_renamed_instances.sv
+    sim_top: tb_width_renamed_instances
+    formal_harness: benchmarks/formal/tb_width_renamed_instances_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [width_adapter, renamed_instances]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T024_width_contractless
     level: L2

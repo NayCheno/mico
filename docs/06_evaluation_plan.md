@@ -37,7 +37,7 @@
 ## Dataset construction
 
 The current deterministic manifest has 62 tasks: 57 hand-written seeds plus
-five dedicated subsystem case studies.
+five public-development subsystem case studies plus a held-out case-study split.
 
 - 10 L1 direct stream wiring tasks;
 - 13 L2 parameter/width tasks;

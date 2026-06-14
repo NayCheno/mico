@@ -121,7 +121,9 @@ tasks and 26 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
 Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
-testbenches. Accepted positive tasks without a declared testbench get an
+testbenches. The current public-development summary records
+`sim_mode_counts = {declared: 20, autogen: 16}`. Accepted positive tasks
+without a declared testbench get an
 auto-generated ready/valid smoke harness from the emitted traceability JSON;
 the generated harness instantiates `Top`, toggles clock/reset ports, and checks
 generated payload/valid/ready wires for unknown values with valid/ready asserted
@@ -132,7 +134,9 @@ under ignored `build/bench/` and run bounded proofs against the generated
 wrapper plus committed harness monitor. Accepted single-clock positives without
 a declared harness get an auto-generated ready/valid formal smoke harness from
 traceability JSON. The current enabled formal denominator is 31/31: three
-committed directed harnesses plus 28 generated single-clock smoke harnesses.
+committed directed harnesses plus 17 generated single-clock smoke harnesses.
+The current public-development summary records
+`formal_mode_counts = {declared: 14, autogen: 17}`.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
 flattened generic-mapped `stat -json` for the generated wrapper and the

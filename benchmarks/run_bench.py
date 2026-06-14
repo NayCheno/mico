@@ -1351,7 +1351,9 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "rate": json_ast_expected / total if total else 0.0,
         },
         "sim_pass": aggregate_with_status(sim_enabled, count(sim_enabled, "sim_pass")),
+        "sim_mode_counts": mode_counts(sim_enabled, "sim_result"),
         "formal_pass": aggregate_with_status(formal_enabled, count(formal_enabled, "formal_pass")),
+        "formal_mode_counts": mode_counts(formal_enabled, "formal_result"),
         "qor": {
             "available_tasks": len(qor_available),
             "total": len(qor_enabled),
@@ -1361,6 +1363,16 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "avg_mapped_cell_delta_pct": average_delta(qor_available, "mapped_cell_pct"),
         },
     }
+
+
+def mode_counts(items: list[dict[str, Any]], result_key: str) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for item in items:
+        result = item.get(result_key, {})
+        mode = result.get("mode") if isinstance(result, dict) else None
+        if isinstance(mode, str) and mode:
+            counts[mode] = counts.get(mode, 0) + 1
+    return counts
 
 
 def average_delta(items: list[dict[str, Any]], key: str) -> float:

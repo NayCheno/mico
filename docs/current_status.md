@@ -39,13 +39,13 @@ This file is the short, traceable status page for the current repository. Use
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Icarus simulation coverage for all 36 positive tasks: nine tasks use
-  committed directed testbenches, and the remaining accepted positives use
-  auto-generated ready/valid smoke harnesses derived from traceability JSON.
+- Icarus simulation coverage for all 36 positive tasks: 20 tasks use committed
+  directed testbenches, and the remaining accepted positives use auto-generated
+  ready/valid smoke harnesses derived from traceability JSON.
 - Bounded SymbiYosys formal smoke coverage for 31 single-clock positive tasks:
-  three tasks use committed directed monitors, and the remaining single-clock
-  positives use generated ready/valid formal harnesses derived from traceability
-  JSON.
+  14 tasks use committed directed monitors, and the remaining single-clock
+  positives use generated ready/valid formal harnesses derived from
+  traceability JSON.
 - Structural and generic-mapped Yosys QoR extraction for supported positive
   benchmark wrappers, compared against committed hand-written reference wrappers
   with generated CSV/TeX summaries.
@@ -59,7 +59,8 @@ This file is the short, traceable status page for the current repository. Use
   records, LLM benchmark records, and aggregate results.
 - 62 public-development ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
-  collateral, and five dedicated subsystem case studies.
+  collateral, five public-development subsystem case studies, and a held-out
+  case-study split.
 - Documented public-development and held-out split policy. The committed main
   manifest is the public development split; the separate held-out manifest adds
   12 scoring tasks, including three new subsystem cases and three paired
@@ -124,7 +125,9 @@ Current deterministic benchmark scope:
 - Expected current result: expected outcome 62/62, positive compose 36/36,
   positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
   rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
-  31/31, structural plus generic-mapped QoR available 9/9.
+  31/31, structural plus generic-mapped QoR available 9/9. The mode split is
+  20 declared and 16 generated simulations, plus 14 declared and 17 generated
+  single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, timing QoR, technology-mapped
   delay, and Vivado QoR remain intentionally unclaimed.

@@ -115,10 +115,10 @@ Expected current benchmark result:
 - `expected_outcome_pass: 62/62`
 - `compose_pass_1: 36/36` for positive tasks
 - `lint_pass: 36/36` for positive tasks
-- `sim_pass: 36/36` for positive tasks; nine use committed directed Icarus
-  testbenches and the rest use generated ready/valid smoke harnesses
-- `formal_pass: 31/31` for single-clock formal smoke tasks; three use committed
-  directed monitors and the rest use generated ready/valid formal harnesses
+- `sim_pass: 36/36` for positive tasks; 20 use committed directed Icarus
+  testbenches and 16 use generated ready/valid smoke harnesses
+- `formal_pass: 31/31` for single-clock formal smoke tasks; 14 use committed
+  directed monitors and 17 use generated ready/valid formal harnesses
 - `qor_available: 9/9` for positive tasks with committed reference wrappers;
   availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks

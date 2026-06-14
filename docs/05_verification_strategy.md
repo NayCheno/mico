@@ -82,17 +82,17 @@ On Windows PowerShell:
 The script generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and `width_adapter` into ignored `build/eda-smoke/`, then runs Verilator lint, Icarus elaboration, and Yosys hierarchy/proc/opt/stat against `rtl/examples/mico_example_leafs.sv`. It also runs a minimal SymbiYosys smoke proof to verify that the Docker formal entry point works. The CDC FIFO in that file is a smoke-only stub, not a CDC correctness proof. Real CDC signoff still requires a proven FIFO implementation, assertions, and CDC/formal collateral.
 
 ModuleComposeBench runs Icarus/VVP simulation for every accepted positive task.
-Nine tasks use committed directed testbenches; the remaining positives use a
-generated ready/valid smoke harness derived from traceability JSON. The
-generated harness is a dynamic wiring/protocol sanity check, not a substitute
-for task-specific functional scoreboards.
+Twenty public-development tasks use committed directed testbenches; the
+remaining positives use a generated ready/valid smoke harness derived from
+traceability JSON. The generated harness is a dynamic wiring/protocol sanity
+check, not a substitute for task-specific functional scoreboards.
 
 ModuleComposeBench additionally runs bounded SymbiYosys checks for the
-single-clock formal smoke denominator. `T004_direct_stream`,
-`T003_width_adapter`, and `T058_streaming_accelerator_case` use committed
-directed monitors for direct stream, width-adapter, and streaming case-study
-properties. The remaining single-clock positives use generated ready/valid
-formal smoke harnesses derived from traceability JSON. These generated harnesses
-check no-unknowns, asserted ready/valid after reset, and bounded stable-payload
-properties when the compiler emitted matching ready/valid SVA metadata. CDC
-tasks are still simulation/lint smoke only and must not be treated as CDC proof.
+single-clock formal smoke denominator. Fourteen public-development tasks use
+committed directed monitors for direct stream, FIFO-chain, width-adapter, and
+streaming case-study properties. The remaining single-clock positives use
+generated ready/valid formal smoke harnesses derived from traceability JSON.
+These generated harnesses check no-unknowns, asserted ready/valid after reset,
+and bounded stable-payload properties when the compiler emitted matching
+ready/valid SVA metadata. CDC tasks are still simulation/lint smoke only and
+must not be treated as CDC proof.

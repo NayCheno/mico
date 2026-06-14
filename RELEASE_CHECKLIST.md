@@ -52,6 +52,7 @@ The release manifest records:
 - selected LLM model/profile metadata with API keys redacted;
 - public-development and held-out benchmark manifest SHA-256 hashes;
 - result JSON SHA-256 hashes for deterministic, held-out, LLM validate-only, provider validate-only, and aggregate outputs;
+- optional v2 authenticated LLM aggregate and held-out hardening aggregate hashes when those ignored artifacts are present;
 - optional Vivado subset summary hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used;
 - current source commit hash and latest paper commit hash.
@@ -82,12 +83,13 @@ The release bundle manifest records:
 
 ## Authenticated LLM Result Handling
 
-The authenticated low-cost matrix summary is committed as
-`docs/16_llm_matrix_results.md`. The corresponding raw execute result,
-response cache, prompts, and per-attempt artifacts stay under ignored
-`build/llm/` paths and should be attached to a release only as sanitized
-external artifacts after review. Do not move provider caches, raw responses,
-local YAML, or API keys into git.
+The historical low-cost matrix summary is committed as
+`docs/16_llm_matrix_results.md`; the v2 authenticated full matrix is summarized
+in `docs/22_llm_full_matrix_v2.md`. Raw execute results, response caches,
+prompts, and per-attempt artifacts stay under ignored `build/llm/` paths and
+should be attached to a release only as sanitized external artifacts after
+review. The default bundle may include aggregate v2 summaries when present, but
+it does not include provider caches, raw responses, local YAML, or API keys.
 
 After the final source commit for a release candidate, rerun:
 

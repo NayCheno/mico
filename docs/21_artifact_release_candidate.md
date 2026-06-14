@@ -18,7 +18,7 @@ git diff --check
 ```
 
 The Docker portion of `full-check` now covers Rust format/check/tests, open
-source EDA smoke, the 62-task public-development benchmark, the 12-task
+source EDA smoke, the 62-task public-development benchmark, the 20-task
 held-out benchmark, validate-only LLM provider and batch records, aggregate
 table generation, schema validation, and generated-output policy checks. The
 PowerShell wrapper then builds the paper with host LaTeX and updates the release
@@ -51,13 +51,18 @@ The manifest is generated output. Do not commit it.
   notes;
 - deterministic public-development and held-out results;
 - validate-only sanitized LLM records;
+- v2 authenticated LLM and held-out hardening aggregate summaries when present;
 - aggregate tables and held-out aggregate tables;
+- committed generated paper table snippets;
 - optional sanitized Vivado subset summaries;
 - the final paper PDF and an `artifact_manifest.json` with per-file hashes.
 
-The bundle gate rejects local provider configs, raw execute-result JSON,
-`build/` or `target/` paths inside the ZIP staging tree, logs, Vivado project
-outputs, and secret-like strings in text artifacts.
+The bundle gate rejects local provider configs, raw provider payloads and
+response caches, `build/` or `target/` paths inside the ZIP staging tree, logs,
+Vivado project outputs, and secret-like strings in text artifacts. Full
+authenticated execute-result JSON can still be archived externally after review;
+the default bundle includes aggregate summaries and documentation, not provider
+caches.
 
 ## Publication Boundary
 

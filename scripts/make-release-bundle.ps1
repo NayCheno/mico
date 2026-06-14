@@ -138,6 +138,8 @@ try {
         "docs/19_vivado_qor_subset.md",
         "docs/20_paper_dac_ready.md",
         "docs/21_artifact_release_candidate.md",
+        "docs/22_llm_full_matrix_v2.md",
+        "docs/23_heldout_benchmark_hardening.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",
         "docs/dac2027_submission_plan.md"
@@ -153,6 +155,18 @@ try {
     Copy-BundleFile "build/llm/provider_validate.json" "results/llm_validate/provider_validate.json"
     Copy-BundleFile "build/llm/bench_validate.json" "results/llm_validate/bench_validate.json"
     Copy-BundleFile "paper/main.pdf" "paper/main.pdf"
+    if (Test-Path -LiteralPath (Resolve-RepoPath "paper/tables") -PathType Container) {
+        Copy-BundleTree "paper/tables" "paper/tables"
+    }
+    $optionalAggregateFiles = @(
+        "build/bench/aggregate_dac2027_llm_heldout20.json",
+        "build/bench/aggregate_m5_heldout.json"
+    )
+    foreach ($file in $optionalAggregateFiles) {
+        if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {
+            Copy-BundleFile $file ("results/aggregate/" + (Split-Path -Leaf $file))
+        }
+    }
 
     $vivadoFiles = @(
         "build/reports/vivado-host/vivado_qor_subset_summary.json",

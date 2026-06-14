@@ -48,7 +48,8 @@ paper with host LaTeX. The Docker gate verifies tools, runs Rust
 fmt/check/tests, runs EDA smoke, runs the deterministic benchmark, validates the
 LLM provider config without provider requests, plans the full LLM baseline
 matrix without provider requests, regenerates aggregate result tables, validates
-JSON outputs, and writes `build/release/full_check_manifest.json`.
+JSON outputs against the repository JSON Schemas, and writes
+`build/release/full_check_manifest.json`.
 
 Linux/WSL equivalent:
 
@@ -129,6 +130,7 @@ Generate aggregate CSV and paper-table snippets from deterministic results:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_validate.json --aggregate-result build/bench/aggregate_results.json"
 ```
 
 This writes `build/bench/aggregate_results.json`, deterministic CSVs under

@@ -115,6 +115,7 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
         edalize \
         fusesoc \
         jinja2 \
+        jsonschema \
         openai \
         pyaml \
         pytest \

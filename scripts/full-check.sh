@@ -97,7 +97,11 @@ run_step "Aggregate benchmark and LLM records" python3 benchmarks/aggregate_resu
     --bench-result build/bench/seed_results.json \
     --llm-result build/llm/bench_validate.json \
     --out-json build/bench/aggregate_results.json
-run_step "JSON validation" bash -lc "python3 -m json.tool build/bench/seed_results.json >/dev/null && python3 -m json.tool build/llm/provider_validate.json >/dev/null && python3 -m json.tool build/llm/bench_validate.json >/dev/null && python3 -m json.tool build/bench/aggregate_results.json >/dev/null"
+run_step "JSON schema validation" python3 scripts/validate_json_schemas.py \
+    --bench-result build/bench/seed_results.json \
+    --llm-run build/llm/provider_validate.json \
+    --llm-bench build/llm/bench_validate.json \
+    --aggregate-result build/bench/aggregate_results.json
 
 tracked_generated="$(
     git ls-files -- \

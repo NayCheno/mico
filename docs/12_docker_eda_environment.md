@@ -59,7 +59,8 @@ Required apt tools include:
 - Rust toolchain via rustup: `rustc`, `cargo`, `rustfmt`, `clippy`
 - RTL/EDA: `yosys`, `yosys-smtbmc`, `sby` (SymbiYosys driver), `verilator`, `iverilog`, `ghdl`, `tclsh`, `z3`
 - Build/runtime: `build-essential`, `cmake`, `ninja`, `python3`, `pip`, `git`
-- Python EDA helpers: `cocotb`, `edalize`, `fusesoc`, `pytest`, `pyyaml`
+- Python EDA helpers: `cocotb`, `edalize`, `fusesoc`, `jsonschema`,
+  `pytest`, `pyyaml`
 - LLM provider smoke tests: OpenAI Python SDK, configured by `$opencode-go-provider`
 
 The Dockerfile also installs optional Ubuntu packages when available, such as `boolector`, `berkeley-abc`, `gtkwave`, `nextpnr-*`, `fpga-icestorm`, `openocd`, and `ghdl-yosys-plugin`. Ubuntu 24.04 does not package the SymbiYosys `sby` driver, so the Dockerfile installs it from the upstream `YosysHQ/sby` repository during image build.

@@ -49,6 +49,9 @@ This file is the short, traceable status page for the current repository. Use
   optional LLM batch records into CSV plus LaTeX table snippets for main
   results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
   token/cost, paired comparisons, and failure taxonomy.
+- JSON Schema validation gate for diagnostics, source AST, typed IR,
+  traceability, repair patches, deterministic benchmark results, LLM run
+  records, LLM benchmark records, and aggregate results.
 - 60 ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
   collateral, and three dedicated subsystem case studies.
@@ -122,6 +125,7 @@ Component commands:
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_validate.json --aggregate-result build/bench/aggregate_results.json"
 ```
 
 Host exceptions:

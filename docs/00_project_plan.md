@@ -30,7 +30,7 @@ Out of scope for v0:
 2. Typed IR and semantic checker.
 3. Conservative SystemVerilog emitter.
 4. Structured diagnostics.
-5. 60 ModuleComposeBench tasks before LLM baseline runs, including three dedicated subsystem case studies.
+5. 62 ModuleComposeBench tasks before LLM baseline runs, including five dedicated subsystem case studies.
 6. Baseline prompt scripts.
 
 ## Research hypothesis

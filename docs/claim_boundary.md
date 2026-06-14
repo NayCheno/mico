@@ -35,8 +35,8 @@ The current repository supports these claims when the release gate passes:
 - MICO parses, checks, builds typed IR, and emits deterministic SV, SVA, JSON
   IR, and traceability records for the v0 language subset.
 - Source `.mico` and source-level JSON AST inputs share the same checker and
-  code generation path for the 60-task ModuleComposeBench manifest.
-- The deterministic benchmark has 60 tasks across L1-L6, with 34 positive and
+  code generation path for the 62-task ModuleComposeBench manifest.
+- The deterministic benchmark has 62 tasks across L1-L6, with 36 positive and
   26 negative tasks.
 - Positive benchmark tasks compose successfully and pass the currently enabled
   open-source lint/elaboration checks.
@@ -44,14 +44,14 @@ The current repository supports these claims when the release gate passes:
   codes, graph-node references, and repair actions.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
-- All 34 positive tasks pass Icarus/VVP simulation smoke checks. Seven use
+- All 36 positive tasks pass Icarus/VVP simulation smoke checks. Nine use
   committed directed testbenches; the remaining positives use generated
   ready/valid smoke harnesses derived from traceability JSON.
-- Twenty-nine single-clock positive tasks pass bounded SymbiYosys formal smoke
+- Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
   checks. Three use committed directed monitors; the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
   JSON.
-- Seven reference-enabled positive tasks have structural Yosys area/wire and
+- Nine reference-enabled positive tasks have structural Yosys area/wire and
   generic mapped-cell QoR summaries against committed hand-written wrappers.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and produce sanitized `mico.llm.run.v0` metadata.
@@ -70,7 +70,7 @@ The current repository must not claim:
 
 - Multi-model or multi-baseline LLM pass-rate improvement before sanitized paid
   matrix results are archived and aggregated.
-- Full directed functional simulation coverage beyond the seven committed
+- Full directed functional simulation coverage beyond the nine committed
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke
   denominator.

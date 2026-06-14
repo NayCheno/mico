@@ -36,15 +36,15 @@
 
 ## Dataset construction
 
-The current deterministic manifest has 60 tasks: 57 hand-written seeds plus
-three dedicated subsystem case studies.
+The current deterministic manifest has 62 tasks: 57 hand-written seeds plus
+five dedicated subsystem case studies.
 
 - 10 L1 direct stream wiring tasks;
 - 13 L2 parameter/width tasks;
 - 10 L3 adapter/backpressure/latency seed tasks;
 - 10 L4 CDC/RDC tasks;
-- 9 L5 bus/register wrapper and case-study tasks;
-- 8 L6 subsystem integration and case-study tasks.
+- 10 L5 bus/register wrapper and case-study tasks;
+- 9 L6 subsystem integration and case-study tasks.
 
 The full LLM evaluation should preserve at least this 50+ task scale while
 expanding the dedicated non-smoke L3/L5/L6 RTL case-study set:

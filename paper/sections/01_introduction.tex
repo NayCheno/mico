@@ -13,7 +13,7 @@ This paper makes five contributions:
   \item It introduces MICO, a small language core with clock domains, interfaces, contracts, extern modules, adapters, and compose graphs.
   \item It describes a Rust compiler architecture that turns model proposals into checked IR, deterministic diagnostics, traceable SystemVerilog wrappers, and repair prompts.
   \item It defines ModuleComposeBench, an evaluation methodology for measuring first-pass composition, repair turns, unsafe rejection, and downstream RTL validation on existing RTL/IP integration tasks.
-  \item It reports the current reproducible artifact boundary: 60 deterministic tasks, three subsystem case studies, generated SV/SVA/trace artifacts, selected simulation/formal/QoR results, and a batch LLM evaluation harness whose full paid model matrix is intentionally not claimed yet.
+  \item It reports the current reproducible artifact boundary: 62 deterministic tasks, five subsystem case studies, generated SV/SVA/trace artifacts, selected simulation/formal/QoR results, and a batch LLM evaluation harness whose full paid model matrix is intentionally not claimed yet.
 \end{enumerate}
 
 The current artifact is intentionally narrow. It does not claim to replace general HDLs or downstream verification. Instead, it attacks the integration layer where human engineers already rely on structure, naming discipline, and review checklists, and where LLMs are most exposed to long-range textual consistency failures.

@@ -82,7 +82,7 @@ required task metadata, runs `mico_cli check --format json`, emits
 SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and
 executes Verilator, Icarus, and Yosys smoke checks against
 `rtl/examples/mico_example_leafs.sv` and dedicated case-study collateral under
-`rtl/case_studies/`. The current manifest has 60 tasks: 34 positive composition
+`rtl/case_studies/`. The current manifest has 62 tasks: 36 positive composition
 tasks and 26 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
@@ -97,8 +97,8 @@ Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated
 wrapper plus committed harness monitor. Accepted single-clock positives without
 a declared harness get an auto-generated ready/valid formal smoke harness from
-traceability JSON. The current enabled formal denominator is 29/29: three
-committed directed harnesses plus 26 generated single-clock smoke harnesses.
+traceability JSON. The current enabled formal denominator is 31/31: three
+committed directed harnesses plus 28 generated single-clock smoke harnesses.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
 flattened generic-mapped `stat -json` for the generated wrapper and the
@@ -111,8 +111,9 @@ codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with `summary` aggregation plus per-task results. The current
 runner aggregates `formal_pass` over formal-enabled tasks and `qor` over
 QoR-enabled positive tasks.
-L3/L5/L6 still contain seed approximations, but T058--T060 add dedicated
-streaming, width-bridge, and register/status subsystem RTL case studies.
+L3/L5/L6 still contain seed approximations, but T058--T062 add dedicated
+streaming, width-bridge, register/status, protocol-bridge, and telemetry
+subsystem RTL case studies.
 
 ## Paper Table Aggregation
 

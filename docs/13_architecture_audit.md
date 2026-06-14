@@ -8,7 +8,7 @@ remaining gaps behind that boundary.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, 60-task benchmark runner, benchmark
+smoke flow, source-level JSON AST path, 62-task benchmark runner, benchmark
 aggregation script, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
 experiments + paper" artifact: full paid LLM pass-rate matrices, broader case
@@ -133,16 +133,16 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench reports `sim_pass: 34/34` for positive tasks. Seven tasks,
-including the three dedicated subsystem case studies, use committed directed
+ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Nine tasks,
+including the five dedicated subsystem case studies, use committed directed
 Icarus/VVP testbenches; the remaining accepted positive tasks use generated
 ready/valid smoke harnesses derived from traceability JSON. It reports
-`formal_pass: 29/29` over the single-clock formal smoke denominator: three
+`formal_pass: 31/31` over the single-clock formal smoke denominator: three
 committed directed harnesses plus generated ready/valid formal harnesses for the
 remaining single-clock positives.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
-references, and reports `qor_available: 7/7`.
+references, and reports `qor_available: 9/9`.
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -160,8 +160,8 @@ Current limitations:
 
 ### ModuleComposeBench
 
-`benchmarks/module_compose_bench_manifest.yaml` currently contains 60 tasks:
-57 hand-written seeds plus 3 dedicated subsystem case studies with required
+`benchmarks/module_compose_bench_manifest.yaml` currently contains 62 tasks:
+57 hand-written seeds plus 5 dedicated subsystem case studies with required
 natural-language requests, module/interface/adapter inventories, expected
 diagnostics, and RTL collateral. The current deterministic scope is:
 
@@ -171,13 +171,13 @@ diagnostics, and RTL collateral. The current deterministic scope is:
 | L2 | 13 | 7 | 6 | width and parameter adaptation |
 | L3 | 10 | 6 | 4 | latency/backpressure and protocol seeds |
 | L4 | 10 | 5 | 5 | CDC/RDC adapter and rejection seeds |
-| L5 | 9 | 4 | 5 | bus/register wrapper seeds and register/status case |
-| L6 | 8 | 3 | 5 | multi-IP subsystem seeds and streaming/width case studies |
+| L5 | 10 | 5 | 5 | bus/register wrapper seeds, register/status case, and protocol bridge |
+| L6 | 9 | 4 | 5 | multi-IP subsystem seeds and streaming/width/telemetry case studies |
 
-The current expected result is 60/60 expected outcomes, 34/34 positive
-compose-pass, 34/34 positive lint/elaboration pass, 34/34 positive simulation
-smoke pass, 26/26 unsafe rejection, and 60/60 JSON AST path equivalence.
-Supported subsets are 29/29 single-clock bounded formal smoke proofs and 7/7
+The current expected result is 62/62 expected outcomes, 36/36 positive
+compose-pass, 36/36 positive lint/elaboration pass, 36/36 positive simulation
+smoke pass, 26/26 unsafe rejection, and 62/62 JSON AST path equivalence.
+Supported subsets are 31/31 single-clock bounded formal smoke proofs and 9/9
 structural plus generic-mapped QoR comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
@@ -188,8 +188,9 @@ supported, and writes `schema_version = mico.bench.results.v0`.
 Current limitations:
 
 - L3 latency/backpressure still relies on seed approximations over smoke RTL;
-  L5/L6 now include dedicated register/status, streaming accelerator, and
-  width-bridge case-study RTL, but broader subsystem diversity is still needed.
+  L5/L6 now include dedicated register/status, protocol bridge, streaming
+  accelerator, width-bridge, and telemetry-chain case-study RTL, but broader
+  subsystem diversity is still needed.
 - Full task-specific formal coverage and timing/Vivado QoR remain pending.
 
 ### LLM Provider Workflow
@@ -201,7 +202,7 @@ profile/model/base URL shape, records prompt SHA-256, model/profile metadata,
 repair turns, optional compiler and EDA JSON artifact attachments, token usage,
 and cost fields in a sanitized `mico.llm.run.v0` record.
 
-`scripts/run_llm_bench.py` adds the batch benchmark harness for the 60-task
+`scripts/run_llm_bench.py` adds the batch benchmark harness for the 62-task
 manifest. It supports Direct Verilog, SystemVerilog-interface, MICO source,
 MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
 validate-only mode for prompt/profile matrix checks, offline-fixture mode for
@@ -224,8 +225,8 @@ Current limitations:
 ### Paper
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
-The current abstract and evaluation section describe the 60-task deterministic
-result, 34/34 positive-task smoke simulation coverage, 29/29 single-clock
+The current abstract and evaluation section describe the 62-task deterministic
+result, 36/36 positive-task smoke simulation coverage, 31/31 single-clock
 bounded formal smoke coverage, and structural plus generic-mapped Yosys QoR
 summaries. They must not claim full per-task formal proof, timing QoR, arbitrary
 LTL, or multi-model pass-rate improvements. Host LaTeX is the repository policy
@@ -276,28 +277,28 @@ Current claims supported by the repository:
 
 - MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
   small v0 language.
-- The 60-task manifest meets the publishable-scale deterministic benchmark
-  threshold and spans L1-L6 with 34 positive and 26 negative tasks.
+- The 62-task manifest meets the publishable-scale deterministic benchmark
+  threshold and spans L1-L6 with 36 positive and 26 negative tasks.
 - The compiler rejects key unsafe seed cases: missing width adaptation, direct
   CDC, reversed direction, missing adapter guarantees, unknown adapter
   guarantees, and adapter guarantees invalid for their kind.
 - The compiler parses and checks a conservative ready/valid v0 contract subset
   for adapter requirement coverage.
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
-- The seven sim/QoR-enabled positive seed and case-study SV/SVA/traceability
+- Selected sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- All 34 positive tasks pass Icarus/VVP simulation; seven use committed
+- All 36 positive tasks pass Icarus/VVP simulation; nine use committed
   directed testbenches and the rest use generated ready/valid smoke harnesses.
-- Twenty-nine single-clock positive tasks pass bounded SymbiYosys formal smoke
+- Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
   checks; three use committed directed monitors and the rest use generated
   ready/valid formal harnesses.
-- Three dedicated subsystem case studies have committed RTL, MICO source,
+- Five dedicated subsystem case studies have committed RTL, MICO source,
   simulation testbenches, and structural/generic-mapped QoR references.
 - Positive seed and case-study wrappers have structural Yosys area/wire and
   generic mapped-cell QoR metrics against committed hand-written references.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
-- The LLM benchmark runner can plan the full 60-task low-cost baseline matrix,
+- The LLM benchmark runner can plan the full 62-task low-cost baseline matrix,
   validate offline compiler/EDA scoring paths, and execute authenticated
   provider subsets without storing secrets.
 - `benchmarks/aggregate_results.py` can merge deterministic and optional LLM
@@ -309,7 +310,7 @@ Claims not yet supported:
 
 - Multi-model or multi-baseline LLM pass-rate improvements.
 - Full paid LLM benchmark matrix results committed as artifact data.
-- Full directed functional simulation coverage beyond the seven committed
+- Full directed functional simulation coverage beyond the nine committed
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke
   denominator.

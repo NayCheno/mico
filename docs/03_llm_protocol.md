@@ -21,7 +21,7 @@ Use `$opencode-go-provider` for OpenCode Go model access. Provider settings live
 Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, optional profile cost rates, and the API key source from YAML. It calls Chat Completions through the OpenAI Python SDK only when not in validate-only mode, and writes sanitized JSON output under ignored `build/llm/`.
 
 Batch benchmark runs use `scripts/run_llm_bench.py`. The runner reads the
-60-task ModuleComposeBench manifest, generates deterministic prompts from
+62-task ModuleComposeBench manifest, generates deterministic prompts from
 `prompts/system_prompt_compose_agent.md` and
 `prompts/llm_bench_baselines.yaml`, supports five baselines, caches provider
 responses by prompt/profile/model hash, evaluates MICO outputs through the

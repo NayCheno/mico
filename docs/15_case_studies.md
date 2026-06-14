@@ -1,6 +1,6 @@
 # Subsystem Case Studies
 
-MICO includes three dedicated subsystem case studies in addition to the original
+MICO includes five dedicated subsystem case studies in addition to the original
 57 hand-written seed tasks. They live in `rtl/case_studies/` and are scored by
 the standard ModuleComposeBench runner, so they share the same compiler, lint,
 simulation, formal, and QoR result schema as the seed tasks.
@@ -12,6 +12,8 @@ simulation, formal, and QoR result schema as the seed tasks.
 | `T058_streaming_accelerator_case` | DMA-like source -> skid buffer -> XOR filter -> result sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded ready-valid/data property | yes |
 | `T059_width_protocol_bridge_case` | 32-bit sensor stream -> explicit width adapter -> 64-bit accelerator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | not run | yes |
 | `T060_register_status_case` | APB-like command source -> register/status transform -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | not run | yes |
+| `T061_protocol_bridge_case` | request/response command source -> protocol bridge -> response sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
+| `T062_multi_ip_telemetry_case` | telemetry source -> filter -> explicit width adapter -> accumulator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
 
 ## Reproduction
 
@@ -23,14 +25,14 @@ Run the deterministic benchmark in Docker:
 
 Expected current case-study-inclusive result:
 
-- `expected_outcome_pass: 60/60`
-- `compose_pass_1: 34/34`
-- `lint_pass: 34/34`
-- `sim_pass: 34/34`
-- `formal_pass: 29/29`
-- `qor_available: 7/7`
+- `expected_outcome_pass: 62/62`
+- `compose_pass_1: 36/36`
+- `lint_pass: 36/36`
+- `sim_pass: 36/36`
+- `formal_pass: 31/31`
+- `qor_available: 9/9`
 - `unsafe_rejection: 26/26`
-- `json_ast_path: 60/60`
+- `json_ast_path: 62/62`
 
 Generate aggregate CSV and TeX snippets from the same JSON:
 

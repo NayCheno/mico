@@ -1,0 +1,42 @@
+`default_nettype none
+
+module Top(
+  input logic clk,
+  input logic rst
+);
+  logic [31:0] source_req__bridge_req_payload;
+  logic source_req__bridge_req_ready;
+  logic source_req__bridge_req_valid;
+  logic [31:0] bridge_rsp__sink_rsp_payload;
+  logic bridge_rsp__sink_rsp_ready;
+  logic bridge_rsp__sink_rsp_valid;
+
+  CaseProtocolSource source (
+    .clk(clk),
+    .rst(rst),
+    .req_payload(source_req__bridge_req_payload),
+    .req_valid(source_req__bridge_req_valid),
+    .req_ready(source_req__bridge_req_ready)
+  );
+
+  CaseProtocolBridge bridge (
+    .clk(clk),
+    .rst(rst),
+    .req_payload(source_req__bridge_req_payload),
+    .req_valid(source_req__bridge_req_valid),
+    .req_ready(source_req__bridge_req_ready),
+    .rsp_payload(bridge_rsp__sink_rsp_payload),
+    .rsp_valid(bridge_rsp__sink_rsp_valid),
+    .rsp_ready(bridge_rsp__sink_rsp_ready)
+  );
+
+  CaseProtocolSink sink (
+    .clk(clk),
+    .rst(rst),
+    .rsp_payload(bridge_rsp__sink_rsp_payload),
+    .rsp_valid(bridge_rsp__sink_rsp_valid),
+    .rsp_ready(bridge_rsp__sink_rsp_ready)
+  );
+endmodule
+
+`default_nettype wire

@@ -112,21 +112,22 @@ Run the deterministic benchmark runner:
 
 Expected current benchmark result:
 
-- `expected_outcome_pass: 60/60`
-- `compose_pass_1: 34/34` for positive tasks
-- `lint_pass: 34/34` for positive tasks
-- `sim_pass: 34/34` for positive tasks; seven use committed directed Icarus
+- `expected_outcome_pass: 62/62`
+- `compose_pass_1: 36/36` for positive tasks
+- `lint_pass: 36/36` for positive tasks
+- `sim_pass: 36/36` for positive tasks; nine use committed directed Icarus
   testbenches and the rest use generated ready/valid smoke harnesses
-- `formal_pass: 29/29` for single-clock formal smoke tasks; three use committed
+- `formal_pass: 31/31` for single-clock formal smoke tasks; three use committed
   directed monitors and the rest use generated ready/valid formal harnesses
-- `qor_available: 7/7` for positive tasks with committed reference wrappers;
+- `qor_available: 9/9` for positive tasks with committed reference wrappers;
   availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks
-- `json_ast_path: 60/60` for source-to-AST-to-check equivalence
+- `json_ast_path: 62/62` for source-to-AST-to-check equivalence
 - CDC formal proof, timing QoR, technology-mapped delay, and Vivado QoR remain
   not run.
-- T058--T060 provide dedicated streaming, width-bridge, and register/status
-  subsystem case studies; broader latency and bus IP studies remain future work.
+- T058--T062 provide dedicated streaming, width-bridge, register/status,
+  protocol-bridge, and telemetry subsystem case studies; broader latency and
+  bus IP studies remain future work.
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 

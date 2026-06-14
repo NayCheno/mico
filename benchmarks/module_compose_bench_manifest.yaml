@@ -3,9 +3,9 @@ version: 0.3.0
 minimum_tasks: 50
 purpose: Evaluate LLM-assisted RTL module composition with typed interfaces, contracts, adapters, and clock-domain checks.
 scope_notes:
-  - The deterministic compiler baseline covers 57 hand-written seed tasks plus 3 dedicated subsystem case studies.
+  - The deterministic compiler baseline covers 57 hand-written seed tasks plus 5 dedicated subsystem case studies.
   - L1/L2/L4 tasks use committed smoke RTL collateral for lint/elaboration.
-  - L3/L5/L6 include seed approximations plus dedicated streaming, width-bridge, and register/status case-study RTL.
+  - L3/L5/L6 include seed approximations plus dedicated streaming, width-bridge, register/status, protocol-bridge, and telemetry case-study RTL.
   - Simulation and single-clock formal denominators include committed and generated smoke harnesses; QoR includes tasks with committed reference wrappers.
   - CDC formal correctness remains out of scope for this manifest revision.
 levels:
@@ -966,6 +966,46 @@ tasks:
     qor_top: Top
     qor_reference_top: Top
     expected_features: [case_study, register_wrapper, status_path, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T061_protocol_bridge_case
+    level: L5
+    type: positive
+    path: tasks/T061_protocol_bridge_case
+    request: Connect a command source through a protocol bridge into a response sink using same-clock ready-valid request/response streams.
+    module_inventory: [CaseProtocolSource, CaseProtocolBridge, CaseProtocolSink]
+    interface_inventory: [ProtoReq, ProtoRsp]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T061_protocol_bridge_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_protocol_bridge_case.sv
+    sim_top: tb_protocol_bridge_case
+    qor_reference: benchmarks/qor/reference/T061_protocol_bridge_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, protocol_bridge, request_response, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T062_multi_ip_telemetry_case
+    level: L6
+    type: positive
+    path: tasks/T062_multi_ip_telemetry_case
+    request: Connect a telemetry source through a filter, explicit width adapter, accumulator, and host sink.
+    module_inventory: [CaseTelemetrySource, CaseTelemetryFilter, CaseTelemetryAccumulator64, CaseHostSink64]
+    interface_inventory: [Telemetry32, Telemetry64]
+    adapter_inventory: [CaseWiden32To64]
+    mico_source: benchmarks/tasks/T062_multi_ip_telemetry_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_multi_ip_telemetry_case.sv
+    sim_top: tb_multi_ip_telemetry_case
+    qor_reference: benchmarks/qor/reference/T062_multi_ip_telemetry_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, multi_ip_subsystem, telemetry_chain, explicit_adapter, qor_reference]
     expected:
       compose_pass: true
       lint_pass: true

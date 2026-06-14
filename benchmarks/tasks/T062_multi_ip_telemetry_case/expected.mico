@@ -1,0 +1,47 @@
+clockdom Sys(clk, rst);
+
+interface Telemetry32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface Telemetry64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseTelemetrySource @Sys {
+  out tx: Telemetry32;
+}
+
+extern module CaseTelemetryFilter @Sys {
+  in input: Telemetry32;
+  out output: Telemetry32;
+}
+
+extern module CaseTelemetryAccumulator64 @Sys {
+  in rx: Telemetry64;
+  out tx: Telemetry64;
+}
+
+extern module CaseHostSink64 @Sys {
+  in rx: Telemetry64;
+}
+
+adapter CaseWiden32To64 from Telemetry32@Sys to Telemetry64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst source: CaseTelemetrySource;
+  inst filter: CaseTelemetryFilter;
+  inst accum: CaseTelemetryAccumulator64;
+  inst host: CaseHostSink64;
+  connect source.tx -> filter.input;
+  adapt filter.output -> CaseWiden32To64 -> accum.rx;
+  connect accum.tx -> host.rx;
+}

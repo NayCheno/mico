@@ -1,0 +1,70 @@
+`default_nettype none
+
+module Top(
+  input logic clk,
+  input logic rst
+);
+  logic [31:0] source_tx__filter_input_payload;
+  logic source_tx__filter_input_ready;
+  logic source_tx__filter_input_valid;
+  logic [31:0] filter_output__casewiden32to64_1_in_payload;
+  logic filter_output__casewiden32to64_1_in_ready;
+  logic filter_output__casewiden32to64_1_in_valid;
+  logic [63:0] casewiden32to64_1__accum_rx_payload;
+  logic casewiden32to64_1__accum_rx_ready;
+  logic casewiden32to64_1__accum_rx_valid;
+  logic [63:0] accum_tx__host_rx_payload;
+  logic accum_tx__host_rx_ready;
+  logic accum_tx__host_rx_valid;
+
+  CaseTelemetrySource source (
+    .clk(clk),
+    .rst(rst),
+    .tx_payload(source_tx__filter_input_payload),
+    .tx_valid(source_tx__filter_input_valid),
+    .tx_ready(source_tx__filter_input_ready)
+  );
+
+  CaseTelemetryFilter filter (
+    .clk(clk),
+    .rst(rst),
+    .input_payload(source_tx__filter_input_payload),
+    .input_valid(source_tx__filter_input_valid),
+    .input_ready(source_tx__filter_input_ready),
+    .output_payload(filter_output__casewiden32to64_1_in_payload),
+    .output_valid(filter_output__casewiden32to64_1_in_valid),
+    .output_ready(filter_output__casewiden32to64_1_in_ready)
+  );
+
+  CaseWiden32To64 casewiden32to64_1 (
+    .clk(clk),
+    .rst(rst),
+    .in_payload(filter_output__casewiden32to64_1_in_payload),
+    .in_valid(filter_output__casewiden32to64_1_in_valid),
+    .in_ready(filter_output__casewiden32to64_1_in_ready),
+    .out_payload(casewiden32to64_1__accum_rx_payload),
+    .out_valid(casewiden32to64_1__accum_rx_valid),
+    .out_ready(casewiden32to64_1__accum_rx_ready)
+  );
+
+  CaseTelemetryAccumulator64 accum (
+    .clk(clk),
+    .rst(rst),
+    .rx_payload(casewiden32to64_1__accum_rx_payload),
+    .rx_valid(casewiden32to64_1__accum_rx_valid),
+    .rx_ready(casewiden32to64_1__accum_rx_ready),
+    .tx_payload(accum_tx__host_rx_payload),
+    .tx_valid(accum_tx__host_rx_valid),
+    .tx_ready(accum_tx__host_rx_ready)
+  );
+
+  CaseHostSink64 host (
+    .clk(clk),
+    .rst(rst),
+    .rx_payload(accum_tx__host_rx_payload),
+    .rx_valid(accum_tx__host_rx_valid),
+    .rx_ready(accum_tx__host_rx_ready)
+  );
+endmodule
+
+`default_nettype wire

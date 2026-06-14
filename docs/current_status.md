@@ -35,14 +35,14 @@ This file is the short, traceable status page for the current repository. Use
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
   traceability JSON emission with source references, generated signal mappings,
   leaf module port names, adapter boundaries, and contract IDs.
-- Golden SV/SVA/traceability fixture tests for the seven sim/QoR-enabled
+- Golden SV/SVA/traceability fixture tests for selected sim/QoR-enabled
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Icarus simulation coverage for all 34 positive tasks: seven tasks use
+- Icarus simulation coverage for all 36 positive tasks: nine tasks use
   committed directed testbenches, and the remaining accepted positives use
   auto-generated ready/valid smoke harnesses derived from traceability JSON.
-- Bounded SymbiYosys formal smoke coverage for 29 single-clock positive tasks:
+- Bounded SymbiYosys formal smoke coverage for 31 single-clock positive tasks:
   three tasks use committed directed monitors, and the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
   JSON.
@@ -56,12 +56,12 @@ This file is the short, traceable status page for the current repository. Use
 - JSON Schema validation gate for diagnostics, source AST, typed IR,
   traceability, repair patches, deterministic benchmark results, LLM run
   records, LLM benchmark records, and aggregate results.
-- 60 ModuleComposeBench tasks with required natural-language requests,
+- 62 ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
-  collateral, and three dedicated subsystem case studies.
+  collateral, and five dedicated subsystem case studies.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
-- Batch LLM benchmark runner for the 60-task manifest with Direct Verilog,
+- Batch LLM benchmark runner for the 62-task manifest with Direct Verilog,
   SystemVerilog-interface, MICO source, MICO JSON AST, and MICO JSON AST +
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
@@ -87,7 +87,7 @@ This file is the short, traceable status page for the current repository. Use
   claims.
 - Direct inclusion of generated paper-table snippets in the final submission
   text.
-- Broader subsystem case studies beyond the three committed deterministic cases.
+- Broader subsystem case studies beyond the five committed deterministic cases.
 - Immutable release tag; the current policy uses a reviewable release branch
   first, then tags only after final artifact approval.
 
@@ -95,20 +95,21 @@ This file is the short, traceable status page for the current repository. Use
 
 Current deterministic benchmark scope:
 
-- Total tasks: 60, with 34 positives and 26 negatives.
-- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 9, and L6 8.
+- Total tasks: 62, with 36 positives and 26 negatives.
+- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 10, and L6 9.
 - The deterministic compiler baseline includes same-domain stream wiring,
   width adaptation, latency/backpressure seed tasks, CDC/RDC adapter tasks,
   bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
-- Expected current result: expected outcome 60/60, positive compose 34/34,
-  positive lint/elaboration smoke 34/34, positive simulation 34/34, unsafe
-  rejection 26/26, JSON AST path 60/60, single-clock bounded formal smoke
-  29/29, structural plus generic-mapped QoR available 7/7.
+- Expected current result: expected outcome 62/62, positive compose 36/36,
+  positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
+  rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
+  31/31, structural plus generic-mapped QoR available 9/9.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, timing QoR, technology-mapped
   delay, and Vivado QoR remain intentionally unclaimed.
-- L3/L5/L6 include seed approximations plus the dedicated T058--T060 streaming,
-  width-bridge, and register/status subsystem case studies.
+- L3/L5/L6 include seed approximations plus the dedicated T058--T062 streaming,
+  width-bridge, register/status, protocol-bridge, and telemetry subsystem case
+  studies.
 
 ## Validation Commands
 

@@ -18,6 +18,8 @@ The provider policy also separates cost from correctness. Smoke tests and bulk p
 
 The current provider harness records each validate-only or authenticated smoke run as a redacted JSON artifact. The record includes the provider profile, model identifier, prompt SHA-256, request settings, response JSON validity, token usage when returned by the provider, optional configured cost estimate, repair-turn count, compiler-result attachment, and EDA-result attachment. It records whether an API key was present and where it was sourced, but never stores or prints the key itself. This makes LLM comparisons reproducible enough to audit without making the secret-bearing local configuration part of the artifact.
 
+The batch runner extends this harness from a single smoke prompt to the 57-task benchmark manifest. It generates deterministic prompts for Direct Verilog, SystemVerilog-interface, MICO source, MICO JSON AST, and MICO JSON AST with compiler-feedback repair baselines. Validate-only mode plans the full low-cost matrix without provider requests, offline-fixture mode exercises compiler and open-source EDA scoring without paid calls, and execute mode uses the OpenAI-compatible SDK with response caching. Repair turns for the JSON AST baseline feed compiler diagnostics into the repair prompt and apply the returned patch to the candidate AST before rechecking. The current artifact commits the runner and smoke validation paths; it does not yet commit a full paid multi-model result matrix.
+
 \begin{table}[t]
   \centering
   \caption{Acceptance gates for LLM-generated candidates}

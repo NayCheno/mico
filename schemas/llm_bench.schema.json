@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/llm_bench.schema.json",
+  "title": "MICO LLM benchmark run v0",
+  "type": "object",
+  "required": ["schema_version", "run", "provider", "policy", "summary", "results"],
+  "properties": {
+    "schema_version": {"const": "mico.llm.bench.v0"},
+    "run": {
+      "type": "object",
+      "required": [
+        "id",
+        "mode",
+        "timestamp_utc",
+        "sdk",
+        "manifest",
+        "config",
+        "profiles",
+        "baselines",
+        "max_repair_turns",
+        "baseline_prompts"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+        "mode": {"type": "string", "enum": ["validate_only", "offline_fixture", "execute"]},
+        "timestamp_utc": {"type": "string"},
+        "sdk": {"const": "openai-python"},
+        "manifest": {"type": "string"},
+        "config": {"type": "string"},
+        "profiles": {"type": "array", "items": {"type": "string"}},
+        "baselines": {"type": "array", "items": {"type": "string"}},
+        "max_repair_turns": {"type": "integer", "minimum": 0},
+        "baseline_prompts": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "object",
+      "required": [
+        "name",
+        "api",
+        "base_url",
+        "api_key_source",
+        "api_key_present",
+        "api_key_redacted"
+      ],
+      "properties": {
+        "name": {"type": "string"},
+        "api": {"const": "openai-chat-completions"},
+        "base_url": {"type": "string"},
+        "api_key_source": {"type": "string"},
+        "api_key_present": {"type": "boolean"},
+        "api_key_redacted": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["default_profile", "escalation_order"],
+      "properties": {
+        "default_profile": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+        "escalation_order": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "attempts",
+        "positive_attempts",
+        "negative_attempts",
+        "provider_requests",
+        "cache_hits",
+        "response_json_valid",
+        "mico_compiler_pass",
+        "sv_lint_pass",
+        "unsafe_rejection",
+        "baselines",
+        "profiles",
+        "sv_baseline_attempts",
+        "mico_baseline_attempts"
+      ],
+      "properties": {
+        "attempts": {"type": "integer", "minimum": 0},
+        "positive_attempts": {"type": "integer", "minimum": 0},
+        "negative_attempts": {"type": "integer", "minimum": 0},
+        "provider_requests": {"type": "integer", "minimum": 0},
+        "cache_hits": {"type": "integer", "minimum": 0},
+        "response_json_valid": {"type": "integer", "minimum": 0},
+        "mico_compiler_pass": {"$ref": "#/$defs/count"},
+        "sv_lint_pass": {"$ref": "#/$defs/count"},
+        "unsafe_rejection": {"$ref": "#/$defs/count"},
+        "baselines": {"type": "array", "items": {"type": "string"}},
+        "profiles": {"type": "array", "items": {"type": "string"}},
+        "sv_baseline_attempts": {"type": "integer", "minimum": 0},
+        "mico_baseline_attempts": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/result"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "count": {
+      "type": "object",
+      "required": ["passed", "total"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "task_id",
+        "task_type",
+        "level",
+        "baseline",
+        "profile",
+        "prompt",
+        "request",
+        "response",
+        "cache_key",
+        "cache_hit",
+        "usage",
+        "cost",
+        "compiler_result",
+        "eda_result",
+        "repair",
+        "artifacts"
+      ],
+      "properties": {
+        "task_id": {"type": "string"},
+        "task_type": {"type": "string", "enum": ["positive", "negative"]},
+        "level": {"type": "string"},
+        "baseline": {"type": "string"},
+        "profile": {
+          "type": "object",
+          "required": ["name", "model", "tier"],
+          "properties": {
+            "name": {"type": "string"},
+            "model": {"type": "string"},
+            "tier": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "prompt": {
+          "type": "object",
+          "required": ["path", "sha256", "bytes"],
+          "properties": {
+            "path": {"type": "string"},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "bytes": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "request": {
+          "type": "object",
+          "required": ["temperature", "max_tokens"],
+          "properties": {
+            "temperature": {"type": "number"},
+            "max_tokens": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        },
+        "response": {
+          "type": "object",
+          "required": ["requested", "content_sha256", "json_valid", "json", "parse_error"],
+          "properties": {
+            "requested": {"type": "boolean"},
+            "content_sha256": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "json_valid": {"anyOf": [{"type": "null"}, {"type": "boolean"}]},
+            "json": true,
+            "parse_error": {"anyOf": [{"type": "null"}, {"type": "string"}]}
+          },
+          "additionalProperties": false
+        },
+        "cache_key": {"type": "string"},
+        "cache_hit": {"type": "boolean"},
+        "usage": {
+          "type": "object",
+          "required": ["prompt_tokens", "completion_tokens", "total_tokens"],
+          "properties": {
+            "prompt_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]},
+            "completion_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]},
+            "total_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]}
+          },
+          "additionalProperties": false
+        },
+        "cost": {"type": "object"},
+        "compiler_result": {"type": "object"},
+        "eda_result": {"type": "object"},
+        "repair": {"type": "object"},
+        "artifacts": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

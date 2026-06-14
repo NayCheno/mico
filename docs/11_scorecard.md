@@ -13,7 +13,8 @@
 ## Minimum publishable artifact
 
 - 50+ tasks in ModuleComposeBench. The deterministic seed manifest currently has 57 tasks.
-- 4 baselines minimum.
+- 4 baselines minimum. The batch runner currently defines five; committed full
+  result matrices are still pending.
 - 2–3 real subsystem case studies.
 - Rust compiler with checker and emitter.
 - Structured diagnostics + LLM repair loop.

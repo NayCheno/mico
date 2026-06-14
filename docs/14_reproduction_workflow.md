@@ -122,6 +122,27 @@ The output schema is `mico.llm.run.v0` in `schemas/llm_run.schema.json`. It reco
 
 Use low-cost profiles first: `smoke`, then `low_cost_crosscheck`. Escalate to higher-cost profiles only after compiler acceptance and RTL validation pass.
 
+Plan the full LLM benchmark matrix without making provider requests:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
+```
+
+Exercise the runner's compiler and open-source EDA scoring path without paid
+requests:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke --task-id T004_direct_stream --task-id T005_invalid_width_no_adapter --offline-fixture --output build/llm/bench_offline_fixture.json"
+```
+
+Authenticated benchmark execution is opt-in and writes ignored artifacts under
+`build/llm/`. Run full matrices only when local cost settings and budget are
+intentional:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke --baselines mico_source --task-id T004_direct_stream --execute --output build/llm/bench_execute_smoke.json"
+```
+
 ## Vivado Host Exception
 
 Use Vivado only for Xilinx-specific project synthesis, implementation, bitstream generation, or IP handling. Run it on the Windows host:
@@ -153,6 +174,8 @@ Before publishing a result or submission artifact:
 - ModuleComposeBench runner writes a JSON result under `build/bench/` with
   expected, lint, simulation, selected formal, QoR, and unsafe-rejection
   summaries.
-- LLM provider validate-only passes; authenticated smoke passes when a local key is configured.
+- LLM provider validate-only passes; the batch LLM runner can generate the
+  validate-only matrix and offline-fixture smoke outputs; authenticated smoke
+  runs only when a local key and budget are configured.
 - Paper LaTeX build completes on the Windows host.
 - No generated outputs, local configs, logs, PDFs, or secrets are staged.

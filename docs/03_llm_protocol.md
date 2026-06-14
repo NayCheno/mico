@@ -20,6 +20,14 @@ Use `$opencode-go-provider` for OpenCode Go model access. Provider settings live
 
 Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, optional profile cost rates, and the API key source from YAML. It calls Chat Completions through the OpenAI Python SDK only when not in validate-only mode, and writes sanitized JSON output under ignored `build/llm/`.
 
+Batch benchmark runs use `scripts/run_llm_bench.py`. The runner reads the
+57-task ModuleComposeBench manifest, generates deterministic prompts from
+`prompts/system_prompt_compose_agent.md` and
+`prompts/llm_bench_baselines.yaml`, supports five baselines, caches provider
+responses by prompt/profile/model hash, evaluates MICO outputs through the
+compiler, runs open-source lint/elaboration for accepted positive candidates,
+and writes sanitized `mico.llm.bench.v0` output.
+
 LLM run records use `schemas/llm_run.schema.json` with schema version `mico.llm.run.v0`. They include:
 
 - provider name, API root, config path, API key source, and whether a key was present;
@@ -46,6 +54,24 @@ Run the cheap smoke profile:
 
 ```powershell
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --output build/llm/provider_smoke.json
+```
+
+Plan the full low-cost benchmark matrix without paid requests:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
+```
+
+Exercise the compiler/EDA scoring path without provider requests:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke --task-id T004_direct_stream --task-id T005_invalid_width_no_adapter --offline-fixture --output build/llm/bench_offline_fixture.json"
+```
+
+Run an authenticated LLM benchmark subset only when cost is intended:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke --baselines mico_source --task-id T004_direct_stream --execute --output build/llm/bench_execute_smoke.json"
 ```
 
 Attach compiler and EDA results to an authenticated smoke run:

@@ -1,0 +1,19 @@
+direct_verilog: >
+  Return JSON with either {"systemverilog": "..."} for a Top wrapper or
+  {"reject": true, "reason": "..."} when the request is unsafe. Do not return
+  MICO source.
+sv_interface: >
+  Return JSON with either {"systemverilog": "..."} for a SystemVerilog
+  interface-oriented Top wrapper or {"reject": true, "reason": "..."} when the
+  request is unsafe.
+mico_source: >
+  Return JSON with either {"mico_source": "..."} containing complete MICO source
+  or {"reject": true, "reason": "..."} when the request is unsafe.
+mico_json_ast: >
+  Return JSON with either {"mico_ast": {...}} containing a complete
+  schema_version=mico.ast.v0 document or {"reject": true, "reason": "..."} when
+  the request is unsafe.
+mico_json_ast_repair: >
+  Return JSON with either {"mico_ast": {...}} containing a complete
+  schema_version=mico.ast.v0 document or {"reject": true, "reason": "..."}.
+  If later asked to repair, return a mico.repair_patch.v0 JSON patch only.

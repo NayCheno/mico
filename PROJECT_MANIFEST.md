@@ -11,10 +11,13 @@
 | `docs/03_llm_protocol.md` | How LLMs interact with MICO without being trusted for correctness. |
 | `config/llm-provider.example.yaml` | OpenCode Go provider template with OpenAI-compatible base URL, model profiles, and key handling policy. |
 | `scripts/llm-provider-smoke.py` | SDK-backed provider validation and smoke request script; writes sanitized outputs under ignored `build/llm/`. |
+| `scripts/run_llm_bench.py` | Batch ModuleComposeBench LLM runner with five baselines, caching, compiler/EDA scoring, and JSON-AST repair-loop plumbing. |
 | `schemas/mico_ast.schema.json` | Source-level MICO JSON AST schema used by `dump-ast-json`, `check-json`, and JSON AST baselines. |
 | `schemas/mico_repair_patch.schema.json` | Minimal compiler-feedback repair patch schema for instance, connection, adapter, endpoint, and contract-attribute edits. |
 | `schemas/traceability.schema.json` | Generated traceability report schema for source references, SV signals, leaf ports, adapter boundaries, and SVA contract IDs. |
 | `schemas/llm_run.schema.json` | Sanitized LLM validate/smoke run record schema with prompt hash, profile, repair, compiler, EDA, usage, and cost metadata. |
+| `schemas/llm_bench.schema.json` | Sanitized LLM benchmark batch result schema for validate-only, offline-fixture, and execute modes. |
+| `prompts/llm_bench_baselines.yaml` | Deterministic baseline-specific response instructions for Direct Verilog, SV interface, MICO source, MICO JSON AST, and JSON AST + repair. |
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |
 | `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |

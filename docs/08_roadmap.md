@@ -35,9 +35,9 @@
 ## Phase 4: LLM closed loop
 
 - Implement JSON AST ingestion.
-- Add compiler-feedback repair loop.
+- Maintain batch-runner compiler-feedback repair-loop plumbing.
 - Add prompt templates and result logging.
-- Evaluate multiple models.
+- Run and archive full paid multi-model benchmark matrices.
 
 ## Phase 5: Benchmark and paper
 

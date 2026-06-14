@@ -40,6 +40,11 @@ This file is the short, traceable status page for the current repository. Use
   collateral.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
+- Batch LLM benchmark runner for the 57-task manifest with Direct Verilog,
+  SystemVerilog-interface, MICO source, MICO JSON AST, and MICO JSON AST +
+  compiler-feedback repair baselines. It supports validate-only planning,
+  offline fixture checks, authenticated OpenAI-compatible execution, response
+  caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
 - IEEE-style paper draft with conservative deterministic benchmark claims.
 
 ## Not Yet Implemented
@@ -52,8 +57,9 @@ This file is the short, traceable status page for the current repository. Use
 - Formal harnesses beyond the selected direct stream and width adapter seeds.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing/Vivado QoR and technology-mapped delay reporting.
-- LLM batch runner, baselines, compiler-feedback repair loop, caching, and
-  failure taxonomy.
+- Committed full paid multi-profile LLM baseline result artifacts and pass-rate
+  claims.
+- LLM failure-taxonomy aggregation beyond per-attempt status records.
 - Dedicated non-smoke L3/L5/L6 RTL case studies beyond the current seed
   approximations.
 - Paper tables generated from committed benchmark artifacts.
@@ -89,6 +95,7 @@ Run Rust, Python, benchmark, and open-source EDA validation inside Docker:
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 ```
 
 Host exceptions:

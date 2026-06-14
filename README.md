@@ -21,13 +21,13 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 
 ## Current next milestones
 
-1. Add LLM baseline and compiler-feedback repair-loop runners over the 57-task manifest.
-2. Generate paper tables from benchmark artifacts and keep claims aligned with results.
+1. Aggregate deterministic and LLM benchmark artifacts into generated paper tables.
+2. Run and archive the full paid low-cost LLM baseline matrix when cost settings are configured.
 3. Add reproducible subsystem case studies beyond the current seed approximations.
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for positive seeds, per-task Icarus simulation harnesses for supported positive seeds, selected bounded SymbiYosys harnesses for direct and width seeds, structural Yosys QoR summaries for supported positive seeds, a 57-task ModuleComposeBench runner with required task metadata, schema-versioned diagnostic/AST/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim full per-task formal coverage, timing QoR, arbitrary LTL, or multi-model pass-rate improvements.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for positive seeds, per-task Icarus simulation harnesses for supported positive seeds, selected bounded SymbiYosys harnesses for direct and width seeds, structural Yosys QoR summaries for supported positive seeds, a 57-task ModuleComposeBench runner with required task metadata, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The paper is still a submission candidate in progress and does not yet claim full per-task formal coverage, timing QoR, arbitrary LTL, or multi-model pass-rate improvements.
 
 For the current claim boundary, read `docs/current_status.md` and `docs/13_architecture_audit.md`.
 

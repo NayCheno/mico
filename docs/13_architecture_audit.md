@@ -23,8 +23,8 @@ formal coverage, timing QoR, and paper tables remain open milestones.
   `scripts/eda-smoke.sh`, `scripts/eda-docker.ps1`,
   `scripts/eda-docker.sh`, and `scripts/run-vivado-host.ps1`.
 - Benchmark and LLM assets: `benchmarks/module_compose_bench_manifest.yaml`,
-  `benchmarks/run_bench.py`, `schemas/*.schema.json`, `prompts/`, and
-  `scripts/llm-provider-smoke.py`.
+  `benchmarks/run_bench.py`, `schemas/*.schema.json`, `prompts/`,
+  `scripts/llm-provider-smoke.py`, and `scripts/run_llm_bench.py`.
 - Paper source: `paper/main.tex`, `paper/sections/*.tex`, and
   `paper/related_work.bib`.
 
@@ -181,13 +181,22 @@ profile/model/base URL shape, records prompt SHA-256, model/profile metadata,
 repair turns, optional compiler and EDA JSON artifact attachments, token usage,
 and cost fields in a sanitized `mico.llm.run.v0` record.
 
+`scripts/run_llm_bench.py` adds the batch benchmark harness for the 57-task
+manifest. It supports Direct Verilog, SystemVerilog-interface, MICO source,
+MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
+validate-only mode for prompt/profile matrix checks, offline-fixture mode for
+compiler/EDA path validation without provider requests, authenticated execute
+mode through the OpenAI SDK, response caching, JSON extraction, compiler checks,
+open-source lint/elaboration for accepted positive candidates, and a Python
+repair-patch applicator for the JSON AST repair baseline. Batch records use
+`schema_version = mico.llm.bench.v0` and never store API keys.
+
 Current limitations:
 
-- There is no prompt-to-MICO batch benchmark runner.
-- Compiler diagnostics are not automatically fed into a repair prompt.
-- Direct Verilog, SV interface, MICO source, MICO JSON, and MICO JSON + repair
-  baselines are not yet implemented.
-- No retry/resume/cache/rate-limit or failure taxonomy exists for paid runs.
+- Full paid low-cost and cross-model result matrices are not committed.
+- The current runner records per-attempt failure status, but paper-ready failure
+  taxonomy aggregation is still pending.
+- Cost estimates still require local ignored profile rates.
 
 ### Paper
 
@@ -217,6 +226,7 @@ The current snapshot is validated with these commands from the repository root:
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 ```
 
 All Rust, Python, benchmark, and open-source EDA validation must run in the
@@ -228,8 +238,8 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Add LLM batch baselines and compiler-feedback repair loops over the 57-task manifest.
-2. Generate paper tables from benchmark artifacts.
+1. Generate paper tables from deterministic and LLM benchmark artifacts.
+2. Run and archive full low-cost LLM baseline matrices when cost settings are configured.
 3. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
    validation scripts.
 
@@ -256,10 +266,14 @@ Current claims supported by the repository:
   committed hand-written references.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
+- The LLM benchmark runner can plan the full 57-task low-cost baseline matrix,
+  validate offline compiler/EDA scoring paths, and execute authenticated
+  provider subsets without storing secrets.
 
 Claims not yet supported:
 
 - Multi-model or multi-baseline LLM pass-rate improvements.
+- Full paid LLM benchmark matrix results committed as artifact data.
 - Simulation coverage beyond the four positive seed tasks.
 - Formal proof coverage beyond the selected direct and width seeds.
 - Timing QoR, Vivado QoR, or technology-mapped delay conclusions.

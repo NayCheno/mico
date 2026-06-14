@@ -17,11 +17,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_stream_fifo.sv
     sim_top: tb_stream_fifo
+    qor_reference: benchmarks/qor/reference/T001_stream_fifo_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
     expected_features: [direct_connect, ready_valid]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      qor_available: true
   - id: T002_cdc_fifo
     level: L4
     type: positive
@@ -30,11 +34,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_cdc_fifo.sv
     sim_top: tb_cdc_fifo
+    qor_reference: benchmarks/qor/reference/T002_cdc_fifo_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
     expected_features: [clock_domain_mismatch, explicit_cdc_adapter]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      qor_available: true
   - id: T003_width_adapter
     level: L2
     type: positive
@@ -46,12 +54,16 @@ tasks:
     formal_harness: benchmarks/formal/tb_width_adapter_formal.sv
     formal_top: Top
     formal_depth: 4
+    qor_reference: benchmarks/qor/reference/T003_width_adapter_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
     expected_features: [width_mismatch, explicit_width_adapter]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
       formal_pass: true
+      qor_available: true
   - id: T004_direct_stream
     level: L1
     type: positive
@@ -63,12 +75,16 @@ tasks:
     formal_harness: benchmarks/formal/tb_direct_stream_formal.sv
     formal_top: Top
     formal_depth: 4
+    qor_reference: benchmarks/qor/reference/T004_direct_stream_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
     expected_features: [direct_connect, ready_valid]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
       formal_pass: true
+      qor_available: true
   - id: T005_invalid_width_no_adapter
     level: L2
     type: negative

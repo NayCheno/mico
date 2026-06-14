@@ -41,7 +41,7 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
 
 \subsection{Current Seed Results}
 
-The current artifact includes twelve seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus eight negative tasks covering missing width adaptation, direct CDC without an adapter, reversed direction, missing adapter contract guarantees, unknown guarantees, and guarantees invalid for a specific adapter kind. These are not yet the full benchmark, but they validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, positive-seed Icarus simulations, selected bounded SymbiYosys proofs, and benchmark aggregation path are reproducible.
+The current artifact includes twelve seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus eight negative tasks covering missing width adaptation, direct CDC without an adapter, reversed direction, missing adapter contract guarantees, unknown guarantees, and guarantees invalid for a specific adapter kind. These are not yet the full benchmark, but they validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, positive-seed Icarus simulations, selected bounded SymbiYosys proofs, structural QoR aggregation, and benchmark aggregation path are reproducible.
 
 \begin{table}[t]
   \centering
@@ -55,10 +55,10 @@ The current artifact includes twelve seed tasks: four positive composition tasks
     Lint/elab pass & 4/4 & positive tasks \\
     Simulation pass & 4/4 & positive tasks \\
     Selected formal pass & 2/2 & direct + width seeds \\
+    Structural QoR & 4/4 & positive tasks \\
     Unsafe rejection & 8/8 & negative tasks \\
-    QoR & not run & parser/harness pending \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, extending simulation and formal harnesses, and reporting QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-seed simulations, prove the selected direct and width seed properties, aggregate machine-readable benchmark JSON, and pass open-source EDA smoke checks in a controlled Docker environment.
+The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, extending simulation and formal harnesses, and reporting richer QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-seed simulations, prove the selected direct and width seed properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, and pass open-source EDA smoke checks in a controlled Docker environment.

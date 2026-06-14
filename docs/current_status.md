@@ -33,6 +33,8 @@ This file is the short, traceable status page for the current repository. Use
 - Per-task Icarus simulation harnesses for the four positive seed tasks.
 - Selected bounded SymbiYosys formal harnesses for the direct stream and width
   adapter seed tasks.
+- Structural Yosys QoR extraction for positive seed wrappers, compared against
+  committed hand-written reference wrappers with generated CSV/TeX summaries.
 - Twelve ModuleComposeBench seed tasks with four positives and eight negatives.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
@@ -47,7 +49,7 @@ This file is the short, traceable status page for the current repository. Use
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
 - Formal harnesses beyond the selected direct stream and width adapter seeds.
 - CDC correctness proof for the smoke FIFO collateral.
-- QoR parser and report aggregation.
+- Timing/Vivado QoR and technology-mapped delay reporting.
 - 50+ task ModuleComposeBench suite.
 - LLM batch runner, baselines, compiler-feedback repair loop, caching, and
   failure taxonomy.
@@ -68,9 +70,10 @@ Current deterministic seed scope:
   `T012_cdc_wrong_contract_kind`.
 - Expected current result: expected outcome 12/12, positive compose 4/4,
   positive lint/elaboration smoke 4/4, positive simulation 4/4, unsafe
-  rejection 8/8, JSON AST path 12/12, selected bounded formal 2/2.
+  rejection 8/8, JSON AST path 12/12, selected bounded formal 2/2, structural
+  QoR available 4/4.
 - `formal_pass` is claimed only for formal-enabled direct stream and width
-  adapter seeds; CDC proof and `qor.available` remain intentionally unclaimed.
+  adapter seeds; CDC proof and timing QoR remain intentionally unclaimed.
 
 ## Validation Commands
 

@@ -3,7 +3,7 @@
   "$id": "https://example.com/mico/benchmarks/scoring_schema.json",
   "title": "ModuleComposeBench results v0",
   "type": "object",
-  "required": ["schema_version", "benchmark", "summary", "results"],
+  "required": ["schema_version", "benchmark", "generated_tables", "summary", "results"],
   "properties": {
     "schema_version": {
       "const": "mico.bench.results.v0"
@@ -15,6 +15,15 @@
         "name": {"type": "string"},
         "version": {"type": "string"},
         "manifest": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "generated_tables": {
+      "type": "object",
+      "required": ["qor_csv", "qor_tex"],
+      "properties": {
+        "qor_csv": {"type": "string"},
+        "qor_tex": {"type": "string"}
       },
       "additionalProperties": false
     },
@@ -56,10 +65,13 @@
         "formal_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
         "qor": {
           "type": "object",
-          "required": ["available_tasks", "status"],
+          "required": ["available_tasks", "total", "status", "avg_area_delta_pct", "avg_wire_delta_pct"],
           "properties": {
             "available_tasks": {"type": "integer", "minimum": 0},
-            "status": {"type": "string"}
+            "total": {"type": "integer", "minimum": 0},
+            "status": {"type": "string"},
+            "avg_area_delta_pct": {"type": "number"},
+            "avg_wire_delta_pct": {"type": "number"}
           },
           "additionalProperties": false
         }
@@ -115,6 +127,7 @@
         "unsafe_rejection",
         "qor_delta",
         "qor",
+        "qor_result",
         "connection_entropy",
         "artifacts",
         "notes"
@@ -235,9 +248,10 @@
         "unsafe_rejection": {"type": "boolean"},
         "qor_delta": {
           "type": "object",
-          "required": ["area_pct", "timing_pct", "latency_cycles"],
+          "required": ["area_pct", "wire_pct", "timing_pct", "latency_cycles"],
           "properties": {
             "area_pct": {"type": "number"},
+            "wire_pct": {"type": "number"},
             "timing_pct": {"type": "number"},
             "latency_cycles": {"type": "integer"}
           },
@@ -245,12 +259,71 @@
         },
         "qor": {
           "type": "object",
-          "required": ["available", "source", "area_cells", "timing_ns"],
+          "required": [
+            "available",
+            "source",
+            "area_cells",
+            "reference_area_cells",
+            "wire_count",
+            "reference_wire_count",
+            "wire_bits",
+            "reference_wire_bits",
+            "primitive_cells",
+            "timing_ns",
+            "cell_types",
+            "reference_cell_types"
+          ],
           "properties": {
             "available": {"type": "boolean"},
             "source": {"type": "string"},
             "area_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
-            "timing_ns": {"anyOf": [{"type": "null"}, {"type": "number"}]}
+            "reference_area_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "wire_count": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "reference_wire_count": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "wire_bits": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "reference_wire_bits": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "primitive_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "timing_ns": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "cell_types": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0}
+            },
+            "reference_cell_types": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0}
+            }
+          },
+          "additionalProperties": false
+        },
+        "qor_result": {
+          "type": "object",
+          "required": [
+            "enabled",
+            "generated_pass",
+            "reference_pass",
+            "reference",
+            "top",
+            "reference_top",
+            "generated_stat",
+            "reference_stat",
+            "generated_stdout",
+            "generated_stderr",
+            "reference_stdout",
+            "reference_stderr"
+          ],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "generated_pass": {"type": "boolean"},
+            "reference_pass": {"type": "boolean"},
+            "reference": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "top": {"type": "string"},
+            "reference_top": {"type": "string"},
+            "generated_stat": {"type": "string"},
+            "reference_stat": {"type": "string"},
+            "generated_stdout": {"type": "string"},
+            "generated_stderr": {"type": "string"},
+            "reference_stdout": {"type": "string"},
+            "reference_stderr": {"type": "string"}
           },
           "additionalProperties": false
         },
@@ -280,6 +353,8 @@
             "formal_sby",
             "formal_stdout",
             "formal_stderr",
+            "qor_generated_stat",
+            "qor_reference_stat",
             "rtl_collateral"
           ],
           "properties": {
@@ -296,6 +371,8 @@
             "formal_sby": {"type": "string"},
             "formal_stdout": {"type": "string"},
             "formal_stderr": {"type": "string"},
+            "qor_generated_stat": {"type": "string"},
+            "qor_reference_stat": {"type": "string"},
             "rtl_collateral": {"type": "string"}
           },
           "additionalProperties": false

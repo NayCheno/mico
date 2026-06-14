@@ -81,10 +81,12 @@ Expected current seed result:
 - `lint_pass: 4/4` for positive tasks
 - `sim_pass: 4/4` for positive tasks with committed Icarus testbenches
 - `formal_pass: 2/2` for formal-enabled direct stream and width adapter tasks
+- `qor_available: 4/4` for positive tasks with committed reference wrappers
 - `unsafe_rejection: 8/8` for negative tasks
 - `json_ast_path: 12/12` for source-to-AST-to-check equivalence
-- CDC formal proof remains not run; `qor.available=false` until a QoR parser is
-  implemented.
+- CDC formal proof and timing QoR remain not run.
+- `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
+  from the benchmark JSON and remain ignored build artifacts.
 
 ## LLM Provider
 
@@ -147,7 +149,8 @@ Before publishing a result or submission artifact:
 - Rust format, check, and tests pass.
 - EDA smoke passes with Verilator, Icarus, Yosys, and the SymbiYosys smoke proof.
 - ModuleComposeBench seed runner writes a JSON result under `build/bench/` with
-  expected, lint, simulation, selected formal, and unsafe-rejection summaries.
+  expected, lint, simulation, selected formal, QoR, and unsafe-rejection
+  summaries.
 - LLM provider validate-only passes; authenticated smoke passes when a local key is configured.
 - Paper LaTeX build completes on the Windows host.
 - No generated outputs, local configs, logs, PDFs, or secrets are staged.

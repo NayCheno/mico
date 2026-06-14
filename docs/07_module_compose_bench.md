@@ -26,6 +26,7 @@ expected:
   lint_pass: true
   sim_pass: true
   formal_pass: false
+  qor_available: true
 ```
 
 ## Levels
@@ -85,8 +86,13 @@ SymbiYosys job under ignored `build/bench/` and run bounded proofs against the
 generated wrapper plus committed harness monitor. The current enabled formal
 subset is `T003_width_adapter` and `T004_direct_stream`; CDC remains smoke-only
 and is not reported as a proof.
+Positive seed tasks with `qor_reference` also run Yosys structural `stat -json`
+for the generated wrapper and the committed hand-written reference wrapper. The
+current QoR scope is area-cell and wire-count delta; no timing or Vivado result
+is claimed. The runner writes `qor_summary.csv` and `qor_summary.tex` under
+ignored `build/bench/`.
 Negative tasks are scored by expected compiler rejection and expected diagnostic
 codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with `summary` aggregation plus per-task results. The current
-runner aggregates `formal_pass` over formal-enabled tasks and records
-`qor.available=false` because QoR parsing is not implemented yet.
+runner aggregates `formal_pass` over formal-enabled tasks and `qor` over
+QoR-enabled positive tasks.

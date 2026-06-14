@@ -26,6 +26,7 @@
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
 | `benchmarks/` | Twelve-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
 | `benchmarks/formal/` | SymbiYosys harness monitors for selected seed formal checks. |
+| `benchmarks/qor/` | Hand-written reference wrappers for structural Yosys QoR comparison. |
 | `benchmarks/sim/` | Icarus/VVP SystemVerilog testbenches for positive seed simulation. |
 | `prompts/` | Prompt templates and JSON schema for LLM output. |
 | `source/` | Uploaded and edited source reports. |

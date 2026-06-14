@@ -77,6 +77,7 @@ Run CLI smoke checks:
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- check examples/stream_fifo.mico"
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- emit-sv examples/width_adapter.mico"
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- report examples/cdc_fifo.mico"
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/stream_fifo_cli --schema-path ../schemas examples/stream_fifo.mico | python3 -m json.tool >/dev/null"
 ```
 
 Expected behavior:
@@ -84,6 +85,8 @@ Expected behavior:
 - valid examples exit with status 0;
 - `examples/invalid_width.mico` exits nonzero and reports a semantic diagnostic;
 - generated SystemVerilog is written to stdout unless redirected under `build/`.
+- `verify --eda` writes emitted wrapper/SVA and per-tool stdout/stderr files
+  under the requested ignored artifact directory.
 
 ## RTL And EDA Smoke
 
@@ -94,6 +97,9 @@ Run the open-source RTL smoke flow in Docker:
 ```
 
 The smoke flow emits wrappers and SVA skeletons for stream FIFO, CDC FIFO, and width adapter examples. It checks wrappers with Verilator, Icarus, and Yosys, checks SVA skeletons with Verilator, and runs a minimal SymbiYosys smoke proof. The CDC leaf is smoke-only collateral, not a formal CDC proof.
+
+For a single-example CLI entry point, use `mico_cli verify --eda`; for the
+multi-example smoke plus SymbiYosys entry point, keep using `scripts/eda-smoke.sh`.
 
 ## ModuleComposeBench
 

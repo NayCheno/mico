@@ -39,6 +39,7 @@ mico dump-ast-json examples/stream_fifo.mico
 mico check-json --format json build/ast/stream_fifo.json
 mico dump-json-ir build/ast/stream_fifo.json
 mico repair-json --dry-run --format json build/ast/broken.json build/patches/repair.json
+mico verify --eda --format json --artifact-dir build/mico-verify/stream_fifo examples/stream_fifo.mico
 ```
 
 `dump-ir` always emits JSON. Its schema is `schemas/mico_ir.schema.json`.
@@ -63,6 +64,7 @@ the CLI unit tests.
 | `UnexpectedEof` | parse | The file ended before the declaration was complete. | Close the current declaration or block. |
 | `JsonSchemaError` | parse | A MICO JSON AST document failed schema/version/kind validation. | Fix the JSON AST to match `schemas/mico_ast.schema.json`. |
 | `RepairPatchError` | parse | A JSON AST repair patch failed schema validation or could not be applied to the requested AST. | Fix the patch to match `schemas/mico_repair_patch.schema.json` and the target AST. |
+| `VerifyEdaError` | verify | `verify --eda` could not locate RTL collateral, create artifacts, write emitted SV/SVA, or invoke an open-source EDA tool. | Run inside the repository Docker EDA image, check `--artifact-dir`, and inspect the emitted stdout/stderr artifacts. |
 | `DuplicateDeclaration` | check | A top-level clock domain, interface, module, adapter, or compose name is duplicated. | Rename one declaration or merge the duplicate. |
 | `DuplicateField` | check | An interface declares the same field more than once. | Rename or remove the duplicate field. |
 | `DuplicatePort` | check | A module declares the same port more than once. | Rename or remove the duplicate port. |

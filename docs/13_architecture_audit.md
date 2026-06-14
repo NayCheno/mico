@@ -106,16 +106,23 @@ SV/SVA/traceability fixtures checked by `mico_codegen` tests.
 
 The CLI supports `--format text|json` for diagnostic-bearing commands and emits
 the diagnostics envelope documented in `docs/diagnostics.md` and
-`schemas/diagnostics.schema.json`. The `verify` command currently reports
-compiler and typed-IR status only; it does not invoke Verilator, Yosys, Icarus,
-or SymbiYosys directly. Source-level JSON AST documents use
-`schema_version = mico.ast.v0` and are validated by the CLI before checking or
-emission.
+`schemas/diagnostics.schema.json`. `--json` is accepted as a shorthand for
+JSON output. The `verify` command defaults to compiler and typed-IR checks.
+`verify --eda` emits `Top.sv` and `Top.sva.sv` into an ignored artifact
+directory, then runs Verilator wrapper lint, Verilator SVA lint, Icarus
+elaboration, and Yosys hierarchy/proc/opt/stat checks against the repository
+smoke RTL collateral. The JSON report records the artifact directory,
+per-tool pass/fail status, stdout/stderr artifact paths, command lines, and
+exit codes; `--schema-path` is accepted as explicit schema metadata for
+callers. Source-level JSON AST documents use `schema_version = mico.ast.v0` and
+are validated by the CLI before checking or emission.
 
 Current limitations:
 
 - CLI argument parsing is still hand-written.
-- `verify` is not yet an end-to-end EDA runner.
+- `verify --eda` is an open-source lint/elaboration/hierarchy smoke gate; it
+  is not a replacement for the full benchmark runner, selected formal
+  harnesses, CDC proof work, or timing/Vivado QoR.
 - JSON diagnostics still use `null` spans for checker errors that are tracked
   by graph node rather than source-byte location.
 
@@ -198,8 +205,9 @@ MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
 validate-only mode for prompt/profile matrix checks, offline-fixture mode for
 compiler/EDA path validation without provider requests, authenticated execute
 mode through the OpenAI SDK, response caching, JSON extraction, compiler checks,
-open-source lint/elaboration for accepted positive candidates, and a Python
-repair-patch path for the JSON AST repair baseline. Batch records use
+open-source lint/elaboration for accepted positive candidates, and the
+repository-owned CLI repair-patch path for the JSON AST repair baseline. Batch
+records use
 `schema_version = mico.llm.bench.v0` and never store API keys. Patch
 application is delegated to `mico_cli repair-json` so CLI and benchmark repair
 semantics stay aligned.
@@ -236,6 +244,7 @@ The current snapshot is validated with these commands from the repository root:
 ```powershell
 .\scripts\eda-docker.ps1 mico-verify-tools
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/stream_fifo_cli --schema-path ../schemas examples/stream_fifo.mico | python3 -m json.tool >/dev/null"
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"

@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::path::{Path, PathBuf};
 use std::process;
 
 use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog, emit_traceability_report};
@@ -44,6 +45,12 @@ enum RepairMode {
     Apply,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum VerifyMode {
+    Compiler,
+    Eda,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct CliArgs {
     command: Command,
@@ -51,6 +58,9 @@ struct CliArgs {
     patch_path: Option<String>,
     format: OutputFormat,
     repair_mode: RepairMode,
+    verify_mode: VerifyMode,
+    artifact_dir: Option<String>,
+    schema_path: Option<String>,
 }
 
 fn main() {
@@ -140,7 +150,7 @@ fn main() {
         Command::Verify => {
             let design = parse_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
-            print_verify_summary(&typed, cli.format);
+            verify_or_exit(&design, &typed, &cli);
         }
         Command::Report => {
             let design = parse_or_exit(&source, cli.format);
@@ -152,6 +162,9 @@ fn main() {
 fn parse_args(args: &[String]) -> Result<CliArgs, String> {
     let mut format = OutputFormat::Text;
     let mut repair_mode = RepairMode::DryRun;
+    let mut verify_mode = VerifyMode::Compiler;
+    let mut artifact_dir = None;
+    let mut schema_path = None;
     let mut positional = Vec::new();
     let mut idx = 1;
 
@@ -171,6 +184,28 @@ fn parse_args(args: &[String]) -> Result<CliArgs, String> {
             repair_mode = RepairMode::DryRun;
         } else if arg == "--apply" {
             repair_mode = RepairMode::Apply;
+        } else if arg == "--compiler" {
+            verify_mode = VerifyMode::Compiler;
+        } else if arg == "--eda" {
+            verify_mode = VerifyMode::Eda;
+        } else if arg == "--artifact-dir" {
+            idx += 1;
+            artifact_dir = Some(
+                args.get(idx)
+                    .ok_or_else(|| "missing value after `--artifact-dir`".to_string())?
+                    .clone(),
+            );
+        } else if let Some(value) = arg.strip_prefix("--artifact-dir=") {
+            artifact_dir = Some(value.to_string());
+        } else if arg == "--schema-path" {
+            idx += 1;
+            schema_path = Some(
+                args.get(idx)
+                    .ok_or_else(|| "missing value after `--schema-path`".to_string())?
+                    .clone(),
+            );
+        } else if let Some(value) = arg.strip_prefix("--schema-path=") {
+            schema_path = Some(value.to_string());
         } else {
             positional.push(arg.clone());
         }
@@ -197,6 +232,14 @@ fn parse_args(args: &[String]) -> Result<CliArgs, String> {
     if command != Command::RepairJson && repair_mode != RepairMode::DryRun {
         return Err("--apply is only valid with repair-json".to_string());
     }
+    if command != Command::Verify
+        && (verify_mode != VerifyMode::Compiler || artifact_dir.is_some() || schema_path.is_some())
+    {
+        return Err(
+            "--eda, --compiler, --artifact-dir, and --schema-path are only valid with verify"
+                .to_string(),
+        );
+    }
 
     Ok(CliArgs {
         command,
@@ -204,6 +247,9 @@ fn parse_args(args: &[String]) -> Result<CliArgs, String> {
         patch_path,
         format,
         repair_mode,
+        verify_mode,
+        artifact_dir,
+        schema_path,
     })
 }
 
@@ -249,7 +295,7 @@ fn parse_emit_format(format: &str) -> Result<Command, String> {
 }
 
 fn usage() -> &'static str {
-    "usage: mico [--format text|json|--json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>\n       mico [--format text|json|--json] emit <json|sv|sva|trace> <file.mico>\n       mico [--format text|json|--json] repair-json [--dry-run|--apply] <ast.json> <patch.json>"
+    "usage: mico [--format text|json|--json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>\n       mico [--format text|json|--json] emit <json|sv|sva|trace> <file.mico>\n       mico [--format text|json|--json] repair-json [--dry-run|--apply] <ast.json> <patch.json>\n       mico [--format text|json|--json] verify [--compiler|--eda] [--artifact-dir DIR] [--schema-path PATH] <file.mico>"
 }
 
 fn read_source_or_exit(path: &str, format: OutputFormat) -> String {
@@ -459,28 +505,372 @@ fn print_build_summary(typed: &TypedDesign, format: OutputFormat) {
     }
 }
 
-fn print_verify_summary(typed: &TypedDesign, format: OutputFormat) {
+#[derive(Debug, Clone)]
+struct VerifyReport {
+    artifact_dir: Option<PathBuf>,
+    schema_path: Option<String>,
+    eda_checks: Vec<EdaCheck>,
+}
+
+impl VerifyReport {
+    fn eda_passed(&self) -> bool {
+        self.eda_checks.iter().all(|check| check.passed)
+    }
+}
+
+#[derive(Debug, Clone)]
+struct EdaCheck {
+    name: &'static str,
+    command: String,
+    passed: bool,
+    exit_code: Option<i32>,
+    stdout: PathBuf,
+    stderr: PathBuf,
+}
+
+fn verify_or_exit(design: &Design, typed: &TypedDesign, cli: &CliArgs) {
+    let report = match cli.verify_mode {
+        VerifyMode::Compiler => VerifyReport {
+            artifact_dir: None,
+            schema_path: cli.schema_path.clone(),
+            eda_checks: Vec::new(),
+        },
+        VerifyMode::Eda => {
+            let mut report = run_eda_verify(design, &cli.path, cli.artifact_dir.as_deref())
+                .unwrap_or_else(|diagnostic| {
+                    let diagnostics = vec![diagnostic];
+                    print_phase_diagnostics("verify", &diagnostics, cli.format);
+                    process::exit(1);
+                });
+            report.schema_path = cli.schema_path.clone();
+            report
+        }
+    };
+    print_verify_summary(typed, &report, cli.format);
+    if !report.eda_checks.is_empty() && !report.eda_passed() {
+        process::exit(1);
+    }
+}
+
+fn print_verify_summary(typed: &TypedDesign, report: &VerifyReport, format: OutputFormat) {
     match format {
         OutputFormat::Text => {
-            println!("MICO verify passed");
+            if report.eda_checks.is_empty() || report.eda_passed() {
+                println!("MICO verify passed");
+            } else {
+                println!("MICO verify failed");
+            }
             println!("compiler_checks: passed");
             println!("typed_ir: passed");
             println!("connections: {}", typed_connection_count(typed));
-            println!("eda: not run (Yosys/Verilator flow is added in the EDA milestone)");
+            if let Some(path) = &report.artifact_dir {
+                println!("artifact_dir: {}", path.display());
+            }
+            if report.eda_checks.is_empty() {
+                println!("eda: not run");
+            } else {
+                for check in &report.eda_checks {
+                    println!(
+                        "{}: {}",
+                        check.name,
+                        if check.passed { "passed" } else { "failed" }
+                    );
+                }
+            }
         }
         OutputFormat::Json => print_json(json!({
             "schema_version": "mico.diagnostics.v0",
-            "ok": true,
+            "ok": report.eda_checks.is_empty() || report.eda_passed(),
             "phase": "verify",
             "summary": typed_summary_json(typed),
-            "checks": {
-                "compiler_checks": "passed",
-                "typed_ir": "passed",
-                "eda": "not_run"
-            },
+            "checks": verify_checks_json(report),
             "diagnostics": [],
         })),
     }
+}
+
+fn verify_checks_json(report: &VerifyReport) -> Value {
+    let mut checks = serde_json::Map::new();
+    checks.insert(
+        "compiler_checks".to_string(),
+        Value::String("passed".to_string()),
+    );
+    checks.insert("typed_ir".to_string(), Value::String("passed".to_string()));
+    checks.insert(
+        "eda".to_string(),
+        Value::String(if report.eda_checks.is_empty() {
+            "not_run".to_string()
+        } else if report.eda_passed() {
+            "passed".to_string()
+        } else {
+            "failed".to_string()
+        }),
+    );
+    if let Some(path) = &report.artifact_dir {
+        checks.insert(
+            "artifact_dir".to_string(),
+            Value::String(path.display().to_string()),
+        );
+    }
+    if let Some(path) = &report.schema_path {
+        checks.insert("schema_path".to_string(), Value::String(path.clone()));
+    }
+    for check in &report.eda_checks {
+        checks.insert(
+            check.name.to_string(),
+            Value::String(if check.passed { "passed" } else { "failed" }.to_string()),
+        );
+        checks.insert(
+            format!("{}_stdout", check.name),
+            Value::String(check.stdout.display().to_string()),
+        );
+        checks.insert(
+            format!("{}_stderr", check.name),
+            Value::String(check.stderr.display().to_string()),
+        );
+        checks.insert(
+            format!("{}_command", check.name),
+            Value::String(check.command.clone()),
+        );
+        checks.insert(
+            format!("{}_exit_code", check.name),
+            Value::String(
+                check
+                    .exit_code
+                    .map(|code| code.to_string())
+                    .unwrap_or_else(|| "terminated_by_signal".to_string()),
+            ),
+        );
+    }
+    Value::Object(checks)
+}
+
+fn run_eda_verify(
+    design: &Design,
+    input_path: &str,
+    artifact_dir: Option<&str>,
+) -> Result<VerifyReport, Diagnostic> {
+    let repo_root = find_repo_root().ok_or_else(|| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            "could not locate repository root with rtl/examples/mico_example_leafs.sv",
+        )
+        .with_label(
+            LabelStyle::Primary,
+            "verify --eda requires repository RTL collateral",
+        )
+        .with_hint("run verify --eda from the repository or rust_project directory")
+        .with_repair(RepairAction::CheckFile)
+    })?;
+    let leafs = repo_root.join("rtl/examples/mico_example_leafs.sv");
+    let artifact_dir = match artifact_dir {
+        Some(path) => {
+            let path = PathBuf::from(path);
+            if path.is_absolute() {
+                path
+            } else {
+                env::current_dir()
+                    .map_err(|err| {
+                        Diagnostic::error(
+                            "VerifyEdaError",
+                            format!("failed to resolve current directory: {err}"),
+                        )
+                        .with_label(
+                            LabelStyle::Primary,
+                            "artifact directory could not be resolved",
+                        )
+                        .with_repair(RepairAction::CheckFile)
+                    })?
+                    .join(path)
+            }
+        }
+        None => repo_root
+            .join("build/mico-verify")
+            .join(input_stem(input_path)),
+    };
+    fs::create_dir_all(&artifact_dir).map_err(|err| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            format!(
+                "failed to create artifact dir `{}`: {err}",
+                artifact_dir.display()
+            ),
+        )
+        .with_label(LabelStyle::Primary, "artifact directory is not writable")
+        .with_repair(RepairAction::CheckFile)
+    })?;
+
+    let wrapper = artifact_dir.join("Top.sv");
+    let sva = artifact_dir.join("Top.sva.sv");
+    let vvp = artifact_dir.join("Top.vvp");
+    fs::write(&wrapper, emit_systemverilog(design)).map_err(|err| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            format!("failed to write `{}`: {err}", wrapper.display()),
+        )
+        .with_label(
+            LabelStyle::Primary,
+            "SystemVerilog wrapper could not be written",
+        )
+        .with_repair(RepairAction::CheckFile)
+    })?;
+    fs::write(&sva, emit_sva_skeleton(design)).map_err(|err| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            format!("failed to write `{}`: {err}", sva.display()),
+        )
+        .with_label(LabelStyle::Primary, "SVA skeleton could not be written")
+        .with_repair(RepairAction::CheckFile)
+    })?;
+
+    let checks = vec![
+        run_tool_check(
+            "verilator_wrapper",
+            &repo_root,
+            &artifact_dir,
+            "verilator",
+            vec![
+                "--lint-only".to_string(),
+                "-Wall".to_string(),
+                "-Wno-DECLFILENAME".to_string(),
+                "-Wno-UNUSEDSIGNAL".to_string(),
+                "--top-module".to_string(),
+                "Top".to_string(),
+                path_arg(&leafs),
+                path_arg(&wrapper),
+            ],
+        ),
+        run_tool_check(
+            "verilator_sva",
+            &repo_root,
+            &artifact_dir,
+            "verilator",
+            vec![
+                "--lint-only".to_string(),
+                "-Wall".to_string(),
+                "-Wno-DECLFILENAME".to_string(),
+                "-Wno-UNUSEDSIGNAL".to_string(),
+                "--top-module".to_string(),
+                "mico_sva_Top".to_string(),
+                path_arg(&sva),
+            ],
+        ),
+        run_tool_check(
+            "iverilog_elab",
+            &repo_root,
+            &artifact_dir,
+            "iverilog",
+            vec![
+                "-g2012".to_string(),
+                "-s".to_string(),
+                "Top".to_string(),
+                "-o".to_string(),
+                path_arg(&vvp),
+                path_arg(&leafs),
+                path_arg(&wrapper),
+            ],
+        ),
+        run_tool_check(
+            "yosys_hierarchy",
+            &repo_root,
+            &artifact_dir,
+            "yosys",
+            vec![
+                "-q".to_string(),
+                "-p".to_string(),
+                format!(
+                    "read_verilog -sv {} {}; hierarchy -check -top Top; proc; opt; stat",
+                    path_arg(&leafs),
+                    path_arg(&wrapper)
+                ),
+            ],
+        ),
+    ]
+    .into_iter()
+    .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(VerifyReport {
+        artifact_dir: Some(artifact_dir),
+        schema_path: None,
+        eda_checks: checks,
+    })
+}
+
+fn run_tool_check(
+    name: &'static str,
+    cwd: &Path,
+    artifact_dir: &Path,
+    program: &str,
+    args: Vec<String>,
+) -> Result<EdaCheck, Diagnostic> {
+    let stdout = artifact_dir.join(format!("{name}.stdout.txt"));
+    let stderr = artifact_dir.join(format!("{name}.stderr.txt"));
+    let output = process::Command::new(program)
+        .args(&args)
+        .current_dir(cwd)
+        .output()
+        .map_err(|err| {
+            Diagnostic::error(
+                "VerifyEdaError",
+                format!("failed to run `{program}` for {name}: {err}"),
+            )
+            .with_label(LabelStyle::Primary, "EDA tool invocation failed")
+            .with_repair(RepairAction::CheckFile)
+        })?;
+    fs::write(&stdout, &output.stdout).map_err(|err| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            format!("failed to write `{}`: {err}", stdout.display()),
+        )
+        .with_label(
+            LabelStyle::Primary,
+            "EDA stdout artifact could not be written",
+        )
+        .with_repair(RepairAction::CheckFile)
+    })?;
+    fs::write(&stderr, &output.stderr).map_err(|err| {
+        Diagnostic::error(
+            "VerifyEdaError",
+            format!("failed to write `{}`: {err}", stderr.display()),
+        )
+        .with_label(
+            LabelStyle::Primary,
+            "EDA stderr artifact could not be written",
+        )
+        .with_repair(RepairAction::CheckFile)
+    })?;
+    Ok(EdaCheck {
+        name,
+        command: format!("{} {}", program, args.join(" ")),
+        passed: output.status.success(),
+        exit_code: output.status.code(),
+        stdout,
+        stderr,
+    })
+}
+
+fn find_repo_root() -> Option<PathBuf> {
+    let mut current = env::current_dir().ok()?;
+    loop {
+        if current.join("rtl/examples/mico_example_leafs.sv").is_file() {
+            return Some(current);
+        }
+        if !current.pop() {
+            return None;
+        }
+    }
+}
+
+fn input_stem(path: &str) -> String {
+    Path::new(path)
+        .file_stem()
+        .and_then(|value| value.to_str())
+        .unwrap_or("input")
+        .to_string()
+}
+
+fn path_arg(path: &Path) -> String {
+    path.display().to_string()
 }
 
 fn print_design_summary(design: &Design) {
@@ -752,13 +1142,7 @@ mod tests {
         let args = strings(&["mico", "build", "input.mico"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::Build,
-                path: "input.mico".to_string(),
-                patch_path: None,
-                format: OutputFormat::Text,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::Build, "input.mico", OutputFormat::Text)
         );
     }
 
@@ -767,13 +1151,7 @@ mod tests {
         let args = strings(&["mico", "emit", "sv", "input.mico"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::EmitSv,
-                path: "input.mico".to_string(),
-                patch_path: None,
-                format: OutputFormat::Text,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::EmitSv, "input.mico", OutputFormat::Text)
         );
     }
 
@@ -782,13 +1160,7 @@ mod tests {
         let args = strings(&["mico", "emit", "trace", "input.mico"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::EmitTrace,
-                path: "input.mico".to_string(),
-                patch_path: None,
-                format: OutputFormat::Text,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::EmitTrace, "input.mico", OutputFormat::Text)
         );
     }
 
@@ -797,25 +1169,13 @@ mod tests {
         let args = strings(&["mico", "check-json", "input.json"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::CheckJson,
-                path: "input.json".to_string(),
-                patch_path: None,
-                format: OutputFormat::Text,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::CheckJson, "input.json", OutputFormat::Text)
         );
 
         let args = strings(&["mico", "emit-json-sv", "input.json"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::EmitJsonSv,
-                path: "input.json".to_string(),
-                patch_path: None,
-                format: OutputFormat::Text,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::EmitJsonSv, "input.json", OutputFormat::Text)
         );
     }
 
@@ -824,13 +1184,7 @@ mod tests {
         let args = strings(&["mico", "--format", "json", "check", "input.mico"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::Check,
-                path: "input.mico".to_string(),
-                patch_path: None,
-                format: OutputFormat::Json,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::Check, "input.mico", OutputFormat::Json)
         );
     }
 
@@ -839,13 +1193,7 @@ mod tests {
         let args = strings(&["mico", "check", "input.mico", "--format=json"]);
         assert_eq!(
             parse_args(&args).unwrap(),
-            CliArgs {
-                command: Command::Check,
-                path: "input.mico".to_string(),
-                patch_path: None,
-                format: OutputFormat::Json,
-                repair_mode: RepairMode::DryRun,
-            }
+            expected_cli(Command::Check, "input.mico", OutputFormat::Json)
         );
     }
 
@@ -854,12 +1202,33 @@ mod tests {
         let args = strings(&["mico", "--json", "check", "input.mico"]);
         assert_eq!(
             parse_args(&args).unwrap(),
+            expected_cli(Command::Check, "input.mico", OutputFormat::Json)
+        );
+    }
+
+    #[test]
+    fn parses_verify_eda_command() {
+        let args = strings(&[
+            "mico",
+            "--json",
+            "verify",
+            "--eda",
+            "--artifact-dir",
+            "build/verify",
+            "--schema-path=schemas",
+            "input.mico",
+        ]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
             CliArgs {
-                command: Command::Check,
+                command: Command::Verify,
                 path: "input.mico".to_string(),
                 patch_path: None,
                 format: OutputFormat::Json,
                 repair_mode: RepairMode::DryRun,
+                verify_mode: VerifyMode::Eda,
+                artifact_dir: Some("build/verify".to_string()),
+                schema_path: Some("schemas".to_string()),
             }
         );
     }
@@ -875,6 +1244,9 @@ mod tests {
                 patch_path: Some("patch.json".to_string()),
                 format: OutputFormat::Json,
                 repair_mode: RepairMode::DryRun,
+                verify_mode: VerifyMode::Compiler,
+                artifact_dir: None,
+                schema_path: None,
             }
         );
 
@@ -887,6 +1259,9 @@ mod tests {
                 patch_path: Some("patch.json".to_string()),
                 format: OutputFormat::Text,
                 repair_mode: RepairMode::Apply,
+                verify_mode: VerifyMode::Compiler,
+                artifact_dir: None,
+                schema_path: None,
             }
         );
     }
@@ -898,6 +1273,8 @@ mod tests {
         let args = strings(&["mico", "--apply", "check", "input.mico"]);
         assert!(parse_args(&args).is_err());
         let args = strings(&["mico", "repair-json", "input.json"]);
+        assert!(parse_args(&args).is_err());
+        let args = strings(&["mico", "--eda", "check", "input.mico"]);
         assert!(parse_args(&args).is_err());
     }
 
@@ -959,6 +1336,19 @@ mod tests {
 
     fn strings(items: &[&str]) -> Vec<String> {
         items.iter().map(|item| item.to_string()).collect()
+    }
+
+    fn expected_cli(command: Command, path: &str, format: OutputFormat) -> CliArgs {
+        CliArgs {
+            command,
+            path: path.to_string(),
+            patch_path: None,
+            format,
+            repair_mode: RepairMode::DryRun,
+            verify_mode: VerifyMode::Compiler,
+            artifact_dir: None,
+            schema_path: None,
+        }
     }
 
     fn assert_parse_fixture(source: &str, fixture: &str) {

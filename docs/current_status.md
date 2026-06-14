@@ -18,6 +18,10 @@ This file is the short, traceable status page for the current repository. Use
   legality, ready/valid width rules, and v0 contract guarantee coverage.
 - Typed IR JSON with `schema_version = mico.ir.v0`.
 - CLI commands for parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report.
+  `verify` defaults to compiler and typed-IR checks; `verify --eda` emits a
+  wrapper plus SVA skeleton into an ignored artifact directory and runs
+  Verilator wrapper lint, Verilator SVA lint, Icarus elaboration, and Yosys
+  hierarchy/proc/opt/stat checks in the Docker EDA environment.
 - Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`,
   semantic labels, affected graph nodes, repair hints, and `repair_action`.
 - Semantic diagnostics from `.mico` input attach parser source-map spans for
@@ -112,6 +116,7 @@ Component commands:
 ```powershell
 .\scripts\eda-docker.ps1 mico-verify-tools
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/stream_fifo_cli --schema-path ../schemas examples/stream_fifo.mico | python3 -m json.tool >/dev/null"
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"

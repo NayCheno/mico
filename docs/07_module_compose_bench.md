@@ -25,6 +25,7 @@ expected:
   compose_pass: true
   lint_pass: true
   sim_pass: true
+  formal_pass: false
 ```
 
 ## Levels
@@ -79,8 +80,13 @@ for accepted positive tasks, and executes Verilator, Icarus, and Yosys smoke
 checks against `rtl/examples/mico_example_leafs.sv`. Positive seed tasks with
 `sim_testbench` and `sim_top` also compile with Icarus and execute with `vvp`;
 simulation stdout/stderr artifacts are written under ignored `build/bench/`.
+Positive seed tasks with `formal_harness` and `formal_top` also generate a
+SymbiYosys job under ignored `build/bench/` and run bounded proofs against the
+generated wrapper plus committed harness monitor. The current enabled formal
+subset is `T003_width_adapter` and `T004_direct_stream`; CDC remains smoke-only
+and is not reported as a proof.
 Negative tasks are scored by expected compiler rejection and expected diagnostic
 codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with `summary` aggregation plus per-task results. The current
-runner records `formal_pass=false` and `qor.available=false` because per-task
-formal harnesses and QoR parsing are not implemented yet.
+runner aggregates `formal_pass` over formal-enabled tasks and records
+`qor.available=false` because QoR parsing is not implemented yet.

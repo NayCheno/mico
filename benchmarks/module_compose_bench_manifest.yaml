@@ -43,11 +43,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_width_adapter.sv
     sim_top: tb_width_adapter
+    formal_harness: benchmarks/formal/tb_width_adapter_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [width_mismatch, explicit_width_adapter]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
   - id: T004_direct_stream
     level: L1
     type: positive
@@ -56,11 +60,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_direct_stream.sv
     sim_top: tb_direct_stream
+    formal_harness: benchmarks/formal/tb_direct_stream_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, ready_valid]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
   - id: T005_invalid_width_no_adapter
     level: L2
     type: negative

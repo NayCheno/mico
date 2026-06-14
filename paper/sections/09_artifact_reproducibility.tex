@@ -11,7 +11,7 @@ MICO is packaged as a reproducible research artifact rather than a prompt-only d
     \midrule
     Rust & fmt/check/test & pass \\
     EDA & Verilator/Icarus/Yosys/SBY & pass \\
-    Bench & 12 seed tasks & 12/12 expected outcome, 4/4 sim \\
+    Bench & 12 seed tasks & 12/12 expected outcome, 4/4 sim, 2/2 selected formal \\
     LLM & validate-only local config & pass \\
     Paper & host latexmk/pdflatex & pass \\
     Vivado & not required & n/a \\
@@ -30,4 +30,4 @@ The release candidate checklist is:
   \item verify that generated PDFs, build outputs, local YAML files, logs, and credentials are absent from the staged source tree.
 \end{itemize}
 
-For final submission, this checklist must be extended with full benchmark results, simulation/formal harness outputs, QoR reports, and archived prompts/responses for every evaluated model profile.
+For final submission, this checklist must be extended with full benchmark results, broader simulation/formal harness outputs, QoR reports, and archived prompts/responses for every evaluated model profile.

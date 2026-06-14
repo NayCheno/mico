@@ -111,6 +111,7 @@
         "sim_result",
         "formal_pass",
         "formal_status",
+        "formal_result",
         "unsafe_rejection",
         "qor_delta",
         "qor",
@@ -216,6 +217,21 @@
         },
         "formal_pass": {"type": "boolean"},
         "formal_status": {"type": "string"},
+        "formal_result": {
+          "type": "object",
+          "required": ["enabled", "prove_pass", "harness", "top", "depth", "sby", "stdout", "stderr"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "prove_pass": {"type": "boolean"},
+            "harness": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "top": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+            "depth": {"type": "integer", "minimum": 1},
+            "sby": {"type": "string"},
+            "stdout": {"type": "string"},
+            "stderr": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
         "unsafe_rejection": {"type": "boolean"},
         "qor_delta": {
           "type": "object",
@@ -261,6 +277,9 @@
             "sim_vvp",
             "sim_stdout",
             "sim_stderr",
+            "formal_sby",
+            "formal_stdout",
+            "formal_stderr",
             "rtl_collateral"
           ],
           "properties": {
@@ -274,6 +293,9 @@
             "sim_vvp": {"type": "string"},
             "sim_stdout": {"type": "string"},
             "sim_stderr": {"type": "string"},
+            "formal_sby": {"type": "string"},
+            "formal_stdout": {"type": "string"},
+            "formal_stderr": {"type": "string"},
             "rtl_collateral": {"type": "string"}
           },
           "additionalProperties": false

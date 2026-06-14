@@ -102,6 +102,61 @@ def task_sim_top(task: dict[str, Any]) -> str | None:
     return sim_top
 
 
+def task_formal_harness(repo: Path, task: dict[str, Any]) -> Path | None:
+    harness = task.get("formal_harness")
+    if harness is None:
+        return None
+    if not isinstance(harness, str) or not harness:
+        raise ValueError(f"task {task.get('id', '<unknown>')} has invalid formal_harness")
+    return repo / harness
+
+
+def task_formal_top(task: dict[str, Any]) -> str | None:
+    formal_top = task.get("formal_top")
+    if formal_top is None:
+        return None
+    if not isinstance(formal_top, str) or not formal_top:
+        raise ValueError(f"task {task.get('id', '<unknown>')} has invalid formal_top")
+    return formal_top
+
+
+def task_formal_depth(task: dict[str, Any]) -> int:
+    depth = task.get("formal_depth", 4)
+    if not isinstance(depth, int) or depth <= 0:
+        raise ValueError(f"task {task.get('id', '<unknown>')} has invalid formal_depth")
+    return depth
+
+
+def write_sby_job(
+    sby_path: Path,
+    rtl: Path,
+    wrapper: Path,
+    harness: Path,
+    formal_top: str,
+    depth: int,
+) -> None:
+    files = [rtl, wrapper, harness]
+    read_files = " ".join(path.name for path in files)
+    listed_files = "\n".join(path.as_posix() for path in files)
+    sby_path.write_text(
+        f"""[options]
+mode prove
+depth {depth}
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal -sv {read_files}
+prep -top {formal_top}
+
+[files]
+{listed_files}
+""",
+        encoding="utf-8",
+    )
+
+
 def cli_source_arg(repo: Path, source: Path) -> str:
     rust_project = repo / "rust_project"
     try:
@@ -153,6 +208,11 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     rtl = task_rtl(repo, task)
     sim_testbench = task_sim_testbench(repo, task)
     sim_top = task_sim_top(task)
+    formal_harness = task_formal_harness(repo, task)
+    formal_top = task_formal_top(task)
+    if (formal_harness is None) != (formal_top is None):
+        raise ValueError(f"task {task_id} must define formal_harness and formal_top together")
+    formal_depth = task_formal_depth(task)
     task_build_dir = build_dir / task_id
     wrapper = task_build_dir / "top.sv"
     sva = task_build_dir / "top_sva.sv"
@@ -164,6 +224,10 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     sim_vvp = task_build_dir / "sim.vvp"
     sim_stdout = task_build_dir / "sim.stdout.txt"
     sim_stderr = task_build_dir / "sim.stderr.txt"
+    formal_dir = task_build_dir / "formal"
+    formal_sby = formal_dir / "task.sby"
+    formal_stdout = formal_dir / "sby.stdout.txt"
+    formal_stderr = formal_dir / "sby.stderr.txt"
 
     rust_project = repo / "rust_project"
     source_arg = cli_source_arg(repo, source)
@@ -247,6 +311,11 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     sim_run_pass = False
     sim_pass = False
     sim_status = "not_run" if expected_accept else "rejected"
+    formal_enabled = formal_harness is not None and formal_top is not None
+    formal_pass = False
+    formal_status = "blocked" if expected_accept and formal_enabled else "not_run"
+    if not expected_accept:
+        formal_status = "rejected"
     if compose_pass and expected_accept:
         emit_sv = run(
             ["cargo", "run", "-q", "-p", "mico_cli", "--", "emit-sv", source_arg],
@@ -346,7 +415,24 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         sim_pass = sim_compile_pass and sim_run_pass
         sim_status = "pass" if sim_pass else "failed"
 
+    if emit_sv_pass and expected_accept and formal_enabled:
+        formal_dir.mkdir(parents=True, exist_ok=True)
+        assert formal_harness is not None
+        assert formal_top is not None
+        write_sby_job(formal_sby, rtl, wrapper, formal_harness, formal_top, formal_depth)
+        formal = run(
+            ["sby", "-f", formal_sby.name],
+            formal_dir,
+            stdout_path=formal_stdout,
+            stderr_path=formal_stderr,
+        )
+        formal_pass = formal.returncode == 0
+        formal_status = "proved" if formal_pass else "failed"
+
     lint_pass = verilator_pass and sva_lint_pass and iverilog_pass and yosys_pass
+    notes = ["qor is not available until a synthesis QoR parser is added."]
+    if expected_accept and not formal_enabled:
+        notes.insert(0, "formal_pass is not run because this seed task has no formal harness.")
     return {
         "task_id": task_id,
         "level": str(task.get("level", "")),
@@ -395,8 +481,20 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "stdout": str(sim_stdout.relative_to(repo)).replace("\\", "/"),
             "stderr": str(sim_stderr.relative_to(repo)).replace("\\", "/"),
         },
-        "formal_pass": False,
-        "formal_status": "not_run",
+        "formal_pass": formal_pass,
+        "formal_status": formal_status,
+        "formal_result": {
+            "enabled": formal_enabled,
+            "prove_pass": formal_pass,
+            "harness": str(formal_harness.relative_to(repo)).replace("\\", "/")
+            if formal_harness is not None
+            else None,
+            "top": formal_top,
+            "depth": formal_depth,
+            "sby": str(formal_sby.relative_to(repo)).replace("\\", "/"),
+            "stdout": str(formal_stdout.relative_to(repo)).replace("\\", "/"),
+            "stderr": str(formal_stderr.relative_to(repo)).replace("\\", "/"),
+        },
         "unsafe_rejection": unsafe_rejection,
         "qor_delta": {
             "area_pct": 0.0,
@@ -425,12 +523,12 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "sim_vvp": str(sim_vvp.relative_to(repo)).replace("\\", "/"),
             "sim_stdout": str(sim_stdout.relative_to(repo)).replace("\\", "/"),
             "sim_stderr": str(sim_stderr.relative_to(repo)).replace("\\", "/"),
+            "formal_sby": str(formal_sby.relative_to(repo)).replace("\\", "/"),
+            "formal_stdout": str(formal_stdout.relative_to(repo)).replace("\\", "/"),
+            "formal_stderr": str(formal_stderr.relative_to(repo)).replace("\\", "/"),
             "rtl_collateral": str(rtl.relative_to(repo)).replace("\\", "/"),
         },
-        "notes": [
-            "formal_pass is false because per-task formal harnesses are not implemented yet.",
-            "qor is not available until a synthesis QoR parser is added.",
-        ],
+        "notes": notes,
     }
 
 
@@ -439,6 +537,7 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     positives = [item for item in results if item["expected_compose_pass"]]
     negatives = [item for item in results if not item["expected_compose_pass"]]
     sim_enabled = [item for item in positives if item["sim_result"]["enabled"]]
+    formal_enabled = [item for item in positives if item["formal_result"]["enabled"]]
 
     def count(items: list[dict[str, Any]], key: str) -> int:
         return sum(1 for item in items if item.get(key) is True)
@@ -479,12 +578,7 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "rate": json_ast_expected / total if total else 0.0,
         },
         "sim_pass": aggregate_with_status(sim_enabled, count(sim_enabled, "sim_pass")),
-        "formal_pass": {
-            "passed": count(positives, "formal_pass"),
-            "total": len(positives),
-            "rate": 0.0,
-            "status": "not_run",
-        },
+        "formal_pass": aggregate_with_status(formal_enabled, count(formal_enabled, "formal_pass")),
         "qor": {
             "available_tasks": sum(1 for item in results if item["qor"]["available"]),
             "status": "not_run",
@@ -553,6 +647,7 @@ def main() -> int:
     print(f"compose_pass_1: {summary['compose_pass_1']['passed']}/{summary['compose_pass_1']['total']}")
     print(f"lint_pass: {summary['lint_pass']['passed']}/{summary['lint_pass']['total']}")
     print(f"sim_pass: {summary['sim_pass']['passed']}/{summary['sim_pass']['total']}")
+    print(f"formal_pass: {summary['formal_pass']['passed']}/{summary['formal_pass']['total']}")
     print(
         "unsafe_rejection: "
         f"{summary['unsafe_rejection']['passed']}/{summary['unsafe_rejection']['total']}"
@@ -567,6 +662,7 @@ def main() -> int:
         if summary["expected_outcome_pass"]["passed"] == summary["expected_outcome_pass"]["total"]
         and summary["lint_pass"]["passed"] == summary["lint_pass"]["total"]
         and summary["sim_pass"]["passed"] == summary["sim_pass"]["total"]
+        and summary["formal_pass"]["passed"] == summary["formal_pass"]["total"]
         else 1
     )
 

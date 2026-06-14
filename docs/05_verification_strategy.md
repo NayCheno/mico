@@ -80,3 +80,10 @@ On Windows PowerShell:
 ```
 
 The script generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and `width_adapter` into ignored `build/eda-smoke/`, then runs Verilator lint, Icarus elaboration, and Yosys hierarchy/proc/opt/stat against `rtl/examples/mico_example_leafs.sv`. It also runs a minimal SymbiYosys smoke proof to verify that the Docker formal entry point works. The CDC FIFO in that file is a smoke-only stub, not a CDC correctness proof. Real CDC signoff still requires a proven FIFO implementation, assertions, and CDC/formal collateral.
+
+ModuleComposeBench additionally runs selected bounded SymbiYosys checks when a
+task declares `formal_harness` and `formal_top`. In the current seed suite,
+`T004_direct_stream` proves direct ready/valid reset, no-unknown, and stalled
+payload stability properties, while `T003_width_adapter` proves ready/valid
+preservation and zero-extension for the width adapter. `T002_cdc_fifo` is still
+simulation/lint smoke only and must not be treated as CDC proof.

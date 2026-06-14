@@ -16,6 +16,14 @@ impl fmt::Display for Ident {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SourceSpan {
+    pub start: usize,
+    pub end: usize,
+    pub line: usize,
+    pub column: usize,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalarType {
     Bool,
@@ -310,7 +318,78 @@ pub struct Diagnostic {
     pub severity: Severity,
     pub code: &'static str,
     pub message: String,
+    pub span: Option<SourceSpan>,
+    pub labels: Vec<DiagnosticLabel>,
+    pub nodes: Vec<DiagnosticNode>,
     pub hints: Vec<String>,
+    pub repair_action: Option<RepairAction>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LabelStyle {
+    Primary,
+    Secondary,
+}
+
+impl LabelStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            LabelStyle::Primary => "primary",
+            LabelStyle::Secondary => "secondary",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiagnosticLabel {
+    pub style: LabelStyle,
+    pub message: String,
+    pub span: Option<SourceSpan>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiagnosticNode {
+    pub kind: &'static str,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RepairAction {
+    CheckFile,
+    FixSyntax,
+    AddDeclaration,
+    RenameDuplicate,
+    FixEndpoint,
+    ReverseConnection,
+    UseAdapter,
+    FixAdapterDeclaration,
+    UseKnownAdapterKind,
+    MatchInterface,
+    AddContract,
+    FixProtocol,
+    FixWidth,
+    ReportCompilerBug,
+}
+
+impl RepairAction {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            RepairAction::CheckFile => "check_file",
+            RepairAction::FixSyntax => "fix_syntax",
+            RepairAction::AddDeclaration => "add_declaration",
+            RepairAction::RenameDuplicate => "rename_duplicate",
+            RepairAction::FixEndpoint => "fix_endpoint",
+            RepairAction::ReverseConnection => "reverse_connection",
+            RepairAction::UseAdapter => "use_adapter",
+            RepairAction::FixAdapterDeclaration => "fix_adapter_declaration",
+            RepairAction::UseKnownAdapterKind => "use_known_adapter_kind",
+            RepairAction::MatchInterface => "match_interface",
+            RepairAction::AddContract => "add_contract",
+            RepairAction::FixProtocol => "fix_protocol",
+            RepairAction::FixWidth => "fix_width",
+            RepairAction::ReportCompilerBug => "report_compiler_bug",
+        }
+    }
 }
 
 impl Diagnostic {
@@ -319,12 +398,57 @@ impl Diagnostic {
             severity: Severity::Error,
             code,
             message: message.into(),
+            span: None,
+            labels: Vec::new(),
+            nodes: Vec::new(),
             hints: Vec::new(),
+            repair_action: None,
         }
     }
 
     pub fn with_hint(mut self, hint: impl Into<String>) -> Self {
         self.hints.push(hint.into());
+        self
+    }
+
+    pub fn with_span(mut self, span: SourceSpan) -> Self {
+        self.span = Some(span);
+        self
+    }
+
+    pub fn with_label(mut self, style: LabelStyle, message: impl Into<String>) -> Self {
+        self.labels.push(DiagnosticLabel {
+            style,
+            message: message.into(),
+            span: None,
+        });
+        self
+    }
+
+    pub fn with_spanned_label(
+        mut self,
+        style: LabelStyle,
+        message: impl Into<String>,
+        span: SourceSpan,
+    ) -> Self {
+        self.labels.push(DiagnosticLabel {
+            style,
+            message: message.into(),
+            span: Some(span),
+        });
+        self
+    }
+
+    pub fn with_node(mut self, kind: &'static str, name: impl fmt::Display) -> Self {
+        self.nodes.push(DiagnosticNode {
+            kind,
+            name: name.to_string(),
+        });
+        self
+    }
+
+    pub fn with_repair(mut self, action: RepairAction) -> Self {
+        self.repair_action = Some(action);
         self
     }
 }
@@ -353,36 +477,55 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
     for iface in &design.interfaces {
         check_interface_fields(iface, &mut diags);
         if !clock_names.contains(&iface.domain) {
-            diags.push(Diagnostic::error(
-                "UnknownClockDomain",
-                format!(
-                    "interface `{}` references unknown clock domain `{}`",
-                    iface.name, iface.domain
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "UnknownClockDomain",
+                    format!(
+                        "interface `{}` references unknown clock domain `{}`",
+                        iface.name, iface.domain
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "interface domain is unresolved")
+                .with_node("interface", &iface.name)
+                .with_node("clock_domain", &iface.domain)
+                .with_repair(RepairAction::AddDeclaration),
+            );
         }
     }
 
     for module in &design.modules {
         check_module_ports(module, &mut diags);
         if !clock_names.contains(&module.domain) {
-            diags.push(Diagnostic::error(
-                "UnknownClockDomain",
-                format!(
-                    "module `{}` references unknown clock domain `{}`",
-                    module.name, module.domain
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "UnknownClockDomain",
+                    format!(
+                        "module `{}` references unknown clock domain `{}`",
+                        module.name, module.domain
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "module domain is unresolved")
+                .with_node("module", &module.name)
+                .with_node("clock_domain", &module.domain)
+                .with_repair(RepairAction::AddDeclaration),
+            );
         }
         for port in &module.ports {
             if !interfaces.contains_key(&port.interface) {
-                diags.push(Diagnostic::error(
-                    "UnknownInterface",
-                    format!(
-                        "module `{}` port `{}` references unknown interface `{}`",
-                        module.name, port.name, port.interface
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "UnknownInterface",
+                        format!(
+                            "module `{}` port `{}` references unknown interface `{}`",
+                            module.name, port.name, port.interface
+                        ),
+                    )
+                    .with_label(LabelStyle::Primary, "port interface is unresolved")
+                    .with_node("module", &module.name)
+                    .with_node("port", format!("{}.{}", module.name, port.name))
+                    .with_node("interface", &port.interface)
+                    .with_repair(RepairAction::AddDeclaration),
+                );
             }
         }
     }
@@ -393,13 +536,19 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
 
     for compose in &design.composes {
         if !clock_names.contains(&compose.domain) {
-            diags.push(Diagnostic::error(
-                "UnknownClockDomain",
-                format!(
-                    "compose `{}` references unknown clock domain `{}`",
-                    compose.name, compose.domain
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "UnknownClockDomain",
+                    format!(
+                        "compose `{}` references unknown clock domain `{}`",
+                        compose.name, compose.domain
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "compose domain is unresolved")
+                .with_node("compose", &compose.name)
+                .with_node("clock_domain", &compose.domain)
+                .with_repair(RepairAction::AddDeclaration),
+            );
         }
         check_compose_instances(compose, &mut diags);
 
@@ -410,13 +559,20 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
             .collect();
         for inst in &compose.instances {
             if !modules.contains_key(&inst.module) {
-                diags.push(Diagnostic::error(
-                    "UnknownModule",
-                    format!(
-                        "compose `{}` instantiates unknown module `{}` as `{}`",
-                        compose.name, inst.module, inst.name
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "UnknownModule",
+                        format!(
+                            "compose `{}` instantiates unknown module `{}` as `{}`",
+                            compose.name, inst.module, inst.name
+                        ),
+                    )
+                    .with_label(LabelStyle::Primary, "instance module is unresolved")
+                    .with_node("compose", &compose.name)
+                    .with_node("instance", &inst.name)
+                    .with_node("module", &inst.module)
+                    .with_repair(RepairAction::AddDeclaration),
+                );
             }
         }
 
@@ -427,16 +583,28 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
             match (src, dst) {
                 (Ok((src_mod, src_port)), Ok((dst_mod, dst_port))) => {
                     if src_port.dir != PortDir::Out {
-                        diags.push(Diagnostic::error(
-                            "DirectionMismatch",
-                            format!("source endpoint `{}` is not an output port", conn.from),
-                        ));
+                        diags.push(
+                            Diagnostic::error(
+                                "DirectionMismatch",
+                                format!("source endpoint `{}` is not an output port", conn.from),
+                            )
+                            .with_label(LabelStyle::Primary, "source endpoint must be an output")
+                            .with_node("endpoint", &conn.from)
+                            .with_node("port", format!("{}.{}", src_mod.name, src_port.name))
+                            .with_repair(RepairAction::ReverseConnection),
+                        );
                     }
                     if dst_port.dir != PortDir::In {
-                        diags.push(Diagnostic::error(
-                            "DirectionMismatch",
-                            format!("sink endpoint `{}` is not an input port", conn.to),
-                        ));
+                        diags.push(
+                            Diagnostic::error(
+                                "DirectionMismatch",
+                                format!("sink endpoint `{}` is not an input port", conn.to),
+                            )
+                            .with_label(LabelStyle::Primary, "sink endpoint must be an input")
+                            .with_node("endpoint", &conn.to)
+                            .with_node("port", format!("{}.{}", dst_mod.name, dst_port.name))
+                            .with_repair(RepairAction::ReverseConnection),
+                        );
                     }
 
                     let same_interface = src_port.interface == dst_port.interface;
@@ -450,19 +618,29 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
                                     || adapter.from_domain != src_mod.domain
                                     || adapter.to_domain != dst_mod.domain
                                 {
-                                    diags.push(Diagnostic::error(
-                                        "AdapterMismatch",
-                                        format!(
-                                            "adapter `{}` does not match `{}` ({:?}@{}) -> `{}` ({:?}@{})",
-                                            adapter_name,
-                                            conn.from,
-                                            src_port.interface,
-                                            src_mod.domain,
-                                            conn.to,
-                                            dst_port.interface,
-                                            dst_mod.domain
-                                        ),
-                                    ));
+                                    diags.push(
+                                        Diagnostic::error(
+                                            "AdapterMismatch",
+                                            format!(
+                                                "adapter `{}` does not match `{}` ({:?}@{}) -> `{}` ({:?}@{})",
+                                                adapter_name,
+                                                conn.from,
+                                                src_port.interface,
+                                                src_mod.domain,
+                                                conn.to,
+                                                dst_port.interface,
+                                                dst_mod.domain
+                                            ),
+                                        )
+                                        .with_label(
+                                            LabelStyle::Primary,
+                                            "adapter declaration does not match connection endpoints",
+                                        )
+                                        .with_node("adapter", adapter_name)
+                                        .with_node("endpoint", &conn.from)
+                                        .with_node("endpoint", &conn.to)
+                                        .with_repair(RepairAction::FixAdapterDeclaration),
+                                    );
                                 } else if let (Some(src_interface), Some(dst_interface)) = (
                                     interfaces.get(&src_port.interface),
                                     interfaces.get(&dst_port.interface),
@@ -475,37 +653,65 @@ pub fn check_design(design: &Design) -> Vec<Diagnostic> {
                                     );
                                 }
                             }
-                            None => diags.push(Diagnostic::error(
-                                "UnknownAdapter",
-                                format!(
-                                    "connection `{}` -> `{}` references unknown adapter `{}`",
-                                    conn.from, conn.to, adapter_name
-                                ),
-                            )),
+                            None => diags.push(
+                                Diagnostic::error(
+                                    "UnknownAdapter",
+                                    format!(
+                                        "connection `{}` -> `{}` references unknown adapter `{}`",
+                                        conn.from, conn.to, adapter_name
+                                    ),
+                                )
+                                .with_label(LabelStyle::Primary, "connection adapter is unresolved")
+                                .with_node("adapter", adapter_name)
+                                .with_node("endpoint", &conn.from)
+                                .with_node("endpoint", &conn.to)
+                                .with_repair(RepairAction::AddDeclaration),
+                            ),
                         }
                     } else {
                         if same_interface && same_domain {
                             continue;
                         }
                         if !same_interface {
-                            diags.push(Diagnostic::error(
-                                "InterfaceMismatch",
-                                format!(
-                                    "direct connection `{}` -> `{}` uses incompatible interfaces `{}` and `{}`",
-                                    conn.from, conn.to, src_port.interface, dst_port.interface
-                                ),
-                            ).with_hint("declare an explicit adapter or use matching interfaces"));
+                            diags.push(
+                                Diagnostic::error(
+                                    "InterfaceMismatch",
+                                    format!(
+                                        "direct connection `{}` -> `{}` uses incompatible interfaces `{}` and `{}`",
+                                        conn.from, conn.to, src_port.interface, dst_port.interface
+                                    ),
+                                )
+                                .with_label(
+                                    LabelStyle::Primary,
+                                    "direct connection crosses interface types",
+                                )
+                                .with_node("endpoint", &conn.from)
+                                .with_node("endpoint", &conn.to)
+                                .with_node("interface", &src_port.interface)
+                                .with_node("interface", &dst_port.interface)
+                                .with_hint("declare an explicit adapter or use matching interfaces")
+                                .with_repair(RepairAction::UseAdapter),
+                            );
                         }
                         if !same_domain {
                             diags.push(
                                 Diagnostic::error(
                                     "ClockDomainMismatch",
                                     format!(
-                                    "direct connection `{}` -> `{}` crosses domains `{}` and `{}`",
-                                    conn.from, conn.to, src_mod.domain, dst_mod.domain
-                                ),
+                                        "direct connection `{}` -> `{}` crosses domains `{}` and `{}`",
+                                        conn.from, conn.to, src_mod.domain, dst_mod.domain
+                                    ),
                                 )
-                                .with_hint("use an explicit CDC adapter such as AsyncFifo"),
+                                .with_label(
+                                    LabelStyle::Primary,
+                                    "direct connection crosses clock domains",
+                                )
+                                .with_node("endpoint", &conn.from)
+                                .with_node("endpoint", &conn.to)
+                                .with_node("clock_domain", &src_mod.domain)
+                                .with_node("clock_domain", &dst_mod.domain)
+                                .with_hint("use an explicit CDC adapter such as AsyncFifo")
+                                .with_repair(RepairAction::UseAdapter),
                             );
                         }
                     }
@@ -554,10 +760,15 @@ fn check_duplicate_idents<'a>(
     let mut seen = HashSet::new();
     for name in names {
         if !seen.insert(name.clone()) {
-            diags.push(Diagnostic::error(
-                "DuplicateDeclaration",
-                format!("duplicate {label} declaration `{name}`"),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "DuplicateDeclaration",
+                    format!("duplicate {label} declaration `{name}`"),
+                )
+                .with_label(LabelStyle::Primary, format!("duplicate {label} name"))
+                .with_node(label, name)
+                .with_repair(RepairAction::RenameDuplicate),
+            );
         }
     }
 }
@@ -566,13 +777,19 @@ fn check_interface_fields(interface: &InterfaceDef, diags: &mut Vec<Diagnostic>)
     let mut fields = HashSet::new();
     for field in &interface.fields {
         if !fields.insert(field.name.clone()) {
-            diags.push(Diagnostic::error(
-                "DuplicateField",
-                format!(
-                    "interface `{}` declares duplicate field `{}`",
-                    interface.name, field.name
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "DuplicateField",
+                    format!(
+                        "interface `{}` declares duplicate field `{}`",
+                        interface.name, field.name
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "interface field name is duplicated")
+                .with_node("interface", &interface.name)
+                .with_node("field", format!("{}.{}", interface.name, field.name))
+                .with_repair(RepairAction::RenameDuplicate),
+            );
         }
     }
 }
@@ -581,13 +798,19 @@ fn check_module_ports(module: &ModuleDef, diags: &mut Vec<Diagnostic>) {
     let mut ports = HashSet::new();
     for port in &module.ports {
         if !ports.insert(port.name.clone()) {
-            diags.push(Diagnostic::error(
-                "DuplicatePort",
-                format!(
-                    "module `{}` declares duplicate port `{}`",
-                    module.name, port.name
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "DuplicatePort",
+                    format!(
+                        "module `{}` declares duplicate port `{}`",
+                        module.name, port.name
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "module port name is duplicated")
+                .with_node("module", &module.name)
+                .with_node("port", format!("{}.{}", module.name, port.name))
+                .with_repair(RepairAction::RenameDuplicate),
+            );
         }
     }
 }
@@ -596,13 +819,19 @@ fn check_compose_instances(compose: &ComposeDef, diags: &mut Vec<Diagnostic>) {
     let mut instances = HashSet::new();
     for instance in &compose.instances {
         if !instances.insert(instance.name.clone()) {
-            diags.push(Diagnostic::error(
-                "DuplicateInstance",
-                format!(
-                    "compose `{}` declares duplicate instance `{}`",
-                    compose.name, instance.name
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "DuplicateInstance",
+                    format!(
+                        "compose `{}` declares duplicate instance `{}`",
+                        compose.name, instance.name
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "compose instance name is duplicated")
+                .with_node("compose", &compose.name)
+                .with_node("instance", &instance.name)
+                .with_repair(RepairAction::RenameDuplicate),
+            );
         }
     }
 }
@@ -614,40 +843,73 @@ fn check_adapter_decl(
     diags: &mut Vec<Diagnostic>,
 ) {
     if !interfaces.contains_key(&adapter.from_interface) {
-        diags.push(Diagnostic::error(
-            "UnknownInterface",
-            format!(
-                "adapter `{}` references unknown source interface `{}`",
-                adapter.name, adapter.from_interface
-            ),
-        ));
+        diags.push(
+            Diagnostic::error(
+                "UnknownInterface",
+                format!(
+                    "adapter `{}` references unknown source interface `{}`",
+                    adapter.name, adapter.from_interface
+                ),
+            )
+            .with_label(
+                LabelStyle::Primary,
+                "adapter source interface is unresolved",
+            )
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &adapter.from_interface)
+            .with_repair(RepairAction::AddDeclaration),
+        );
     }
     if !interfaces.contains_key(&adapter.to_interface) {
-        diags.push(Diagnostic::error(
-            "UnknownInterface",
-            format!(
-                "adapter `{}` references unknown destination interface `{}`",
-                adapter.name, adapter.to_interface
-            ),
-        ));
+        diags.push(
+            Diagnostic::error(
+                "UnknownInterface",
+                format!(
+                    "adapter `{}` references unknown destination interface `{}`",
+                    adapter.name, adapter.to_interface
+                ),
+            )
+            .with_label(
+                LabelStyle::Primary,
+                "adapter destination interface is unresolved",
+            )
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &adapter.to_interface)
+            .with_repair(RepairAction::AddDeclaration),
+        );
     }
     if !clock_names.contains(&adapter.from_domain) {
-        diags.push(Diagnostic::error(
-            "UnknownClockDomain",
-            format!(
-                "adapter `{}` references unknown source domain `{}`",
-                adapter.name, adapter.from_domain
-            ),
-        ));
+        diags.push(
+            Diagnostic::error(
+                "UnknownClockDomain",
+                format!(
+                    "adapter `{}` references unknown source domain `{}`",
+                    adapter.name, adapter.from_domain
+                ),
+            )
+            .with_label(LabelStyle::Primary, "adapter source domain is unresolved")
+            .with_node("adapter", &adapter.name)
+            .with_node("clock_domain", &adapter.from_domain)
+            .with_repair(RepairAction::AddDeclaration),
+        );
     }
     if !clock_names.contains(&adapter.to_domain) {
-        diags.push(Diagnostic::error(
-            "UnknownClockDomain",
-            format!(
-                "adapter `{}` references unknown destination domain `{}`",
-                adapter.name, adapter.to_domain
-            ),
-        ));
+        diags.push(
+            Diagnostic::error(
+                "UnknownClockDomain",
+                format!(
+                    "adapter `{}` references unknown destination domain `{}`",
+                    adapter.name, adapter.to_domain
+                ),
+            )
+            .with_label(
+                LabelStyle::Primary,
+                "adapter destination domain is unresolved",
+            )
+            .with_node("adapter", &adapter.name)
+            .with_node("clock_domain", &adapter.to_domain)
+            .with_repair(RepairAction::AddDeclaration),
+        );
     }
 
     let Some(kind) = recognized_adapter_kind(&adapter.kind) else {
@@ -659,7 +921,11 @@ fn check_adapter_decl(
                     adapter.name, adapter.kind
                 ),
             )
-            .with_hint("use cdc_fifo, width_adapter, skid_buffer, pipeline, or custom"),
+            .with_label(LabelStyle::Primary, "adapter kind is not in the v0 library")
+            .with_node("adapter", &adapter.name)
+            .with_node("adapter_kind", &adapter.kind)
+            .with_hint("use cdc_fifo, width_adapter, skid_buffer, pipeline, or custom")
+            .with_repair(RepairAction::UseKnownAdapterKind),
         );
         return;
     };
@@ -696,7 +962,14 @@ fn check_adapter_application(
                     adapter.name, to_interface.name
                 ),
             )
-            .with_hint("add an adapter contract such as `contract preserves_order;`"),
+            .with_label(
+                LabelStyle::Primary,
+                "adapter must declare a preservation contract",
+            )
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &to_interface.name)
+            .with_hint("add an adapter contract such as `contract preserves_order;`")
+            .with_repair(RepairAction::AddContract),
         );
     }
 }
@@ -711,51 +984,82 @@ fn check_adapter_kind_rules(
     match kind {
         AdapterKind::CdcFifo => {
             if adapter.from_domain == adapter.to_domain {
-                diags.push(Diagnostic::error(
-                    "AdapterMismatch",
-                    format!(
-                        "cdc_fifo adapter `{}` must connect different clock domains",
-                        adapter.name
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "AdapterMismatch",
+                        format!(
+                            "cdc_fifo adapter `{}` must connect different clock domains",
+                            adapter.name
+                        ),
+                    )
+                    .with_label(LabelStyle::Primary, "cdc_fifo requires distinct domains")
+                    .with_node("adapter", &adapter.name)
+                    .with_node("clock_domain", &adapter.from_domain)
+                    .with_node("clock_domain", &adapter.to_domain)
+                    .with_repair(RepairAction::FixAdapterDeclaration),
+                );
             }
             require_ready_valid(adapter, from_interface, to_interface, diags);
             require_equal_payload_width(adapter, from_interface, to_interface, diags);
         }
         AdapterKind::WidthAdapter => {
             if adapter.from_domain != adapter.to_domain {
-                diags.push(Diagnostic::error(
-                    "AdapterMismatch",
-                    format!(
-                        "width_adapter `{}` must stay within one clock domain",
-                        adapter.name
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "AdapterMismatch",
+                        format!(
+                            "width_adapter `{}` must stay within one clock domain",
+                            adapter.name
+                        ),
+                    )
+                    .with_label(LabelStyle::Primary, "width adapter cannot cross domains")
+                    .with_node("adapter", &adapter.name)
+                    .with_node("clock_domain", &adapter.from_domain)
+                    .with_node("clock_domain", &adapter.to_domain)
+                    .with_repair(RepairAction::FixAdapterDeclaration),
+                );
             }
             require_ready_valid(adapter, from_interface, to_interface, diags);
             require_changed_payload_width(adapter, from_interface, to_interface, diags);
         }
         AdapterKind::SkidBuffer | AdapterKind::Pipeline => {
             if adapter.from_domain != adapter.to_domain {
-                diags.push(Diagnostic::error(
-                    "AdapterMismatch",
-                    format!(
-                        "{}`{}` must stay within one clock domain",
-                        adapter_kind_label(kind),
-                        adapter.name
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "AdapterMismatch",
+                        format!(
+                            "{}`{}` must stay within one clock domain",
+                            adapter_kind_label(kind),
+                            adapter.name
+                        ),
+                    )
+                    .with_label(LabelStyle::Primary, "latency adapter cannot cross domains")
+                    .with_node("adapter", &adapter.name)
+                    .with_node("clock_domain", &adapter.from_domain)
+                    .with_node("clock_domain", &adapter.to_domain)
+                    .with_repair(RepairAction::FixAdapterDeclaration),
+                );
             }
             if adapter.from_interface != adapter.to_interface {
-                diags.push(Diagnostic::error(
-                    "AdapterMismatch",
-                    format!(
-                        "{}`{}` must preserve interface type `{}`",
-                        adapter_kind_label(kind),
-                        adapter.name,
-                        adapter.from_interface
-                    ),
-                ));
+                diags.push(
+                    Diagnostic::error(
+                        "AdapterMismatch",
+                        format!(
+                            "{}`{}` must preserve interface type `{}`",
+                            adapter_kind_label(kind),
+                            adapter.name,
+                            adapter.from_interface
+                        ),
+                    )
+                    .with_label(
+                        LabelStyle::Primary,
+                        "latency adapter must preserve interface type",
+                    )
+                    .with_node("adapter", &adapter.name)
+                    .with_node("interface", &adapter.from_interface)
+                    .with_node("interface", &adapter.to_interface)
+                    .with_repair(RepairAction::FixAdapterDeclaration),
+                );
             }
         }
         AdapterKind::Custom(_) => {}
@@ -781,13 +1085,23 @@ fn require_ready_valid(
     if from_protocol.kind != ProtocolKind::ReadyValid
         || to_protocol.kind != ProtocolKind::ReadyValid
     {
-        diags.push(Diagnostic::error(
-            "ProtocolMismatch",
-            format!(
-                "adapter `{}` requires ready/valid source and sink interfaces",
-                adapter.name
-            ),
-        ));
+        diags.push(
+            Diagnostic::error(
+                "ProtocolMismatch",
+                format!(
+                    "adapter `{}` requires ready/valid source and sink interfaces",
+                    adapter.name
+                ),
+            )
+            .with_label(
+                LabelStyle::Primary,
+                "adapter protocol requirement is not met",
+            )
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &from_interface.name)
+            .with_node("interface", &to_interface.name)
+            .with_repair(RepairAction::FixProtocol),
+        );
     }
 }
 
@@ -802,13 +1116,23 @@ fn require_equal_payload_width(
         ready_valid_payload_width(to_interface),
     ) {
         if from_width != to_width {
-            diags.push(Diagnostic::error(
-                "WidthMismatch",
-                format!(
-                    "adapter `{}` requires equal ready/valid payload widths, found {} and {}",
-                    adapter.name, from_width, to_width
-                ),
-            ));
+            diags.push(
+                Diagnostic::error(
+                    "WidthMismatch",
+                    format!(
+                        "adapter `{}` requires equal ready/valid payload widths, found {} and {}",
+                        adapter.name, from_width, to_width
+                    ),
+                )
+                .with_label(
+                    LabelStyle::Primary,
+                    "adapter payload widths are incompatible",
+                )
+                .with_node("adapter", &adapter.name)
+                .with_node("interface", &from_interface.name)
+                .with_node("interface", &to_interface.name)
+                .with_repair(RepairAction::FixWidth),
+            );
         }
     }
 }
@@ -824,20 +1148,34 @@ fn require_changed_payload_width(
         ready_valid_payload_width(to_interface),
     ) {
         (Some(from_width), Some(to_width)) if from_width != to_width => {}
-        (Some(width), Some(_)) => diags.push(Diagnostic::error(
-            "AdapterMismatch",
-            format!(
-                "width_adapter `{}` must change payload width, but both sides are {} bits",
-                adapter.name, width
-            ),
-        )),
-        _ => diags.push(Diagnostic::error(
-            "WidthMismatch",
-            format!(
-                "width_adapter `{}` requires exactly one known ready/valid payload width on each side",
-                adapter.name
-            ),
-        )),
+        (Some(width), Some(_)) => diags.push(
+            Diagnostic::error(
+                "AdapterMismatch",
+                format!(
+                    "width_adapter `{}` must change payload width, but both sides are {} bits",
+                    adapter.name, width
+                ),
+            )
+            .with_label(LabelStyle::Primary, "width adapter must change payload width")
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &from_interface.name)
+            .with_node("interface", &to_interface.name)
+            .with_repair(RepairAction::FixAdapterDeclaration),
+        ),
+        _ => diags.push(
+            Diagnostic::error(
+                "WidthMismatch",
+                format!(
+                    "width_adapter `{}` requires exactly one known ready/valid payload width on each side",
+                    adapter.name
+                ),
+            )
+            .with_label(LabelStyle::Primary, "width adapter payload width is unknown")
+            .with_node("adapter", &adapter.name)
+            .with_node("interface", &from_interface.name)
+            .with_node("interface", &to_interface.name)
+            .with_repair(RepairAction::FixWidth),
+        ),
     }
 }
 
@@ -969,13 +1307,22 @@ pub fn build_typed_ir(design: &Design) -> Result<TypedDesign, Vec<Diagnostic>> {
                     module: instance.module.clone(),
                     domain: module.domain.clone(),
                 }),
-                None => diagnostics.push(Diagnostic::error(
-                    "InternalIrError",
-                    format!(
-                        "cannot lower instance `{}` because module `{}` is unresolved",
-                        instance.name, instance.module
-                    ),
-                )),
+                None => diagnostics.push(
+                    Diagnostic::error(
+                        "InternalIrError",
+                        format!(
+                            "cannot lower instance `{}` because module `{}` is unresolved",
+                            instance.name, instance.module
+                        ),
+                    )
+                    .with_label(
+                        LabelStyle::Primary,
+                        "typed IR lowering saw unresolved module",
+                    )
+                    .with_node("instance", &instance.name)
+                    .with_node("module", &instance.module)
+                    .with_repair(RepairAction::ReportCompilerBug),
+                ),
             }
         }
 
@@ -1134,6 +1481,10 @@ fn resolve_endpoint<'a>(
             "UnknownInstance",
             format!("unknown instance `{}` in endpoint `{}`", ep.instance, ep),
         )
+        .with_label(LabelStyle::Primary, "endpoint instance is unresolved")
+        .with_node("endpoint", ep)
+        .with_node("instance", &ep.instance)
+        .with_repair(RepairAction::FixEndpoint)
     })?;
     let module = modules.get(&inst.module).ok_or_else(|| {
         Diagnostic::error(
@@ -1143,6 +1494,10 @@ fn resolve_endpoint<'a>(
                 inst.name, inst.module
             ),
         )
+        .with_label(LabelStyle::Primary, "instance module is unresolved")
+        .with_node("instance", &inst.name)
+        .with_node("module", &inst.module)
+        .with_repair(RepairAction::AddDeclaration)
     })?;
     let port = module
         .ports
@@ -1156,6 +1511,11 @@ fn resolve_endpoint<'a>(
                     module.name, ep.port, ep
                 ),
             )
+            .with_label(LabelStyle::Primary, "endpoint port is unresolved")
+            .with_node("endpoint", ep)
+            .with_node("module", &module.name)
+            .with_node("port", format!("{}.{}", module.name, ep.port))
+            .with_repair(RepairAction::FixEndpoint)
         })?;
     Ok((module, port))
 }

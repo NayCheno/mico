@@ -1,0 +1,42 @@
+{
+  "diagnostics": [
+    {
+      "code": "InterfaceMismatch",
+      "hints": [
+        "declare an explicit adapter or use matching interfaces"
+      ],
+      "labels": [
+        {
+          "message": "direct connection crosses interface types",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "direct connection `s.tx` -> `t.rx` uses incompatible interfaces `StreamU32` and `StreamU64`",
+      "nodes": [
+        {
+          "kind": "endpoint",
+          "name": "s.tx"
+        },
+        {
+          "kind": "endpoint",
+          "name": "t.rx"
+        },
+        {
+          "kind": "interface",
+          "name": "StreamU32"
+        },
+        {
+          "kind": "interface",
+          "name": "StreamU64"
+        }
+      ],
+      "repair_action": "use_adapter",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "ok": false,
+  "phase": "check",
+  "schema_version": "mico.diagnostics.v0"
+}

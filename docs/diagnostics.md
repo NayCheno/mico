@@ -15,7 +15,17 @@ Commands that report diagnostics use this envelope:
 }
 ```
 
-The schema is `schemas/diagnostics.schema.json`. Parser diagnostics include byte spans plus line and column. Checker diagnostics currently include stable codes, severity, messages, and repair hints; source spans and graph node labels are reserved fields and are emitted as `null` or empty arrays until the checker carries source locations.
+The schema is `schemas/diagnostics.schema.json`. Parser diagnostics include byte spans plus line and column. Checker diagnostics include stable codes, severity, messages, labels, affected graph nodes, repair hints, and a `repair_action` enum. Checker source spans are optional and currently emitted as `null` when the semantic pass only has a graph reference; the `nodes` array is the stable source reference for LLM repair and benchmark classification.
+
+## Diagnostic shape
+
+Each diagnostic has:
+
+- `span`: a byte/line/column span when available, otherwise `null`.
+- `labels`: primary or secondary labels; semantic labels may carry `span: null`.
+- `nodes`: affected graph nodes such as `interface`, `module`, `instance`, `endpoint`, `adapter`, `clock_domain`, or `port`.
+- `hints`: human-readable repair hints.
+- `repair_action`: a stable enum such as `use_adapter`, `reverse_connection`, `add_declaration`, `fix_endpoint`, `fix_width`, or `add_contract`.
 
 ## Commands
 
@@ -27,6 +37,10 @@ mico dump-ir examples/stream_fifo.mico
 ```
 
 `dump-ir` always emits JSON. Its schema is `schemas/mico_ir.schema.json`.
+
+Golden JSON fixtures for valid and invalid diagnostic outputs live under
+`rust_project/crates/mico_cli/tests/fixtures/diagnostics/` and are checked by
+the CLI unit tests.
 
 ## Diagnostic codes
 

@@ -4,7 +4,10 @@ use std::process;
 
 use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog, emit_traceability_report};
 use mico_frontend::{ParseError, parse_mico};
-use mico_ir::{Design, Diagnostic, Severity, TypedDesign, build_typed_ir, check_design};
+use mico_ir::{
+    Design, Diagnostic, DiagnosticLabel, DiagnosticNode, RepairAction, Severity, SourceSpan,
+    TypedDesign, build_typed_ir, check_design,
+};
 use serde_json::{Value, json};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -234,13 +237,7 @@ fn print_parse_summary(design: &Design, format: OutputFormat) {
             println!("MICO parse passed");
             print_design_summary(design);
         }
-        OutputFormat::Json => print_json(json!({
-            "schema_version": "mico.diagnostics.v0",
-            "ok": true,
-            "phase": "parse",
-            "summary": design_summary_json(design),
-            "diagnostics": [],
-        })),
+        OutputFormat::Json => print_json(parse_summary_response_json(design)),
     }
 }
 
@@ -255,13 +252,7 @@ fn print_build_summary(typed: &TypedDesign, format: OutputFormat) {
             println!("composes: {}", typed.composes.len());
             println!("connections: {}", typed_connection_count(typed));
         }
-        OutputFormat::Json => print_json(json!({
-            "schema_version": "mico.diagnostics.v0",
-            "ok": true,
-            "phase": "build",
-            "summary": typed_summary_json(typed),
-            "diagnostics": [],
-        })),
+        OutputFormat::Json => print_json(build_summary_response_json(typed)),
     }
 }
 
@@ -350,15 +341,36 @@ fn diagnostic_response_json(phase: &'static str, diagnostics: &[Diagnostic]) -> 
     })
 }
 
+fn parse_summary_response_json(design: &Design) -> Value {
+    json!({
+        "schema_version": "mico.diagnostics.v0",
+        "ok": true,
+        "phase": "parse",
+        "summary": design_summary_json(design),
+        "diagnostics": [],
+    })
+}
+
+fn build_summary_response_json(typed: &TypedDesign) -> Value {
+    json!({
+        "schema_version": "mico.diagnostics.v0",
+        "ok": true,
+        "phase": "build",
+        "summary": typed_summary_json(typed),
+        "diagnostics": [],
+    })
+}
+
 fn diagnostic_json(diagnostic: &Diagnostic) -> Value {
     json!({
         "severity": diagnostic.severity.as_str(),
         "code": diagnostic.code,
         "message": &diagnostic.message,
-        "span": Value::Null,
-        "labels": [],
-        "nodes": [],
+        "span": span_json(diagnostic.span),
+        "labels": diagnostic.labels.iter().map(label_json).collect::<Vec<_>>(),
+        "nodes": diagnostic.nodes.iter().map(node_json).collect::<Vec<_>>(),
         "hints": &diagnostic.hints,
+        "repair_action": diagnostic.repair_action.map(|action| action.as_str()),
     })
 }
 
@@ -394,6 +406,7 @@ fn parse_error_json(error: &ParseError) -> Value {
         }],
         "nodes": [],
         "hints": [],
+        "repair_action": RepairAction::FixSyntax.as_str(),
     })
 }
 
@@ -410,7 +423,35 @@ fn io_error_response_json(phase: &'static str, path: &str, err: &std::io::Error)
             "labels": [],
             "nodes": [{"kind": "file", "name": path}],
             "hints": ["check that the file exists and is readable"],
+            "repair_action": RepairAction::CheckFile.as_str(),
         }],
+    })
+}
+
+fn span_json(span: Option<SourceSpan>) -> Value {
+    match span {
+        Some(span) => json!({
+            "start": span.start,
+            "end": span.end,
+            "line": span.line,
+            "column": span.column,
+        }),
+        None => Value::Null,
+    }
+}
+
+fn label_json(label: &DiagnosticLabel) -> Value {
+    json!({
+        "style": label.style.as_str(),
+        "message": &label.message,
+        "span": span_json(label.span),
+    })
+}
+
+fn node_json(node: &DiagnosticNode) -> Value {
+    json!({
+        "kind": node.kind,
+        "name": &node.name,
     })
 }
 
@@ -543,7 +584,69 @@ mod tests {
         assert!(parse_args(&args).is_err());
     }
 
+    #[test]
+    fn diagnostics_json_matches_golden_fixtures() {
+        assert_parse_fixture(
+            include_str!("../../../examples/stream_fifo.mico"),
+            include_str!("../tests/fixtures/diagnostics/valid_parse.json"),
+        );
+        assert_check_fixture(
+            include_str!("../../../examples/stream_fifo.mico"),
+            include_str!("../tests/fixtures/diagnostics/valid_check.json"),
+        );
+        assert_build_fixture(
+            include_str!("../../../examples/stream_fifo.mico"),
+            include_str!("../tests/fixtures/diagnostics/valid_build.json"),
+        );
+        assert_check_fixture(
+            include_str!("../../../examples/invalid_width.mico"),
+            include_str!("../tests/fixtures/diagnostics/invalid_width.json"),
+        );
+        assert_check_fixture(
+            include_str!(
+                "../../../../benchmarks/tasks/T006_direct_cdc_without_adapter/invalid.mico"
+            ),
+            include_str!("../tests/fixtures/diagnostics/direct_cdc_without_adapter.json"),
+        );
+        assert_check_fixture(
+            include_str!("../../../../benchmarks/tasks/T007_reversed_direction/invalid.mico"),
+            include_str!("../tests/fixtures/diagnostics/reversed_direction.json"),
+        );
+        assert_check_fixture(
+            include_str!("../tests/fixtures/diagnostics/unknown_adapter_kind.mico"),
+            include_str!("../tests/fixtures/diagnostics/unknown_adapter_kind.json"),
+        );
+        assert_check_fixture(
+            include_str!("../tests/fixtures/diagnostics/contract_violation.mico"),
+            include_str!("../tests/fixtures/diagnostics/contract_violation.json"),
+        );
+    }
+
     fn strings(items: &[&str]) -> Vec<String> {
         items.iter().map(|item| item.to_string()).collect()
+    }
+
+    fn assert_parse_fixture(source: &str, fixture: &str) {
+        let design = parse_mico(source).unwrap();
+        assert_eq!(parse_summary_response_json(&design), fixture_json(fixture));
+    }
+
+    fn assert_check_fixture(source: &str, fixture: &str) {
+        let design = parse_mico(source).unwrap();
+        let diagnostics = check_design(&design);
+        assert_eq!(
+            diagnostic_response_json("check", &diagnostics),
+            fixture_json(fixture)
+        );
+    }
+
+    fn assert_build_fixture(source: &str, fixture: &str) {
+        let design = parse_mico(source).unwrap();
+        let typed = build_typed_ir(&design).unwrap();
+        assert_eq!(build_summary_response_json(&typed), fixture_json(fixture));
+    }
+
+    fn fixture_json(fixture: &str) -> Value {
+        serde_json::from_str(fixture).unwrap()
     }
 }

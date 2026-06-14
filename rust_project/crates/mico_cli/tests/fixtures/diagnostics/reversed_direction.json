@@ -1,0 +1,57 @@
+{
+  "diagnostics": [
+    {
+      "code": "DirectionMismatch",
+      "hints": [],
+      "labels": [
+        {
+          "message": "source endpoint must be an output",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "source endpoint `c.rx` is not an output port",
+      "nodes": [
+        {
+          "kind": "endpoint",
+          "name": "c.rx"
+        },
+        {
+          "kind": "port",
+          "name": "Consumer.rx"
+        }
+      ],
+      "repair_action": "reverse_connection",
+      "severity": "error",
+      "span": null
+    },
+    {
+      "code": "DirectionMismatch",
+      "hints": [],
+      "labels": [
+        {
+          "message": "sink endpoint must be an input",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "sink endpoint `p.tx` is not an input port",
+      "nodes": [
+        {
+          "kind": "endpoint",
+          "name": "p.tx"
+        },
+        {
+          "kind": "port",
+          "name": "Producer.tx"
+        }
+      ],
+      "repair_action": "reverse_connection",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "ok": false,
+  "phase": "check",
+  "schema_version": "mico.diagnostics.v0"
+}

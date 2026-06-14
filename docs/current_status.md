@@ -17,7 +17,8 @@ This file is the short, traceable status page for the current repository. Use
   legality, ready/valid width rules, and contract-preservation attributes.
 - Typed IR JSON with `schema_version = mico.ir.v0`.
 - CLI commands for parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report.
-- Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`.
+- Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`,
+  semantic labels, affected graph nodes, repair hints, and `repair_action`.
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
   traceability JSON emission.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
@@ -29,8 +30,8 @@ This file is the short, traceable status page for the current repository. Use
 
 ## Not Yet Implemented
 
-- Checker diagnostics with semantic source spans, affected graph nodes,
-  primary/secondary labels, and repair action enums.
+- Checker diagnostics with concrete source spans for semantic errors; current
+  semantic diagnostics carry graph references and `span: null`.
 - Schema-validated MICO JSON AST input and repair patch ingestion.
 - Parsed contract AST and formalized ready/valid contract compatibility.
 - Golden SV/SVA/traceability fixture tests.

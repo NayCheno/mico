@@ -1,0 +1,34 @@
+{
+  "diagnostics": [
+    {
+      "code": "UnknownAdapterKind",
+      "hints": [
+        "use cdc_fifo, width_adapter, skid_buffer, pipeline, or custom"
+      ],
+      "labels": [
+        {
+          "message": "adapter kind is not in the v0 library",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "adapter `MagicBridge` uses unsupported kind `magic_bridge`",
+      "nodes": [
+        {
+          "kind": "adapter",
+          "name": "MagicBridge"
+        },
+        {
+          "kind": "adapter_kind",
+          "name": "magic_bridge"
+        }
+      ],
+      "repair_action": "use_known_adapter_kind",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "ok": false,
+  "phase": "check",
+  "schema_version": "mico.diagnostics.v0"
+}

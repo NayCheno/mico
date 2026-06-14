@@ -1,13 +1,5 @@
 use mico_ir::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SourceSpan {
-    pub start: usize,
-    pub end: usize,
-    pub line: usize,
-    pub column: usize,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParseError {
     pub span: SourceSpan,

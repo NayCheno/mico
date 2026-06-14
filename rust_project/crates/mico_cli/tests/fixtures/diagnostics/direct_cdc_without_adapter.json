@@ -1,0 +1,77 @@
+{
+  "diagnostics": [
+    {
+      "code": "InterfaceMismatch",
+      "hints": [
+        "declare an explicit adapter or use matching interfaces"
+      ],
+      "labels": [
+        {
+          "message": "direct connection crosses interface types",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "direct connection `dma.tx` -> `aes.rx` uses incompatible interfaces `StreamU32A` and `StreamU32B`",
+      "nodes": [
+        {
+          "kind": "endpoint",
+          "name": "dma.tx"
+        },
+        {
+          "kind": "endpoint",
+          "name": "aes.rx"
+        },
+        {
+          "kind": "interface",
+          "name": "StreamU32A"
+        },
+        {
+          "kind": "interface",
+          "name": "StreamU32B"
+        }
+      ],
+      "repair_action": "use_adapter",
+      "severity": "error",
+      "span": null
+    },
+    {
+      "code": "ClockDomainMismatch",
+      "hints": [
+        "use an explicit CDC adapter such as AsyncFifo"
+      ],
+      "labels": [
+        {
+          "message": "direct connection crosses clock domains",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "direct connection `dma.tx` -> `aes.rx` crosses domains `Aclk` and `Bclk`",
+      "nodes": [
+        {
+          "kind": "endpoint",
+          "name": "dma.tx"
+        },
+        {
+          "kind": "endpoint",
+          "name": "aes.rx"
+        },
+        {
+          "kind": "clock_domain",
+          "name": "Aclk"
+        },
+        {
+          "kind": "clock_domain",
+          "name": "Bclk"
+        }
+      ],
+      "repair_action": "use_adapter",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "ok": false,
+  "phase": "check",
+  "schema_version": "mico.diagnostics.v0"
+}

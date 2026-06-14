@@ -1,0 +1,34 @@
+{
+  "diagnostics": [
+    {
+      "code": "ContractViolation",
+      "hints": [
+        "add an adapter contract such as `contract preserves_order;`"
+      ],
+      "labels": [
+        {
+          "message": "adapter must declare a preservation contract",
+          "span": null,
+          "style": "primary"
+        }
+      ],
+      "message": "adapter `Widen32To64` connects into interface `StreamU64` with contracts but declares no contract preservation attribute",
+      "nodes": [
+        {
+          "kind": "adapter",
+          "name": "Widen32To64"
+        },
+        {
+          "kind": "interface",
+          "name": "StreamU64"
+        }
+      ],
+      "repair_action": "add_contract",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "ok": false,
+  "phase": "check",
+  "schema_version": "mico.diagnostics.v0"
+}

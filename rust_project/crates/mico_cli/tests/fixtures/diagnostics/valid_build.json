@@ -1,0 +1,14 @@
+{
+  "diagnostics": [],
+  "ok": true,
+  "phase": "build",
+  "schema_version": "mico.diagnostics.v0",
+  "summary": {
+    "adapters": 0,
+    "clock_domains": 1,
+    "composes": 1,
+    "connections": 2,
+    "interfaces": 1,
+    "modules": 3
+  }
+}

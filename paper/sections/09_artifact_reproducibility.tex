@@ -1,6 +1,6 @@
 \section{Artifact Reproducibility}
 
-MICO is packaged as a reproducible research artifact rather than a prompt-only demonstration. Rust compilation, unit tests, open-source RTL checks, benchmark seeds, and provider smoke tests run through repository scripts. Non-Vivado compilation and validation use the Ubuntu 24.04 Docker EDA environment; Vivado and LaTeX are host-tool exceptions.
+MICO is packaged as a reproducible research artifact rather than a prompt-only demonstration. Rust compilation, unit tests, open-source RTL checks, benchmark seeds, and provider smoke tests run through repository scripts. The reproduced validation for this revision uses the Ubuntu 24.04 Docker EDA environment for Rust, Python, open-source RTL tools, benchmark aggregation, and LLM provider checks. Vivado is not required for the seed results. The current Docker image does not include LaTeX, so this revision does not claim a Docker PDF build.
 
 \begin{table}[t]
   \centering
@@ -10,10 +10,10 @@ MICO is packaged as a reproducible research artifact rather than a prompt-only d
     Gate & Evidence & Status \\
     \midrule
     Rust & fmt/check/test & pass \\
-    EDA & Verilator+Yosys & pass \\
-    Bench & 3 seed tasks & 3/3 \\
-    LLM & JSON smoke & pass \\
-    Paper & latexmk & pass \\
+    EDA & Verilator/Icarus/Yosys/SBY & pass \\
+    Bench & 7 seed tasks & 7/7 expected outcome \\
+    LLM & validate-only + local smoke & pass \\
+    Paper & Docker LaTeX & unavailable \\
     Vivado & not required & n/a \\
     \bottomrule
   \end{tabular}
@@ -24,9 +24,9 @@ The release candidate checklist is:
 \begin{itemize}
   \item freeze the Docker image recipe, Rust toolchain, prompts, provider profiles, and benchmark manifests;
   \item run Rust format, check, and tests from a clean checkout;
-  \item run Verilator/Yosys smoke checks and ModuleComposeBench seed scoring;
+  \item run Verilator, Icarus, Yosys, and SymbiYosys smoke checks plus ModuleComposeBench seed scoring;
   \item run LLM provider validation with a redacted local configuration and record model/profile identifiers;
-  \item compile the paper with the host LaTeX toolchain and inspect citation, reference, and layout warnings;
+  \item compile the paper only in an approved LaTeX environment; if the Docker image still lacks LaTeX, record that limitation rather than claiming a PDF build;
   \item verify that generated PDFs, build outputs, local YAML files, logs, and credentials are absent from the staged source tree.
 \end{itemize}
 

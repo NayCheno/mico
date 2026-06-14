@@ -41,22 +41,23 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
 
 \subsection{Current Seed Results}
 
-The current artifact includes three seed tasks: stream FIFO, CDC FIFO, and width adapter. These are not yet the full benchmark, but they validate that the compiler, SystemVerilog emitter, Verilator lint, and Yosys elaboration path are reproducible.
+The current artifact includes seven seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus three negative tasks covering missing width adaptation, direct CDC without an adapter, and reversed direction. These are not yet the full benchmark, but they validate that the compiler, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, and benchmark aggregation path are reproducible.
 
 \begin{table}[t]
   \centering
   \caption{Seed artifact smoke results}
-  \begin{tabular}{lccc}
+  \begin{tabular}{lll}
     \toprule
-    Task & Compose & Lint/elab & Sim/formal \\
+    Metric & Result & Scope \\
     \midrule
-    Stream FIFO & pass & pass & not yet \\
-    CDC FIFO & pass & pass & not yet \\
-    Width adapter & pass & pass & not yet \\
-    \midrule
-    Aggregate & 3/3 & 3/3 & not run \\
+    Expected outcome & 7/7 & all seed tasks \\
+    Compose pass & 4/4 & positive tasks \\
+    Lint/elab pass & 4/4 & positive tasks \\
+    Unsafe rejection & 3/3 & negative tasks \\
+    Sim/formal & not run & per-task harnesses pending \\
+    QoR & not run & parser/harness pending \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, adding simulation/formal harnesses, and reporting QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers, and pass open-source EDA smoke checks in a controlled Docker environment.
+The paper therefore does not claim final pass-rate improvements yet. The CCF-A submission target requires expanding the benchmark to at least dozens of tasks, running multiple LLM baselines, adding simulation/formal harnesses, and reporting QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, aggregate machine-readable benchmark JSON, and pass open-source EDA smoke checks in a controlled Docker environment.

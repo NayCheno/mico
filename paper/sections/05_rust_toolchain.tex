@@ -5,8 +5,8 @@ MICO is implemented as a Rust workspace with four initial crates:
 \begin{itemize}
   \item \texttt{mico\_ir}: AST, typed IR, diagnostics, and semantic checks.
   \item \texttt{mico\_frontend}: lexer, parser, source maps, and recovery.
-  \item \texttt{mico\_codegen}: JSON IR, SystemVerilog, and SVA emission.
-  \item \texttt{mico\_cli}: \texttt{check}, \texttt{dump-ir}, \texttt{emit-sv}, and future benchmark commands.
+  \item \texttt{mico\_codegen}: JSON IR, SystemVerilog, SVA skeleton, and traceability emission.
+  \item \texttt{mico\_cli}: \texttt{parse}, \texttt{check}, \texttt{build}, \texttt{dump-ir}, \texttt{emit-sv}, \texttt{emit-sva}, \texttt{emit-trace}, \texttt{verify}, and \texttt{report}.
 \end{itemize}
 
 The compiler pipeline is deterministic:
@@ -15,11 +15,11 @@ The compiler pipeline is deterministic:
   \item The frontend lexes and parses MICO source into an AST with source locations.
   \item The IR layer resolves declarations, instances, endpoints, domains, adapter kinds, and contract metadata.
   \item The checker rejects duplicate declarations, unknown endpoints, illegal directions, unsupported adapter kinds, width mismatches, domain mismatches, and missing contract obligations.
-  \item Code generation emits JSON IR, SystemVerilog wrappers, and SVA skeletons from checked IR only.
-  \item The CLI exposes \texttt{parse}, \texttt{check}, \texttt{build}, \texttt{dump-ir}, \texttt{emit-sv}, \texttt{emit-sva}, \texttt{verify}, and \texttt{report}.
+  \item Code generation emits versioned JSON IR, SystemVerilog wrappers, SVA skeletons, and traceability reports from checked IR only.
+  \item The CLI can emit human-readable or JSON diagnostics so that downstream prompt repair does not depend on terminal text scraping.
 \end{enumerate}
 
-The first implementation stage intentionally avoids a full MLIR binding. It emits conservative SystemVerilog wrappers, structured JSON IR, and SVA skeletons. A later stage can lower the typed IR into CIRCT HW modules, ESI channels, and Verif/LTL assertions. Rust is a pragmatic implementation language for this front end because its enums, pattern matching, ownership model, and test ecosystem fit compiler passes and diagnostics well.
+The first implementation stage intentionally avoids a full MLIR binding. It emits conservative SystemVerilog wrappers, structured JSON IR, SVA skeletons, and traceability reports. A later stage can lower the typed IR into CIRCT HW modules, ESI channels, and Verif/LTL assertions. Rust is a pragmatic implementation language for this front end because its enums, pattern matching, ownership model, and test ecosystem fit compiler passes and diagnostics well.
 
 \begin{table}[t]
   \centering
@@ -29,12 +29,13 @@ The first implementation stage intentionally avoids a full MLIR binding. It emit
     Component & Status & Validation \\
     \midrule
     Parser & implemented & unit tests \\
-    Typed IR & implemented & unit tests \\
-    Checker & implemented & diagnostics tests \\
-    SV emitter & implemented & golden-style tests \\
-    EDA smoke & implemented & Verilator/Yosys \\
-    LLM smoke & implemented & OpenAI SDK \\
-    Sim/formal & planned & not claimed \\
+    Typed IR & implemented & unit tests + JSON schema \\
+    Checker & implemented & JSON diagnostics tests \\
+    SV emitter & implemented & Verilator/Icarus/Yosys smoke \\
+    SVA emitter & skeleton & Verilator SVA lint \\
+    Trace report & implemented & JSON schema \\
+    LLM smoke & implemented & redacted run records \\
+    Sim/formal & partial & SBY smoke only; no task proof \\
     \bottomrule
   \end{tabular}
 \end{table}

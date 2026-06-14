@@ -163,7 +163,8 @@
           "required": ["temperature", "max_tokens"],
           "properties": {
             "temperature": {"type": "number"},
-            "max_tokens": {"type": "integer", "minimum": 1}
+            "max_tokens": {"type": "integer", "minimum": 1},
+            "response_format": {"anyOf": [{"type": "null"}, {"type": "string"}]}
           },
           "additionalProperties": false
         },

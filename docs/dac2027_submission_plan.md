@@ -153,3 +153,4 @@ and the final paper PDF.
 Baseline evidence records:
 
 - `docs/dac2027_full_check_baseline_2026-06-14.md`
+- `docs/17_llm_prompt_redesign_pilot.md`

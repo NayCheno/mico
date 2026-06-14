@@ -20,6 +20,23 @@ Use `$opencode-go-provider` for OpenCode Go model access. Provider settings live
 
 Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, optional profile cost rates, and the API key source from YAML. It calls Chat Completions through the OpenAI Python SDK only when not in validate-only mode, and writes sanitized JSON output under ignored `build/llm/`.
 
+Benchmark profiles default to `response_format: json_object`; profiles may set
+`response_format: null` or `response_format: none` only for a provider that
+cannot support JSON object mode. The batch runner passes JSON object mode as
+the OpenAI-compatible Chat Completions response format, includes it in the cache
+key, and records it in sanitized result metadata. If a provider rejects that
+option, fix provider/model routing before recording a scored matrix.
+
+The runner also applies a baseline-aware output budget so local configs do not
+accidentally truncate structured outputs: MICO JSON AST baselines receive at
+least 4096 output tokens, MICO source baselines receive at least 2048, repair
+turns receive at least 2048, and direct RTL baselines use the configured profile
+budget.
+
+Provider/model quirks are normalized in the runner when they are required for a
+valid request. The Kimi code profile currently uses an effective temperature of
+`1.0` because that model rejects lower temperature values.
+
 Batch benchmark runs use `scripts/run_llm_bench.py`. The runner reads the
 62-task ModuleComposeBench manifest, generates deterministic prompts from
 `prompts/system_prompt_compose_agent.md` and
@@ -38,7 +55,9 @@ Use `benchmarks/aggregate_results.py` to merge one or more sanitized LLM batch
 outputs with deterministic benchmark results. The aggregate record preserves
 validate-only attempts as not-scored rows and emits repair-turn, token/cost,
 paired-comparison, and failure-taxonomy CSV/TeX tables without exposing local
-provider secrets.
+provider secrets. Failure taxonomy separates invalid response JSON, explicit
+model rejection, missing baseline payloads, compiler diagnostics, unsafe
+rejection, EDA lint outcomes, and repair-patch application outcomes.
 
 LLM run records use `schemas/llm_run.schema.json` with schema version `mico.llm.run.v0`. They include:
 
@@ -114,18 +133,40 @@ Escalate to higher-cost profiles only after the low-cost runs pass compiler chec
 
 ```json
 {
-  "patch_id": "repair-001",
-  "reason": "ClockDomainMismatch",
-  "edits": [
+  "schema_version": "mico.repair_patch.v0",
+  "kind": "repair_patch",
+  "operations": [
     {
-      "op": "replace_connection_with_adapter",
-      "from": "dma.tx",
-      "adapter": "AsyncFifo32",
-      "to": "aes.rx"
+      "op": "replace_connection",
+      "compose": "Top",
+      "from": {
+        "instance": "dma",
+        "port": "tx"
+      },
+      "to": {
+        "instance": "aes",
+        "port": "rx"
+      },
+      "connection": {
+        "from": {
+          "instance": "dma",
+          "port": "tx"
+        },
+        "to": {
+          "instance": "fifo",
+          "port": "sink"
+        },
+        "adapter": "AsyncFifo32"
+      }
     }
   ]
 }
 ```
+
+The runner sends compact compiler diagnostics to repair prompts: stable code,
+message, repair action, hints, graph nodes, and label messages. It does not ask
+the model to interpret raw provider payloads, local paths, API keys, or full
+tool logs.
 
 ## Evaluation-specific prompts
 

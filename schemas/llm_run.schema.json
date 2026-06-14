@@ -93,7 +93,8 @@
       "properties": {
         "temperature": {"type": "number"},
         "max_tokens": {"type": "integer", "minimum": 1},
-        "require_json": {"type": "boolean"}
+        "require_json": {"type": "boolean"},
+        "response_format": {"anyOf": [{"type": "null"}, {"type": "string"}]}
       },
       "additionalProperties": false
     },

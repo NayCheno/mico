@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -32,6 +33,91 @@ DEFAULT_BASELINES = [
 MICO_BASELINES = {"mico_source", "mico_json_ast", "mico_json_ast_repair"}
 SV_BASELINES = {"direct_verilog", "sv_interface"}
 DEFAULT_BASELINE_PROMPTS = REPO_ROOT / "prompts" / "llm_bench_baselines.yaml"
+
+
+def mico_ast_skeleton() -> dict[str, Any]:
+    return {
+        "schema_version": "mico.ast.v0",
+        "kind": "design",
+        "clock_domains": [],
+        "interfaces": [],
+        "modules": [],
+        "adapters": [],
+        "composes": [
+            {
+                "name": "Top",
+                "domain": "<clock_domain>",
+                "instances": [
+                    {"name": "<instance_name>", "module": "<module_name>"}
+                ],
+                "connections": [
+                    {
+                        "from": {"instance": "<source_instance>", "port": "<output_port>"},
+                        "to": {"instance": "<sink_instance>", "port": "<input_port>"},
+                        "adapter": None,
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def repair_patch_skeleton() -> dict[str, Any]:
+    return {
+        "schema_version": "mico.repair_patch.v0",
+        "kind": "repair_patch",
+        "operations": [
+            {
+                "op": "replace_connection",
+                "compose": "Top",
+                "from": {"instance": "<old_source_instance>", "port": "<old_output_port>"},
+                "to": {"instance": "<old_sink_instance>", "port": "<old_input_port>"},
+                "connection": {
+                    "from": {"instance": "<new_source_instance>", "port": "<new_output_port>"},
+                    "to": {"instance": "<new_sink_instance>", "port": "<new_input_port>"},
+                    "adapter": None,
+                },
+            }
+        ],
+    }
+
+
+def baseline_output_contract(baseline: str) -> dict[str, Any]:
+    rejection = {
+        "reject": True,
+        "reason": "brief safety reason using only task-visible facts",
+    }
+    if baseline in SV_BASELINES:
+        return {
+            "positive_response": {"systemverilog": "complete SystemVerilog Top wrapper"},
+            "negative_response": rejection,
+            "top_module": "Top",
+            "json_only": True,
+        }
+    if baseline == "mico_source":
+        return {
+            "positive_response": {"mico_source": "complete MICO source"},
+            "negative_response": rejection,
+            "json_only": True,
+        }
+    contract = {
+        "positive_response": {"mico_ast": mico_ast_skeleton()},
+        "negative_response": rejection,
+        "schema_rules": [
+            "clock_domains items have exactly name, clock, reset; never use clk, rst, or signals",
+            "interfaces items have exactly name, domain, fields, contracts",
+            "modules items have exactly name, domain, extern, ports",
+            "adapters items have exactly name, from_interface, from_domain, to_interface, to_domain, kind, attributes",
+            "composes items have exactly name, domain, instances, connections",
+            "connection endpoints are objects: {\"instance\": \"...\", \"port\": \"...\"}",
+            "connection.adapter is null for direct wiring or an adapter name string",
+            "do not add fields outside schemas/mico_ast.schema.json",
+        ],
+        "json_only": True,
+    }
+    if baseline == "mico_json_ast_repair":
+        contract["repair_response"] = repair_patch_skeleton()
+    return contract
 
 
 @dataclass(frozen=True)
@@ -92,6 +178,40 @@ def validate_provider(provider: dict[str, Any]) -> str:
     if base_url.endswith("/chat/completions") or base_url.endswith("/models"):
         raise ValueError("provider.base_url must be the API root, not an endpoint path")
     return base_url
+
+
+def profile_response_format(profile: Profile) -> str | None:
+    value = profile.data.get("response_format", "json_object")
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"none", "null", "disabled"}:
+        return None
+    return text
+
+
+def configured_max_tokens(profile: Profile) -> int:
+    return int(profile.data.get("max_tokens", 1024))
+
+
+def effective_temperature(profile: Profile) -> float:
+    model = str(profile.data.get("model", ""))
+    if model.startswith("kimi-"):
+        return 1.0
+    return float(profile.data.get("temperature", 0.1))
+
+
+def effective_max_tokens(profile: Profile, baseline: str) -> int:
+    configured = configured_max_tokens(profile)
+    if baseline in {"mico_json_ast", "mico_json_ast_repair"}:
+        return max(configured, 4096)
+    if baseline == "mico_source":
+        return max(configured, 2048)
+    return configured
+
+
+def effective_repair_max_tokens(profile: Profile) -> int:
+    return max(configured_max_tokens(profile), 2048)
 
 
 def resolve_api_key(provider: dict[str, Any]) -> tuple[str | None, str]:
@@ -274,8 +394,13 @@ def build_prompt(
         "interface_and_module_declarations": inventory,
         "baseline": baseline,
         "baseline_instruction": baseline_instructions[baseline],
+        "output_contract": baseline_output_contract(baseline),
         "required_top": "Top",
     }
+    if baseline in {"mico_json_ast", "mico_json_ast_repair"}:
+        prompt["json_ast_declaration_skeleton"] = declaration_ast_skeleton(
+            str(repo_path(str(task["mico_source"])))
+        )
     return (
         system_prompt.strip()
         + "\n\n## Baseline task\n"
@@ -391,13 +516,15 @@ def cache_key(
     baseline: str,
     task_id: str,
     prompt: str,
+    max_tokens: int,
 ) -> str:
     payload = {
         "provider": provider.get("name"),
         "base_url": base_url,
         "model": profile.data["model"],
-        "temperature": float(profile.data.get("temperature", 0.1)),
-        "max_tokens": int(profile.data.get("max_tokens", 1024)),
+        "temperature": effective_temperature(profile),
+        "max_tokens": max_tokens,
+        "response_format": profile_response_format(profile),
         "baseline": baseline,
         "task_id": task_id,
         "prompt_sha256": sha256_text(prompt),
@@ -413,6 +540,7 @@ def request_model(
     prompt: str,
     cache_path: Path,
     use_cache: bool,
+    max_tokens: int,
 ) -> tuple[dict[str, Any], dict[str, int | None], bool]:
     if use_cache and cache_path.exists():
         cached = json.loads(read_text(cache_path))
@@ -428,6 +556,10 @@ def request_model(
         base_url=base_url,
         default_headers={"User-Agent": "MICO LLM benchmark runner"},
     )
+    response_format = profile_response_format(profile)
+    request_kwargs: dict[str, Any] = {}
+    if response_format == "json_object":
+        request_kwargs["response_format"] = {"type": "json_object"}
     response = client.chat.completions.create(
         model=str(profile.data["model"]),
         messages=[
@@ -437,9 +569,10 @@ def request_model(
             },
             {"role": "user", "content": prompt},
         ],
-        temperature=float(profile.data.get("temperature", 0.1)),
-        max_tokens=int(profile.data.get("max_tokens", 1024)),
+        temperature=effective_temperature(profile),
+        max_tokens=max_tokens,
         stream=False,
+        **request_kwargs,
     )
     content = response.choices[0].message.content if response.choices else ""
     json_valid, parsed, parse_error = parse_json_content(content or "")
@@ -495,6 +628,35 @@ def source_arg(path: Path) -> str:
         return str(path)
 
 
+@lru_cache(maxsize=None)
+def declaration_ast_skeleton(source_path: str) -> dict[str, Any]:
+    result = run(
+        [
+            "cargo",
+            "run",
+            "-q",
+            "-p",
+            "mico_cli",
+            "--",
+            "dump-ast-json",
+            source_arg(Path(source_path)),
+        ],
+        REPO_ROOT / "rust_project",
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"dump-ast-json failed while building prompt for {source_path}")
+    data = json.loads(result.stdout)
+    if not isinstance(data, dict):
+        raise RuntimeError(f"dump-ast-json returned non-object JSON for {source_path}")
+    composes = data.get("composes", [])
+    if isinstance(composes, list):
+        for compose in composes:
+            if isinstance(compose, dict):
+                compose["instances"] = []
+                compose["connections"] = []
+    return data
+
+
 def dump_ast_from_source(task: dict[str, Any], output: Path) -> None:
     result = run(
         [
@@ -542,6 +704,36 @@ def diagnostic_codes(payload: dict[str, Any]) -> list[str]:
         for item in diagnostics
         if isinstance(item, dict) and isinstance(item.get("code"), str)
     ]
+
+
+def compact_diagnostics(payload: dict[str, Any], limit: int = 6) -> list[dict[str, Any]]:
+    diagnostics = payload.get("diagnostics", [])
+    if not isinstance(diagnostics, list):
+        return []
+    compact = []
+    for item in diagnostics[:limit]:
+        if not isinstance(item, dict):
+            continue
+        nodes = []
+        for node in item.get("nodes", []):
+            if isinstance(node, dict):
+                nodes.append({"kind": node.get("kind"), "name": node.get("name")})
+        labels = []
+        for label in item.get("labels", []):
+            if isinstance(label, dict):
+                labels.append({"message": label.get("message"), "style": label.get("style")})
+        compact.append(
+            {
+                "code": item.get("code"),
+                "severity": item.get("severity"),
+                "message": item.get("message"),
+                "repair_action": item.get("repair_action"),
+                "hints": item.get("hints", []),
+                "nodes": nodes,
+                "labels": labels,
+            }
+        )
+    return compact
 
 
 def parse_json_file(path: Path) -> dict[str, Any]:
@@ -613,11 +805,14 @@ def evaluate_response(
                 "cache_hit": cache_hit,
                 "usage": repair_usage,
                 "response": repair_response,
+                "patch_json_valid": isinstance(repair_payload, dict),
                 "applied": False,
+                "apply_result": None,
                 "compiler_result": None,
             }
             if isinstance(repair_payload, dict):
-                patched = apply_repair_patch(current_ast, repair_payload, artifact_dir, turn)
+                patched, apply_result = apply_repair_patch(current_ast, repair_payload, artifact_dir, turn)
+                repair_record["apply_result"] = apply_result
                 if patched is not None:
                     current_ast = patched
                     patched_path = artifact_dir / f"candidate.repair{turn}.ast.json"
@@ -645,6 +840,7 @@ def not_run_compiler(reason: str) -> dict[str, Any]:
         "check_pass": False,
         "exit_code": None,
         "diagnostic_codes": [],
+        "diagnostics_compact": [],
         "expected_diagnostics": [],
         "expected_diagnostic_match": False,
         "unsafe_rejection": False,
@@ -708,6 +904,7 @@ def compiler_result_from_check(
 ) -> dict[str, Any]:
     payload = parse_json_file(stdout)
     codes = diagnostic_codes(payload)
+    diagnostics = compact_diagnostics(payload)
     expected = expected_diagnostics(task)
     expected_match = all(code in codes for code in expected)
     check_pass = exit_code == 0
@@ -718,6 +915,7 @@ def compiler_result_from_check(
         "check_pass": check_pass,
         "exit_code": exit_code,
         "diagnostic_codes": codes,
+        "diagnostics_compact": diagnostics,
         "expected_diagnostics": expected,
         "expected_diagnostic_match": expected_match,
         "unsafe_rejection": unsafe_rejection,
@@ -820,7 +1018,8 @@ def build_repair_prompt(task: dict[str, Any], current_ast: dict[str, Any], compi
         "{{module_inventory}}": json.dumps(task["module_inventory"], indent=2),
         "{{interface_library}}": strip_compose(task_source_text(task)),
         "{{current_ast}}": json.dumps(current_ast, indent=2),
-        "{{diagnostics}}": json.dumps(compiler, indent=2),
+        "{{diagnostics}}": json.dumps(compiler.get("diagnostics_compact", []), indent=2),
+        "{{repair_patch_skeleton}}": json.dumps(repair_patch_skeleton(), indent=2),
     }
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -832,7 +1031,7 @@ def apply_repair_patch(
     patch: dict[str, Any],
     artifact_dir: Path,
     turn: int,
-) -> dict[str, Any] | None:
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
     ast_path = artifact_dir / f"repair{turn}.input.ast.json"
     patch_path = artifact_dir / f"repair{turn}.patch.json"
     stdout_path = artifact_dir / f"repair{turn}.apply.stdout.json"
@@ -859,12 +1058,21 @@ def apply_repair_patch(
         stderr_path=stderr_path,
     )
     response = parse_json_file(stdout_path)
+    apply_result = {
+        "accepted": False,
+        "exit_code": result.returncode,
+        "phase": response.get("phase"),
+        "diagnostic_codes": diagnostic_codes(response),
+        "stdout": display_path(stdout_path),
+        "stderr": display_path(stderr_path),
+    }
     if response.get("phase") != "check":
-        return None
+        return None, apply_result
     if result.returncode not in {0, 1}:
-        return None
+        return None, apply_result
     parsed = parse_json_file(ast_path)
-    return parsed or None
+    apply_result["accepted"] = bool(parsed)
+    return parsed or None, apply_result
 
 
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
@@ -987,11 +1195,15 @@ def main() -> int:
                 artifact_dir.mkdir(parents=True, exist_ok=True)
                 prompt_path = artifact_dir / "prompt.txt"
                 prompt_path.write_text(prompt, encoding="utf-8")
-                key = cache_key(provider, base_url, profile, baseline, task_id, prompt)
+                max_tokens = effective_max_tokens(profile, baseline)
+                key = cache_key(provider, base_url, profile, baseline, task_id, prompt, max_tokens)
                 cache_path = cache_dir / f"{key}.json"
 
                 def provider_call(repair_prompt: str, suffix: str):
-                    repair_key = sha256_text(key + "|" + suffix + "|" + sha256_text(repair_prompt))[:24]
+                    repair_tokens = effective_repair_max_tokens(profile)
+                    repair_key = sha256_text(
+                        key + "|" + suffix + "|" + str(repair_tokens) + "|" + sha256_text(repair_prompt)
+                    )[:24]
                     repair_cache = cache_dir / f"{repair_key}.json"
                     if not args.execute:
                         payload = {
@@ -1017,6 +1229,7 @@ def main() -> int:
                         prompt=repair_prompt,
                         cache_path=repair_cache,
                         use_cache=not args.no_cache,
+                        max_tokens=repair_tokens,
                     )
 
                 cache_hit = False
@@ -1051,6 +1264,7 @@ def main() -> int:
                         prompt=prompt,
                         cache_path=cache_path,
                         use_cache=not args.no_cache,
+                        max_tokens=max_tokens,
                     )
                     compiler, eda, repairs = evaluate_response(
                         task,
@@ -1078,8 +1292,9 @@ def main() -> int:
                             "bytes": len(prompt.encode("utf-8")),
                         },
                         "request": {
-                            "temperature": float(profile.data.get("temperature", 0.1)),
-                            "max_tokens": int(profile.data.get("max_tokens", 1024)),
+                            "temperature": effective_temperature(profile),
+                            "max_tokens": max_tokens,
+                            "response_format": profile_response_format(profile),
                         },
                         "response": response,
                         "cache_key": key,

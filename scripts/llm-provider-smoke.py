@@ -101,6 +101,23 @@ def validate_provider(provider: dict[str, Any]) -> str:
     return base_url
 
 
+def profile_response_format(profile: dict[str, Any]) -> str | None:
+    value = profile.get("response_format", "json_object")
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"none", "null", "disabled"}:
+        return None
+    return text
+
+
+def effective_temperature(profile: dict[str, Any]) -> float:
+    model = str(profile.get("model", ""))
+    if model.startswith("kimi-"):
+        return 1.0
+    return float(profile.get("temperature", 0.1))
+
+
 def prompt_text(args: argparse.Namespace) -> str:
     if args.prompt is not None:
         return args.prompt
@@ -218,6 +235,10 @@ def smoke_completion(
     prompt: str,
     require_json: bool,
 ) -> tuple[dict[str, Any], dict[str, int | None]]:
+    response_format = profile_response_format(profile)
+    request_kwargs: dict[str, Any] = {}
+    if response_format == "json_object":
+        request_kwargs["response_format"] = {"type": "json_object"}
     response = client.chat.completions.create(
         model=str(profile["model"]),
         messages=[
@@ -227,9 +248,10 @@ def smoke_completion(
             },
             {"role": "user", "content": prompt},
         ],
-        temperature=float(profile.get("temperature", 0.1)),
+        temperature=effective_temperature(profile),
         max_tokens=int(profile.get("max_tokens", 1024)),
         stream=False,
+        **request_kwargs,
     )
     content = response.choices[0].message.content if response.choices else ""
     json_valid, parsed_json = parse_json_content(content or "", require_json)
@@ -291,9 +313,10 @@ def run_record(
         )
     )[:16]
     request = {
-        "temperature": float(profile.get("temperature", 0.1)),
+        "temperature": effective_temperature(profile),
         "max_tokens": int(profile.get("max_tokens", 1024)),
         "require_json": not args.no_require_json,
+        "response_format": profile_response_format(profile),
     }
     return {
         "schema_version": SCHEMA_VERSION,
@@ -358,6 +381,7 @@ def print_validation(
     print(f"api_key_source={key_source} api_key_present={api_key is not None}")
     print(f"prompt_sha256={sha256_text(prompt)}")
     print(f"repair_turns={args.repair_turns}")
+    print(f"response_format={profile_response_format(profile)}")
     print(f"cost_source={estimate_cost(profile, empty_usage())['source']}")
     print(f"escalation_order={','.join(str(item) for item in escalation)}")
     print("sdk=openai-python")

@@ -489,6 +489,32 @@ def classify_llm_result(item: dict[str, Any]) -> list[str]:
                 categories.extend(f"compiler:{code}" for code in codes)
             else:
                 categories.append(str(compiler.get("reason") or "compiler_rejected"))
+    categories.extend(classify_repair_records(item))
+    return categories
+
+
+def classify_repair_records(item: dict[str, Any]) -> list[str]:
+    repair = item.get("repair", {})
+    records = repair.get("records", []) if isinstance(repair, dict) else []
+    if not isinstance(records, list) or not records:
+        return []
+    categories = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        response = record.get("response", {})
+        compiler = record.get("compiler_result", {})
+        apply_result = record.get("apply_result", {})
+        if isinstance(response, dict) and response.get("json_valid") is False:
+            categories.append("repair_response_json_invalid")
+        elif record.get("patch_json_valid") is not True:
+            categories.append("repair_patch_missing")
+        elif not isinstance(apply_result, dict) or apply_result.get("accepted") is not True:
+            categories.append("repair_patch_not_applied")
+        elif isinstance(compiler, dict) and compiler.get("check_pass") is True:
+            categories.append("repair_compiler_pass")
+        else:
+            categories.append("repair_compiler_rejected")
     return categories
 
 

@@ -75,6 +75,12 @@ This file is the short, traceable status page for the current repository. Use
   `docs/16_llm_matrix_results.md` is a negative result: current prompts/models
   do not produce positive-task compiler or lint passes, so no LLM improvement
   claim is supported.
+- A follow-up prompt/model pilot in
+  `docs/17_llm_prompt_redesign_pilot.md` adds JSON response mode, schema-valid
+  JSON AST declaration skeletons with stripped compose bodies, larger structured
+  output budgets, compact repair diagnostics, and stronger profile validation.
+  The selected pilot subset is no longer zero-pass, but it is not a full
+  pass-rate improvement claim.
 - Repository-owned JSON AST repair patch applicator in the compiler/CLI. The
   `repair-json` command supports dry-run, apply, and immediate re-check using
   `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch

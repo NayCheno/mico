@@ -77,5 +77,5 @@ the CLI unit tests.
 | `AdapterMismatch` | check | An adapter declaration does not match the connected endpoint interfaces or domains. | Fix the adapter `from`/`to` declaration or the connection. |
 | `ProtocolMismatch` | check | An adapter kind requires protocol fields that are missing. | Use a ready/valid interface or a custom adapter with explicit contracts. |
 | `WidthMismatch` | check | An adapter kind requires compatible known widths and the fields do not satisfy that rule. | Fix payload widths or use an appropriate adapter. |
-| `ContractViolation` | check | A contracted sink is connected through an adapter without a preservation contract. | Add a contract-preservation attribute or use compatible interfaces. |
+| `ContractViolation` | check | A contracted sink is connected through an adapter whose known guarantees do not cover the v0 sink requirements, or whose guarantee is unknown/invalid for the adapter kind. | Add a known guarantee such as `preserves_ready_valid` or use compatible interfaces. |
 | `InternalIrError` | build | The checked design could not be lowered to typed IR. | Treat this as a compiler bug unless prior diagnostics explain it. |

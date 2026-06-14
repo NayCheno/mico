@@ -82,6 +82,61 @@ tasks:
       compose_pass: false
       lint_pass: false
       diagnostics: [DirectionMismatch]
+  - id: T008_width_missing_contract
+    level: L2
+    type: negative
+    path: tasks/T008_width_missing_contract
+    mico_source: benchmarks/tasks/T008_width_missing_contract/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [missing_contract_guarantee, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ContractViolation]
+  - id: T009_width_unknown_contract
+    level: L2
+    type: negative
+    path: tasks/T009_width_unknown_contract
+    mico_source: benchmarks/tasks/T009_width_unknown_contract/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [unknown_contract_guarantee, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ContractViolation]
+  - id: T010_width_wrong_contract_kind
+    level: L2
+    type: negative
+    path: tasks/T010_width_wrong_contract_kind
+    mico_source: benchmarks/tasks/T010_width_wrong_contract_kind/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [wrong_contract_guarantee_kind, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ContractViolation]
+  - id: T011_cdc_missing_contract
+    level: L4
+    type: negative
+    path: tasks/T011_cdc_missing_contract
+    mico_source: benchmarks/tasks/T011_cdc_missing_contract/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [missing_cdc_contract_guarantee, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ContractViolation]
+  - id: T012_cdc_wrong_contract_kind
+    level: L4
+    type: negative
+    path: tasks/T012_cdc_wrong_contract_kind
+    mico_source: benchmarks/tasks/T012_cdc_wrong_contract_kind/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [wrong_cdc_contract_guarantee_kind, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [ContractViolation]
 seed_tasks:
   - id: T001_stream_fifo
   - id: T002_cdc_fifo

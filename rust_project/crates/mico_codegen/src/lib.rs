@@ -974,6 +974,9 @@ fn collect_ready_valid_assertion(
     if interface.protocol.kind != ProtocolKind::ReadyValid {
         return;
     }
+    if !interface_requires_stable_payload(interface) {
+        return;
+    }
     let Some(payload_field) = interface.protocol.payload_fields.first() else {
         return;
     };
@@ -1028,6 +1031,35 @@ fn collect_ready_valid_assertion(
         valid: valid.clone(),
         ready: ready.clone(),
     });
+}
+
+fn interface_requires_stable_payload(interface: &TypedInterface) -> bool {
+    interface
+        .contracts
+        .iter()
+        .any(|contract| contract_requires_stable_payload(contract))
+}
+
+fn contract_requires_stable_payload(contract: &ContractDef) -> bool {
+    if contract.name.0 == "stable_payload" {
+        return true;
+    }
+    parse_contract_expr(&contract.expr)
+        .map(|expr| contract_expr_has_stable(&expr))
+        .unwrap_or(false)
+}
+
+fn contract_expr_has_stable(expr: &ContractExpr) -> bool {
+    match expr {
+        ContractExpr::Stable(_) => true,
+        ContractExpr::And(lhs, rhs)
+        | ContractExpr::Or(lhs, rhs)
+        | ContractExpr::Implication(lhs, rhs)
+        | ContractExpr::Until(lhs, rhs) => {
+            contract_expr_has_stable(lhs) || contract_expr_has_stable(rhs)
+        }
+        ContractExpr::Ident(_) | ContractExpr::Fire { .. } => false,
+    }
 }
 
 fn assertion_json(assertion: &ReadyValidAssertion) -> Value {

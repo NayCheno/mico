@@ -14,21 +14,24 @@ This file is the short, traceable status page for the current repository. Use
   multiline contracts, and basic recovery.
 - Semantic checker for duplicates, missing references, direction mismatch,
   direct interface/domain mismatch, adapter endpoint mismatch, adapter kind
-  legality, ready/valid width rules, and contract-preservation attributes.
+  legality, ready/valid width rules, and v0 contract guarantee coverage.
 - Typed IR JSON with `schema_version = mico.ir.v0`.
 - CLI commands for parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report.
 - Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`,
   semantic labels, affected graph nodes, repair hints, and `repair_action`.
 - Source-level JSON AST input/output with `schema_version = mico.ast.v0`,
   plus JSON AST CLI commands for check/build/emit.
+- Parsed ready/valid contract subset for `stable`, `fire`, boolean operators,
+  implication, and `until`; known adapter guarantees are checked against
+  sink-side contract requirements and adapter kind boundaries.
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
   traceability JSON emission.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Seven ModuleComposeBench seed tasks with four positives and three negatives.
+- Twelve ModuleComposeBench seed tasks with four positives and eight negatives.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
-- IEEE-style paper draft with conservative seven-seed-task claims.
+- IEEE-style paper draft with conservative twelve-seed-task claims.
 
 ## Not Yet Implemented
 
@@ -36,7 +39,7 @@ This file is the short, traceable status page for the current repository. Use
   semantic diagnostics carry graph references and `span: null`.
 - Full repair patch ingestion and application; the patch schema exists, but
   the compiler does not yet apply patches.
-- Parsed contract AST and formalized ready/valid contract compatibility.
+- Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
 - Golden SV/SVA/traceability fixture tests.
 - Per-task simulation harnesses.
 - Per-task formal harnesses beyond the minimal smoke proof.
@@ -55,9 +58,13 @@ Current deterministic seed scope:
 - Positive tasks: `T001_stream_fifo`, `T002_cdc_fifo`,
   `T003_width_adapter`, `T004_direct_stream`.
 - Negative tasks: `T005_invalid_width_no_adapter`,
-  `T006_direct_cdc_without_adapter`, `T007_reversed_direction`.
-- Expected current result: expected outcome 7/7, positive compose 4/4,
-  positive lint/elaboration smoke 4/4, unsafe rejection 3/3.
+  `T006_direct_cdc_without_adapter`, `T007_reversed_direction`,
+  `T008_width_missing_contract`, `T009_width_unknown_contract`,
+  `T010_width_wrong_contract_kind`, `T011_cdc_missing_contract`,
+  `T012_cdc_wrong_contract_kind`.
+- Expected current result: expected outcome 12/12, positive compose 4/4,
+  positive lint/elaboration smoke 4/4, unsafe rejection 8/8, JSON AST path
+  12/12.
 - `sim_pass`, `formal_pass`, and `qor.available` are intentionally not claimed
   until the corresponding harnesses and parsers are implemented.
 

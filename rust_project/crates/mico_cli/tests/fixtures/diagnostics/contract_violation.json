@@ -3,17 +3,21 @@
     {
       "code": "ContractViolation",
       "hints": [
-        "add an adapter contract such as `contract preserves_order;`"
+        "add a known adapter contract such as `contract preserves_ready_valid;`"
       ],
       "labels": [
         {
-          "message": "adapter must declare a preservation contract",
+          "message": "source and adapter guarantees do not cover sink contract requirements",
           "span": null,
           "style": "primary"
         }
       ],
-      "message": "adapter `Widen32To64` connects into interface `StreamU64` with contracts but declares no contract preservation attribute",
+      "message": "source interface `StreamU32` and adapter `Widen32To64` do not cover all v0 contracts required by interface `StreamU64`",
       "nodes": [
+        {
+          "kind": "interface",
+          "name": "StreamU32"
+        },
         {
           "kind": "adapter",
           "name": "Widen32To64"

@@ -109,6 +109,137 @@ pub struct ContractDef {
     pub expr: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ContractExpr {
+    Ident(Ident),
+    Stable(Ident),
+    Fire { valid: Ident, ready: Ident },
+    And(Box<ContractExpr>, Box<ContractExpr>),
+    Or(Box<ContractExpr>, Box<ContractExpr>),
+    Implication(Box<ContractExpr>, Box<ContractExpr>),
+    Until(Box<ContractExpr>, Box<ContractExpr>),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ContractRequirement {
+    StablePayload,
+    FireEvent,
+    Order,
+    NoDrop,
+    NoDuplicate,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum AdapterGuarantee {
+    PreservesReadyValid,
+    PreservesOrder,
+    NoDrop,
+    NoDuplicate,
+    ZeroExtendPayload,
+    SignExtendPayload,
+    CdcFifoAssumed,
+}
+
+impl AdapterGuarantee {
+    fn parse(value: &str) -> Option<Self> {
+        match value.trim() {
+            "preserves_ready_valid" => Some(Self::PreservesReadyValid),
+            "preserves_order" => Some(Self::PreservesOrder),
+            "no_drop" | "preserves_no_drop" => Some(Self::NoDrop),
+            "no_duplicate" | "preserves_no_duplicate" => Some(Self::NoDuplicate),
+            "zero_extend_payload" => Some(Self::ZeroExtendPayload),
+            "sign_extend_payload" => Some(Self::SignExtendPayload),
+            "cdc_fifo_assumed" => Some(Self::CdcFifoAssumed),
+            _ => None,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::PreservesReadyValid => "preserves_ready_valid",
+            Self::PreservesOrder => "preserves_order",
+            Self::NoDrop => "no_drop",
+            Self::NoDuplicate => "no_duplicate",
+            Self::ZeroExtendPayload => "zero_extend_payload",
+            Self::SignExtendPayload => "sign_extend_payload",
+            Self::CdcFifoAssumed => "cdc_fifo_assumed",
+        }
+    }
+}
+
+pub fn parse_contract_expr(expr: &str) -> Result<ContractExpr, String> {
+    parse_contract_implication(expr.trim())
+}
+
+fn parse_contract_implication(expr: &str) -> Result<ContractExpr, String> {
+    if let Some((lhs, rhs)) = split_once_trimmed(expr, "->") {
+        return Ok(ContractExpr::Implication(
+            Box::new(parse_contract_or(lhs)?),
+            Box::new(parse_contract_or(rhs)?),
+        ));
+    }
+    parse_contract_or(expr)
+}
+
+fn parse_contract_or(expr: &str) -> Result<ContractExpr, String> {
+    if let Some((lhs, rhs)) = split_once_trimmed(expr, "|") {
+        return Ok(ContractExpr::Or(
+            Box::new(parse_contract_and(lhs)?),
+            Box::new(parse_contract_and(rhs)?),
+        ));
+    }
+    parse_contract_and(expr)
+}
+
+fn parse_contract_and(expr: &str) -> Result<ContractExpr, String> {
+    if let Some((lhs, rhs)) = split_once_trimmed(expr, "&") {
+        return Ok(ContractExpr::And(
+            Box::new(parse_contract_until(lhs)?),
+            Box::new(parse_contract_until(rhs)?),
+        ));
+    }
+    parse_contract_until(expr)
+}
+
+fn parse_contract_until(expr: &str) -> Result<ContractExpr, String> {
+    if let Some((lhs, rhs)) = split_once_trimmed(expr, " until ") {
+        return Ok(ContractExpr::Until(
+            Box::new(parse_contract_atom(lhs)?),
+            Box::new(parse_contract_atom(rhs)?),
+        ));
+    }
+    parse_contract_atom(expr)
+}
+
+fn parse_contract_atom(expr: &str) -> Result<ContractExpr, String> {
+    let expr = expr.trim();
+    if let Some(inner) = expr
+        .strip_prefix("stable(")
+        .and_then(|s| s.strip_suffix(')'))
+    {
+        return Ok(ContractExpr::Stable(Ident::from(inner.trim())));
+    }
+    if let Some(inner) = expr.strip_prefix("fire(").and_then(|s| s.strip_suffix(')')) {
+        let Some((valid, ready)) = split_once_trimmed(inner, ",") else {
+            return Err(format!("invalid fire event expression `{expr}`"));
+        };
+        return Ok(ContractExpr::Fire {
+            valid: Ident::from(valid),
+            ready: Ident::from(ready),
+        });
+    }
+    if expr.is_empty() {
+        Err("empty contract expression".to_string())
+    } else {
+        Ok(ContractExpr::Ident(Ident::from(expr)))
+    }
+}
+
+fn split_once_trimmed<'a>(expr: &'a str, needle: &str) -> Option<(&'a str, &'a str)> {
+    let (lhs, rhs) = expr.split_once(needle)?;
+    Some((lhs.trim(), rhs.trim()))
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InterfaceDef {
@@ -1127,25 +1258,33 @@ fn check_adapter_application(
         return;
     }
 
-    if !to_interface.contracts.is_empty()
-        && from_interface.name != to_interface.name
-        && adapter_contracts(adapter).is_empty()
+    let kind = AdapterKind::from_ident(&adapter.kind);
+    let guarantees = adapter_guarantees(adapter, &kind, diags);
+    let source_requirements = interface_contract_requirements(from_interface);
+    let requirements = interface_contract_requirements(to_interface);
+    if from_interface.name != to_interface.name
+        && requirements.iter().any(|requirement| {
+            !source_requirements.contains(requirement)
+                || !requirement_covered(*requirement, &guarantees)
+        })
     {
         diags.push(
             Diagnostic::error(
                 "ContractViolation",
                 format!(
-                    "adapter `{}` connects into interface `{}` with contracts but declares no contract preservation attribute",
+                    "source interface `{}` and adapter `{}` do not cover all v0 contracts required by interface `{}`",
+                    from_interface.name,
                     adapter.name, to_interface.name
                 ),
             )
             .with_label(
                 LabelStyle::Primary,
-                "adapter must declare a preservation contract",
+                "source and adapter guarantees do not cover sink contract requirements",
             )
+            .with_node("interface", &from_interface.name)
             .with_node("adapter", &adapter.name)
             .with_node("interface", &to_interface.name)
-            .with_hint("add an adapter contract such as `contract preserves_order;`")
+            .with_hint("add a known adapter contract such as `contract preserves_ready_valid;`")
             .with_repair(RepairAction::AddContract),
         );
     }
@@ -1648,6 +1787,165 @@ fn adapter_contracts(adapter: &AdapterDef) -> Vec<String> {
         .collect()
 }
 
+fn adapter_guarantees(
+    adapter: &AdapterDef,
+    kind: &AdapterKind,
+    diags: &mut Vec<Diagnostic>,
+) -> Vec<AdapterGuarantee> {
+    let mut guarantees = Vec::new();
+    for value in adapter_contracts(adapter) {
+        match AdapterGuarantee::parse(&value) {
+            Some(guarantee) if adapter_kind_allows_guarantee(kind, guarantee) => {
+                guarantees.push(guarantee);
+            }
+            Some(guarantee) => diags.push(
+                Diagnostic::error(
+                    "ContractViolation",
+                    format!(
+                        "adapter `{}` of kind `{}` cannot claim contract `{}`",
+                        adapter.name,
+                        adapter_kind_label(kind).trim(),
+                        guarantee.as_str()
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "adapter guarantee is not valid for this kind")
+                .with_node("adapter", &adapter.name)
+                .with_node("contract", guarantee.as_str())
+                .with_repair(RepairAction::AddContract),
+            ),
+            None => diags.push(
+                Diagnostic::error(
+                    "ContractViolation",
+                    format!(
+                        "adapter `{}` declares unknown contract guarantee `{}`",
+                        adapter.name, value
+                    ),
+                )
+                .with_label(LabelStyle::Primary, "adapter guarantee is not in the v0 subset")
+                .with_node("adapter", &adapter.name)
+                .with_node("contract", value)
+                .with_hint(
+                    "use preserves_ready_valid, preserves_order, no_drop, no_duplicate, zero_extend_payload, sign_extend_payload, or cdc_fifo_assumed",
+                )
+                .with_repair(RepairAction::AddContract),
+            ),
+        }
+    }
+    guarantees
+}
+
+fn adapter_kind_allows_guarantee(kind: &AdapterKind, guarantee: AdapterGuarantee) -> bool {
+    match kind {
+        AdapterKind::CdcFifo => matches!(
+            guarantee,
+            AdapterGuarantee::PreservesReadyValid
+                | AdapterGuarantee::PreservesOrder
+                | AdapterGuarantee::NoDrop
+                | AdapterGuarantee::NoDuplicate
+                | AdapterGuarantee::CdcFifoAssumed
+        ),
+        AdapterKind::WidthAdapter => matches!(
+            guarantee,
+            AdapterGuarantee::PreservesReadyValid
+                | AdapterGuarantee::ZeroExtendPayload
+                | AdapterGuarantee::SignExtendPayload
+        ),
+        AdapterKind::SkidBuffer | AdapterKind::Pipeline => matches!(
+            guarantee,
+            AdapterGuarantee::PreservesReadyValid
+                | AdapterGuarantee::PreservesOrder
+                | AdapterGuarantee::NoDrop
+                | AdapterGuarantee::NoDuplicate
+        ),
+        AdapterKind::Custom(_) => true,
+    }
+}
+
+fn interface_contract_requirements(interface: &InterfaceDef) -> Vec<ContractRequirement> {
+    let mut requirements = Vec::new();
+    for contract in &interface.contracts {
+        for requirement in contract_requirements(contract) {
+            if !requirements.contains(&requirement) {
+                requirements.push(requirement);
+            }
+        }
+    }
+    requirements
+}
+
+fn contract_requirements(contract: &ContractDef) -> Vec<ContractRequirement> {
+    let mut requirements = Vec::new();
+    let name = contract.name.0.as_str();
+    if name == "stable_payload" {
+        requirements.push(ContractRequirement::StablePayload);
+    }
+    if name == "fire" {
+        requirements.push(ContractRequirement::FireEvent);
+    }
+    if name.contains("order") {
+        requirements.push(ContractRequirement::Order);
+    }
+    if name.contains("no_drop") {
+        requirements.push(ContractRequirement::NoDrop);
+    }
+    if name.contains("no_duplicate") {
+        requirements.push(ContractRequirement::NoDuplicate);
+    }
+
+    if let Ok(expr) = parse_contract_expr(&contract.expr) {
+        collect_contract_expr_requirements(&expr, &mut requirements);
+    }
+    requirements
+}
+
+fn collect_contract_expr_requirements(
+    expr: &ContractExpr,
+    requirements: &mut Vec<ContractRequirement>,
+) {
+    match expr {
+        ContractExpr::Stable(_) => {
+            push_requirement(requirements, ContractRequirement::StablePayload)
+        }
+        ContractExpr::Fire { .. } => push_requirement(requirements, ContractRequirement::FireEvent),
+        ContractExpr::And(lhs, rhs)
+        | ContractExpr::Or(lhs, rhs)
+        | ContractExpr::Implication(lhs, rhs)
+        | ContractExpr::Until(lhs, rhs) => {
+            collect_contract_expr_requirements(lhs, requirements);
+            collect_contract_expr_requirements(rhs, requirements);
+        }
+        ContractExpr::Ident(_) => {}
+    }
+}
+
+fn push_requirement(requirements: &mut Vec<ContractRequirement>, requirement: ContractRequirement) {
+    if !requirements.contains(&requirement) {
+        requirements.push(requirement);
+    }
+}
+
+fn requirement_covered(requirement: ContractRequirement, guarantees: &[AdapterGuarantee]) -> bool {
+    match requirement {
+        ContractRequirement::StablePayload | ContractRequirement::FireEvent => {
+            guarantees.iter().any(|guarantee| {
+                matches!(
+                    guarantee,
+                    AdapterGuarantee::PreservesReadyValid | AdapterGuarantee::PreservesOrder
+                )
+            })
+        }
+        ContractRequirement::Order => guarantees.contains(&AdapterGuarantee::PreservesOrder),
+        ContractRequirement::NoDrop => {
+            guarantees.contains(&AdapterGuarantee::NoDrop)
+                || guarantees.contains(&AdapterGuarantee::PreservesOrder)
+        }
+        ContractRequirement::NoDuplicate => {
+            guarantees.contains(&AdapterGuarantee::NoDuplicate)
+                || guarantees.contains(&AdapterGuarantee::PreservesOrder)
+        }
+    }
+}
+
 fn resolve_endpoint<'a>(
     instances: &HashMap<Ident, &'a InstanceDef>,
     modules: &HashMap<Ident, &'a ModuleDef>,
@@ -1848,6 +2146,49 @@ mod tests {
     fn checker_requires_adapter_contract_for_contract_sink() {
         let mut design = width_adapter_design();
         design.adapters[0].attributes.clear();
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "ContractViolation");
+    }
+
+    #[test]
+    fn parses_ready_valid_contract_subset() {
+        let expr = parse_contract_expr("valid -> stable(payload) until ready").unwrap();
+
+        assert!(matches!(expr, ContractExpr::Implication(_, _)));
+    }
+
+    #[test]
+    fn checker_rejects_unknown_adapter_contract_guarantee() {
+        let mut design = width_adapter_design();
+        design.adapters[0].attributes = vec![(id("contract"), "preserves_magic".to_string())];
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "ContractViolation");
+    }
+
+    #[test]
+    fn checker_rejects_adapter_contract_for_wrong_kind() {
+        let mut design = width_adapter_design();
+        design.adapters[0].attributes = vec![(id("contract"), "preserves_order".to_string())];
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "ContractViolation");
+    }
+
+    #[test]
+    fn checker_rejects_missing_cdc_contract_guarantee() {
+        let mut design = cdc_design();
+        design.adapters[0].attributes.clear();
+
+        let diagnostics = check_design(&design);
+        assert_has_code(&diagnostics, "ContractViolation");
+    }
+
+    #[test]
+    fn checker_rejects_source_missing_sink_contract() {
+        let mut design = width_adapter_design();
+        design.interfaces[0].contracts.clear();
 
         let diagnostics = check_design(&design);
         assert_has_code(&diagnostics, "ContractViolation");

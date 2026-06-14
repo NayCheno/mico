@@ -23,6 +23,6 @@
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | Seven-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
+| `benchmarks/` | Twelve-task ModuleComposeBench seed suite, manifest, runner, and scoring schema. |
 | `prompts/` | Prompt templates and JSON schema for LLM output. |
 | `source/` | Uploaded and edited source reports. |

@@ -41,7 +41,7 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
 
 \subsection{Current Seed Results}
 
-The current artifact includes seven seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus three negative tasks covering missing width adaptation, direct CDC without an adapter, and reversed direction. These are not yet the full benchmark, but they validate that the compiler, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, and benchmark aggregation path are reproducible.
+The current artifact includes twelve seed tasks: four positive composition tasks covering stream chaining, direct stream wiring, CDC adapter use, and width adapter use, plus eight negative tasks covering missing width adaptation, direct CDC without an adapter, reversed direction, missing adapter contract guarantees, unknown guarantees, and guarantees invalid for a specific adapter kind. These are not yet the full benchmark, but they validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, and benchmark aggregation path are reproducible.
 
 \begin{table}[t]
   \centering
@@ -50,10 +50,10 @@ The current artifact includes seven seed tasks: four positive composition tasks 
     \toprule
     Metric & Result & Scope \\
     \midrule
-    Expected outcome & 7/7 & all seed tasks \\
+    Expected outcome & 12/12 & all seed tasks \\
     Compose pass & 4/4 & positive tasks \\
     Lint/elab pass & 4/4 & positive tasks \\
-    Unsafe rejection & 3/3 & negative tasks \\
+    Unsafe rejection & 8/8 & negative tasks \\
     Sim/formal & not run & per-task harnesses pending \\
     QoR & not run & parser/harness pending \\
     \bottomrule

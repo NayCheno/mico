@@ -76,11 +76,11 @@ Run the seed benchmark runner:
 
 Expected current seed result:
 
-- `expected_outcome_pass: 7/7`
+- `expected_outcome_pass: 12/12`
 - `compose_pass_1: 4/4` for positive tasks
 - `lint_pass: 4/4` for positive tasks
-- `unsafe_rejection: 3/3` for negative tasks
-- `json_ast_path: 7/7` for source-to-AST-to-check equivalence
+- `unsafe_rejection: 8/8` for negative tasks
+- `json_ast_path: 12/12` for source-to-AST-to-check equivalence
 - `sim_pass=false`, `formal_pass=false`, and `qor.available=false` in per-task JSON output until those harnesses/parsers are implemented.
 
 ## LLM Provider

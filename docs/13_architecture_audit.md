@@ -4,8 +4,8 @@ Audit date: 2026-06-14.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, seed benchmark runner, LLM provider validation script, and a
-cautiously worded paper draft. It is still not a complete "engineering +
+smoke flow, source-level JSON AST path, seed benchmark runner, LLM provider
+validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
 experiments + paper" artifact: simulation, formal, QoR, large-scale LLM
 baselines, case studies, and paper tables remain open milestones.
 
@@ -48,16 +48,19 @@ connection metadata. Implemented semantic checks include duplicate top-level
 declarations, duplicate fields, duplicate ports, duplicate compose instances,
 unknown domains/interfaces/modules/instances/ports/adapters, direction
 mismatch, direct interface mismatch, direct clock-domain mismatch, adapter
-endpoint mismatch, known adapter kind validation, ready/valid width checks, and
-basic contract-preservation attributes for adapters.
+endpoint mismatch, known adapter kind validation, ready/valid width checks, a
+parsed ready/valid v0 contract subset, and adapter guarantee coverage checks.
 
 Current limitations:
 
-- Semantic diagnostics still lack source spans, graph nodes, primary/secondary
-  labels, and structured repair actions.
-- Contracts are still mostly string/attribute based; the compiler does not yet
-  parse a contract AST or prove source/adapter/sink obligation coverage.
-- JSON AST input and repair patch ingestion are not implemented.
+- Semantic diagnostics carry graph nodes, labels, repair actions, and optional
+  spans; many checker diagnostics still use `span: null` where only graph
+  references are available.
+- Contracts are parsed only for a small v0 ready/valid subset. The compiler
+  checks conservative source/adapter/sink requirement coverage, but it does not
+  prove arbitrary temporal logic.
+- Repair patch ingestion is not implemented; the schema exists for future
+  compiler-feedback loops.
 
 ### Codegen And CLI
 
@@ -80,19 +83,28 @@ signals to CDC adapters.
 - `emit-trace`
 - `verify`
 - `report`
+- `dump-ast-json`
+- `check-json`
+- `build-json`
+- `dump-json-ir`
+- `emit-json-sv`
+- `emit-json-sva`
+- `emit-json-trace`
 
 The CLI supports `--format text|json` for diagnostic-bearing commands and emits
 the diagnostics envelope documented in `docs/diagnostics.md` and
 `schemas/diagnostics.schema.json`. The `verify` command currently reports
 compiler and typed-IR status only; it does not invoke Verilator, Yosys, Icarus,
-or SymbiYosys directly.
+or SymbiYosys directly. Source-level JSON AST documents use
+`schema_version = mico.ast.v0` and are validated by the CLI before checking or
+emission.
 
 Current limitations:
 
 - CLI argument parsing is still hand-written.
 - `verify` is not yet an end-to-end EDA runner.
-- JSON diagnostics reserve semantic span/node fields but currently emit `null`
-  spans and empty node/label arrays for checker diagnostics.
+- JSON diagnostics still use `null` spans for checker errors that are tracked
+  by graph node rather than source-byte location.
 
 ### RTL And EDA Flow
 
@@ -116,7 +128,7 @@ Current limitations:
 
 ### ModuleComposeBench
 
-`benchmarks/module_compose_bench_manifest.yaml` currently contains seven seed
+`benchmarks/module_compose_bench_manifest.yaml` currently contains twelve seed
 tasks:
 
 | Task | Type | Level | Purpose |
@@ -128,6 +140,11 @@ tasks:
 | `T005_invalid_width_no_adapter` | negative | L2 | reject width mismatch without adapter |
 | `T006_direct_cdc_without_adapter` | negative | L4 | reject direct CDC |
 | `T007_reversed_direction` | negative | L1 | reject reversed connection direction |
+| `T008_width_missing_contract` | negative | L2 | reject width adapter missing sink guarantee |
+| `T009_width_unknown_contract` | negative | L2 | reject unknown adapter guarantee |
+| `T010_width_wrong_contract_kind` | negative | L2 | reject guarantee invalid for width adapter |
+| `T011_cdc_missing_contract` | negative | L4 | reject CDC adapter missing sink guarantee |
+| `T012_cdc_wrong_contract_kind` | negative | L4 | reject guarantee invalid for CDC adapter |
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
 records expected diagnostic codes for negative tasks, emits SV/SVA/trace
@@ -136,7 +153,7 @@ supported, and writes `schema_version = mico.bench.results.v0`.
 
 Current limitations:
 
-- The benchmark is seven seed tasks, not the target 50+ task suite.
+- The benchmark is twelve seed tasks, not the target 50+ task suite.
 - L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem tasks
   are not represented at publishable scale.
 - Natural-language prompts, model baselines, repair loops, statistical
@@ -163,9 +180,9 @@ Current limitations:
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section deliberately describe the artifact
-as a seven-task seed result and do not claim per-task simulation, formal proof,
-QoR, or multi-model pass-rate improvements. Host LaTeX is the repository policy
-for paper builds.
+as a twelve-task seed result and do not claim per-task simulation, formal proof,
+QoR, arbitrary LTL, or multi-model pass-rate improvements. Host LaTeX is the
+repository policy for paper builds.
 
 Current limitations:
 
@@ -178,7 +195,7 @@ Current limitations:
 
 ## Validation Gates For This Snapshot
 
-The M0 baseline is validated with these commands from the repository root:
+The current snapshot is validated with these commands from the repository root:
 
 ```powershell
 .\scripts\eda-docker.ps1 mico-verify-tools
@@ -197,17 +214,13 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Add source spans, graph nodes, labels, and suggested repair actions to
-   semantic diagnostics.
-2. Add schema-validated JSON AST input and repair patch schemas.
-3. Parse and check a v0 ready/valid contract subset.
-4. Add codegen golden tests for SV, SVA, and traceability outputs.
-5. Add per-task simulation and selected formal harnesses.
-6. Add QoR parsing and aggregation.
-7. Expand ModuleComposeBench to 50+ tasks across L1-L6.
-8. Add LLM batch baselines and compiler-feedback repair loops.
-9. Generate paper tables from benchmark artifacts.
-10. Add subsystem case studies and release-candidate validation scripts.
+1. Add codegen golden tests for SV, SVA, and traceability outputs.
+2. Add per-task simulation and selected formal harnesses.
+3. Add QoR parsing and aggregation.
+4. Expand ModuleComposeBench to 50+ tasks across L1-L6.
+5. Add LLM batch baselines and compiler-feedback repair loops.
+6. Generate paper tables from benchmark artifacts.
+7. Add subsystem case studies and release-candidate validation scripts.
 
 ## Claim Boundary
 
@@ -216,7 +229,10 @@ Current claims supported by the repository:
 - MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
   small v0 language.
 - The compiler rejects key unsafe seed cases: missing width adaptation, direct
-  CDC, and reversed direction.
+  CDC, reversed direction, missing adapter guarantees, unknown adapter
+  guarantees, and adapter guarantees invalid for their kind.
+- The compiler parses and checks a conservative ready/valid v0 contract subset
+  for adapter requirement coverage.
 - Positive seed wrappers pass open-source lint/elaboration smoke checks.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
@@ -229,3 +245,4 @@ Claims not yet supported:
 - Per-task formal proofs.
 - QoR overhead or timing conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
+- Arbitrary LTL or complete temporal contract proving.

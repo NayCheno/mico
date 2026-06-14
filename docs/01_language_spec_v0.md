@@ -53,6 +53,12 @@ For a ready/valid stream:
 - consumer emits `ready`;
 - transfer event is usually `valid & ready`.
 
+The v0 contract expression subset is intentionally small. It recognizes
+identifiers, boolean `&` and `|`, implication `->`, `until`, `stable(field)`,
+and `fire(valid, ready)`. The checker maps this subset to conservative
+requirements such as stable payload, fire event preservation, ordering,
+no-drop, and no-duplicate. It does not claim arbitrary LTL support.
+
 ### External module
 
 ```mico
@@ -78,6 +84,16 @@ adapter AsyncFifo32 from StreamU32@Aclk to StreamU32@Bclk {
 ```
 
 Adapters are explicit unless declared as safe auto-adapters.
+
+The v0 adapter guarantee vocabulary is:
+
+- `preserves_ready_valid`
+- `preserves_order`
+- `no_drop` or `preserves_no_drop`
+- `no_duplicate` or `preserves_no_duplicate`
+- `zero_extend_payload`
+- `sign_extend_payload`
+- `cdc_fifo_assumed`
 
 ### Compose
 
@@ -126,7 +142,7 @@ adapt dma.tx -> AsyncFifo32 -> aes.rx;
 | `AmbiguousConnect` | A shorthand connection maps to multiple candidates. |
 | `ContractViolation` | Sink assumption is not satisfied by source+adapter guarantee. |
 
-The v0 adapter library recognizes `cdc_fifo`, `width_adapter`, `skid_buffer`, `pipeline`, and `custom`. Non-custom known adapters have conservative legality rules: CDC FIFOs cross domains and preserve ready/valid payload width, width adapters stay within one domain and change a single ready/valid payload width, and skid/pipeline adapters preserve interface type within one domain. When an adapter connects different contracted interfaces, it must declare at least one contract-preservation attribute.
+The v0 adapter library recognizes `cdc_fifo`, `width_adapter`, `skid_buffer`, `pipeline`, and `custom`. Non-custom known adapters have conservative legality rules: CDC FIFOs cross domains and preserve ready/valid payload width, width adapters stay within one domain and change a single ready/valid payload width, and skid/pipeline adapters preserve interface type within one domain. When an adapter connects different contracted interfaces, its known guarantees must cover the sink-side v0 contract requirements. A width adapter may claim ready/valid preservation and payload extension guarantees; a CDC FIFO may claim ready/valid/order/no-drop/no-duplicate preservation plus `cdc_fifo_assumed`; skid and pipeline adapters may claim ready/valid/order/no-drop/no-duplicate preservation. `custom` accepts any known v0 guarantee, but remains an audited assumption rather than a proof.
 
 ## Lowering contract
 

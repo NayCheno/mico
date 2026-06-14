@@ -65,13 +65,14 @@
         "formal_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
         "qor": {
           "type": "object",
-          "required": ["available_tasks", "total", "status", "avg_area_delta_pct", "avg_wire_delta_pct"],
+          "required": ["available_tasks", "total", "status", "avg_area_delta_pct", "avg_wire_delta_pct", "avg_mapped_cell_delta_pct"],
           "properties": {
             "available_tasks": {"type": "integer", "minimum": 0},
             "total": {"type": "integer", "minimum": 0},
             "status": {"type": "string"},
             "avg_area_delta_pct": {"type": "number"},
-            "avg_wire_delta_pct": {"type": "number"}
+            "avg_wire_delta_pct": {"type": "number"},
+            "avg_mapped_cell_delta_pct": {"type": "number"}
           },
           "additionalProperties": false
         }
@@ -250,10 +251,11 @@
         "unsafe_rejection": {"type": "boolean"},
         "qor_delta": {
           "type": "object",
-          "required": ["area_pct", "wire_pct", "timing_pct", "latency_cycles"],
+          "required": ["area_pct", "wire_pct", "mapped_cell_pct", "timing_pct", "latency_cycles"],
           "properties": {
             "area_pct": {"type": "number"},
             "wire_pct": {"type": "number"},
+            "mapped_cell_pct": {"type": "number"},
             "timing_pct": {"type": "number"},
             "latency_cycles": {"type": "integer"}
           },
@@ -271,9 +273,13 @@
             "wire_bits",
             "reference_wire_bits",
             "primitive_cells",
+            "mapped_cells",
+            "reference_mapped_cells",
             "timing_ns",
             "cell_types",
-            "reference_cell_types"
+            "reference_cell_types",
+            "mapped_cell_types",
+            "reference_mapped_cell_types"
           ],
           "properties": {
             "available": {"type": "boolean"},
@@ -285,12 +291,22 @@
             "wire_bits": {"anyOf": [{"type": "null"}, {"type": "number"}]},
             "reference_wire_bits": {"anyOf": [{"type": "null"}, {"type": "number"}]},
             "primitive_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "mapped_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+            "reference_mapped_cells": {"anyOf": [{"type": "null"}, {"type": "number"}]},
             "timing_ns": {"anyOf": [{"type": "null"}, {"type": "number"}]},
             "cell_types": {
               "type": "object",
               "additionalProperties": {"type": "integer", "minimum": 0}
             },
             "reference_cell_types": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0}
+            },
+            "mapped_cell_types": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0}
+            },
+            "reference_mapped_cell_types": {
               "type": "object",
               "additionalProperties": {"type": "integer", "minimum": 0}
             }
@@ -303,6 +319,8 @@
             "enabled",
             "generated_pass",
             "reference_pass",
+            "generated_mapped_pass",
+            "reference_mapped_pass",
             "reference",
             "top",
             "reference_top",
@@ -311,12 +329,20 @@
             "generated_stdout",
             "generated_stderr",
             "reference_stdout",
-            "reference_stderr"
+            "reference_stderr",
+            "generated_mapped_stat",
+            "reference_mapped_stat",
+            "generated_mapped_stdout",
+            "generated_mapped_stderr",
+            "reference_mapped_stdout",
+            "reference_mapped_stderr"
           ],
           "properties": {
             "enabled": {"type": "boolean"},
             "generated_pass": {"type": "boolean"},
             "reference_pass": {"type": "boolean"},
+            "generated_mapped_pass": {"type": "boolean"},
+            "reference_mapped_pass": {"type": "boolean"},
             "reference": {"anyOf": [{"type": "null"}, {"type": "string"}]},
             "top": {"type": "string"},
             "reference_top": {"type": "string"},
@@ -325,7 +351,13 @@
             "generated_stdout": {"type": "string"},
             "generated_stderr": {"type": "string"},
             "reference_stdout": {"type": "string"},
-            "reference_stderr": {"type": "string"}
+            "reference_stderr": {"type": "string"},
+            "generated_mapped_stat": {"type": "string"},
+            "reference_mapped_stat": {"type": "string"},
+            "generated_mapped_stdout": {"type": "string"},
+            "generated_mapped_stderr": {"type": "string"},
+            "reference_mapped_stdout": {"type": "string"},
+            "reference_mapped_stderr": {"type": "string"}
           },
           "additionalProperties": false
         },
@@ -357,6 +389,8 @@
             "formal_stderr",
             "qor_generated_stat",
             "qor_reference_stat",
+            "qor_generated_mapped_stat",
+            "qor_reference_mapped_stat",
             "rtl_collateral"
           ],
           "properties": {
@@ -375,6 +409,8 @@
             "formal_stderr": {"type": "string"},
             "qor_generated_stat": {"type": "string"},
             "qor_reference_stat": {"type": "string"},
+            "qor_generated_mapped_stat": {"type": "string"},
+            "qor_reference_mapped_stat": {"type": "string"},
             "rtl_collateral": {"type": "string"}
           },
           "additionalProperties": false

@@ -573,6 +573,9 @@ def qor_rows(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "wire_delta_pct": delta.get("wire_pct"),
                 "wire_bits": qor.get("wire_bits"),
                 "reference_wire_bits": qor.get("reference_wire_bits"),
+                "mapped_cells": qor.get("mapped_cells"),
+                "reference_mapped_cells": qor.get("reference_mapped_cells"),
+                "mapped_cell_delta_pct": delta.get("mapped_cell_pct"),
                 "timing_ns": qor.get("timing_ns"),
                 "latency_cycles": delta.get("latency_cycles"),
             }
@@ -589,7 +592,7 @@ def deterministic_summary_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
         ("unsafe_rejection", "Unsafe rejection"),
         ("json_ast_path", "JSON AST path"),
         ("sim_pass", "Simulation pass"),
-        ("formal_pass", "Selected formal pass"),
+        ("formal_pass", "Bounded formal pass"),
     ]:
         item = summary.get(key, {})
         rows.append(
@@ -707,6 +710,9 @@ def main() -> int:
             ("wire_count", "Wires"),
             ("reference_wire_count", "Ref Wires"),
             ("wire_delta_pct", "Wire Delta"),
+            ("mapped_cells", "Mapped"),
+            ("reference_mapped_cells", "Ref Mapped"),
+            ("mapped_cell_delta_pct", "Mapped Delta"),
         ],
         qor,
     )

@@ -46,9 +46,9 @@ This file is the short, traceable status page for the current repository. Use
   three tasks use committed directed monitors, and the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
   JSON.
-- Structural Yosys QoR extraction for supported positive benchmark wrappers,
-  compared against committed hand-written reference wrappers with generated
-  CSV/TeX summaries.
+- Structural and generic-mapped Yosys QoR extraction for supported positive
+  benchmark wrappers, compared against committed hand-written reference wrappers
+  with generated CSV/TeX summaries.
 - Aggregate benchmark result generator that merges deterministic results and
   optional LLM batch records into CSV plus LaTeX table snippets for main
   results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
@@ -103,10 +103,10 @@ Current deterministic benchmark scope:
 - Expected current result: expected outcome 60/60, positive compose 34/34,
   positive lint/elaboration smoke 34/34, positive simulation 34/34, unsafe
   rejection 26/26, JSON AST path 60/60, single-clock bounded formal smoke
-  29/29, structural QoR available 7/7.
+  29/29, structural plus generic-mapped QoR available 7/7.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
-  CDC proof, full task-specific formal coverage, and timing QoR remain
-  intentionally unclaimed.
+  CDC proof, full task-specific formal coverage, timing QoR, technology-mapped
+  delay, and Vivado QoR remain intentionally unclaimed.
 - L3/L5/L6 include seed approximations plus the dedicated T058--T060 streaming,
   width-bridge, and register/status subsystem case studies.
 

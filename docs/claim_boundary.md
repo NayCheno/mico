@@ -51,8 +51,8 @@ The current repository supports these claims when the release gate passes:
   checks. Three use committed directed monitors; the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
   JSON.
-- Seven reference-enabled positive tasks have structural Yosys QoR summaries
-  against committed hand-written wrappers.
+- Seven reference-enabled positive tasks have structural Yosys area/wire and
+  generic mapped-cell QoR summaries against committed hand-written wrappers.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and produce sanitized `mico.llm.run.v0` metadata.
 - The LLM benchmark runner can plan the full baseline matrix, run offline

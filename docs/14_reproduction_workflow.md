@@ -119,10 +119,12 @@ Expected current benchmark result:
   testbenches and the rest use generated ready/valid smoke harnesses
 - `formal_pass: 29/29` for single-clock formal smoke tasks; three use committed
   directed monitors and the rest use generated ready/valid formal harnesses
-- `qor_available: 7/7` for positive tasks with committed reference wrappers
+- `qor_available: 7/7` for positive tasks with committed reference wrappers;
+  availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks
 - `json_ast_path: 60/60` for source-to-AST-to-check equivalence
-- CDC formal proof and timing QoR remain not run.
+- CDC formal proof, timing QoR, technology-mapped delay, and Vivado QoR remain
+  not run.
 - T058--T060 provide dedicated streaming, width-bridge, and register/status
   subsystem case studies; broader latency and bus IP studies remain future work.
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
@@ -138,7 +140,7 @@ Generate aggregate CSV and paper-table snippets from deterministic results:
 This writes `build/bench/aggregate_results.json`, deterministic CSVs under
 `build/bench/`, and LaTeX snippets under `build/paper_tables/`. The
 deterministic aggregation includes the main result table, per-level breakdown,
-unsafe diagnostic taxonomy, structural QoR rows, and ablation/counterfactual
+unsafe diagnostic taxonomy, structural and generic-mapped QoR rows, and ablation/counterfactual
 rows.
 
 ## LLM Provider

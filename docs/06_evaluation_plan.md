@@ -71,7 +71,7 @@ expanding the dedicated non-smoke L3/L5/L6 RTL case-study set:
 with optional sanitized LLM batch records. It emits `mico.aggregate.results.v0`
 JSON, CSV tables under `build/bench/`, and LaTeX snippets under
 `build/paper_tables/` for main results, per-level denominators and confidence
-intervals, unsafe diagnostics, structural QoR, conservative ablations,
+intervals, unsafe diagnostics, structural/generic-mapped QoR, conservative ablations,
 repair-turn distributions, token/cost accounting, paired comparisons, and
 failure taxonomy. Unsupported metrics must remain marked as `not_run` or
 `not_applicable` in their source records and must not be treated as zero-pass

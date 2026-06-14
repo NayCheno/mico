@@ -100,11 +100,12 @@ a declared harness get an auto-generated ready/valid formal smoke harness from
 traceability JSON. The current enabled formal denominator is 29/29: three
 committed directed harnesses plus 26 generated single-clock smoke harnesses.
 CDC remains smoke-only and is not reported as a proof.
-Positive tasks with `qor_reference` also run Yosys structural `stat -json`
-for the generated wrapper and the committed hand-written reference wrapper. The
-current QoR scope is area-cell and wire-count delta; no timing or Vivado result
-is claimed. The runner writes `qor_summary.csv` and `qor_summary.tex` under
-ignored `build/bench/`.
+Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
+flattened generic-mapped `stat -json` for the generated wrapper and the
+committed hand-written reference wrapper. The current QoR scope is area-cell,
+wire-count, and generic mapped-cell delta; no timing, technology-mapped delay,
+or Vivado result is claimed. The runner writes `qor_summary.csv` and
+`qor_summary.tex` under ignored `build/bench/`.
 Negative tasks are scored by expected compiler rejection and expected diagnostic
 codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with `summary` aggregation plus per-task results. The current
@@ -131,7 +132,7 @@ The aggregator writes `schema_version = mico.aggregate.results.v0` to
 `build/bench/aggregate_results.json`, emits CSV tables under `build/bench/`,
 and emits LaTeX snippets under `build/paper_tables/`. Deterministic outputs
 cover the main result table, per-level breakdown, unsafe diagnostic taxonomy,
-structural QoR rows, and conservative ablation/counterfactual rows. When
+structural and generic-mapped QoR rows, and conservative ablation/counterfactual rows. When
 `--llm-result build/llm/<run>.json` is supplied, it also emits LLM baseline
 summary, repair-turn distribution, token/cost, paired comparison, and failure
 taxonomy tables. These generated artifacts remain ignored build outputs; paper

@@ -140,9 +140,9 @@ ready/valid smoke harnesses derived from traceability JSON. It reports
 `formal_pass: 29/29` over the single-clock formal smoke denominator: three
 committed directed harnesses plus generated ready/valid formal harnesses for the
 remaining single-clock positives.
-It also parses Yosys structural `stat -json` output for positive benchmark wrappers,
-compares against committed hand-written references, and reports
-`qor_available: 7/7`.
+It also parses Yosys structural and flattened generic-mapped `stat -json` output
+for positive benchmark wrappers, compares against committed hand-written
+references, and reports `qor_available: 7/7`.
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -151,10 +151,10 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to the direct stream, width adapter, and streaming
-  accelerator case-study tasks.
-- QoR is structural area/wire accounting only; it is not timing closure,
-  technology-mapped delay, or Vivado QoR.
+- Formal coverage is limited to single-clock smoke properties, with only three
+  task-specific directed monitors.
+- QoR is structural area/wire accounting plus a generic mapped-cell proxy; it is
+  not timing closure, technology-mapped delay, or Vivado QoR.
 - Adapter correctness boundaries are documented but not yet backed by full
   properties.
 
@@ -178,7 +178,7 @@ The current expected result is 60/60 expected outcomes, 34/34 positive
 compose-pass, 34/34 positive lint/elaboration pass, 34/34 positive simulation
 smoke pass, 26/26 unsafe rejection, and 60/60 JSON AST path equivalence.
 Supported subsets are 29/29 single-clock bounded formal smoke proofs and 7/7
-structural QoR comparisons.
+structural plus generic-mapped QoR comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
 records expected diagnostic codes for negative tasks, emits SV/SVA/trace
@@ -190,7 +190,7 @@ Current limitations:
 - L3 latency/backpressure still relies on seed approximations over smoke RTL;
   L5/L6 now include dedicated register/status, streaming accelerator, and
   width-bridge case-study RTL, but broader subsystem diversity is still needed.
-- Full formal coverage and broader QoR remain pending.
+- Full task-specific formal coverage and timing/Vivado QoR remain pending.
 
 ### LLM Provider Workflow
 
@@ -226,9 +226,10 @@ Current limitations:
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section describe the 60-task deterministic
 result, 34/34 positive-task smoke simulation coverage, 29/29 single-clock
-bounded formal smoke coverage, and structural Yosys QoR summaries. They must not
-claim full per-task formal proof, timing QoR, arbitrary LTL, or multi-model
-pass-rate improvements. Host LaTeX is the repository policy for paper builds.
+bounded formal smoke coverage, and structural plus generic-mapped Yosys QoR
+summaries. They must not claim full per-task formal proof, timing QoR, arbitrary
+LTL, or multi-model pass-rate improvements. Host LaTeX is the repository policy
+for paper builds.
 
 Current limitations:
 
@@ -291,9 +292,9 @@ Current claims supported by the repository:
   checks; three use committed directed monitors and the rest use generated
   ready/valid formal harnesses.
 - Three dedicated subsystem case studies have committed RTL, MICO source,
-  simulation testbenches, and structural QoR references.
-- Positive seed and case-study wrappers have structural Yosys area/wire QoR
-  metrics against committed hand-written references.
+  simulation testbenches, and structural/generic-mapped QoR references.
+- Positive seed and case-study wrappers have structural Yosys area/wire and
+  generic mapped-cell QoR metrics against committed hand-written references.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
 - The LLM benchmark runner can plan the full 60-task low-cost baseline matrix,

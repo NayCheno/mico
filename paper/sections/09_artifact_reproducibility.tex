@@ -30,4 +30,13 @@ The release candidate checklist is:
   \item verify that generated PDFs, build outputs, local YAML files, logs, and credentials are absent from the staged source tree.
 \end{itemize}
 
+The core reproduction commands are:
+
+\begin{itemize}
+  \item Benchmark scoring: \texttt{benchmarks/run\_bench.py}.
+  \item Paper table generation: \texttt{benchmarks/aggregate\_results.py}.
+  \item LLM validate/offline runs: \texttt{scripts/run\_llm\_bench.py}.
+  \item Paper PDF build: \texttt{latexmk} on \texttt{paper/main.tex}.
+\end{itemize}
+
 For final submission, this checklist must be extended with full paid LLM baseline results, broader simulation/formal harness outputs, richer QoR reports, more diverse subsystem case-study artifacts, and archived prompts/responses for every evaluated model profile.

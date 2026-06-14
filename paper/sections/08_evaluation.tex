@@ -1,8 +1,18 @@
-\section{Evaluation Plan: ModuleComposeBench}
+\section{Evaluation: ModuleComposeBench}
 
 ModuleComposeBench evaluates whether a model can integrate existing RTL/IP modules, not merely generate standalone Verilog. Tasks include wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC insertion, and unsafe ambiguity rejection.
 
 Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO AST prompting without compiler-feedback repair, and MICO AST prompting with compiler-feedback repair.
+
+The evaluation is organized around five research questions:
+
+\begin{itemize}
+  \item RQ1: does the checked representation accept intended module compositions?
+  \item RQ2: does the compiler reject unsafe width, direction, protocol, domain, adapter, and contract errors?
+  \item RQ3: do accepted wrappers pass open-source RTL lint/elaboration and supported simulations?
+  \item RQ4: can selected ready/valid and width properties be checked with bounded formal harnesses?
+  \item RQ5: what structural QoR overhead is visible against small hand-written references?
+\end{itemize}
 
 \begin{table}[t]
   \centering
@@ -40,7 +50,7 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
   \end{tabular}
 \end{table}
 
-\subsection{Current Seed Results}
+\subsection{Current Deterministic Results}
 
 The current artifact includes 60 deterministic tasks: 34 positive composition tasks and 26 negative rejection tasks. The manifest spans L1--L6, including same-domain stream wiring, width adaptation, latency/backpressure seeds, CDC/RDC adapter tasks, bus/register wrapper seeds, subsystem seeds, and unsafe examples for direct CDC, width mismatches, reversed direction, missing or invalid contract guarantees, unknown declarations, duplicate declarations, protocol mismatches, and adapter misuse. Three dedicated subsystem case studies cover a streaming accelerator chain, a width/protocol bridge, and a register/status wrapper path. They validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, supported Icarus simulations, selected bounded SymbiYosys proofs, structural QoR aggregation, and machine-generated table aggregation path are reproducible.
 
@@ -63,6 +73,26 @@ The current artifact includes 60 deterministic tasks: 34 positive composition ta
   \end{tabular}
 \end{table}
 
+\begin{table}[t]
+  \centering
+  \caption{Dedicated subsystem case studies}
+  \begin{tabular}{llll}
+    \toprule
+    Task & Scenario & Dynamic & Static \\
+    \midrule
+    T058 & stream accelerator & sim & formal + QoR \\
+    T059 & width bridge & sim & QoR \\
+    T060 & register/status & sim & QoR \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The case studies use dedicated RTL under \texttt{rtl/case\_studies/} rather than the smoke-only leaf modules used by the original seeds. T058 connects a DMA-like source, skid buffer, XOR filter, and result sink. T059 requires an explicit 32-bit to 64-bit width adapter before a processing block and host sink. T060 models an APB-like command stream through a register/status transform. All three are validated by the same benchmark runner as the seed tasks, and their QoR references are hand-written wrappers committed under \texttt{benchmarks/qor/reference/}.
+
 The table values above are reproducible from \texttt{benchmarks/run\_bench.py} and the aggregate table generator. \texttt{benchmarks/aggregate\_results.py} writes a schema-versioned aggregate JSON record, CSV tables, and LaTeX snippets for the main deterministic result table, per-level rates with denominators and Wilson confidence intervals, unsafe diagnostic taxonomy, structural QoR rows, and conservative ablation/counterfactual rows. When supplied with sanitized LLM batch records, it also emits LLM baseline summaries, repair-turn distributions, token/cost tables, paired comparisons, and failure taxonomy tables. Validate-only LLM records are explicitly marked as not scored rather than counted as failures.
 
-The paper therefore does not claim final LLM pass-rate improvements yet. The artifact includes the batch runner for five baselines and JSON-AST repair-loop plumbing, but the full paid low-cost and cross-model matrices are not committed as result data. The CCF-A submission target still requires running those baselines, broadening simulation and formal harness coverage, adding more diverse subsystem studies, and reporting richer QoR deltas for adapter-heavy tasks. The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute supported positive-task simulations, prove the selected direct, width, and streaming case properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, validate LLM benchmark prompts without paid requests, and pass open-source EDA smoke checks in a controlled Docker environment.
+\subsection{LLM Baseline Boundary}
+
+The paper does not claim final LLM pass-rate improvements yet. The artifact includes the batch runner for five baselines and JSON-AST repair-loop plumbing, but the full paid low-cost and cross-model matrices are not committed as result data. Validate-only runs exercise prompt/profile/model routing without provider requests, and offline-fixture runs exercise the compiler and open-source EDA scoring path without paid calls. A final submission must run the paid matrices, archive sanitized result JSON, and regenerate the paper tables from those artifacts.
+
+The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute supported positive-task simulations, prove the selected direct, width, and streaming case properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, validate LLM benchmark prompts without paid requests, and pass open-source EDA smoke checks in a controlled Docker environment.

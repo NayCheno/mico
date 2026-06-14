@@ -34,9 +34,16 @@ mico check --format json examples/stream_fifo.mico
 mico build --format json examples/stream_fifo.mico
 mico report --format json examples/invalid_width.mico
 mico dump-ir examples/stream_fifo.mico
+mico dump-ast-json examples/stream_fifo.mico
+mico check-json --format json build/ast/stream_fifo.json
+mico dump-json-ir build/ast/stream_fifo.json
 ```
 
 `dump-ir` always emits JSON. Its schema is `schemas/mico_ir.schema.json`.
+`dump-ast-json` emits source-level JSON AST with
+`schema_version = mico.ast.v0`; its schema is
+`schemas/mico_ast.schema.json`. JSON AST schema or deserialization failures are
+reported as `JsonSchemaError` diagnostics instead of panics.
 
 Golden JSON fixtures for valid and invalid diagnostic outputs live under
 `rust_project/crates/mico_cli/tests/fixtures/diagnostics/` and are checked by
@@ -52,6 +59,7 @@ the CLI unit tests.
 | `ExpectedIdentifier` | parse | An identifier was expected. | Use `[A-Za-z_][A-Za-z0-9_]*`. |
 | `ExpectedToken` | parse | A required punctuation token was missing. | Insert the punctuation shown in the message. |
 | `UnexpectedEof` | parse | The file ended before the declaration was complete. | Close the current declaration or block. |
+| `JsonSchemaError` | parse | A MICO JSON AST document failed schema/version/kind validation. | Fix the JSON AST to match `schemas/mico_ast.schema.json`. |
 | `DuplicateDeclaration` | check | A top-level clock domain, interface, module, adapter, or compose name is duplicated. | Rename one declaration or merge the duplicate. |
 | `DuplicateField` | check | An interface declares the same field more than once. | Rename or remove the duplicate field. |
 | `DuplicatePort` | check | A module declares the same port more than once. | Rename or remove the duplicate port. |

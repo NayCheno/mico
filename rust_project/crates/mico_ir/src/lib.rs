@@ -1,7 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Ident(pub String);
 
 impl From<&str> for Ident {
@@ -46,33 +49,68 @@ impl ScalarType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+impl Serialize for ScalarType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_source_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for ScalarType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Ok(Self::parse(&value))
+    }
+}
+
+impl ScalarType {
+    fn to_source_string(&self) -> String {
+        match self {
+            ScalarType::Bool => "bool".to_string(),
+            ScalarType::UInt(width) => format!("u{width}"),
+            ScalarType::Named(name) => name.0.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ClockDomain {
     pub name: Ident,
     pub clock: Ident,
     pub reset: Ident,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Role {
     Producer,
     Consumer,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FieldDef {
     pub name: Ident,
+    #[serde(rename = "type")]
     pub ty: ScalarType,
     pub role: Role,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ContractDef {
     pub name: Ident,
     pub expr: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct InterfaceDef {
     pub name: Ident,
     pub domain: Ident,
@@ -80,23 +118,28 @@ pub struct InterfaceDef {
     pub contracts: Vec<ContractDef>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PortDir {
     In,
     Out,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PortDef {
     pub name: Ident,
+    #[serde(rename = "direction")]
     pub dir: PortDir,
     pub interface: Ident,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ModuleDef {
     pub name: Ident,
     pub domain: Ident,
+    #[serde(rename = "extern")]
     pub is_extern: bool,
     pub ports: Vec<PortDef>,
 }
@@ -112,13 +155,15 @@ pub struct AdapterDef {
     pub attributes: Vec<(Ident, String)>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct InstanceDef {
     pub name: Ident,
     pub module: Ident,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Endpoint {
     pub instance: Ident,
     pub port: Ident,
@@ -140,14 +185,16 @@ impl fmt::Display for Endpoint {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConnectDef {
     pub from: Endpoint,
     pub to: Endpoint,
     pub adapter: Option<Ident>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ComposeDef {
     pub name: Ident,
     pub domain: Ident,
@@ -162,6 +209,136 @@ pub struct Design {
     pub modules: Vec<ModuleDef>,
     pub adapters: Vec<AdapterDef>,
     pub composes: Vec<ComposeDef>,
+}
+
+pub const MICO_AST_SCHEMA_VERSION: &str = "mico.ast.v0";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AstDocument {
+    pub schema_version: String,
+    pub kind: String,
+    pub clock_domains: Vec<ClockDomain>,
+    pub interfaces: Vec<InterfaceDef>,
+    pub modules: Vec<ModuleDef>,
+    pub adapters: Vec<AstAdapterDef>,
+    pub composes: Vec<ComposeDef>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AstAdapterDef {
+    pub name: Ident,
+    pub from_interface: Ident,
+    pub from_domain: Ident,
+    pub to_interface: Ident,
+    pub to_domain: Ident,
+    pub kind: Ident,
+    pub attributes: Vec<AstAttribute>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AstAttribute {
+    pub name: Ident,
+    pub value: String,
+}
+
+impl AstDocument {
+    pub fn from_design(design: &Design) -> Self {
+        Self {
+            schema_version: MICO_AST_SCHEMA_VERSION.to_string(),
+            kind: "design".to_string(),
+            clock_domains: design.clock_domains.clone(),
+            interfaces: design.interfaces.clone(),
+            modules: design.modules.clone(),
+            adapters: design.adapters.iter().map(AstAdapterDef::from).collect(),
+            composes: design.composes.clone(),
+        }
+    }
+
+    pub fn into_design(self) -> Result<Design, Vec<Diagnostic>> {
+        let mut diagnostics = Vec::new();
+        if self.schema_version != MICO_AST_SCHEMA_VERSION {
+            diagnostics.push(
+                Diagnostic::error(
+                    "JsonSchemaError",
+                    format!(
+                        "expected schema_version `{}`, found `{}`",
+                        MICO_AST_SCHEMA_VERSION, self.schema_version
+                    ),
+                )
+                .with_label(
+                    LabelStyle::Primary,
+                    "unsupported MICO JSON AST schema version",
+                )
+                .with_node("schema_version", self.schema_version)
+                .with_repair(RepairAction::FixSyntax),
+            );
+        }
+        if self.kind != "design" {
+            diagnostics.push(
+                Diagnostic::error(
+                    "JsonSchemaError",
+                    format!("expected JSON AST kind `design`, found `{}`", self.kind),
+                )
+                .with_label(LabelStyle::Primary, "unsupported MICO JSON AST kind")
+                .with_node("kind", self.kind)
+                .with_repair(RepairAction::FixSyntax),
+            );
+        }
+
+        if diagnostics.is_empty() {
+            Ok(Design {
+                clock_domains: self.clock_domains,
+                interfaces: self.interfaces,
+                modules: self.modules,
+                adapters: self.adapters.into_iter().map(AdapterDef::from).collect(),
+                composes: self.composes,
+            })
+        } else {
+            Err(diagnostics)
+        }
+    }
+}
+
+impl From<&AdapterDef> for AstAdapterDef {
+    fn from(adapter: &AdapterDef) -> Self {
+        Self {
+            name: adapter.name.clone(),
+            from_interface: adapter.from_interface.clone(),
+            from_domain: adapter.from_domain.clone(),
+            to_interface: adapter.to_interface.clone(),
+            to_domain: adapter.to_domain.clone(),
+            kind: adapter.kind.clone(),
+            attributes: adapter
+                .attributes
+                .iter()
+                .map(|(name, value)| AstAttribute {
+                    name: name.clone(),
+                    value: value.clone(),
+                })
+                .collect(),
+        }
+    }
+}
+
+impl From<AstAdapterDef> for AdapterDef {
+    fn from(adapter: AstAdapterDef) -> Self {
+        Self {
+            name: adapter.name,
+            from_interface: adapter.from_interface,
+            from_domain: adapter.from_domain,
+            to_interface: adapter.to_interface,
+            to_domain: adapter.to_domain,
+            kind: adapter.kind,
+            attributes: adapter
+                .attributes
+                .into_iter()
+                .map(|attr| (attr.name, attr.value))
+                .collect(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

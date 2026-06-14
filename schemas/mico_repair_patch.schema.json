@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/mico_repair_patch.schema.json",
+  "title": "MICO repair patch v0",
+  "type": "object",
+  "required": ["schema_version", "kind", "operations"],
+  "properties": {
+    "schema_version": {
+      "const": "mico.repair_patch.v0"
+    },
+    "kind": {
+      "const": "repair_patch"
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/operation"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ident": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "endpoint": {
+      "type": "object",
+      "required": ["instance", "port"],
+      "properties": {
+        "instance": {"$ref": "#/$defs/ident"},
+        "port": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "operation": {
+      "oneOf": [
+        {"$ref": "#/$defs/add_instance"},
+        {"$ref": "#/$defs/remove_instance"},
+        {"$ref": "#/$defs/replace_instance"},
+        {"$ref": "#/$defs/add_connection"},
+        {"$ref": "#/$defs/remove_connection"},
+        {"$ref": "#/$defs/replace_connection"},
+        {"$ref": "#/$defs/add_adapter"},
+        {"$ref": "#/$defs/change_endpoint"},
+        {"$ref": "#/$defs/update_contract_attribute"}
+      ]
+    },
+    "add_instance": {
+      "type": "object",
+      "required": ["op", "compose", "instance"],
+      "properties": {
+        "op": {"const": "add_instance"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "instance": {"$ref": "#/$defs/instance"}
+      },
+      "additionalProperties": false
+    },
+    "remove_instance": {
+      "type": "object",
+      "required": ["op", "compose", "name"],
+      "properties": {
+        "op": {"const": "remove_instance"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "name": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "replace_instance": {
+      "type": "object",
+      "required": ["op", "compose", "name", "instance"],
+      "properties": {
+        "op": {"const": "replace_instance"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "name": {"$ref": "#/$defs/ident"},
+        "instance": {"$ref": "#/$defs/instance"}
+      },
+      "additionalProperties": false
+    },
+    "instance": {
+      "type": "object",
+      "required": ["name", "module"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "module": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "add_connection": {
+      "type": "object",
+      "required": ["op", "compose", "connection"],
+      "properties": {
+        "op": {"const": "add_connection"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "connection": {"$ref": "#/$defs/connection"}
+      },
+      "additionalProperties": false
+    },
+    "remove_connection": {
+      "type": "object",
+      "required": ["op", "compose", "from", "to"],
+      "properties": {
+        "op": {"const": "remove_connection"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"}
+      },
+      "additionalProperties": false
+    },
+    "replace_connection": {
+      "type": "object",
+      "required": ["op", "compose", "from", "to", "connection"],
+      "properties": {
+        "op": {"const": "replace_connection"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"},
+        "connection": {"$ref": "#/$defs/connection"}
+      },
+      "additionalProperties": false
+    },
+    "connection": {
+      "type": "object",
+      "required": ["from", "to", "adapter"],
+      "properties": {
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"},
+        "adapter": {
+          "anyOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/ident"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "add_adapter": {
+      "type": "object",
+      "required": ["op", "adapter"],
+      "properties": {
+        "op": {"const": "add_adapter"},
+        "adapter": {"$ref": "#/$defs/adapter"}
+      },
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "required": ["name", "from_interface", "from_domain", "to_interface", "to_domain", "kind", "attributes"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "from_interface": {"$ref": "#/$defs/ident"},
+        "from_domain": {"$ref": "#/$defs/ident"},
+        "to_interface": {"$ref": "#/$defs/ident"},
+        "to_domain": {"$ref": "#/$defs/ident"},
+        "kind": {"$ref": "#/$defs/ident"},
+        "attributes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/attribute"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "attribute": {
+      "type": "object",
+      "required": ["name", "value"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "value": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "change_endpoint": {
+      "type": "object",
+      "required": ["op", "compose", "from", "to", "side", "endpoint"],
+      "properties": {
+        "op": {"const": "change_endpoint"},
+        "compose": {"$ref": "#/$defs/ident"},
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"},
+        "side": {
+          "type": "string",
+          "enum": ["from", "to"]
+        },
+        "endpoint": {"$ref": "#/$defs/endpoint"}
+      },
+      "additionalProperties": false
+    },
+    "update_contract_attribute": {
+      "type": "object",
+      "required": ["op", "adapter", "value"],
+      "properties": {
+        "op": {"const": "update_contract_attribute"},
+        "adapter": {"$ref": "#/$defs/ident"},
+        "value": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

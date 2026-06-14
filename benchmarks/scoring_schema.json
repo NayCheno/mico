@@ -38,6 +38,7 @@
         "compose_pass_1",
         "lint_pass",
         "unsafe_rejection",
+        "json_ast_path",
         "sim_pass",
         "formal_pass",
         "qor"
@@ -50,6 +51,7 @@
         "compose_pass_1": {"$ref": "#/$defs/aggregate_count"},
         "lint_pass": {"$ref": "#/$defs/aggregate_count"},
         "unsafe_rejection": {"$ref": "#/$defs/aggregate_count"},
+        "json_ast_path": {"$ref": "#/$defs/aggregate_count"},
         "sim_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
         "formal_pass": {"$ref": "#/$defs/aggregate_count_with_status"},
         "qor": {
@@ -98,6 +100,7 @@
         "expected_outcome_pass",
         "compose_pass_1",
         "compiler_result",
+        "json_ast_result",
         "repair_turns",
         "emit_sv_pass",
         "emit_sva_pass",
@@ -143,6 +146,34 @@
               "items": {"type": "string"}
             },
             "expected_diagnostic_match": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        },
+        "json_ast_result": {
+          "type": "object",
+          "required": [
+            "dump_ast_pass",
+            "check_pass",
+            "expected_outcome_pass",
+            "diagnostic_codes",
+            "expected_diagnostics",
+            "expected_diagnostic_match",
+            "typed_ir_match"
+          ],
+          "properties": {
+            "dump_ast_pass": {"type": "boolean"},
+            "check_pass": {"type": "boolean"},
+            "expected_outcome_pass": {"type": "boolean"},
+            "diagnostic_codes": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "expected_diagnostics": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "expected_diagnostic_match": {"type": "boolean"},
+            "typed_ir_match": {"type": "boolean"}
           },
           "additionalProperties": false
         },
@@ -205,12 +236,24 @@
         },
         "artifacts": {
           "type": "object",
-          "required": ["mico_source", "wrapper", "sva", "traceability", "rtl_collateral"],
+          "required": [
+            "mico_source",
+            "wrapper",
+            "sva",
+            "traceability",
+            "ast_json",
+            "typed_ir_dsl",
+            "typed_ir_json",
+            "rtl_collateral"
+          ],
           "properties": {
             "mico_source": {"type": "string"},
             "wrapper": {"type": "string"},
             "sva": {"type": "string"},
             "traceability": {"type": "string"},
+            "ast_json": {"type": "string"},
+            "typed_ir_dsl": {"type": "string"},
+            "typed_ir_json": {"type": "string"},
             "rtl_collateral": {"type": "string"}
           },
           "additionalProperties": false

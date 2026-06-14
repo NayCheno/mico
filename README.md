@@ -31,7 +31,7 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, seed RTL smoke collateral, a seven-task ModuleComposeBench runner, schema-versioned diagnostic/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim per-task simulation, formal proof, QoR, or multi-model pass-rate improvements.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, seed RTL smoke collateral, a seven-task ModuleComposeBench runner, schema-versioned diagnostic/AST/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim per-task simulation, formal proof, QoR, or multi-model pass-rate improvements.
 
 For the current claim boundary, read `docs/current_status.md` and `docs/13_architecture_audit.md`.
 

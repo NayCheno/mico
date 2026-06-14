@@ -5,8 +5,8 @@ use std::process;
 use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog, emit_traceability_report};
 use mico_frontend::{ParseError, parse_mico};
 use mico_ir::{
-    Design, Diagnostic, DiagnosticLabel, DiagnosticNode, RepairAction, Severity, SourceSpan,
-    TypedDesign, build_typed_ir, check_design,
+    AstDocument, Design, Diagnostic, DiagnosticLabel, DiagnosticNode, LabelStyle, RepairAction,
+    Severity, SourceSpan, TypedDesign, build_typed_ir, check_design,
 };
 use serde_json::{Value, json};
 
@@ -15,10 +15,17 @@ enum Command {
     Parse,
     Check,
     Build,
+    DumpAst,
     DumpIr,
     EmitSv,
     EmitSva,
     EmitTrace,
+    CheckJson,
+    BuildJson,
+    DumpJsonIr,
+    EmitJsonSv,
+    EmitJsonSva,
+    EmitJsonTrace,
     Verify,
     Report,
 }
@@ -45,36 +52,83 @@ fn main() {
     });
 
     let source = read_source_or_exit(&cli.path, cli.format);
-    let design = parse_or_exit(&source, cli.format);
 
     match cli.command {
-        Command::Parse => print_parse_summary(&design, cli.format),
-        Command::Check => check_or_exit(&design, true, cli.format),
+        Command::Parse => {
+            let design = parse_or_exit(&source, cli.format);
+            print_parse_summary(&design, cli.format);
+        }
+        Command::Check => {
+            let design = parse_or_exit(&source, cli.format);
+            check_or_exit(&design, true, cli.format);
+        }
         Command::Build => {
+            let design = parse_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
             print_build_summary(&typed, cli.format);
         }
+        Command::DumpAst => {
+            let design = parse_or_exit(&source, cli.format);
+            print!("{}", emit_ast_json(&design));
+        }
         Command::DumpIr => {
+            let design = parse_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
             print!("{}", emit_json_ir(&typed));
         }
         Command::EmitSv => {
+            let design = parse_or_exit(&source, cli.format);
             let _typed = build_or_exit(&design, cli.format);
             print!("{}", emit_systemverilog(&design));
         }
         Command::EmitSva => {
+            let design = parse_or_exit(&source, cli.format);
             let _typed = build_or_exit(&design, cli.format);
             print!("{}", emit_sva_skeleton(&design));
         }
         Command::EmitTrace => {
+            let design = parse_or_exit(&source, cli.format);
+            let typed = build_or_exit(&design, cli.format);
+            print!("{}", emit_traceability_report(&typed));
+        }
+        Command::CheckJson => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
+            check_or_exit(&design, true, cli.format);
+        }
+        Command::BuildJson => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
+            let typed = build_or_exit(&design, cli.format);
+            print_build_summary(&typed, cli.format);
+        }
+        Command::DumpJsonIr => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
+            let typed = build_or_exit(&design, cli.format);
+            print!("{}", emit_json_ir(&typed));
+        }
+        Command::EmitJsonSv => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
+            let _typed = build_or_exit(&design, cli.format);
+            print!("{}", emit_systemverilog(&design));
+        }
+        Command::EmitJsonSva => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
+            let _typed = build_or_exit(&design, cli.format);
+            print!("{}", emit_sva_skeleton(&design));
+        }
+        Command::EmitJsonTrace => {
+            let design = parse_json_ast_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
             print!("{}", emit_traceability_report(&typed));
         }
         Command::Verify => {
+            let design = parse_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
             print_verify_summary(&typed, cli.format);
         }
-        Command::Report => report_or_exit(&design, cli.format),
+        Command::Report => {
+            let design = parse_or_exit(&source, cli.format);
+            report_or_exit(&design, cli.format);
+        }
     }
 }
 
@@ -127,10 +181,17 @@ fn parse_simple_command(command: &str) -> Result<Command, String> {
         "parse" => Ok(Command::Parse),
         "check" => Ok(Command::Check),
         "build" => Ok(Command::Build),
+        "dump-ast" | "dump-ast-json" | "emit-ast-json" => Ok(Command::DumpAst),
         "dump-ir" | "emit-json" => Ok(Command::DumpIr),
         "emit-sv" => Ok(Command::EmitSv),
         "emit-sva" => Ok(Command::EmitSva),
         "emit-trace" | "trace" => Ok(Command::EmitTrace),
+        "check-json" => Ok(Command::CheckJson),
+        "build-json" => Ok(Command::BuildJson),
+        "dump-json-ir" => Ok(Command::DumpJsonIr),
+        "emit-json-sv" => Ok(Command::EmitJsonSv),
+        "emit-json-sva" => Ok(Command::EmitJsonSva),
+        "emit-json-trace" => Ok(Command::EmitJsonTrace),
         "verify" => Ok(Command::Verify),
         "report" => Ok(Command::Report),
         _ => Err(format!("unknown command `{command}`")),
@@ -148,7 +209,7 @@ fn parse_emit_format(format: &str) -> Result<Command, String> {
 }
 
 fn usage() -> &'static str {
-    "usage: mico [--format text|json] <parse|check|build|dump-ir|emit-sv|emit-sva|emit-trace|verify|report> <file.mico>\n       mico [--format text|json] emit <json|sv|sva|trace> <file.mico>"
+    "usage: mico [--format text|json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>\n       mico [--format text|json] emit <json|sv|sva|trace> <file.mico>"
 }
 
 fn read_source_or_exit(path: &str, format: OutputFormat) -> String {
@@ -172,6 +233,30 @@ fn parse_or_exit(source: &str, format: OutputFormat) -> Design {
             process::exit(1);
         }
     }
+}
+
+fn parse_json_ast_or_exit(source: &str, format: OutputFormat) -> Design {
+    match parse_json_ast(source) {
+        Ok(design) => design,
+        Err(diagnostics) => {
+            print_phase_diagnostics("parse", &diagnostics, format);
+            process::exit(1);
+        }
+    }
+}
+
+fn parse_json_ast(source: &str) -> Result<Design, Vec<Diagnostic>> {
+    let document = serde_json::from_str::<AstDocument>(source).map_err(|err| {
+        vec![
+            Diagnostic::error("JsonSchemaError", format!("invalid MICO JSON AST: {err}"))
+                .with_label(
+                    LabelStyle::Primary,
+                    "JSON AST does not match schemas/mico_ast.schema.json",
+                )
+                .with_repair(RepairAction::FixSyntax),
+        ]
+    })?;
+    document.into_design()
 }
 
 fn check_or_exit(design: &Design, print_success: bool, format: OutputFormat) {
@@ -286,6 +371,13 @@ fn print_design_summary(design: &Design) {
     println!("modules: {}", design.modules.len());
     println!("adapters: {}", design.adapters.len());
     println!("composes: {}", design.composes.len());
+}
+
+fn emit_ast_json(design: &Design) -> String {
+    let mut out = serde_json::to_string_pretty(&AstDocument::from_design(design))
+        .expect("MICO AST JSON serialization should be infallible");
+    out.push('\n');
+    out
 }
 
 fn print_parse_errors_text(errors: &[ParseError]) {
@@ -553,6 +645,29 @@ mod tests {
     }
 
     #[test]
+    fn parses_json_ast_commands() {
+        let args = strings(&["mico", "check-json", "input.json"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::CheckJson,
+                path: "input.json".to_string(),
+                format: OutputFormat::Text,
+            }
+        );
+
+        let args = strings(&["mico", "emit-json-sv", "input.json"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::EmitJsonSv,
+                path: "input.json".to_string(),
+                format: OutputFormat::Text,
+            }
+        );
+    }
+
+    #[test]
     fn parses_json_format_before_command() {
         let args = strings(&["mico", "--format", "json", "check", "input.mico"]);
         assert_eq!(
@@ -620,6 +735,24 @@ mod tests {
             include_str!("../tests/fixtures/diagnostics/contract_violation.mico"),
             include_str!("../tests/fixtures/diagnostics/contract_violation.json"),
         );
+    }
+
+    #[test]
+    fn json_ast_round_trip_preserves_typed_ir() {
+        let design = parse_mico(include_str!("../../../examples/stream_fifo.mico")).unwrap();
+        let ast_json = emit_ast_json(&design);
+        let json_design = parse_json_ast(&ast_json).unwrap();
+
+        let dsl_typed = build_typed_ir(&design).unwrap();
+        let json_typed = build_typed_ir(&json_design).unwrap();
+        assert_eq!(emit_json_ir(&dsl_typed), emit_json_ir(&json_typed));
+    }
+
+    #[test]
+    fn invalid_json_ast_returns_schema_diagnostic() {
+        let diagnostics = parse_json_ast("{\"schema_version\":\"mico.ast.v0\"}").unwrap_err();
+        assert_eq!(diagnostics[0].code, "JsonSchemaError");
+        assert_eq!(diagnostics[0].repair_action, Some(RepairAction::FixSyntax));
     }
 
     fn strings(items: &[&str]) -> Vec<String> {

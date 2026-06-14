@@ -124,6 +124,9 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     wrapper = task_build_dir / "top.sv"
     sva = task_build_dir / "top_sva.sv"
     trace = task_build_dir / "traceability.json"
+    ast_json = task_build_dir / "ast.json"
+    dsl_ir = task_build_dir / "typed_ir_dsl.json"
+    json_ir = task_build_dir / "typed_ir_json.json"
     vvp = task_build_dir / "top.vvp"
 
     rust_project = repo / "rust_project"
@@ -143,6 +146,58 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         expected_accept or expected_diagnostic_match
     )
     unsafe_rejection = task_type == "negative" and not compose_pass
+
+    dump_ast = run(
+        ["cargo", "run", "-q", "-p", "mico_cli", "--", "dump-ast-json", source_arg],
+        rust_project,
+        stdout_path=ast_json,
+    )
+    dump_ast_pass = dump_ast.returncode == 0
+    json_ast_check_pass = False
+    json_ast_expected_diagnostic_match = False
+    json_ast_expected_outcome_pass = False
+    json_ast_codes: list[str] = []
+    typed_ir_match = False
+    if dump_ast_pass:
+        check_json = run(
+            [
+                "cargo",
+                "run",
+                "-q",
+                "-p",
+                "mico_cli",
+                "--",
+                "check-json",
+                "--format",
+                "json",
+                str(ast_json),
+            ],
+            rust_project,
+        )
+        check_json_payload = parse_json_stdout(check_json)
+        json_ast_codes = diagnostic_codes(check_json_payload)
+        json_ast_check_pass = check_json.returncode == 0
+        json_ast_expected_diagnostic_match = all(code in json_ast_codes for code in expected_codes)
+        json_ast_expected_outcome_pass = json_ast_check_pass == expected_accept and (
+            expected_accept or json_ast_expected_diagnostic_match
+        )
+
+        if expected_accept and compose_pass and json_ast_check_pass:
+            dump_dsl_ir = run(
+                ["cargo", "run", "-q", "-p", "mico_cli", "--", "dump-ir", source_arg],
+                rust_project,
+                stdout_path=dsl_ir,
+            )
+            dump_json_ir = run(
+                ["cargo", "run", "-q", "-p", "mico_cli", "--", "dump-json-ir", str(ast_json)],
+                rust_project,
+                stdout_path=json_ir,
+            )
+            typed_ir_match = (
+                dump_dsl_ir.returncode == 0
+                and dump_json_ir.returncode == 0
+                and dsl_ir.read_text(encoding="utf-8") == json_ir.read_text(encoding="utf-8")
+            )
 
     emit_sv_pass = False
     emit_sva_pass = False
@@ -237,6 +292,15 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "expected_diagnostics": expected_codes,
             "expected_diagnostic_match": expected_diagnostic_match,
         },
+        "json_ast_result": {
+            "dump_ast_pass": dump_ast_pass,
+            "check_pass": json_ast_check_pass,
+            "expected_outcome_pass": json_ast_expected_outcome_pass,
+            "diagnostic_codes": json_ast_codes,
+            "expected_diagnostics": expected_codes,
+            "expected_diagnostic_match": json_ast_expected_diagnostic_match,
+            "typed_ir_match": typed_ir_match,
+        },
         "repair_turns": 0,
         "emit_sv_pass": emit_sv_pass,
         "emit_sva_pass": emit_sva_pass,
@@ -274,6 +338,9 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
             "wrapper": str(wrapper.relative_to(repo)).replace("\\", "/"),
             "sva": str(sva.relative_to(repo)).replace("\\", "/"),
             "traceability": str(trace.relative_to(repo)).replace("\\", "/"),
+            "ast_json": str(ast_json.relative_to(repo)).replace("\\", "/"),
+            "typed_ir_dsl": str(dsl_ir.relative_to(repo)).replace("\\", "/"),
+            "typed_ir_json": str(json_ir.relative_to(repo)).replace("\\", "/"),
             "rtl_collateral": str(rtl.relative_to(repo)).replace("\\", "/"),
         },
         "notes": [
@@ -294,6 +361,9 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     expected_outcomes = count(results, "expected_outcome_pass")
     positive_lint = count(positives, "lint_pass")
     unsafe_rejections = count(negatives, "unsafe_rejection")
+    json_ast_expected = sum(
+        1 for item in results if item["json_ast_result"]["expected_outcome_pass"] is True
+    )
     return {
         "total_tasks": total,
         "positive_tasks": len(positives),
@@ -317,6 +387,11 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             "passed": unsafe_rejections,
             "total": len(negatives),
             "rate": unsafe_rejections / len(negatives) if negatives else 0.0,
+        },
+        "json_ast_path": {
+            "passed": json_ast_expected,
+            "total": total,
+            "rate": json_ast_expected / total if total else 0.0,
         },
         "sim_pass": {
             "passed": count(positives, "sim_pass"),
@@ -384,6 +459,10 @@ def main() -> int:
     print(
         "unsafe_rejection: "
         f"{summary['unsafe_rejection']['passed']}/{summary['unsafe_rejection']['total']}"
+    )
+    print(
+        "json_ast_path: "
+        f"{summary['json_ast_path']['passed']}/{summary['json_ast_path']['total']}"
     )
 
     return (

@@ -19,6 +19,8 @@ This file is the short, traceable status page for the current repository. Use
 - CLI commands for parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report.
 - Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`,
   semantic labels, affected graph nodes, repair hints, and `repair_action`.
+- Source-level JSON AST input/output with `schema_version = mico.ast.v0`,
+  plus JSON AST CLI commands for check/build/emit.
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
   traceability JSON emission.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
@@ -32,7 +34,8 @@ This file is the short, traceable status page for the current repository. Use
 
 - Checker diagnostics with concrete source spans for semantic errors; current
   semantic diagnostics carry graph references and `span: null`.
-- Schema-validated MICO JSON AST input and repair patch ingestion.
+- Full repair patch ingestion and application; the patch schema exists, but
+  the compiler does not yet apply patches.
 - Parsed contract AST and formalized ready/valid contract compatibility.
 - Golden SV/SVA/traceability fixture tests.
 - Per-task simulation harnesses.

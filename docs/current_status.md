@@ -70,6 +70,11 @@ This file is the short, traceable status page for the current repository. Use
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
+- Authenticated low-cost LLM matrix execution has been run for 62 tasks, two
+  low-cost profiles, and five baselines. The sanitized summary in
+  `docs/16_llm_matrix_results.md` is a negative result: current prompts/models
+  do not produce positive-task compiler or lint passes, so no LLM improvement
+  claim is supported.
 - Repository-owned JSON AST repair patch applicator in the compiler/CLI. The
   `repair-json` command supports dry-run, apply, and immediate re-check using
   `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch
@@ -87,8 +92,8 @@ This file is the short, traceable status page for the current repository. Use
   width adapter, and streaming case-study tasks.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing/Vivado QoR and technology-mapped delay reporting.
-- Committed full paid multi-profile LLM baseline result artifacts and pass-rate
-  claims.
+- Release-archived full paid multi-profile LLM baseline result artifacts and
+  any positive pass-rate improvement claims.
 - Direct inclusion of generated paper-table snippets in the final submission
   text.
 - Broader subsystem case studies beyond the five committed deterministic cases.

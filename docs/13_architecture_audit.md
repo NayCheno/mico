@@ -224,9 +224,19 @@ records use
 application is delegated to `mico_cli repair-json` so CLI and benchmark repair
 semantics stay aligned.
 
+An authenticated low-cost matrix has been executed for 62 tasks, two low-cost
+profiles, and five baselines. The sanitized summary is recorded in
+`docs/16_llm_matrix_results.md`. The result is negative for the current
+prompt/model settings: positive-task compiler and lint pass rates are 0/36 for
+all reported baselines, while MICO baselines reject 15--18 of 26 unsafe tasks
+depending on profile and representation. This does not support an LLM advantage
+claim.
+
 Current limitations:
 
-- Full paid low-cost and cross-model result matrices are not committed.
+- Full paid low-cost raw result matrices remain ignored build artifacts and
+  should be archived externally for release review; no raw provider payloads or
+  secrets are committed.
 - Failure taxonomy, repair-turn, token/cost, and paired-comparison aggregation
   are available when sanitized LLM batch result JSON files are supplied.
 - Cost estimates still require local ignored profile rates.

@@ -61,6 +61,8 @@ The current repository supports these claims when the release gate passes:
 - The LLM benchmark runner can plan the full baseline matrix, run offline
   fixture checks, execute authenticated provider subsets when local credentials
   and budget are configured, and emit sanitized `mico.llm.bench.v0` records.
+- The current authenticated low-cost matrix summary is a negative result and
+  does not support a MICO-vs-baseline LLM pass-rate improvement claim.
 - The compiler/CLI can dry-run, apply, and re-check schema-valid JSON AST
   repair patches through `repair-json`; the LLM benchmark runner uses this path
   for JSON AST repair turns.
@@ -71,8 +73,9 @@ The current repository supports these claims when the release gate passes:
 
 The current repository must not claim:
 
-- Multi-model or multi-baseline LLM pass-rate improvement before sanitized paid
-  matrix results are archived and aggregated.
+- Multi-model or multi-baseline LLM pass-rate improvement from the current
+  low-cost matrix.
+- Full paid LLM benchmark matrix raw results committed as artifact data.
 - Full directed functional simulation coverage beyond the nine committed
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke

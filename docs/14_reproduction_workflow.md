@@ -148,6 +148,10 @@ deterministic aggregation includes the main result table, per-level breakdown,
 unsafe diagnostic taxonomy, structural and generic-mapped QoR rows, and ablation/counterfactual
 rows.
 
+The current authenticated low-cost LLM matrix summary is documented in
+`docs/16_llm_matrix_results.md`. Raw result JSON and response caches remain
+ignored build artifacts.
+
 ## LLM Provider
 
 Create a local provider config from the template if one does not already exist:

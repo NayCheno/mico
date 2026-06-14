@@ -1,0 +1,234 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "cmd.req",
+              "field": "payload",
+              "leaf_port": "req_payload",
+              "role": "producer",
+              "signal": "cmd_req__regs_write_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "cmd.req",
+              "field": "valid",
+              "leaf_port": "req_valid",
+              "role": "producer",
+              "signal": "cmd_req__regs_write_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "cmd.req",
+              "field": "ready",
+              "leaf_port": "req_ready",
+              "role": "consumer",
+              "signal": "cmd_req__regs_write_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "regs.write",
+              "field": "payload",
+              "leaf_port": "write_payload",
+              "role": "producer",
+              "signal": "cmd_req__regs_write_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "regs.write",
+              "field": "valid",
+              "leaf_port": "write_valid",
+              "role": "producer",
+              "signal": "cmd_req__regs_write_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "regs.write",
+              "field": "ready",
+              "leaf_port": "write_ready",
+              "role": "consumer",
+              "signal": "cmd_req__regs_write_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "cmd.req",
+            "instance": "cmd",
+            "interface": "RegWord",
+            "module": "CaseApbCommandSource",
+            "port": "req",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "regs.write",
+            "instance": "regs",
+            "interface": "RegWord",
+            "module": "CaseRegisterFile",
+            "port": "write",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "regs.status",
+              "field": "payload",
+              "leaf_port": "status_payload",
+              "role": "producer",
+              "signal": "regs_status__sink_status_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "regs.status",
+              "field": "valid",
+              "leaf_port": "status_valid",
+              "role": "producer",
+              "signal": "regs_status__sink_status_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "regs.status",
+              "field": "ready",
+              "leaf_port": "status_ready",
+              "role": "consumer",
+              "signal": "regs_status__sink_status_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.status",
+              "field": "payload",
+              "leaf_port": "status_payload",
+              "role": "producer",
+              "signal": "regs_status__sink_status_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "sink.status",
+              "field": "valid",
+              "leaf_port": "status_valid",
+              "role": "producer",
+              "signal": "regs_status__sink_status_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.status",
+              "field": "ready",
+              "leaf_port": "status_ready",
+              "role": "consumer",
+              "signal": "regs_status__sink_status_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "regs.status",
+            "instance": "regs",
+            "interface": "RegWord",
+            "module": "CaseRegisterFile",
+            "port": "status",
+            "port_dir": "out"
+          },
+          "index": 1,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 1,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "sink.status",
+            "instance": "sink",
+            "interface": "RegWord",
+            "module": "CaseStatusSink",
+            "port": "status",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "RegWord.stable_payload",
+          "domain": "Sys",
+          "endpoint": "cmd.req",
+          "interface": "RegWord",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_cmd_req_stable_payload",
+          "payload": "cmd_req__regs_write_payload",
+          "ready": "cmd_req__regs_write_ready",
+          "reset": "rst",
+          "valid": "cmd_req__regs_write_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "RegWord.stable_payload",
+          "domain": "Sys",
+          "endpoint": "regs.status",
+          "interface": "RegWord",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_src_regs_status_stable_payload",
+          "payload": "regs_status__sink_status_payload",
+          "ready": "regs_status__sink_status_ready",
+          "reset": "rst",
+          "valid": "regs_status__sink_status_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "cmd_req__regs_write_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "cmd_req__regs_write_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "cmd_req__regs_write_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "regs_status__sink_status_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "regs_status__sink_status_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "regs_status__sink_status_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

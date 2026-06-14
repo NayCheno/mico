@@ -1,0 +1,340 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "dma.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "dma_tx__skid_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "dma.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "dma_tx__skid_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "dma.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "dma_tx__skid_input_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "skid.input",
+              "field": "payload",
+              "leaf_port": "input_payload",
+              "role": "producer",
+              "signal": "dma_tx__skid_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "skid.input",
+              "field": "valid",
+              "leaf_port": "input_valid",
+              "role": "producer",
+              "signal": "dma_tx__skid_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "skid.input",
+              "field": "ready",
+              "leaf_port": "input_ready",
+              "role": "consumer",
+              "signal": "dma_tx__skid_input_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "dma.tx",
+            "instance": "dma",
+            "interface": "AccelStream",
+            "module": "CaseDmaSource",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "skid.input",
+            "instance": "skid",
+            "interface": "AccelStream",
+            "module": "CaseSkidBuffer",
+            "port": "input",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "skid.output",
+              "field": "payload",
+              "leaf_port": "output_payload",
+              "role": "producer",
+              "signal": "skid_output__filter_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "skid.output",
+              "field": "valid",
+              "leaf_port": "output_valid",
+              "role": "producer",
+              "signal": "skid_output__filter_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "skid.output",
+              "field": "ready",
+              "leaf_port": "output_ready",
+              "role": "consumer",
+              "signal": "skid_output__filter_input_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "payload",
+              "leaf_port": "input_payload",
+              "role": "producer",
+              "signal": "skid_output__filter_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "valid",
+              "leaf_port": "input_valid",
+              "role": "producer",
+              "signal": "skid_output__filter_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "ready",
+              "leaf_port": "input_ready",
+              "role": "consumer",
+              "signal": "skid_output__filter_input_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "skid.output",
+            "instance": "skid",
+            "interface": "AccelStream",
+            "module": "CaseSkidBuffer",
+            "port": "output",
+            "port_dir": "out"
+          },
+          "index": 1,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 1,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "filter.input",
+            "instance": "filter",
+            "interface": "AccelStream",
+            "module": "CaseXorFilter",
+            "port": "input",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "filter.output",
+              "field": "payload",
+              "leaf_port": "output_payload",
+              "role": "producer",
+              "signal": "filter_output__sink_rx_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "filter.output",
+              "field": "valid",
+              "leaf_port": "output_valid",
+              "role": "producer",
+              "signal": "filter_output__sink_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.output",
+              "field": "ready",
+              "leaf_port": "output_ready",
+              "role": "consumer",
+              "signal": "filter_output__sink_rx_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "filter_output__sink_rx_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "filter_output__sink_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "filter_output__sink_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "filter.output",
+            "instance": "filter",
+            "interface": "AccelStream",
+            "module": "CaseXorFilter",
+            "port": "output",
+            "port_dir": "out"
+          },
+          "index": 2,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 2,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "sink.rx",
+            "instance": "sink",
+            "interface": "AccelStream",
+            "module": "CaseResultSink",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "AccelStream.stable_payload",
+          "domain": "Sys",
+          "endpoint": "dma.tx",
+          "interface": "AccelStream",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_dma_tx_stable_payload",
+          "payload": "dma_tx__skid_input_payload",
+          "ready": "dma_tx__skid_input_ready",
+          "reset": "rst",
+          "valid": "dma_tx__skid_input_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "AccelStream.stable_payload",
+          "domain": "Sys",
+          "endpoint": "skid.output",
+          "interface": "AccelStream",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_src_skid_output_stable_payload",
+          "payload": "skid_output__filter_input_payload",
+          "ready": "skid_output__filter_input_ready",
+          "reset": "rst",
+          "valid": "skid_output__filter_input_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "AccelStream.stable_payload",
+          "domain": "Sys",
+          "endpoint": "filter.output",
+          "interface": "AccelStream",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_2_src_filter_output_stable_payload",
+          "payload": "filter_output__sink_rx_payload",
+          "ready": "filter_output__sink_rx_ready",
+          "reset": "rst",
+          "valid": "filter_output__sink_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "dma_tx__skid_input_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "dma_tx__skid_input_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "dma_tx__skid_input_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "filter_output__sink_rx_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "filter_output__sink_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "filter_output__sink_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "skid_output__filter_input_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "skid_output__filter_input_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "skid_output__filter_input_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

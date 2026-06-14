@@ -1185,6 +1185,33 @@ mod tests {
             sva: include_str!("../tests/fixtures/golden/direct_stream.sva"),
             trace: include_str!("../tests/fixtures/golden/direct_stream.trace.json"),
         },
+        GoldenCase {
+            name: "streaming_accelerator_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T058_streaming_accelerator_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/streaming_accelerator_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/streaming_accelerator_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/streaming_accelerator_case.trace.json"),
+        },
+        GoldenCase {
+            name: "width_protocol_bridge_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T059_width_protocol_bridge_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/width_protocol_bridge_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/width_protocol_bridge_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/width_protocol_bridge_case.trace.json"),
+        },
+        GoldenCase {
+            name: "register_status_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T060_register_status_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/register_status_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/register_status_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/register_status_case.trace.json"),
+        },
     ];
 
     #[test]

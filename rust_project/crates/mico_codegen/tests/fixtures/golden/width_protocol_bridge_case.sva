@@ -1,0 +1,53 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [63:0] accel_tx__host_rx_payload,
+  input logic accel_tx__host_rx_ready,
+  input logic accel_tx__host_rx_valid,
+  input logic [63:0] casewiden32to64_0__accel_rx_payload,
+  input logic casewiden32to64_0__accel_rx_ready,
+  input logic casewiden32to64_0__accel_rx_valid,
+  input logic [31:0] sensor_tx__casewiden32to64_0_in_payload,
+  input logic sensor_tx__casewiden32to64_0_in_ready,
+  input logic sensor_tx__casewiden32to64_0_in_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] adapt sensor.tx -> CaseWiden32To64 -> accel.rx
+  // [1] connect accel.tx -> host.rx
+
+  // mico_conn_0_src_sensor_tx_stable_payload: stable payload while valid is held without ready on sensor.tx (SensorWord32, SensorWord32.stable_payload)
+  logic [31:0] mico_conn_0_src_sensor_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_sensor_tx_stable_payload
+    mico_conn_0_src_sensor_tx_stable_payload_payload_q <= sensor_tx__casewiden32to64_0_in_payload;
+    if (!rst && sensor_tx__casewiden32to64_0_in_valid && !sensor_tx__casewiden32to64_0_in_ready) begin
+      assert (sensor_tx__casewiden32to64_0_in_payload == mico_conn_0_src_sensor_tx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_0_dst_accel_rx_stable_payload: stable payload while valid is held without ready on accel.rx (AccelWord64, AccelWord64.stable_payload)
+  logic [63:0] mico_conn_0_dst_accel_rx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_dst_accel_rx_stable_payload
+    mico_conn_0_dst_accel_rx_stable_payload_payload_q <= casewiden32to64_0__accel_rx_payload;
+    if (!rst && casewiden32to64_0__accel_rx_valid && !casewiden32to64_0__accel_rx_ready) begin
+      assert (casewiden32to64_0__accel_rx_payload == mico_conn_0_dst_accel_rx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_accel_tx_stable_payload: stable payload while valid is held without ready on accel.tx (AccelWord64, AccelWord64.stable_payload)
+  logic [63:0] mico_conn_1_src_accel_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_accel_tx_stable_payload
+    mico_conn_1_src_accel_tx_stable_payload_payload_q <= accel_tx__host_rx_payload;
+    if (!rst && accel_tx__host_rx_valid && !accel_tx__host_rx_ready) begin
+      assert (accel_tx__host_rx_payload == mico_conn_1_src_accel_tx_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

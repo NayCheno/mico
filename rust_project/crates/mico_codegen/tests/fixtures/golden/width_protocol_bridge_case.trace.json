@@ -1,0 +1,316 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": "CaseWiden32To64",
+          "adapter_boundary": {
+            "adapter": "CaseWiden32To64",
+            "from_endpoint": "sensor.tx",
+            "input_signals": [
+              {
+                "endpoint": "sensor.tx",
+                "field": "payload",
+                "leaf_port": "tx_payload",
+                "role": "producer",
+                "signal": "sensor_tx__casewiden32to64_0_in_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "sensor.tx",
+                "field": "valid",
+                "leaf_port": "tx_valid",
+                "role": "producer",
+                "signal": "sensor_tx__casewiden32to64_0_in_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "sensor.tx",
+                "field": "ready",
+                "leaf_port": "tx_ready",
+                "role": "consumer",
+                "signal": "sensor_tx__casewiden32to64_0_in_ready",
+                "width_bits": 1
+              }
+            ],
+            "instance": "casewiden32to64_0",
+            "output_signals": [
+              {
+                "endpoint": "accel.rx",
+                "field": "payload",
+                "leaf_port": "rx_payload",
+                "role": "producer",
+                "signal": "casewiden32to64_0__accel_rx_payload",
+                "width_bits": 64
+              },
+              {
+                "endpoint": "accel.rx",
+                "field": "valid",
+                "leaf_port": "rx_valid",
+                "role": "producer",
+                "signal": "casewiden32to64_0__accel_rx_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "accel.rx",
+                "field": "ready",
+                "leaf_port": "rx_ready",
+                "role": "consumer",
+                "signal": "casewiden32to64_0__accel_rx_ready",
+                "width_bits": 1
+              }
+            ],
+            "to_endpoint": "accel.rx"
+          },
+          "adapter_instance": "casewiden32to64_0",
+          "field_bindings": [
+            {
+              "endpoint": "sensor.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "sensor_tx__casewiden32to64_0_in_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "sensor.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "sensor_tx__casewiden32to64_0_in_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sensor.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "sensor_tx__casewiden32to64_0_in_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accel.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "casewiden32to64_0__accel_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "accel.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "casewiden32to64_0__accel_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accel.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "casewiden32to64_0__accel_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "sensor.tx",
+            "instance": "sensor",
+            "interface": "SensorWord32",
+            "module": "CaseSensor32",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "adapt",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "accel.rx",
+            "instance": "accel",
+            "interface": "AccelWord64",
+            "module": "CaseAccel64",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "accel.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "accel_tx__host_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "accel.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "accel_tx__host_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accel.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "accel_tx__host_rx_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "accel_tx__host_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "accel_tx__host_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "accel_tx__host_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "accel.tx",
+            "instance": "accel",
+            "interface": "AccelWord64",
+            "module": "CaseAccel64",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 1,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 1,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "host.rx",
+            "instance": "host",
+            "interface": "AccelWord64",
+            "module": "CaseHostSink64",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "SensorWord32.stable_payload",
+          "domain": "Sys",
+          "endpoint": "sensor.tx",
+          "interface": "SensorWord32",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_sensor_tx_stable_payload",
+          "payload": "sensor_tx__casewiden32to64_0_in_payload",
+          "ready": "sensor_tx__casewiden32to64_0_in_ready",
+          "reset": "rst",
+          "valid": "sensor_tx__casewiden32to64_0_in_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "AccelWord64.stable_payload",
+          "domain": "Sys",
+          "endpoint": "accel.rx",
+          "interface": "AccelWord64",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_dst_accel_rx_stable_payload",
+          "payload": "casewiden32to64_0__accel_rx_payload",
+          "ready": "casewiden32to64_0__accel_rx_ready",
+          "reset": "rst",
+          "valid": "casewiden32to64_0__accel_rx_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "AccelWord64.stable_payload",
+          "domain": "Sys",
+          "endpoint": "accel.tx",
+          "interface": "AccelWord64",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_src_accel_tx_stable_payload",
+          "payload": "accel_tx__host_rx_payload",
+          "ready": "accel_tx__host_rx_ready",
+          "reset": "rst",
+          "valid": "accel_tx__host_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "accel_tx__host_rx_payload",
+          "width_bits": 64
+        },
+        {
+          "name": "accel_tx__host_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "accel_tx__host_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "casewiden32to64_0__accel_rx_payload",
+          "width_bits": 64
+        },
+        {
+          "name": "casewiden32to64_0__accel_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "casewiden32to64_0__accel_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "sensor_tx__casewiden32to64_0_in_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "sensor_tx__casewiden32to64_0_in_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "sensor_tx__casewiden32to64_0_in_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

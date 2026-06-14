@@ -82,8 +82,9 @@ compose-connection source references, generated signal names, leaf module port
 names, adapter boundary records, and SVA contract IDs. Generated wrappers use
 ``default_nettype none``, flatten interface fields into primitive wires,
 instantiate leaf modules, instantiate explicit adapters, and pass clock/reset
-signals to CDC adapters. The positive seed tasks have committed golden
-SV/SVA/traceability fixtures checked by `mico_codegen` tests.
+signals to CDC adapters. The seven sim/QoR-enabled positive seeds and case
+studies have committed golden SV/SVA/traceability fixtures checked by
+`mico_codegen` tests.
 
 `mico_cli` supports:
 
@@ -281,8 +282,8 @@ Current claims supported by the repository:
 - The compiler parses and checks a conservative ready/valid v0 contract subset
   for adapter requirement coverage.
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
-- Positive seed SV/SVA/traceability output is covered by committed golden
-  fixtures.
+- The seven sim/QoR-enabled positive seed and case-study SV/SVA/traceability
+  outputs are covered by committed golden fixtures.
 - Positive seed and case-study simulations pass with committed Icarus/VVP
   testbenches.
 - Selected direct-stream, width-adapter, and streaming accelerator case-study

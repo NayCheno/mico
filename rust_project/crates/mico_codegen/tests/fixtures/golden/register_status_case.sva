@@ -1,0 +1,41 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] cmd_req__regs_write_payload,
+  input logic cmd_req__regs_write_ready,
+  input logic cmd_req__regs_write_valid,
+  input logic [31:0] regs_status__sink_status_payload,
+  input logic regs_status__sink_status_ready,
+  input logic regs_status__sink_status_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect cmd.req -> regs.write
+  // [1] connect regs.status -> sink.status
+
+  // mico_conn_0_src_cmd_req_stable_payload: stable payload while valid is held without ready on cmd.req (RegWord, RegWord.stable_payload)
+  logic [31:0] mico_conn_0_src_cmd_req_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_cmd_req_stable_payload
+    mico_conn_0_src_cmd_req_stable_payload_payload_q <= cmd_req__regs_write_payload;
+    if (!rst && cmd_req__regs_write_valid && !cmd_req__regs_write_ready) begin
+      assert (cmd_req__regs_write_payload == mico_conn_0_src_cmd_req_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_regs_status_stable_payload: stable payload while valid is held without ready on regs.status (RegWord, RegWord.stable_payload)
+  logic [31:0] mico_conn_1_src_regs_status_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_regs_status_stable_payload
+    mico_conn_1_src_regs_status_stable_payload_payload_q <= regs_status__sink_status_payload;
+    if (!rst && regs_status__sink_status_valid && !regs_status__sink_status_ready) begin
+      assert (regs_status__sink_status_payload == mico_conn_1_src_regs_status_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

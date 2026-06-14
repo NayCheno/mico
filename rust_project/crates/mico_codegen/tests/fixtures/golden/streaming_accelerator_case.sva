@@ -1,0 +1,54 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] dma_tx__skid_input_payload,
+  input logic dma_tx__skid_input_ready,
+  input logic dma_tx__skid_input_valid,
+  input logic [31:0] filter_output__sink_rx_payload,
+  input logic filter_output__sink_rx_ready,
+  input logic filter_output__sink_rx_valid,
+  input logic [31:0] skid_output__filter_input_payload,
+  input logic skid_output__filter_input_ready,
+  input logic skid_output__filter_input_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect dma.tx -> skid.input
+  // [1] connect skid.output -> filter.input
+  // [2] connect filter.output -> sink.rx
+
+  // mico_conn_0_src_dma_tx_stable_payload: stable payload while valid is held without ready on dma.tx (AccelStream, AccelStream.stable_payload)
+  logic [31:0] mico_conn_0_src_dma_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_dma_tx_stable_payload
+    mico_conn_0_src_dma_tx_stable_payload_payload_q <= dma_tx__skid_input_payload;
+    if (!rst && dma_tx__skid_input_valid && !dma_tx__skid_input_ready) begin
+      assert (dma_tx__skid_input_payload == mico_conn_0_src_dma_tx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_skid_output_stable_payload: stable payload while valid is held without ready on skid.output (AccelStream, AccelStream.stable_payload)
+  logic [31:0] mico_conn_1_src_skid_output_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_skid_output_stable_payload
+    mico_conn_1_src_skid_output_stable_payload_payload_q <= skid_output__filter_input_payload;
+    if (!rst && skid_output__filter_input_valid && !skid_output__filter_input_ready) begin
+      assert (skid_output__filter_input_payload == mico_conn_1_src_skid_output_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_2_src_filter_output_stable_payload: stable payload while valid is held without ready on filter.output (AccelStream, AccelStream.stable_payload)
+  logic [31:0] mico_conn_2_src_filter_output_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_2_src_filter_output_stable_payload
+    mico_conn_2_src_filter_output_stable_payload_payload_q <= filter_output__sink_rx_payload;
+    if (!rst && filter_output__sink_rx_valid && !filter_output__sink_rx_ready) begin
+      assert (filter_output__sink_rx_payload == mico_conn_2_src_filter_output_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

@@ -35,7 +35,8 @@ This file is the short, traceable status page for the current repository. Use
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
   traceability JSON emission with source references, generated signal mappings,
   leaf module port names, adapter boundaries, and contract IDs.
-- Golden SV/SVA/traceability fixture tests for the four positive seed tasks.
+- Golden SV/SVA/traceability fixture tests for the seven sim/QoR-enabled
+  positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
 - Per-task Icarus simulation harnesses for four positive seed tasks plus three

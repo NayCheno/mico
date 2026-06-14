@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/diagnostics.schema.json",
+  "title": "MICO diagnostics response v0",
+  "type": "object",
+  "required": ["schema_version", "ok", "phase", "diagnostics"],
+  "properties": {
+    "schema_version": {
+      "const": "mico.diagnostics.v0"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "phase": {
+      "type": "string",
+      "enum": ["read", "parse", "check", "build", "verify", "report"]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "required": ["severity", "code", "message", "span", "labels", "nodes", "hints"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "note"]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string"
+        },
+        "span": {
+          "anyOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/span"}
+          ]
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["style", "message", "span"],
+            "properties": {
+              "style": {
+                "type": "string",
+                "enum": ["primary", "secondary"]
+              },
+              "message": {
+                "type": "string"
+              },
+              "span": {
+                "$ref": "#/$defs/span"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "name"],
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "span": {
+      "type": "object",
+      "required": ["start", "end", "line", "column"],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

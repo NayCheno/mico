@@ -1,59 +1,200 @@
 use mico_ir::*;
+use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-pub fn emit_json_ir(design: &Design) -> String {
-    // Dependency-free debug-oriented JSON-ish output. Replace with serde_json later.
-    let mut out = String::new();
-    out.push_str("{\n");
-    out.push_str("  \"clock_domains\": [\n");
-    for (idx, cd) in design.clock_domains.iter().enumerate() {
-        comma(&mut out, idx, design.clock_domains.len());
-        out.push_str(&format!(
-            "    {{\"name\": \"{}\", \"clock\": \"{}\", \"reset\": \"{}\"}}{}\n",
-            cd.name,
-            cd.clock,
-            cd.reset,
-            if idx + 1 == design.clock_domains.len() {
-                ""
-            } else {
-                ","
-            }
-        ));
-    }
-    out.push_str("  ],\n");
-    out.push_str("  \"modules\": [\n");
-    for (idx, m) in design.modules.iter().enumerate() {
-        out.push_str(&format!(
-            "    {{\"name\": \"{}\", \"domain\": \"{}\", \"extern\": {}}}{}\n",
-            m.name,
-            m.domain,
-            m.is_extern,
-            if idx + 1 == design.modules.len() {
-                ""
-            } else {
-                ","
-            }
-        ));
-    }
-    out.push_str("  ],\n");
-    out.push_str("  \"composes\": [\n");
-    for (idx, c) in design.composes.iter().enumerate() {
-        out.push_str(&format!(
-            "    {{\"name\": \"{}\", \"domain\": \"{}\", \"instances\": {}, \"connections\": {}}}{}\n",
-            c.name,
-            c.domain,
-            c.instances.len(),
-            c.connections.len(),
-            if idx + 1 == design.composes.len() { "" } else { "," }
-        ));
-    }
-    out.push_str("  ]\n");
-    out.push_str("}\n");
+pub fn emit_json_ir(typed: &TypedDesign) -> String {
+    let mut out = serde_json::to_string_pretty(&typed_design_json(typed))
+        .expect("MICO typed IR JSON serialization should be infallible");
+    out.push('\n');
     out
 }
 
-fn comma(out: &mut String, idx: usize, len: usize) {
-    let _ = (out, idx, len);
+fn typed_design_json(typed: &TypedDesign) -> Value {
+    json!({
+        "schema_version": "mico.ir.v0",
+        "kind": "typed_design",
+        "clock_domains": typed.clock_domains.iter().map(clock_domain_json).collect::<Vec<_>>(),
+        "interfaces": typed.interfaces.iter().map(interface_json).collect::<Vec<_>>(),
+        "modules": typed.modules.iter().map(module_json).collect::<Vec<_>>(),
+        "adapters": typed.adapters.iter().map(adapter_json).collect::<Vec<_>>(),
+        "composes": typed.composes.iter().map(compose_json).collect::<Vec<_>>(),
+    })
+}
+
+fn clock_domain_json(domain: &TypedClockDomain) -> Value {
+    json!({
+        "name": ident_str(&domain.name),
+        "clock": ident_str(&domain.clock),
+        "reset": ident_str(&domain.reset),
+        "reset_polarity": reset_polarity_str(domain.reset_polarity),
+    })
+}
+
+fn interface_json(interface: &TypedInterface) -> Value {
+    json!({
+        "name": ident_str(&interface.name),
+        "domain": ident_str(&interface.domain),
+        "fields": interface.fields.iter().map(field_json).collect::<Vec<_>>(),
+        "contracts": interface.contracts.iter().map(contract_json).collect::<Vec<_>>(),
+        "protocol": protocol_json(&interface.protocol),
+    })
+}
+
+fn field_json(field: &TypedField) -> Value {
+    json!({
+        "name": ident_str(&field.name),
+        "role": role_str(&field.role),
+        "type": scalar_type_json(&field.ty),
+        "width_bits": field.width_bits,
+    })
+}
+
+fn contract_json(contract: &ContractDef) -> Value {
+    json!({
+        "name": ident_str(&contract.name),
+        "expr": &contract.expr,
+    })
+}
+
+fn protocol_json(protocol: &InterfaceProtocol) -> Value {
+    json!({
+        "kind": protocol_kind_str(protocol.kind),
+        "payload_fields": protocol.payload_fields.iter().map(ident_str).collect::<Vec<_>>(),
+        "valid": protocol.valid.as_ref().map(ident_str),
+        "ready": protocol.ready.as_ref().map(ident_str),
+    })
+}
+
+fn module_json(module: &TypedModule) -> Value {
+    json!({
+        "name": ident_str(&module.name),
+        "domain": ident_str(&module.domain),
+        "extern": module.is_extern,
+        "ports": module.ports.iter().map(port_json).collect::<Vec<_>>(),
+    })
+}
+
+fn port_json(port: &TypedPort) -> Value {
+    json!({
+        "name": ident_str(&port.name),
+        "direction": port_dir_str(port.dir),
+        "interface": ident_str(&port.interface),
+        "domain": ident_str(&port.domain),
+    })
+}
+
+fn adapter_json(adapter: &TypedAdapter) -> Value {
+    json!({
+        "name": ident_str(&adapter.name),
+        "from_interface": ident_str(&adapter.from_interface),
+        "from_domain": ident_str(&adapter.from_domain),
+        "to_interface": ident_str(&adapter.to_interface),
+        "to_domain": ident_str(&adapter.to_domain),
+        "kind": adapter_kind_json(&adapter.kind),
+        "attributes": adapter.attributes.iter().map(attribute_json).collect::<Vec<_>>(),
+        "contracts": &adapter.contracts,
+    })
+}
+
+fn attribute_json((name, value): &(Ident, String)) -> Value {
+    json!({
+        "name": ident_str(name),
+        "value": value,
+    })
+}
+
+fn compose_json(compose: &TypedCompose) -> Value {
+    json!({
+        "name": ident_str(&compose.name),
+        "domain": ident_str(&compose.domain),
+        "instances": compose.instances.iter().map(instance_json).collect::<Vec<_>>(),
+        "connections": compose.connections.iter().map(connection_json).collect::<Vec<_>>(),
+    })
+}
+
+fn instance_json(instance: &TypedInstance) -> Value {
+    json!({
+        "name": ident_str(&instance.name),
+        "module": ident_str(&instance.module),
+        "domain": ident_str(&instance.domain),
+    })
+}
+
+fn connection_json(connection: &TypedConnection) -> Value {
+    json!({
+        "from": endpoint_json(&connection.from),
+        "to": endpoint_json(&connection.to),
+        "adapter": connection.adapter.as_ref().map(ident_str),
+        "adapter_kind": connection.adapter_kind.as_ref().map(adapter_kind_json),
+        "contracts": {
+            "source_interface": connection.contracts.source_interface.iter().map(contract_json).collect::<Vec<_>>(),
+            "sink_interface": connection.contracts.sink_interface.iter().map(contract_json).collect::<Vec<_>>(),
+            "adapter_contracts": &connection.contracts.adapter_contracts,
+        },
+    })
+}
+
+fn endpoint_json(endpoint: &TypedEndpoint) -> Value {
+    json!({
+        "endpoint": endpoint.endpoint.to_string(),
+        "instance": ident_str(&endpoint.endpoint.instance),
+        "port": ident_str(&endpoint.endpoint.port),
+        "module": ident_str(&endpoint.module),
+        "port_dir": port_dir_str(endpoint.port_dir),
+        "interface": ident_str(&endpoint.interface),
+        "domain": ident_str(&endpoint.domain),
+    })
+}
+
+fn scalar_type_json(ty: &ScalarType) -> Value {
+    match ty {
+        ScalarType::Bool => json!({"kind": "bool", "width_bits": 1}),
+        ScalarType::UInt(width) => json!({"kind": "uint", "width_bits": width}),
+        ScalarType::Named(name) => json!({"kind": "named", "name": ident_str(name)}),
+    }
+}
+
+fn adapter_kind_json(kind: &AdapterKind) -> Value {
+    match kind {
+        AdapterKind::CdcFifo => json!({"kind": "cdc_fifo"}),
+        AdapterKind::WidthAdapter => json!({"kind": "width_adapter"}),
+        AdapterKind::SkidBuffer => json!({"kind": "skid_buffer"}),
+        AdapterKind::Pipeline => json!({"kind": "pipeline"}),
+        AdapterKind::Custom(name) => json!({"kind": "custom", "name": ident_str(name)}),
+    }
+}
+
+fn reset_polarity_str(polarity: ResetPolarity) -> &'static str {
+    match polarity {
+        ResetPolarity::ActiveHigh => "active_high",
+        ResetPolarity::ActiveLow => "active_low",
+        ResetPolarity::Unknown => "unknown",
+    }
+}
+
+fn protocol_kind_str(kind: ProtocolKind) -> &'static str {
+    match kind {
+        ProtocolKind::ReadyValid => "ready_valid",
+        ProtocolKind::Custom => "custom",
+    }
+}
+
+fn role_str(role: &Role) -> &'static str {
+    match role {
+        Role::Producer => "producer",
+        Role::Consumer => "consumer",
+    }
+}
+
+fn port_dir_str(dir: PortDir) -> &'static str {
+    match dir {
+        PortDir::In => "in",
+        PortDir::Out => "out",
+    }
+}
+
+fn ident_str(ident: &Ident) -> &str {
+    &ident.0
 }
 
 pub fn emit_systemverilog(design: &Design) -> String {
@@ -529,6 +670,24 @@ mod tests {
         assert!(sv.contains("AsyncFifo32 asyncfifo32_0"));
         assert!(sv.contains(".src_clk(aclk)"));
         assert!(sv.contains(".dst_clk(bclk)"));
+    }
+
+    #[test]
+    fn emits_versioned_typed_json_ir() {
+        let typed = build_typed_ir(&stream_design()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&emit_json_ir(&typed)).unwrap();
+
+        assert_eq!(json["schema_version"], "mico.ir.v0");
+        assert_eq!(json["kind"], "typed_design");
+        assert_eq!(json["interfaces"][0]["protocol"]["kind"], "ready_valid");
+        assert_eq!(
+            json["composes"][0]["connections"][0]["from"]["endpoint"],
+            "p.tx"
+        );
+        assert_eq!(
+            json["composes"][0]["connections"][0]["to"]["endpoint"],
+            "c.rx"
+        );
     }
 
     fn stream_design() -> Design {

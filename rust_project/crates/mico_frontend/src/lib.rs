@@ -10,6 +10,7 @@ pub struct SourceSpan {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParseError {
+    pub span: SourceSpan,
     pub line: usize,
     pub column: usize,
     pub code: &'static str,
@@ -19,6 +20,7 @@ pub struct ParseError {
 impl ParseError {
     fn new(span: SourceSpan, code: &'static str, message: impl Into<String>) -> Self {
         Self {
+            span,
             line: span.line,
             column: span.column,
             code,

@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/mico_ir.schema.json",
+  "title": "MICO typed IR v0",
+  "type": "object",
+  "required": ["schema_version", "kind", "clock_domains", "interfaces", "modules", "adapters", "composes"],
+  "properties": {
+    "schema_version": {
+      "const": "mico.ir.v0"
+    },
+    "kind": {
+      "const": "typed_design"
+    },
+    "clock_domains": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/clock_domain"}
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/interface"}
+    },
+    "modules": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/module"}
+    },
+    "adapters": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/adapter"}
+    },
+    "composes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/compose"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ident": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "clock_domain": {
+      "type": "object",
+      "required": ["name", "clock", "reset", "reset_polarity"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "clock": {"$ref": "#/$defs/ident"},
+        "reset": {"$ref": "#/$defs/ident"},
+        "reset_polarity": {
+          "type": "string",
+          "enum": ["active_high", "active_low", "unknown"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "interface": {
+      "type": "object",
+      "required": ["name", "domain", "fields", "contracts", "protocol"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"},
+        "fields": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/field"}
+        },
+        "contracts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/contract"}
+        },
+        "protocol": {"$ref": "#/$defs/protocol"}
+      },
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "required": ["name", "role", "type", "width_bits"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "role": {
+          "type": "string",
+          "enum": ["producer", "consumer"]
+        },
+        "type": {"$ref": "#/$defs/scalar_type"},
+        "width_bits": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "integer", "minimum": 1}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "scalar_type": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["bool", "uint", "named"]
+        },
+        "width_bits": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "contract": {
+      "type": "object",
+      "required": ["name", "expr"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "expr": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "protocol": {
+      "type": "object",
+      "required": ["kind", "payload_fields", "valid", "ready"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["ready_valid", "custom"]
+        },
+        "payload_fields": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ident"}
+        },
+        "valid": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/ident"}]
+        },
+        "ready": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/ident"}]
+        }
+      },
+      "additionalProperties": false
+    },
+    "module": {
+      "type": "object",
+      "required": ["name", "domain", "extern", "ports"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"},
+        "extern": {"type": "boolean"},
+        "ports": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/port"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "port": {
+      "type": "object",
+      "required": ["name", "direction", "interface", "domain"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "direction": {
+          "type": "string",
+          "enum": ["in", "out"]
+        },
+        "interface": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "required": ["name", "from_interface", "from_domain", "to_interface", "to_domain", "kind", "attributes", "contracts"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "from_interface": {"$ref": "#/$defs/ident"},
+        "from_domain": {"$ref": "#/$defs/ident"},
+        "to_interface": {"$ref": "#/$defs/ident"},
+        "to_domain": {"$ref": "#/$defs/ident"},
+        "kind": {"$ref": "#/$defs/adapter_kind"},
+        "attributes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/attribute"}
+        },
+        "contracts": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "adapter_kind": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["cdc_fifo", "width_adapter", "skid_buffer", "pipeline", "custom"]
+        },
+        "name": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "attribute": {
+      "type": "object",
+      "required": ["name", "value"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "value": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "compose": {
+      "type": "object",
+      "required": ["name", "domain", "instances", "connections"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"},
+        "instances": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/instance"}
+        },
+        "connections": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/connection"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "instance": {
+      "type": "object",
+      "required": ["name", "module", "domain"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ident"},
+        "module": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    },
+    "connection": {
+      "type": "object",
+      "required": ["from", "to", "adapter", "adapter_kind", "contracts"],
+      "properties": {
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"},
+        "adapter": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/ident"}]
+        },
+        "adapter_kind": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/adapter_kind"}]
+        },
+        "contracts": {
+          "type": "object",
+          "required": ["source_interface", "sink_interface", "adapter_contracts"],
+          "properties": {
+            "source_interface": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/contract"}
+            },
+            "sink_interface": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/contract"}
+            },
+            "adapter_contracts": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "endpoint": {
+      "type": "object",
+      "required": ["endpoint", "instance", "port", "module", "port_dir", "interface", "domain"],
+      "properties": {
+        "endpoint": {"type": "string"},
+        "instance": {"$ref": "#/$defs/ident"},
+        "port": {"$ref": "#/$defs/ident"},
+        "module": {"$ref": "#/$defs/ident"},
+        "port_dir": {
+          "type": "string",
+          "enum": ["in", "out"]
+        },
+        "interface": {"$ref": "#/$defs/ident"},
+        "domain": {"$ref": "#/$defs/ident"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

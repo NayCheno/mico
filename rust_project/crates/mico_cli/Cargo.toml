@@ -13,3 +13,4 @@ path = "src/main.rs"
 mico_ir = { path = "../mico_ir" }
 mico_frontend = { path = "../mico_frontend" }
 mico_codegen = { path = "../mico_codegen" }
+serde_json = { version = "1.0", default-features = false, features = ["std"] }

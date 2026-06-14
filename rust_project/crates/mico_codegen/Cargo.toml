@@ -7,6 +7,7 @@ license.workspace = true
 
 [dependencies]
 mico_ir = { path = "../mico_ir" }
+serde_json = { version = "1.0", default-features = false, features = ["std"] }
 
 [lib]
 path = "src/lib.rs"

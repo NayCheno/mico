@@ -19,6 +19,19 @@ latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 
 The Docker gate writes `build/release/full_check_manifest.json`. This file is a generated build artifact and must not be committed.
 
+## Evidence Storage Policy
+
+Release evidence is generated under ignored `build/` paths and should be
+archived as an external release artifact, not committed to the source tree. The
+manifest is source-commit sensitive: rerun the gate after the final release
+commit so `source_commit_hash`, prompt hashes, benchmark result hashes, and LLM
+validate-only hashes describe the reviewed revision.
+
+If a future review requires result JSON in git, create a dedicated
+`artifacts/results/` policy first, store only redacted schema-valid records, and
+keep provider caches, API keys, local configs, logs, PDFs, and Vivado outputs
+out of the commit.
+
 ## Metadata To Record
 
 The release manifest records:

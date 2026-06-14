@@ -98,11 +98,19 @@ Validate config without a paid request:
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 ```
 
+Optionally write the validate-only metadata record under ignored `build/llm/`:
+
+```powershell
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only --output build/llm/provider_validate.json
+```
+
 Run the cheap provider smoke test:
 
 ```powershell
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --output build/llm/provider_smoke.json
 ```
+
+The output schema is `mico.llm.run.v0` in `schemas/llm_run.schema.json`. It records prompt hash, model/profile, repair turns, optional compiler and EDA result JSON, usage, and configured cost estimates without storing or printing API keys. Repository example cost rates are intentionally `null`; keep real rates in the ignored local YAML if needed.
 
 Use low-cost profiles first: `smoke`, then `low_cost_crosscheck`. Escalate to higher-cost profiles only after compiler acceptance and RTL validation pass.
 

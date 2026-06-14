@@ -29,6 +29,9 @@ profiles:
     purpose: cheapest first-pass prompt, schema, and harness smoke tests
     temperature: 0.1
     max_tokens: 1024
+    cost:
+      input_usd_per_1m_tokens: null
+      output_usd_per_1m_tokens: null
 
   low_cost_crosscheck:
     model: mimo-v2.5
@@ -36,6 +39,9 @@ profiles:
     purpose: second cheap model for prompt sensitivity and regression checks
     temperature: 0.1
     max_tokens: 1024
+    cost:
+      input_usd_per_1m_tokens: null
+      output_usd_per_1m_tokens: null
 
   quality_code:
     model: kimi-k2.7-code
@@ -43,6 +49,9 @@ profiles:
     purpose: escalate after low-cost profiles pass compiler and RTL gates
     temperature: 0.1
     max_tokens: 2048
+    cost:
+      input_usd_per_1m_tokens: null
+      output_usd_per_1m_tokens: null
 
   quality_reasoning:
     model: glm-5.1
@@ -50,6 +59,9 @@ profiles:
     purpose: expensive reasoning crosscheck for ambiguous integration tasks
     temperature: 0.1
     max_tokens: 2048
+    cost:
+      input_usd_per_1m_tokens: null
+      output_usd_per_1m_tokens: null
 
   quality_deepseek:
     model: deepseek-v4-pro
@@ -57,3 +69,6 @@ profiles:
     purpose: alternative expensive profile for final comparison runs
     temperature: 0.1
     max_tokens: 2048
+    cost:
+      input_usd_per_1m_tokens: null
+      output_usd_per_1m_tokens: null

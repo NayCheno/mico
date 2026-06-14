@@ -18,7 +18,17 @@ The LLM is never the source of correctness. It proposes structured design edits.
 
 Use `$opencode-go-provider` for OpenCode Go model access. Provider settings live in `config/llm-provider.example.yaml`; copy it to ignored local config before adding credentials. Use an SDK client, preferably the OpenAI SDK, with the OpenAI-compatible base URL `https://opencode.ai/zen/go/v1`; keep the API key in `OPENCODE_GO_API_KEY` or an ignored local YAML file.
 
-Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, and the API key source from YAML, calls Chat Completions through the OpenAI Python SDK, and writes sanitized JSON output under ignored `build/llm/`.
+Repository-owned provider checks run through `scripts/llm-provider-smoke.py`. The script reads `base_url`, profile model settings, optional profile cost rates, and the API key source from YAML. It calls Chat Completions through the OpenAI Python SDK only when not in validate-only mode, and writes sanitized JSON output under ignored `build/llm/`.
+
+LLM run records use `schemas/llm_run.schema.json` with schema version `mico.llm.run.v0`. They include:
+
+- provider name, API root, config path, API key source, and whether a key was present;
+- profile name, model, tier, prompt SHA-256, request settings, and response JSON validity;
+- usage and estimated USD cost when local profile rates are configured;
+- repair turn count;
+- optional compiler diagnostic JSON and optional EDA result JSON, stored with source path and SHA-256.
+
+The record never stores or prints the API key. Model price fields in the repository template are `null`; fill them only in ignored local config if a run needs cost estimates.
 
 Validate configuration without a paid request:
 
@@ -26,10 +36,22 @@ Validate configuration without a paid request:
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 ```
 
+Write a sanitized validate-only metadata record without calling a model:
+
+```powershell
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only --output build/llm/provider_validate.json
+```
+
 Run the cheap smoke profile:
 
 ```powershell
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --output build/llm/provider_smoke.json
+```
+
+Attach compiler and EDA results to an authenticated smoke run:
+
+```powershell
+.\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --compiler-result-json build/llm/compiler_result.json --eda-result-json build/bench/seed_results.json --repair-turns 1 --output build/llm/provider_smoke.json
 ```
 
 Run early prompt, schema, and benchmark harness tests with low-cost profiles first:

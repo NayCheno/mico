@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/mico/schemas/llm_run.schema.json",
+  "title": "MICO LLM run record v0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run",
+    "provider",
+    "policy",
+    "profile",
+    "prompt",
+    "request",
+    "response",
+    "usage",
+    "cost",
+    "repair",
+    "compiler_result",
+    "eda_result"
+  ],
+  "properties": {
+    "schema_version": {"const": "mico.llm.run.v0"},
+    "run": {
+      "type": "object",
+      "required": ["id", "mode", "timestamp_utc", "sdk"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+        "mode": {"type": "string", "enum": ["validate_only", "smoke_request"]},
+        "timestamp_utc": {"type": "string"},
+        "sdk": {"const": "openai-python"}
+      },
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "object",
+      "required": [
+        "name",
+        "api",
+        "base_url",
+        "config",
+        "api_key_source",
+        "api_key_present",
+        "api_key_redacted"
+      ],
+      "properties": {
+        "name": {"type": "string"},
+        "api": {"const": "openai-chat-completions"},
+        "base_url": {"type": "string"},
+        "config": {"type": "string"},
+        "api_key_source": {"type": "string"},
+        "api_key_present": {"type": "boolean"},
+        "api_key_redacted": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["default_profile", "escalation_order"],
+      "properties": {
+        "default_profile": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+        "escalation_order": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "profile": {
+      "type": "object",
+      "required": ["name", "model", "tier", "purpose"],
+      "properties": {
+        "name": {"type": "string"},
+        "model": {"type": "string"},
+        "tier": {"type": "string"},
+        "purpose": {"anyOf": [{"type": "null"}, {"type": "string"}]}
+      },
+      "additionalProperties": false
+    },
+    "prompt": {
+      "type": "object",
+      "required": ["source", "path", "sha256", "bytes"],
+      "properties": {
+        "source": {"type": "string", "enum": ["inline", "file"]},
+        "path": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "required": ["temperature", "max_tokens", "require_json"],
+      "properties": {
+        "temperature": {"type": "number"},
+        "max_tokens": {"type": "integer", "minimum": 1},
+        "require_json": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "response": {
+      "type": "object",
+      "required": ["requested", "content", "content_sha256", "json_valid", "json"],
+      "properties": {
+        "requested": {"type": "boolean"},
+        "content": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+        "content_sha256": {"anyOf": [{"type": "null"}, {"type": "string", "pattern": "^[0-9a-f]{64}$"}]},
+        "json_valid": {"anyOf": [{"type": "null"}, {"type": "boolean"}]},
+        "json": true
+      },
+      "additionalProperties": false
+    },
+    "usage": {"$ref": "#/$defs/usage"},
+    "cost": {
+      "type": "object",
+      "required": [
+        "currency",
+        "estimated_usd",
+        "source",
+        "input_usd_per_1m_tokens",
+        "output_usd_per_1m_tokens",
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens"
+      ],
+      "properties": {
+        "currency": {"const": "USD"},
+        "estimated_usd": {"anyOf": [{"type": "null"}, {"type": "number", "minimum": 0.0}]},
+        "source": {"type": "string", "enum": ["not_configured", "profile.cost"]},
+        "input_usd_per_1m_tokens": {"anyOf": [{"type": "null"}, {"type": "number", "minimum": 0.0}]},
+        "output_usd_per_1m_tokens": {"anyOf": [{"type": "null"}, {"type": "number", "minimum": 0.0}]},
+        "prompt_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]},
+        "completion_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]},
+        "total_tokens": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]}
+      },
+      "additionalProperties": false
+    },
+    "repair": {
+      "type": "object",
+      "required": ["turns"],
+      "properties": {
+        "turns": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "compiler_result": {"$ref": "#/$defs/json_artifact"},
+    "eda_result": {"$ref": "#/$defs/json_artifact"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nullable_integer": {
+      "anyOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]
+    },
+    "usage": {
+      "type": "object",
+      "required": ["prompt_tokens", "completion_tokens", "total_tokens"],
+      "properties": {
+        "prompt_tokens": {"$ref": "#/$defs/nullable_integer"},
+        "completion_tokens": {"$ref": "#/$defs/nullable_integer"},
+        "total_tokens": {"$ref": "#/$defs/nullable_integer"}
+      },
+      "additionalProperties": false
+    },
+    "json_artifact": {
+      "type": "object",
+      "required": ["status", "source", "sha256", "data"],
+      "properties": {
+        "status": {"type": "string", "enum": ["not_run", "recorded"]},
+        "source": {"anyOf": [{"type": "null"}, {"type": "string"}]},
+        "sha256": {"anyOf": [{"type": "null"}, {"type": "string", "pattern": "^[0-9a-f]{64}$"}]},
+        "data": true
+      },
+      "additionalProperties": false
+    }
+  }
+}

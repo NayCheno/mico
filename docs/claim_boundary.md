@@ -54,6 +54,9 @@ The current repository supports these claims when the release gate passes:
 - The LLM benchmark runner can plan the full baseline matrix, run offline
   fixture checks, execute authenticated provider subsets when local credentials
   and budget are configured, and emit sanitized `mico.llm.bench.v0` records.
+- The compiler/CLI can dry-run, apply, and re-check schema-valid JSON AST
+  repair patches through `repair-json`; the LLM benchmark runner uses this path
+  for JSON AST repair turns.
 - Aggregate scripts can merge deterministic and optional LLM artifacts into
   CSV, JSON, and TeX table snippets for the paper.
 
@@ -70,8 +73,8 @@ The current repository must not claim:
 - Timing closure, technology-mapped delay, or Vivado QoR unless a dedicated
   Vivado or mapped-timing artifact is produced.
 - Arbitrary LTL proving or complete temporal contract verification.
-- End-to-end compiler repair-patch application from the CLI until the repair
-  patch path is implemented and validated.
+- Semantic correctness of arbitrary model-proposed repairs beyond the compiler,
+  schema, and EDA gates that accept or reject the patched result.
 - Final submission-readiness until the release manifest, result hashes, paper
   build, and clean-tree checks all pass.
 

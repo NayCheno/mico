@@ -28,6 +28,12 @@ responses by prompt/profile/model hash, evaluates MICO outputs through the
 compiler, runs open-source lint/elaboration for accepted positive candidates,
 and writes sanitized `mico.llm.bench.v0` output.
 
+JSON AST repair turns use the repository-owned compiler path:
+`mico_cli repair-json --apply --json <ast.json> <patch.json>`. The runner
+writes each model patch to an ignored artifact file, invokes that CLI command,
+and then re-runs the normal compiler/EDA scoring path on the patched AST. This
+keeps repair semantics aligned with `schemas/mico_repair_patch.schema.json`.
+
 Use `benchmarks/aggregate_results.py` to merge one or more sanitized LLM batch
 outputs with deterministic benchmark results. The aggregate record preserves
 validate-only attempts as not-scored rows and emits repair-turn, token/cost,

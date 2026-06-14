@@ -20,6 +20,9 @@ This file is the short, traceable status page for the current repository. Use
 - CLI commands for parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report.
 - Diagnostics JSON envelope with `schema_version = mico.diagnostics.v0`,
   semantic labels, affected graph nodes, repair hints, and `repair_action`.
+- Semantic diagnostics from `.mico` input attach parser source-map spans for
+  declarations, endpoints, fields, ports, adapters, and compose members where
+  available; JSON AST input falls back to graph-node references.
 - Source-level JSON AST input/output with `schema_version = mico.ast.v0`,
   plus JSON AST CLI commands for check/build/emit.
 - Parsed ready/valid contract subset for `stable`, `fire`, boolean operators,
@@ -52,6 +55,10 @@ This file is the short, traceable status page for the current repository. Use
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
+- Repository-owned JSON AST repair patch applicator in the compiler/CLI. The
+  `repair-json` command supports dry-run, apply, and immediate re-check using
+  `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch
+  application to this CLI path.
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist and generated
   `build/release/full_check_manifest.json` metadata record.
@@ -59,10 +66,7 @@ This file is the short, traceable status page for the current repository. Use
 
 ## Not Yet Implemented
 
-- Checker diagnostics with concrete source spans for semantic errors; current
-  semantic diagnostics carry graph references and `span: null`.
-- Full repair patch ingestion and application; the patch schema exists, but
-  the compiler does not yet apply patches.
+- Broader semantic repair policies beyond schema-valid JSON AST operations.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
 - Formal harnesses beyond the selected direct stream, width adapter, and
   streaming case-study tasks.

@@ -15,14 +15,15 @@ Commands that report diagnostics use this envelope:
 }
 ```
 
-The schema is `schemas/diagnostics.schema.json`. Parser diagnostics include byte spans plus line and column. Checker diagnostics include stable codes, severity, messages, labels, affected graph nodes, repair hints, and a `repair_action` enum. Checker source spans are optional and currently emitted as `null` when the semantic pass only has a graph reference; the `nodes` array is the stable source reference for LLM repair and benchmark classification.
+The schema is `schemas/diagnostics.schema.json`. Parser diagnostics include byte spans plus line and column. Checker diagnostics include stable codes, severity, messages, labels, affected graph nodes, repair hints, and a `repair_action` enum. For `.mico` input, checker diagnostics attach source-map spans when the parser can map the related declaration, endpoint, field, port, adapter, or compose member. For JSON AST input, spans may be `null`; the `nodes` array is the stable fallback for LLM repair and benchmark classification.
 
 ## Diagnostic shape
 
 Each diagnostic has:
 
 - `span`: a byte/line/column span when available, otherwise `null`.
-- `labels`: primary or secondary labels; semantic labels may carry `span: null`.
+- `labels`: primary or secondary labels; semantic labels may carry `span: null`
+  when the input has no source-byte map.
 - `nodes`: affected graph nodes such as `interface`, `module`, `instance`, `endpoint`, `adapter`, `clock_domain`, or `port`.
 - `hints`: human-readable repair hints.
 - `repair_action`: a stable enum such as `use_adapter`, `reverse_connection`, `add_declaration`, `fix_endpoint`, `fix_width`, or `add_contract`.
@@ -37,6 +38,7 @@ mico dump-ir examples/stream_fifo.mico
 mico dump-ast-json examples/stream_fifo.mico
 mico check-json --format json build/ast/stream_fifo.json
 mico dump-json-ir build/ast/stream_fifo.json
+mico repair-json --dry-run --format json build/ast/broken.json build/patches/repair.json
 ```
 
 `dump-ir` always emits JSON. Its schema is `schemas/mico_ir.schema.json`.
@@ -60,6 +62,7 @@ the CLI unit tests.
 | `ExpectedToken` | parse | A required punctuation token was missing. | Insert the punctuation shown in the message. |
 | `UnexpectedEof` | parse | The file ended before the declaration was complete. | Close the current declaration or block. |
 | `JsonSchemaError` | parse | A MICO JSON AST document failed schema/version/kind validation. | Fix the JSON AST to match `schemas/mico_ast.schema.json`. |
+| `RepairPatchError` | parse | A JSON AST repair patch failed schema validation or could not be applied to the requested AST. | Fix the patch to match `schemas/mico_repair_patch.schema.json` and the target AST. |
 | `DuplicateDeclaration` | check | A top-level clock domain, interface, module, adapter, or compose name is duplicated. | Rename one declaration or merge the duplicate. |
 | `DuplicateField` | check | An interface declares the same field more than once. | Rename or remove the duplicate field. |
 | `DuplicatePort` | check | A module declares the same port more than once. | Rename or remove the duplicate port. |

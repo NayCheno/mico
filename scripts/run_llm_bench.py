@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 from dataclasses import dataclass
 from datetime import UTC, datetime
 import hashlib
@@ -581,7 +580,7 @@ def evaluate_response(
                 "compiler_result": None,
             }
             if isinstance(repair_payload, dict):
-                patched = apply_repair_patch(current_ast, repair_payload)
+                patched = apply_repair_patch(current_ast, repair_payload, artifact_dir, turn)
                 if patched is not None:
                     current_ast = patched
                     patched_path = artifact_dir / f"candidate.repair{turn}.ast.json"
@@ -791,156 +790,44 @@ def build_repair_prompt(task: dict[str, Any], current_ast: dict[str, Any], compi
     return template
 
 
-def apply_repair_patch(ast: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any] | None:
-    if patch.get("schema_version") != "mico.repair_patch.v0":
+def apply_repair_patch(
+    ast: dict[str, Any],
+    patch: dict[str, Any],
+    artifact_dir: Path,
+    turn: int,
+) -> dict[str, Any] | None:
+    ast_path = artifact_dir / f"repair{turn}.input.ast.json"
+    patch_path = artifact_dir / f"repair{turn}.patch.json"
+    stdout_path = artifact_dir / f"repair{turn}.apply.stdout.json"
+    stderr_path = artifact_dir / f"repair{turn}.apply.stderr.txt"
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    ast_path.write_text(json.dumps(ast, indent=2) + "\n", encoding="utf-8")
+    patch_path.write_text(json.dumps(patch, indent=2) + "\n", encoding="utf-8")
+    result = run(
+        [
+            "cargo",
+            "run",
+            "-q",
+            "-p",
+            "mico_cli",
+            "--",
+            "repair-json",
+            "--apply",
+            "--json",
+            source_arg(ast_path),
+            source_arg(patch_path),
+        ],
+        REPO_ROOT / "rust_project",
+        stdout_path=stdout_path,
+        stderr_path=stderr_path,
+    )
+    response = parse_json_file(stdout_path)
+    if response.get("phase") != "check":
         return None
-    if patch.get("kind") != "repair_patch":
+    if result.returncode not in {0, 1}:
         return None
-    operations = patch.get("operations")
-    if not isinstance(operations, list):
-        return None
-    next_ast = copy.deepcopy(ast)
-    for op in operations:
-        if not isinstance(op, dict) or not apply_operation(next_ast, op):
-            return None
-    return next_ast
-
-
-def find_compose(ast: dict[str, Any], name: str) -> dict[str, Any] | None:
-    composes = ast.get("composes", [])
-    if not isinstance(composes, list):
-        return None
-    for compose in composes:
-        if isinstance(compose, dict) and compose.get("name") == name:
-            return compose
-    return None
-
-
-def apply_operation(ast: dict[str, Any], op: dict[str, Any]) -> bool:
-    kind = op.get("op")
-    if kind == "add_adapter":
-        adapter = op.get("adapter")
-        if isinstance(adapter, dict):
-            ast.setdefault("adapters", []).append(adapter)
-            return True
-        return False
-    compose_name = op.get("compose", "Top")
-    compose = find_compose(ast, str(compose_name))
-    if compose is None:
-        return False
-    if kind == "add_instance":
-        instance = op.get("instance")
-        if isinstance(instance, dict):
-            compose.setdefault("instances", []).append(instance)
-            return True
-    if kind == "remove_instance":
-        return remove_named(compose.setdefault("instances", []), str(op.get("name")))
-    if kind == "replace_instance":
-        instances = compose.setdefault("instances", [])
-        return replace_named(instances, str(op.get("name")), op.get("instance"))
-    if kind == "add_connection":
-        connection = op.get("connection")
-        if isinstance(connection, dict):
-            compose.setdefault("connections", []).append(connection)
-            return True
-    if kind == "remove_connection":
-        return remove_connection(compose.setdefault("connections", []), op.get("from"), op.get("to"))
-    if kind == "replace_connection":
-        return replace_connection(
-            compose.setdefault("connections", []),
-            op.get("from"),
-            op.get("to"),
-            op.get("connection"),
-        )
-    if kind == "change_endpoint":
-        return change_endpoint(
-            compose.setdefault("connections", []),
-            op.get("from"),
-            op.get("to"),
-            str(op.get("side")),
-            op.get("endpoint"),
-        )
-    if kind == "update_contract_attribute":
-        return update_adapter_contract(ast, str(op.get("adapter")), str(op.get("value")))
-    return False
-
-
-def remove_named(items: list[Any], name: str) -> bool:
-    original = len(items)
-    items[:] = [item for item in items if not (isinstance(item, dict) and item.get("name") == name)]
-    return len(items) != original
-
-
-def replace_named(items: list[Any], name: str, replacement: Any) -> bool:
-    if not isinstance(replacement, dict):
-        return False
-    for idx, item in enumerate(items):
-        if isinstance(item, dict) and item.get("name") == name:
-            items[idx] = replacement
-            return True
-    return False
-
-
-def endpoint_equal(left: Any, right: Any) -> bool:
-    return isinstance(left, dict) and isinstance(right, dict) and left == right
-
-
-def remove_connection(items: list[Any], source: Any, sink: Any) -> bool:
-    original = len(items)
-    items[:] = [
-        item
-        for item in items
-        if not (
-            isinstance(item, dict)
-            and endpoint_equal(item.get("from"), source)
-            and endpoint_equal(item.get("to"), sink)
-        )
-    ]
-    return len(items) != original
-
-
-def replace_connection(items: list[Any], source: Any, sink: Any, replacement: Any) -> bool:
-    if not isinstance(replacement, dict):
-        return False
-    for idx, item in enumerate(items):
-        if (
-            isinstance(item, dict)
-            and endpoint_equal(item.get("from"), source)
-            and endpoint_equal(item.get("to"), sink)
-        ):
-            items[idx] = replacement
-            return True
-    return False
-
-
-def change_endpoint(items: list[Any], source: Any, sink: Any, side: str, endpoint: Any) -> bool:
-    if side not in {"from", "to"} or not isinstance(endpoint, dict):
-        return False
-    for item in items:
-        if (
-            isinstance(item, dict)
-            and endpoint_equal(item.get("from"), source)
-            and endpoint_equal(item.get("to"), sink)
-        ):
-            item[side] = endpoint
-            return True
-    return False
-
-
-def update_adapter_contract(ast: dict[str, Any], adapter_name: str, value: str) -> bool:
-    adapters = ast.get("adapters", [])
-    if not isinstance(adapters, list):
-        return False
-    for adapter in adapters:
-        if isinstance(adapter, dict) and adapter.get("name") == adapter_name:
-            attributes = adapter.setdefault("attributes", [])
-            for attr in attributes:
-                if isinstance(attr, dict) and attr.get("name") == "contract":
-                    attr["value"] = value
-                    return True
-            attributes.append({"name": "contract", "value": value})
-            return True
-    return False
+    parsed = parse_json_file(ast_path)
+    return parsed or None
 
 
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:

@@ -536,6 +536,7 @@ fn connection_key(compose: &Ident, connection: &ConnectDef) -> String {
 }
 
 pub const MICO_AST_SCHEMA_VERSION: &str = "mico.ast.v0";
+pub const MICO_REPAIR_PATCH_SCHEMA_VERSION: &str = "mico.repair_patch.v0";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -566,6 +567,68 @@ pub struct AstAdapterDef {
 pub struct AstAttribute {
     pub name: Ident,
     pub value: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairPatch {
+    pub schema_version: String,
+    pub kind: String,
+    pub operations: Vec<RepairOperation>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
+pub enum RepairOperation {
+    AddInstance {
+        compose: Ident,
+        instance: InstanceDef,
+    },
+    RemoveInstance {
+        compose: Ident,
+        name: Ident,
+    },
+    ReplaceInstance {
+        compose: Ident,
+        name: Ident,
+        instance: InstanceDef,
+    },
+    AddConnection {
+        compose: Ident,
+        connection: ConnectDef,
+    },
+    RemoveConnection {
+        compose: Ident,
+        from: Endpoint,
+        to: Endpoint,
+    },
+    ReplaceConnection {
+        compose: Ident,
+        from: Endpoint,
+        to: Endpoint,
+        connection: ConnectDef,
+    },
+    AddAdapter {
+        adapter: AstAdapterDef,
+    },
+    ChangeEndpoint {
+        compose: Ident,
+        from: Endpoint,
+        to: Endpoint,
+        side: EndpointSide,
+        endpoint: Endpoint,
+    },
+    UpdateContractAttribute {
+        adapter: Ident,
+        value: String,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EndpointSide {
+    From,
+    To,
 }
 
 impl AstDocument {
@@ -664,6 +727,228 @@ impl From<AstAdapterDef> for AdapterDef {
                 .collect(),
         }
     }
+}
+
+pub fn apply_repair_patch_to_ast(
+    document: &AstDocument,
+    patch: &RepairPatch,
+) -> Result<AstDocument, Diagnostic> {
+    if patch.schema_version != MICO_REPAIR_PATCH_SCHEMA_VERSION {
+        return Err(repair_patch_error(format!(
+            "expected repair patch schema_version `{}`, found `{}`",
+            MICO_REPAIR_PATCH_SCHEMA_VERSION, patch.schema_version
+        )));
+    }
+    if patch.kind != "repair_patch" {
+        return Err(repair_patch_error(format!(
+            "expected repair patch kind `repair_patch`, found `{}`",
+            patch.kind
+        )));
+    }
+    if patch.operations.is_empty() {
+        return Err(repair_patch_error(
+            "repair patch must contain at least one operation",
+        ));
+    }
+
+    let mut next = document.clone();
+    for operation in &patch.operations {
+        apply_repair_operation(&mut next, operation)?;
+    }
+    Ok(next)
+}
+
+fn apply_repair_operation(
+    document: &mut AstDocument,
+    operation: &RepairOperation,
+) -> Result<(), Diagnostic> {
+    match operation {
+        RepairOperation::AddInstance { compose, instance } => {
+            let compose = find_compose_mut(document, compose)?;
+            compose.instances.push(instance.clone());
+            Ok(())
+        }
+        RepairOperation::RemoveInstance { compose, name } => {
+            let compose = find_compose_mut(document, compose)?;
+            remove_named_instance(&mut compose.instances, name)
+                .then_some(())
+                .ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "compose `{}` has no instance `{}` to remove",
+                        compose.name, name
+                    ))
+                })
+        }
+        RepairOperation::ReplaceInstance {
+            compose,
+            name,
+            instance,
+        } => {
+            let compose = find_compose_mut(document, compose)?;
+            replace_named_instance(&mut compose.instances, name, instance.clone())
+                .then_some(())
+                .ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "compose `{}` has no instance `{}` to replace",
+                        compose.name, name
+                    ))
+                })
+        }
+        RepairOperation::AddConnection {
+            compose,
+            connection,
+        } => {
+            let compose = find_compose_mut(document, compose)?;
+            compose.connections.push(connection.clone());
+            Ok(())
+        }
+        RepairOperation::RemoveConnection { compose, from, to } => {
+            let compose = find_compose_mut(document, compose)?;
+            remove_connection(&mut compose.connections, from, to)
+                .then_some(())
+                .ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "compose `{}` has no connection `{}` -> `{}` to remove",
+                        compose.name, from, to
+                    ))
+                })
+        }
+        RepairOperation::ReplaceConnection {
+            compose,
+            from,
+            to,
+            connection,
+        } => {
+            let compose = find_compose_mut(document, compose)?;
+            replace_connection(&mut compose.connections, from, to, connection.clone())
+                .then_some(())
+                .ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "compose `{}` has no connection `{}` -> `{}` to replace",
+                        compose.name, from, to
+                    ))
+                })
+        }
+        RepairOperation::AddAdapter { adapter } => {
+            document.adapters.push(adapter.clone());
+            Ok(())
+        }
+        RepairOperation::ChangeEndpoint {
+            compose,
+            from,
+            to,
+            side,
+            endpoint,
+        } => {
+            let compose = find_compose_mut(document, compose)?;
+            let connection =
+                find_connection_mut(&mut compose.connections, from, to).ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "compose `{}` has no connection `{}` -> `{}` to update",
+                        compose.name, from, to
+                    ))
+                })?;
+            match side {
+                EndpointSide::From => connection.from = endpoint.clone(),
+                EndpointSide::To => connection.to = endpoint.clone(),
+            }
+            Ok(())
+        }
+        RepairOperation::UpdateContractAttribute { adapter, value } => {
+            let adapter_def = document
+                .adapters
+                .iter_mut()
+                .find(|item| item.name == *adapter)
+                .ok_or_else(|| {
+                    repair_patch_error(format!(
+                        "repair patch references unknown adapter `{adapter}`"
+                    ))
+                })?;
+            if let Some(attribute) = adapter_def
+                .attributes
+                .iter_mut()
+                .find(|attribute| attribute.name.0 == "contract")
+            {
+                attribute.value = value.clone();
+            } else {
+                adapter_def.attributes.push(AstAttribute {
+                    name: Ident::from("contract"),
+                    value: value.clone(),
+                });
+            }
+            Ok(())
+        }
+    }
+}
+
+fn find_compose_mut<'a>(
+    document: &'a mut AstDocument,
+    name: &Ident,
+) -> Result<&'a mut ComposeDef, Diagnostic> {
+    document
+        .composes
+        .iter_mut()
+        .find(|compose| compose.name == *name)
+        .ok_or_else(|| {
+            repair_patch_error(format!("repair patch references unknown compose `{name}`"))
+        })
+}
+
+fn remove_named_instance(instances: &mut Vec<InstanceDef>, name: &Ident) -> bool {
+    let original = instances.len();
+    instances.retain(|instance| instance.name != *name);
+    instances.len() != original
+}
+
+fn replace_named_instance(
+    instances: &mut [InstanceDef],
+    name: &Ident,
+    replacement: InstanceDef,
+) -> bool {
+    for instance in instances {
+        if instance.name == *name {
+            *instance = replacement;
+            return true;
+        }
+    }
+    false
+}
+
+fn remove_connection(connections: &mut Vec<ConnectDef>, from: &Endpoint, to: &Endpoint) -> bool {
+    let original = connections.len();
+    connections.retain(|connection| connection.from != *from || connection.to != *to);
+    connections.len() != original
+}
+
+fn replace_connection(
+    connections: &mut [ConnectDef],
+    from: &Endpoint,
+    to: &Endpoint,
+    replacement: ConnectDef,
+) -> bool {
+    for connection in connections {
+        if connection.from == *from && connection.to == *to {
+            *connection = replacement;
+            return true;
+        }
+    }
+    false
+}
+
+fn find_connection_mut<'a>(
+    connections: &'a mut [ConnectDef],
+    from: &Endpoint,
+    to: &Endpoint,
+) -> Option<&'a mut ConnectDef> {
+    connections
+        .iter_mut()
+        .find(|connection| connection.from == *from && connection.to == *to)
+}
+
+fn repair_patch_error(message: impl Into<String>) -> Diagnostic {
+    Diagnostic::error("RepairPatchError", message)
+        .with_label(LabelStyle::Primary, "repair patch could not be applied")
+        .with_repair(RepairAction::FixSyntax)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2527,6 +2812,141 @@ mod tests {
         assert_has_code(&diagnostics, "ContractViolation");
     }
 
+    #[test]
+    fn repair_patch_fixes_missing_width_adapter_ast() {
+        let mut document = AstDocument::from_design(&width_adapter_design());
+        document.adapters.clear();
+        document.composes[0].connections[0].adapter = None;
+
+        let diagnostics = check_design(&document.clone().into_design().unwrap());
+        assert_has_code(&diagnostics, "InterfaceMismatch");
+
+        let patch = repair_patch(vec![
+            RepairOperation::AddAdapter {
+                adapter: AstAdapterDef::from(&width_adapter_design().adapters[0]),
+            },
+            RepairOperation::ReplaceConnection {
+                compose: id("Top"),
+                from: endpoint("p", "tx"),
+                to: endpoint("c", "rx"),
+                connection: ConnectDef {
+                    from: endpoint("p", "tx"),
+                    to: endpoint("c", "rx"),
+                    adapter: Some(id("Widen32To64")),
+                },
+            },
+        ]);
+
+        let patched = apply_repair_patch_to_ast(&document, &patch).unwrap();
+        let diagnostics = check_design(&patched.into_design().unwrap());
+        assert!(diagnostics.is_empty(), "{diagnostics:#?}");
+    }
+
+    #[test]
+    fn repair_patch_applies_supported_operations() {
+        let mut document = AstDocument::from_design(&stream_design());
+        document.adapters.push(AstAdapterDef {
+            name: id("Pipe"),
+            from_interface: id("StreamU32"),
+            from_domain: id("Sys"),
+            to_interface: id("StreamU32"),
+            to_domain: id("Sys"),
+            kind: id("pipeline"),
+            attributes: vec![],
+        });
+
+        let patch = repair_patch(vec![
+            RepairOperation::AddInstance {
+                compose: id("Top"),
+                instance: InstanceDef {
+                    name: id("tmp"),
+                    module: id("Producer"),
+                },
+            },
+            RepairOperation::ReplaceInstance {
+                compose: id("Top"),
+                name: id("tmp"),
+                instance: InstanceDef {
+                    name: id("alt"),
+                    module: id("Producer"),
+                },
+            },
+            RepairOperation::AddConnection {
+                compose: id("Top"),
+                connection: ConnectDef {
+                    from: endpoint("alt", "tx"),
+                    to: endpoint("c", "rx"),
+                    adapter: None,
+                },
+            },
+            RepairOperation::ChangeEndpoint {
+                compose: id("Top"),
+                from: endpoint("alt", "tx"),
+                to: endpoint("c", "rx"),
+                side: EndpointSide::From,
+                endpoint: endpoint("p", "tx"),
+            },
+            RepairOperation::ReplaceConnection {
+                compose: id("Top"),
+                from: endpoint("p", "tx"),
+                to: endpoint("c", "rx"),
+                connection: ConnectDef {
+                    from: endpoint("alt", "tx"),
+                    to: endpoint("c", "rx"),
+                    adapter: Some(id("Pipe")),
+                },
+            },
+            RepairOperation::RemoveConnection {
+                compose: id("Top"),
+                from: endpoint("alt", "tx"),
+                to: endpoint("c", "rx"),
+            },
+            RepairOperation::RemoveInstance {
+                compose: id("Top"),
+                name: id("alt"),
+            },
+            RepairOperation::UpdateContractAttribute {
+                adapter: id("Pipe"),
+                value: "preserves_ready_valid".to_string(),
+            },
+            RepairOperation::AddAdapter {
+                adapter: AstAdapterDef {
+                    name: id("CustomAudit"),
+                    from_interface: id("StreamU32"),
+                    from_domain: id("Sys"),
+                    to_interface: id("StreamU32"),
+                    to_domain: id("Sys"),
+                    kind: id("custom"),
+                    attributes: vec![AstAttribute {
+                        name: id("contract"),
+                        value: "preserves_order".to_string(),
+                    }],
+                },
+            },
+        ]);
+
+        let patched = apply_repair_patch_to_ast(&document, &patch).unwrap();
+        let compose = &patched.composes[0];
+        assert!(
+            compose
+                .instances
+                .iter()
+                .all(|instance| instance.name != id("alt"))
+        );
+        assert_eq!(compose.connections.len(), 1);
+        assert_eq!(patched.adapters.len(), 2);
+        assert_eq!(
+            patched.adapters[0].attributes[0].value,
+            "preserves_ready_valid"
+        );
+
+        let bad_patch = repair_patch(vec![RepairOperation::RemoveInstance {
+            compose: id("Missing"),
+            name: id("none"),
+        }]);
+        assert!(apply_repair_patch_to_ast(&document, &bad_patch).is_err());
+    }
+
     fn stream_design() -> Design {
         Design {
             clock_domains: vec![ClockDomain {
@@ -2698,6 +3118,21 @@ mod tests {
             diagnostics.iter().any(|diagnostic| diagnostic.code == code),
             "expected diagnostic code `{code}` in {diagnostics:#?}"
         );
+    }
+
+    fn repair_patch(operations: Vec<RepairOperation>) -> RepairPatch {
+        RepairPatch {
+            schema_version: MICO_REPAIR_PATCH_SCHEMA_VERSION.to_string(),
+            kind: "repair_patch".to_string(),
+            operations,
+        }
+    }
+
+    fn endpoint(instance: &str, port: &str) -> Endpoint {
+        Endpoint {
+            instance: id(instance),
+            port: id(port),
+        }
     }
 
     fn id(value: &str) -> Ident {

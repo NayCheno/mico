@@ -6,7 +6,8 @@ use mico_codegen::{emit_json_ir, emit_sva_skeleton, emit_systemverilog, emit_tra
 use mico_frontend::{ParseError, parse_mico};
 use mico_ir::{
     AstDocument, Design, Diagnostic, DiagnosticLabel, DiagnosticNode, LabelStyle, RepairAction,
-    Severity, SourceSpan, TypedDesign, build_typed_ir, check_design,
+    RepairPatch, Severity, SourceSpan, TypedDesign, apply_repair_patch_to_ast, build_typed_ir,
+    check_design,
 };
 use serde_json::{Value, json};
 
@@ -26,6 +27,7 @@ enum Command {
     EmitJsonSv,
     EmitJsonSva,
     EmitJsonTrace,
+    RepairJson,
     Verify,
     Report,
 }
@@ -36,11 +38,19 @@ enum OutputFormat {
     Json,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RepairMode {
+    DryRun,
+    Apply,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct CliArgs {
     command: Command,
     path: String,
+    patch_path: Option<String>,
     format: OutputFormat,
+    repair_mode: RepairMode,
 }
 
 fn main() {
@@ -120,6 +130,13 @@ fn main() {
             let typed = build_or_exit(&design, cli.format);
             print!("{}", emit_traceability_report(&typed));
         }
+        Command::RepairJson => {
+            let patch_path = cli.patch_path.as_deref().unwrap_or_else(|| {
+                eprintln!("missing patch path for repair-json");
+                process::exit(2);
+            });
+            repair_json_or_exit(&cli.path, &source, patch_path, cli.repair_mode, cli.format);
+        }
         Command::Verify => {
             let design = parse_or_exit(&source, cli.format);
             let typed = build_or_exit(&design, cli.format);
@@ -134,6 +151,7 @@ fn main() {
 
 fn parse_args(args: &[String]) -> Result<CliArgs, String> {
     let mut format = OutputFormat::Text;
+    let mut repair_mode = RepairMode::DryRun;
     let mut positional = Vec::new();
     let mut idx = 1;
 
@@ -147,24 +165,45 @@ fn parse_args(args: &[String]) -> Result<CliArgs, String> {
             format = parse_output_format(value)?;
         } else if let Some(value) = arg.strip_prefix("--format=") {
             format = parse_output_format(value)?;
+        } else if arg == "--json" {
+            format = OutputFormat::Json;
+        } else if arg == "--dry-run" {
+            repair_mode = RepairMode::DryRun;
+        } else if arg == "--apply" {
+            repair_mode = RepairMode::Apply;
         } else {
             positional.push(arg.clone());
         }
         idx += 1;
     }
 
-    let (command, path) = match positional.as_slice() {
-        [command, path] => parse_simple_command(command).map(|command| (command, path.clone()))?,
+    let (command, path, patch_path) = match positional.as_slice() {
+        [command, path] => {
+            let command = parse_simple_command(command)?;
+            if command == Command::RepairJson {
+                return Err("repair-json requires <ast.json> <patch.json>".to_string());
+            }
+            (command, path.clone(), None)
+        }
+        [command, path, patch] if command == "repair-json" || command == "apply-repair-json" => {
+            (Command::RepairJson, path.clone(), Some(patch.clone()))
+        }
         [emit, emit_format, path] if emit == "emit" => {
-            parse_emit_format(emit_format).map(|command| (command, path.clone()))?
+            parse_emit_format(emit_format).map(|command| (command, path.clone(), None))?
         }
         _ => return Err("invalid arguments".to_string()),
     };
 
+    if command != Command::RepairJson && repair_mode != RepairMode::DryRun {
+        return Err("--apply is only valid with repair-json".to_string());
+    }
+
     Ok(CliArgs {
         command,
         path,
+        patch_path,
         format,
+        repair_mode,
     })
 }
 
@@ -192,6 +231,7 @@ fn parse_simple_command(command: &str) -> Result<Command, String> {
         "emit-json-sv" => Ok(Command::EmitJsonSv),
         "emit-json-sva" => Ok(Command::EmitJsonSva),
         "emit-json-trace" => Ok(Command::EmitJsonTrace),
+        "repair-json" | "apply-repair-json" => Ok(Command::RepairJson),
         "verify" => Ok(Command::Verify),
         "report" => Ok(Command::Report),
         _ => Err(format!("unknown command `{command}`")),
@@ -209,7 +249,7 @@ fn parse_emit_format(format: &str) -> Result<Command, String> {
 }
 
 fn usage() -> &'static str {
-    "usage: mico [--format text|json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>\n       mico [--format text|json] emit <json|sv|sva|trace> <file.mico>"
+    "usage: mico [--format text|json|--json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>\n       mico [--format text|json|--json] emit <json|sv|sva|trace> <file.mico>\n       mico [--format text|json|--json] repair-json [--dry-run|--apply] <ast.json> <patch.json>"
 }
 
 fn read_source_or_exit(path: &str, format: OutputFormat) -> String {
@@ -246,6 +286,10 @@ fn parse_json_ast_or_exit(source: &str, format: OutputFormat) -> Design {
 }
 
 fn parse_json_ast(source: &str) -> Result<Design, Vec<Diagnostic>> {
+    parse_json_ast_document(source)?.into_design()
+}
+
+fn parse_json_ast_document(source: &str) -> Result<AstDocument, Vec<Diagnostic>> {
     let document = serde_json::from_str::<AstDocument>(source).map_err(|err| {
         vec![
             Diagnostic::error("JsonSchemaError", format!("invalid MICO JSON AST: {err}"))
@@ -256,7 +300,10 @@ fn parse_json_ast(source: &str) -> Result<Design, Vec<Diagnostic>> {
                 .with_repair(RepairAction::FixSyntax),
         ]
     })?;
-    document.into_design()
+    if document.schema_version != mico_ir::MICO_AST_SCHEMA_VERSION || document.kind != "design" {
+        document.clone().into_design()?;
+    }
+    Ok(document)
 }
 
 fn check_or_exit(design: &Design, print_success: bool, format: OutputFormat) {
@@ -309,6 +356,77 @@ fn report_or_exit(design: &Design, format: OutputFormat) {
             println!("diagnostics:");
             print_diagnostics_stdout(&diagnostics);
         }
+    }
+
+    if has_errors(&diagnostics) {
+        process::exit(1);
+    }
+}
+
+fn repair_json_or_exit(
+    ast_path: &str,
+    ast_source: &str,
+    patch_path: &str,
+    mode: RepairMode,
+    format: OutputFormat,
+) {
+    let document = parse_json_ast_document(ast_source).unwrap_or_else(|diagnostics| {
+        print_phase_diagnostics("parse", &diagnostics, format);
+        process::exit(1);
+    });
+    let patch_source = read_source_or_exit(patch_path, format);
+    let patch = serde_json::from_str::<RepairPatch>(&patch_source).unwrap_or_else(|err| {
+        let diagnostics = vec![
+            Diagnostic::error(
+                "RepairPatchError",
+                format!("invalid repair patch JSON: {err}"),
+            )
+            .with_label(
+                LabelStyle::Primary,
+                "repair patch does not match schemas/mico_repair_patch.schema.json",
+            )
+            .with_repair(RepairAction::FixSyntax),
+        ];
+        print_phase_diagnostics("parse", &diagnostics, format);
+        process::exit(1);
+    });
+    let patched = apply_repair_patch_to_ast(&document, &patch).unwrap_or_else(|diagnostic| {
+        let diagnostics = vec![diagnostic];
+        print_phase_diagnostics("parse", &diagnostics, format);
+        process::exit(1);
+    });
+    let design = patched.clone().into_design().unwrap_or_else(|diagnostics| {
+        print_phase_diagnostics("parse", &diagnostics, format);
+        process::exit(1);
+    });
+    let diagnostics = check_design(&design);
+
+    if mode == RepairMode::Apply {
+        let mut out = serde_json::to_string_pretty(&patched)
+            .expect("MICO AST JSON serialization should be infallible");
+        out.push('\n');
+        fs::write(ast_path, out).unwrap_or_else(|err| {
+            match format {
+                OutputFormat::Text => eprintln!("failed to write `{}`: {}", ast_path, err),
+                OutputFormat::Json => print_json(io_error_response_json("parse", ast_path, &err)),
+            }
+            process::exit(1);
+        });
+    }
+
+    match format {
+        OutputFormat::Text => {
+            match mode {
+                RepairMode::DryRun => println!("MICO repair patch dry run passed"),
+                RepairMode::Apply => println!("MICO repair patch applied"),
+            }
+            if diagnostics.is_empty() {
+                println!("MICO check passed after repair");
+            } else {
+                print_diagnostics_stdout(&diagnostics);
+            }
+        }
+        OutputFormat::Json => print_json(repair_response_json(mode, &patch, &diagnostics)),
     }
 
     if has_errors(&diagnostics) {
@@ -450,6 +568,30 @@ fn build_summary_response_json(typed: &TypedDesign) -> Value {
         "phase": "build",
         "summary": typed_summary_json(typed),
         "diagnostics": [],
+    })
+}
+
+fn repair_response_json(
+    mode: RepairMode,
+    patch: &RepairPatch,
+    diagnostics: &[Diagnostic],
+) -> Value {
+    json!({
+        "schema_version": "mico.diagnostics.v0",
+        "ok": !has_errors(diagnostics),
+        "phase": "check",
+        "summary": {
+            "patch_operations": patch.operations.len(),
+        },
+        "checks": {
+            "repair_mode": match mode {
+                RepairMode::DryRun => "dry_run",
+                RepairMode::Apply => "apply",
+            },
+            "patch_application": "passed",
+            "recheck": if has_errors(diagnostics) { "failed" } else { "passed" },
+        },
+        "diagnostics": diagnostics.iter().map(diagnostic_json).collect::<Vec<_>>(),
     })
 }
 
@@ -613,7 +755,9 @@ mod tests {
             CliArgs {
                 command: Command::Build,
                 path: "input.mico".to_string(),
+                patch_path: None,
                 format: OutputFormat::Text,
+                repair_mode: RepairMode::DryRun,
             }
         );
     }
@@ -626,7 +770,9 @@ mod tests {
             CliArgs {
                 command: Command::EmitSv,
                 path: "input.mico".to_string(),
+                patch_path: None,
                 format: OutputFormat::Text,
+                repair_mode: RepairMode::DryRun,
             }
         );
     }
@@ -639,7 +785,9 @@ mod tests {
             CliArgs {
                 command: Command::EmitTrace,
                 path: "input.mico".to_string(),
+                patch_path: None,
                 format: OutputFormat::Text,
+                repair_mode: RepairMode::DryRun,
             }
         );
     }
@@ -652,7 +800,9 @@ mod tests {
             CliArgs {
                 command: Command::CheckJson,
                 path: "input.json".to_string(),
+                patch_path: None,
                 format: OutputFormat::Text,
+                repair_mode: RepairMode::DryRun,
             }
         );
 
@@ -662,7 +812,9 @@ mod tests {
             CliArgs {
                 command: Command::EmitJsonSv,
                 path: "input.json".to_string(),
+                patch_path: None,
                 format: OutputFormat::Text,
+                repair_mode: RepairMode::DryRun,
             }
         );
     }
@@ -675,7 +827,9 @@ mod tests {
             CliArgs {
                 command: Command::Check,
                 path: "input.mico".to_string(),
+                patch_path: None,
                 format: OutputFormat::Json,
+                repair_mode: RepairMode::DryRun,
             }
         );
     }
@@ -688,7 +842,51 @@ mod tests {
             CliArgs {
                 command: Command::Check,
                 path: "input.mico".to_string(),
+                patch_path: None,
                 format: OutputFormat::Json,
+                repair_mode: RepairMode::DryRun,
+            }
+        );
+    }
+
+    #[test]
+    fn parses_json_alias() {
+        let args = strings(&["mico", "--json", "check", "input.mico"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::Check,
+                path: "input.mico".to_string(),
+                patch_path: None,
+                format: OutputFormat::Json,
+                repair_mode: RepairMode::DryRun,
+            }
+        );
+    }
+
+    #[test]
+    fn parses_repair_json_command() {
+        let args = strings(&["mico", "--json", "repair-json", "input.json", "patch.json"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::RepairJson,
+                path: "input.json".to_string(),
+                patch_path: Some("patch.json".to_string()),
+                format: OutputFormat::Json,
+                repair_mode: RepairMode::DryRun,
+            }
+        );
+
+        let args = strings(&["mico", "repair-json", "--apply", "input.json", "patch.json"]);
+        assert_eq!(
+            parse_args(&args).unwrap(),
+            CliArgs {
+                command: Command::RepairJson,
+                path: "input.json".to_string(),
+                patch_path: Some("patch.json".to_string()),
+                format: OutputFormat::Text,
+                repair_mode: RepairMode::Apply,
             }
         );
     }
@@ -696,6 +894,10 @@ mod tests {
     #[test]
     fn rejects_bad_usage() {
         let args = strings(&["mico", "emit", "bad", "input.mico"]);
+        assert!(parse_args(&args).is_err());
+        let args = strings(&["mico", "--apply", "check", "input.mico"]);
+        assert!(parse_args(&args).is_err());
+        let args = strings(&["mico", "repair-json", "input.json"]);
         assert!(parse_args(&args).is_err());
     }
 

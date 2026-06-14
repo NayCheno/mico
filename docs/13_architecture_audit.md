@@ -60,14 +60,17 @@ parsed ready/valid v0 contract subset, and adapter guarantee coverage checks.
 
 Current limitations:
 
-- Semantic diagnostics carry graph nodes, labels, repair actions, and optional
-  spans; many checker diagnostics still use `span: null` where only graph
-  references are available.
+- Semantic diagnostics from `.mico` input carry graph nodes, labels, repair
+  actions, and source-map spans where the parser can map the related
+  declaration, endpoint, field, port, adapter, or compose member. JSON AST
+  inputs still use graph nodes as the fallback when source-byte locations are
+  unavailable.
 - Contracts are parsed only for a small v0 ready/valid subset. The compiler
   checks conservative source/adapter/sink requirement coverage, but it does not
   prove arbitrary temporal logic.
-- Repair patch ingestion is not implemented; the schema exists for future
-  compiler-feedback loops.
+- Repair patch ingestion is implemented for source-level JSON AST documents
+  through the repository-owned `repair-json` CLI command, with dry-run, apply,
+  and immediate re-check behavior.
 
 ### Codegen And CLI
 
@@ -196,8 +199,10 @@ validate-only mode for prompt/profile matrix checks, offline-fixture mode for
 compiler/EDA path validation without provider requests, authenticated execute
 mode through the OpenAI SDK, response caching, JSON extraction, compiler checks,
 open-source lint/elaboration for accepted positive candidates, and a Python
-repair-patch applicator for the JSON AST repair baseline. Batch records use
-`schema_version = mico.llm.bench.v0` and never store API keys.
+repair-patch path for the JSON AST repair baseline. Batch records use
+`schema_version = mico.llm.bench.v0` and never store API keys. Patch
+application is delegated to `mico_cli repair-json` so CLI and benchmark repair
+semantics stay aligned.
 
 Current limitations:
 

@@ -67,10 +67,13 @@ Current limitations:
 `mico_codegen` emits deterministic `serde_json` typed IR with
 `schema_version = mico.ir.v0`, conservative SystemVerilog wrappers,
 ready/valid SVA skeleton modules, and traceability JSON with
-`schema_version = mico.traceability.v0`. Generated wrappers use
+`schema_version = mico.traceability.v0`. Traceability reports include stable
+compose-connection source references, generated signal names, leaf module port
+names, adapter boundary records, and SVA contract IDs. Generated wrappers use
 ``default_nettype none``, flatten interface fields into primitive wires,
 instantiate leaf modules, instantiate explicit adapters, and pass clock/reset
-signals to CDC adapters.
+signals to CDC adapters. The positive seed tasks have committed golden
+SV/SVA/traceability fixtures checked by `mico_codegen` tests.
 
 `mico_cli` supports:
 
@@ -214,13 +217,12 @@ paper workflow.
 
 The next work should proceed in this order:
 
-1. Add codegen golden tests for SV, SVA, and traceability outputs.
-2. Add per-task simulation and selected formal harnesses.
-3. Add QoR parsing and aggregation.
-4. Expand ModuleComposeBench to 50+ tasks across L1-L6.
-5. Add LLM batch baselines and compiler-feedback repair loops.
-6. Generate paper tables from benchmark artifacts.
-7. Add subsystem case studies and release-candidate validation scripts.
+1. Add per-task simulation and selected formal harnesses.
+2. Add QoR parsing and aggregation.
+3. Expand ModuleComposeBench to 50+ tasks across L1-L6.
+4. Add LLM batch baselines and compiler-feedback repair loops.
+5. Generate paper tables from benchmark artifacts.
+6. Add subsystem case studies and release-candidate validation scripts.
 
 ## Claim Boundary
 
@@ -234,6 +236,8 @@ Current claims supported by the repository:
 - The compiler parses and checks a conservative ready/valid v0 contract subset
   for adapter requirement coverage.
 - Positive seed wrappers pass open-source lint/elaboration smoke checks.
+- Positive seed SV/SVA/traceability output is covered by committed golden
+  fixtures.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
 

@@ -21,17 +21,16 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 
 ## Current next milestones
 
-1. Add golden SV/SVA/traceability fixtures.
-2. Add per-task simulation harnesses.
-3. Add selected per-task formal harnesses and adapter properties.
-4. Add QoR parsing and report aggregation.
-5. Expand ModuleComposeBench from the 12 seed tasks to a publishable 50+ task suite.
-6. Add LLM baseline and compiler-feedback repair-loop runners.
-7. Generate paper tables from benchmark artifacts and keep claims aligned with results.
+1. Add per-task simulation harnesses.
+2. Add selected per-task formal harnesses and adapter properties.
+3. Add QoR parsing and report aggregation.
+4. Expand ModuleComposeBench from the 12 seed tasks to a publishable 50+ task suite.
+5. Add LLM baseline and compiler-feedback repair-loop runners.
+6. Generate paper tables from benchmark artifacts and keep claims aligned with results.
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, a 12-task ModuleComposeBench runner, schema-versioned diagnostic/AST/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim per-task simulation, formal proof, QoR, arbitrary LTL, or multi-model pass-rate improvements.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for positive seeds, a 12-task ModuleComposeBench runner, schema-versioned diagnostic/AST/IR/trace/LLM records, and an SDK-backed LLM provider smoke test. The paper is still a submission candidate in progress and does not yet claim per-task simulation, formal proof, QoR, arbitrary LTL, or multi-model pass-rate improvements.
 
 For the current claim boundary, read `docs/current_status.md` and `docs/13_architecture_audit.md`.
 

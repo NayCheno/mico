@@ -28,6 +28,7 @@ dependencies = [
 name = "mico_codegen"
 version = "0.1.0"
 dependencies = [
+ "mico_frontend",
  "mico_ir",
  "serde_json",
 ]

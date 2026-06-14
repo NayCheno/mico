@@ -1,0 +1,41 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] f_output__c_rx_payload,
+  input logic f_output__c_rx_ready,
+  input logic f_output__c_rx_valid,
+  input logic [31:0] p_tx__f_input_payload,
+  input logic p_tx__f_input_ready,
+  input logic p_tx__f_input_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect p.tx -> f.input
+  // [1] connect f.output -> c.rx
+
+  // mico_conn_0_src_p_tx_stable_payload: stable payload while valid is held without ready on p.tx (StreamU32, StreamU32.stable_payload)
+  logic [31:0] mico_conn_0_src_p_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_p_tx_stable_payload
+    mico_conn_0_src_p_tx_stable_payload_payload_q <= p_tx__f_input_payload;
+    if (!rst && p_tx__f_input_valid && !p_tx__f_input_ready) begin
+      assert (p_tx__f_input_payload == mico_conn_0_src_p_tx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_f_output_stable_payload: stable payload while valid is held without ready on f.output (StreamU32, StreamU32.stable_payload)
+  logic [31:0] mico_conn_1_src_f_output_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_f_output_stable_payload
+    mico_conn_1_src_f_output_stable_payload_payload_q <= f_output__c_rx_payload;
+    if (!rst && f_output__c_rx_valid && !f_output__c_rx_ready) begin
+      assert (f_output__c_rx_payload == mico_conn_1_src_f_output_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

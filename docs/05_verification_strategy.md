@@ -16,7 +16,12 @@ The current compiler emits the first traceability contract through:
 cargo run -p mico_cli -- emit trace examples/stream_fifo.mico
 ```
 
-The report schema is `schemas/traceability.schema.json`. It maps each checked MICO connection to generated SV field wires and to the ready/valid stable-payload assertion skeletons emitted by `emit-sva`.
+The report schema is `schemas/traceability.schema.json`. It maps each checked
+MICO connection to a stable compose-connection source reference, generated SV
+field wires, leaf module port names, adapter boundary signals, and the
+ready/valid stable-payload assertion skeletons emitted by `emit-sva`. Assertion
+records include a `contract_id` such as `StreamU32.stable_payload` so generated
+properties can be traced back to the interface contract subset.
 
 ## Interface contract examples
 

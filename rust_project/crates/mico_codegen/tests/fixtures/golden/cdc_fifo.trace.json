@@ -1,0 +1,212 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "aclk",
+        "arst_n",
+        "bclk",
+        "brst_n"
+      ],
+      "connections": [
+        {
+          "adapter": "AsyncFifo32",
+          "adapter_boundary": {
+            "adapter": "AsyncFifo32",
+            "from_endpoint": "dma.tx",
+            "input_signals": [
+              {
+                "endpoint": "dma.tx",
+                "field": "payload",
+                "leaf_port": "tx_payload",
+                "role": "producer",
+                "signal": "dma_tx__asyncfifo32_0_in_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "dma.tx",
+                "field": "valid",
+                "leaf_port": "tx_valid",
+                "role": "producer",
+                "signal": "dma_tx__asyncfifo32_0_in_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "dma.tx",
+                "field": "ready",
+                "leaf_port": "tx_ready",
+                "role": "consumer",
+                "signal": "dma_tx__asyncfifo32_0_in_ready",
+                "width_bits": 1
+              }
+            ],
+            "instance": "asyncfifo32_0",
+            "output_signals": [
+              {
+                "endpoint": "aes.rx",
+                "field": "payload",
+                "leaf_port": "rx_payload",
+                "role": "producer",
+                "signal": "asyncfifo32_0__aes_rx_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "aes.rx",
+                "field": "valid",
+                "leaf_port": "rx_valid",
+                "role": "producer",
+                "signal": "asyncfifo32_0__aes_rx_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "aes.rx",
+                "field": "ready",
+                "leaf_port": "rx_ready",
+                "role": "consumer",
+                "signal": "asyncfifo32_0__aes_rx_ready",
+                "width_bits": 1
+              }
+            ],
+            "to_endpoint": "aes.rx"
+          },
+          "adapter_instance": "asyncfifo32_0",
+          "field_bindings": [
+            {
+              "endpoint": "dma.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "dma_tx__asyncfifo32_0_in_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "dma.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "dma_tx__asyncfifo32_0_in_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "dma.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "dma_tx__asyncfifo32_0_in_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "aes.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "asyncfifo32_0__aes_rx_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "aes.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "asyncfifo32_0__aes_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "aes.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "asyncfifo32_0__aes_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Aclk",
+            "endpoint": "dma.tx",
+            "instance": "dma",
+            "interface": "StreamU32",
+            "module": "Dma",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "adapt",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Bclk",
+            "endpoint": "aes.rx",
+            "instance": "aes",
+            "interface": "StreamU32B",
+            "module": "Aes",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Aclk",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "aclk",
+          "contract_id": "StreamU32.stable_payload",
+          "domain": "Aclk",
+          "endpoint": "dma.tx",
+          "interface": "StreamU32",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_dma_tx_stable_payload",
+          "payload": "dma_tx__asyncfifo32_0_in_payload",
+          "ready": "dma_tx__asyncfifo32_0_in_ready",
+          "reset": "arst_n",
+          "valid": "dma_tx__asyncfifo32_0_in_valid"
+        },
+        {
+          "clock": "bclk",
+          "contract_id": "StreamU32B.stable_payload",
+          "domain": "Bclk",
+          "endpoint": "aes.rx",
+          "interface": "StreamU32B",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_dst_aes_rx_stable_payload",
+          "payload": "asyncfifo32_0__aes_rx_payload",
+          "ready": "asyncfifo32_0__aes_rx_ready",
+          "reset": "brst_n",
+          "valid": "asyncfifo32_0__aes_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "asyncfifo32_0__aes_rx_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "asyncfifo32_0__aes_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "asyncfifo32_0__aes_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "dma_tx__asyncfifo32_0_in_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "dma_tx__asyncfifo32_0_in_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "dma_tx__asyncfifo32_0_in_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

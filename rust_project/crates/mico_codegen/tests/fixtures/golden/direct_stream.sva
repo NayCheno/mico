@@ -1,0 +1,28 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] p_tx__c_rx_payload,
+  input logic p_tx__c_rx_ready,
+  input logic p_tx__c_rx_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect p.tx -> c.rx
+
+  // mico_conn_0_src_p_tx_stable_payload: stable payload while valid is held without ready on p.tx (StreamU32, StreamU32.stable_payload)
+  logic [31:0] mico_conn_0_src_p_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_p_tx_stable_payload
+    mico_conn_0_src_p_tx_stable_payload_payload_q <= p_tx__c_rx_payload;
+    if (!rst && p_tx__c_rx_valid && !p_tx__c_rx_ready) begin
+      assert (p_tx__c_rx_payload == mico_conn_0_src_p_tx_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

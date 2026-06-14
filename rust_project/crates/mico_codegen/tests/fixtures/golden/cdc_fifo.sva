@@ -1,0 +1,42 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic aclk,
+  input logic arst_n,
+  input logic bclk,
+  input logic brst_n,
+  input logic [31:0] asyncfifo32_0__aes_rx_payload,
+  input logic asyncfifo32_0__aes_rx_ready,
+  input logic asyncfifo32_0__aes_rx_valid,
+  input logic [31:0] dma_tx__asyncfifo32_0_in_payload,
+  input logic dma_tx__asyncfifo32_0_in_ready,
+  input logic dma_tx__asyncfifo32_0_in_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] adapt dma.tx -> AsyncFifo32 -> aes.rx
+
+  // mico_conn_0_src_dma_tx_stable_payload: stable payload while valid is held without ready on dma.tx (StreamU32, StreamU32.stable_payload)
+  logic [31:0] mico_conn_0_src_dma_tx_stable_payload_payload_q;
+  always_ff @(posedge aclk) begin : mico_conn_0_src_dma_tx_stable_payload
+    mico_conn_0_src_dma_tx_stable_payload_payload_q <= dma_tx__asyncfifo32_0_in_payload;
+    if (arst_n && dma_tx__asyncfifo32_0_in_valid && !dma_tx__asyncfifo32_0_in_ready) begin
+      assert (dma_tx__asyncfifo32_0_in_payload == mico_conn_0_src_dma_tx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_0_dst_aes_rx_stable_payload: stable payload while valid is held without ready on aes.rx (StreamU32B, StreamU32B.stable_payload)
+  logic [31:0] mico_conn_0_dst_aes_rx_stable_payload_payload_q;
+  always_ff @(posedge bclk) begin : mico_conn_0_dst_aes_rx_stable_payload
+    mico_conn_0_dst_aes_rx_stable_payload_payload_q <= asyncfifo32_0__aes_rx_payload;
+    if (brst_n && asyncfifo32_0__aes_rx_valid && !asyncfifo32_0__aes_rx_ready) begin
+      assert (asyncfifo32_0__aes_rx_payload == mico_conn_0_dst_aes_rx_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

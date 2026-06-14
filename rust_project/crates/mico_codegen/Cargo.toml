@@ -9,5 +9,8 @@ license.workspace = true
 mico_ir = { path = "../mico_ir" }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 
+[dev-dependencies]
+mico_frontend = { path = "../mico_frontend" }
+
 [lib]
 path = "src/lib.rs"

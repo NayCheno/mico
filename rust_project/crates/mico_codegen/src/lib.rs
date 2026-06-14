@@ -260,34 +260,67 @@ fn trace_compose_json(
             json!({"name": name, "width_bits": width})
         }).collect::<Vec<_>>(),
         "connections": compose.connections.iter().enumerate().map(|(idx, connection)| {
-            trace_connection_json(idx, connection, interface_map, &bindings)
+            trace_connection_json(&compose.name, idx, connection, interface_map, &bindings)
         }).collect::<Vec<_>>(),
         "sva_properties": assertions.iter().map(assertion_json).collect::<Vec<_>>(),
     })
 }
 
 fn trace_connection_json(
+    compose_name: &Ident,
     index: usize,
     connection: &TypedConnection,
     interface_map: &HashMap<Ident, &TypedInterface>,
     bindings: &HashMap<PortFieldKey, String>,
 ) -> Value {
-    let mut field_bindings = trace_endpoint_fields(&connection.from, interface_map, bindings);
-    field_bindings.extend(trace_endpoint_fields(
-        &connection.to,
-        interface_map,
-        bindings,
-    ));
+    let source_bindings = trace_endpoint_fields(&connection.from, interface_map, bindings);
+    let sink_bindings = trace_endpoint_fields(&connection.to, interface_map, bindings);
+    let mut field_bindings = source_bindings.clone();
+    field_bindings.extend(sink_bindings.clone());
+    let adapter_instance = connection
+        .adapter
+        .as_ref()
+        .map(|name| adapter_instance_name(name, index));
 
     json!({
         "index": index,
         "kind": if connection.adapter.is_some() { "adapt" } else { "connect" },
+        "source_ref": connection_source_ref_json(compose_name, index),
         "from": endpoint_json(&connection.from),
         "to": endpoint_json(&connection.to),
         "adapter": connection.adapter.as_ref().map(ident_str),
-        "adapter_instance": connection.adapter.as_ref().map(|name| format!("{}_{}", sv_ident_lower(name), index)),
+        "adapter_instance": adapter_instance,
+        "adapter_boundary": adapter_boundary_json(connection, index, &source_bindings, &sink_bindings),
         "field_bindings": field_bindings,
     })
+}
+
+fn connection_source_ref_json(compose_name: &Ident, index: usize) -> Value {
+    json!({
+        "kind": "compose_connection",
+        "compose": ident_str(compose_name),
+        "index": index,
+        "span": Value::Null,
+    })
+}
+
+fn adapter_boundary_json(
+    connection: &TypedConnection,
+    index: usize,
+    source_bindings: &[Value],
+    sink_bindings: &[Value],
+) -> Value {
+    match &connection.adapter {
+        Some(adapter) => json!({
+            "adapter": ident_str(adapter),
+            "instance": adapter_instance_name(adapter, index),
+            "from_endpoint": connection.from.endpoint.to_string(),
+            "to_endpoint": connection.to.endpoint.to_string(),
+            "input_signals": source_bindings,
+            "output_signals": sink_bindings,
+        }),
+        None => Value::Null,
+    }
 }
 
 fn trace_endpoint_fields(
@@ -309,12 +342,17 @@ fn trace_endpoint_fields(
                     "endpoint": endpoint.endpoint.to_string(),
                     "field": ident_str(&field.name),
                     "role": role_str(&field.role),
+                    "leaf_port": leaf_field_port(&endpoint.endpoint.port, &field.name),
                     "signal": signal,
                     "width_bits": field.width_bits,
                 })
             })
         })
         .collect()
+}
+
+fn leaf_field_port(port: &Ident, field: &Ident) -> String {
+    sv_ident_str(&format!("{}_{}", port, field))
 }
 
 pub fn emit_systemverilog(design: &Design) -> String {
@@ -450,7 +488,7 @@ fn build_connection_bindings(
             let Some(adapter) = adapter_map.get(adapter_name) else {
                 continue;
             };
-            let instance_name = format!("{}_{}", sv_ident_lower(adapter_name), idx);
+            let instance_name = adapter_instance_name(adapter_name, idx);
             let input_prefix = format!(
                 "{}__{}_in",
                 endpoint_prefix(&connection.from.endpoint),
@@ -722,6 +760,10 @@ fn endpoint_prefix(endpoint: &Endpoint) -> String {
     sv_ident_str(&format!("{}_{}", endpoint.instance, endpoint.port))
 }
 
+fn adapter_instance_name(adapter_name: &Ident, index: usize) -> String {
+    format!("{}_{}", sv_ident_lower(adapter_name), index)
+}
+
 fn sv_ident(ident: &Ident) -> String {
     sv_ident_str(&ident.0)
 }
@@ -754,6 +796,7 @@ struct ReadyValidAssertion {
     clock: String,
     reset: String,
     reset_inactive: String,
+    contract_id: String,
     payload: String,
     payload_width: Option<u32>,
     valid: String,
@@ -893,8 +936,8 @@ fn emit_sva_connection_comments(compose: &TypedCompose, out: &mut String) {
 
 fn emit_ready_valid_assertion(assertion: &ReadyValidAssertion, out: &mut String) {
     out.push_str(&format!(
-        "  // {}: stable payload while valid is held without ready on {} ({})\n",
-        assertion.name, assertion.endpoint, assertion.interface
+        "  // {}: stable payload while valid is held without ready on {} ({}, {})\n",
+        assertion.name, assertion.endpoint, assertion.interface, assertion.contract_id
     ));
     out.push_str("  logic ");
     if let Some(width) = assertion.payload_width.filter(|width| *width > 1) {
@@ -977,6 +1020,9 @@ fn collect_ready_valid_assertion(
     if !interface_requires_stable_payload(interface) {
         return;
     }
+    let Some(contract_id) = stable_payload_contract_id(interface) else {
+        return;
+    };
     let Some(payload_field) = interface.protocol.payload_fields.first() else {
         return;
     };
@@ -1026,6 +1072,7 @@ fn collect_ready_valid_assertion(
         clock,
         reset,
         reset_inactive,
+        contract_id,
         payload: payload.clone(),
         payload_width: wires.get(payload).copied().flatten(),
         valid: valid.clone(),
@@ -1038,6 +1085,14 @@ fn interface_requires_stable_payload(interface: &TypedInterface) -> bool {
         .contracts
         .iter()
         .any(|contract| contract_requires_stable_payload(contract))
+}
+
+fn stable_payload_contract_id(interface: &TypedInterface) -> Option<String> {
+    interface
+        .contracts
+        .iter()
+        .find(|contract| contract_requires_stable_payload(contract))
+        .map(|contract| format!("{}.{}", interface.name, contract.name))
 }
 
 fn contract_requires_stable_payload(contract: &ContractDef) -> bool {
@@ -1066,6 +1121,7 @@ fn assertion_json(assertion: &ReadyValidAssertion) -> Value {
     json!({
         "name": &assertion.name,
         "kind": "ready_valid_stable_payload",
+        "contract_id": &assertion.contract_id,
         "endpoint": &assertion.endpoint,
         "interface": ident_str(&assertion.interface),
         "domain": ident_str(&assertion.domain),
@@ -1091,6 +1147,73 @@ fn sva_module_name(name: &Ident) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    struct GoldenCase {
+        name: &'static str,
+        source: &'static str,
+        sv: &'static str,
+        sva: &'static str,
+        trace: &'static str,
+    }
+
+    const GOLDEN_CASES: &[GoldenCase] = &[
+        GoldenCase {
+            name: "stream_fifo",
+            source: include_str!("../../../examples/stream_fifo.mico"),
+            sv: include_str!("../tests/fixtures/golden/stream_fifo.sv"),
+            sva: include_str!("../tests/fixtures/golden/stream_fifo.sva"),
+            trace: include_str!("../tests/fixtures/golden/stream_fifo.trace.json"),
+        },
+        GoldenCase {
+            name: "cdc_fifo",
+            source: include_str!("../../../examples/cdc_fifo.mico"),
+            sv: include_str!("../tests/fixtures/golden/cdc_fifo.sv"),
+            sva: include_str!("../tests/fixtures/golden/cdc_fifo.sva"),
+            trace: include_str!("../tests/fixtures/golden/cdc_fifo.trace.json"),
+        },
+        GoldenCase {
+            name: "width_adapter",
+            source: include_str!("../../../examples/width_adapter.mico"),
+            sv: include_str!("../tests/fixtures/golden/width_adapter.sv"),
+            sva: include_str!("../tests/fixtures/golden/width_adapter.sva"),
+            trace: include_str!("../tests/fixtures/golden/width_adapter.trace.json"),
+        },
+        GoldenCase {
+            name: "direct_stream",
+            source: include_str!("../../../../benchmarks/tasks/T004_direct_stream/expected.mico"),
+            sv: include_str!("../tests/fixtures/golden/direct_stream.sv"),
+            sva: include_str!("../tests/fixtures/golden/direct_stream.sva"),
+            trace: include_str!("../tests/fixtures/golden/direct_stream.trace.json"),
+        },
+    ];
+
+    #[test]
+    fn golden_codegen_outputs_match_fixtures() {
+        for case in GOLDEN_CASES {
+            let design = mico_frontend::parse_mico(case.source)
+                .unwrap_or_else(|errors| panic!("{} parse failed: {errors:#?}", case.name));
+            assert_eq!(
+                emit_systemverilog(&design),
+                case.sv,
+                "{} SystemVerilog golden drifted",
+                case.name
+            );
+            assert_eq!(
+                emit_sva_skeleton(&design),
+                case.sva,
+                "{} SVA golden drifted",
+                case.name
+            );
+            let typed = build_typed_ir(&design)
+                .unwrap_or_else(|errors| panic!("{} typed IR failed: {errors:#?}", case.name));
+            assert_eq!(
+                emit_traceability_report(&typed),
+                case.trace,
+                "{} traceability golden drifted",
+                case.name
+            );
+        }
+    }
 
     #[test]
     fn emits_direct_ready_valid_wires_and_ports() {

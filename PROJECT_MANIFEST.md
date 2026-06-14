@@ -13,6 +13,7 @@
 | `scripts/llm-provider-smoke.py` | SDK-backed provider validation and smoke request script; writes sanitized outputs under ignored `build/llm/`. |
 | `schemas/mico_ast.schema.json` | Source-level MICO JSON AST schema used by `dump-ast-json`, `check-json`, and JSON AST baselines. |
 | `schemas/mico_repair_patch.schema.json` | Minimal compiler-feedback repair patch schema for instance, connection, adapter, endpoint, and contract-attribute edits. |
+| `schemas/traceability.schema.json` | Generated traceability report schema for source references, SV signals, leaf ports, adapter boundaries, and SVA contract IDs. |
 | `schemas/llm_run.schema.json` | Sanitized LLM validate/smoke run record schema with prompt hash, profile, repair, compiler, EDA, usage, and cost metadata. |
 | `docs/06_evaluation_plan.md` | Experiments, baselines, metrics, ablations. |
 | `docs/08_roadmap.md` | Month-by-month roadmap. |

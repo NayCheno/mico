@@ -70,10 +70,11 @@
     },
     "connection_trace": {
       "type": "object",
-      "required": ["index", "kind", "from", "to", "adapter", "adapter_instance", "field_bindings"],
+      "required": ["index", "kind", "source_ref", "from", "to", "adapter", "adapter_instance", "adapter_boundary", "field_bindings"],
       "properties": {
         "index": {"type": "integer", "minimum": 0},
         "kind": {"type": "string", "enum": ["connect", "adapt"]},
+        "source_ref": {"$ref": "#/$defs/source_ref"},
         "from": {"$ref": "mico_ir.schema.json#/$defs/endpoint"},
         "to": {"$ref": "mico_ir.schema.json#/$defs/endpoint"},
         "adapter": {
@@ -82,7 +83,48 @@
         "adapter_instance": {
           "anyOf": [{"type": "null"}, {"type": "string"}]
         },
+        "adapter_boundary": {
+          "anyOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/adapter_boundary"}
+          ]
+        },
         "field_bindings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/field_binding"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "source_ref": {
+      "type": "object",
+      "required": ["kind", "compose", "index", "span"],
+      "properties": {
+        "kind": {"type": "string", "const": "compose_connection"},
+        "compose": {"type": "string"},
+        "index": {"type": "integer", "minimum": 0},
+        "span": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "string"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "adapter_boundary": {
+      "type": "object",
+      "required": ["adapter", "instance", "from_endpoint", "to_endpoint", "input_signals", "output_signals"],
+      "properties": {
+        "adapter": {"type": "string"},
+        "instance": {"type": "string"},
+        "from_endpoint": {"type": "string"},
+        "to_endpoint": {"type": "string"},
+        "input_signals": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/field_binding"}
+        },
+        "output_signals": {
           "type": "array",
           "items": {"$ref": "#/$defs/field_binding"}
         }
@@ -91,11 +133,12 @@
     },
     "field_binding": {
       "type": "object",
-      "required": ["endpoint", "field", "role", "signal", "width_bits"],
+      "required": ["endpoint", "field", "role", "leaf_port", "signal", "width_bits"],
       "properties": {
         "endpoint": {"type": "string"},
         "field": {"type": "string"},
         "role": {"type": "string", "enum": ["producer", "consumer"]},
+        "leaf_port": {"type": "string"},
         "signal": {"type": "string"},
         "width_bits": {
           "anyOf": [
@@ -108,10 +151,11 @@
     },
     "sva_property": {
       "type": "object",
-      "required": ["name", "kind", "endpoint", "interface", "domain", "clock", "reset", "payload", "valid", "ready"],
+      "required": ["name", "kind", "contract_id", "endpoint", "interface", "domain", "clock", "reset", "payload", "valid", "ready"],
       "properties": {
         "name": {"type": "string"},
         "kind": {"type": "string", "const": "ready_valid_stable_payload"},
+        "contract_id": {"type": "string"},
         "endpoint": {"type": "string"},
         "interface": {"type": "string"},
         "domain": {"type": "string"},

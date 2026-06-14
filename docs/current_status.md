@@ -25,7 +25,9 @@ This file is the short, traceable status page for the current repository. Use
   implication, and `until`; known adapter guarantees are checked against
   sink-side contract requirements and adapter kind boundaries.
 - Conservative SystemVerilog wrapper emission, SVA skeleton emission, and
-  traceability JSON emission.
+  traceability JSON emission with source references, generated signal mappings,
+  leaf module port names, adapter boundaries, and contract IDs.
+- Golden SV/SVA/traceability fixture tests for the four positive seed tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
 - Twelve ModuleComposeBench seed tasks with four positives and eight negatives.
@@ -40,7 +42,6 @@ This file is the short, traceable status page for the current repository. Use
 - Full repair patch ingestion and application; the patch schema exists, but
   the compiler does not yet apply patches.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Golden SV/SVA/traceability fixture tests.
 - Per-task simulation harnesses.
 - Per-task formal harnesses beyond the minimal smoke proof.
 - QoR parser and report aggregation.

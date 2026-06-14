@@ -1,0 +1,210 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": "Widen32To64",
+          "adapter_boundary": {
+            "adapter": "Widen32To64",
+            "from_endpoint": "s.tx",
+            "input_signals": [
+              {
+                "endpoint": "s.tx",
+                "field": "payload",
+                "leaf_port": "tx_payload",
+                "role": "producer",
+                "signal": "s_tx__widen32to64_0_in_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "s.tx",
+                "field": "valid",
+                "leaf_port": "tx_valid",
+                "role": "producer",
+                "signal": "s_tx__widen32to64_0_in_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "s.tx",
+                "field": "ready",
+                "leaf_port": "tx_ready",
+                "role": "consumer",
+                "signal": "s_tx__widen32to64_0_in_ready",
+                "width_bits": 1
+              }
+            ],
+            "instance": "widen32to64_0",
+            "output_signals": [
+              {
+                "endpoint": "t.rx",
+                "field": "payload",
+                "leaf_port": "rx_payload",
+                "role": "producer",
+                "signal": "widen32to64_0__t_rx_payload",
+                "width_bits": 64
+              },
+              {
+                "endpoint": "t.rx",
+                "field": "valid",
+                "leaf_port": "rx_valid",
+                "role": "producer",
+                "signal": "widen32to64_0__t_rx_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "t.rx",
+                "field": "ready",
+                "leaf_port": "rx_ready",
+                "role": "consumer",
+                "signal": "widen32to64_0__t_rx_ready",
+                "width_bits": 1
+              }
+            ],
+            "to_endpoint": "t.rx"
+          },
+          "adapter_instance": "widen32to64_0",
+          "field_bindings": [
+            {
+              "endpoint": "s.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "s_tx__widen32to64_0_in_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "s.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "s_tx__widen32to64_0_in_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "s.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "s_tx__widen32to64_0_in_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "t.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "widen32to64_0__t_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "t.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "widen32to64_0__t_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "t.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "widen32to64_0__t_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "s.tx",
+            "instance": "s",
+            "interface": "StreamU32",
+            "module": "Source32",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "adapt",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "t.rx",
+            "instance": "t",
+            "interface": "StreamU64",
+            "module": "Sink64",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "StreamU32.stable_payload",
+          "domain": "Sys",
+          "endpoint": "s.tx",
+          "interface": "StreamU32",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_s_tx_stable_payload",
+          "payload": "s_tx__widen32to64_0_in_payload",
+          "ready": "s_tx__widen32to64_0_in_ready",
+          "reset": "rst",
+          "valid": "s_tx__widen32to64_0_in_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "StreamU64.stable_payload",
+          "domain": "Sys",
+          "endpoint": "t.rx",
+          "interface": "StreamU64",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_dst_t_rx_stable_payload",
+          "payload": "widen32to64_0__t_rx_payload",
+          "ready": "widen32to64_0__t_rx_ready",
+          "reset": "rst",
+          "valid": "widen32to64_0__t_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "s_tx__widen32to64_0_in_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "s_tx__widen32to64_0_in_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "s_tx__widen32to64_0_in_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "widen32to64_0__t_rx_payload",
+          "width_bits": 64
+        },
+        {
+          "name": "widen32to64_0__t_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "widen32to64_0__t_rx_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

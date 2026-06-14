@@ -120,9 +120,9 @@ Supported now:
   tasks.
 - Nine-task representative host-Vivado out-of-context QoR/timing subset with
   generated/reference summaries for `T001`, `T003`, and `T058`--`T064`.
-- Held-out manifest with 12 scoring tasks, including three additional
-  subsystem case studies and three paired negative variants; deterministic
-  held-out scoring currently passes 12/12 expected outcomes.
+- Held-out manifest with 20 scoring tasks, including seven subsystem positives
+  and seven paired negative variants; deterministic held-out scoring currently
+  passes 20/20 expected outcomes.
 - Historical sanitized low-cost LLM matrix summary showing a negative result
   for the original prompts.
 - Structured v2 authenticated LLM full matrix across public-development and

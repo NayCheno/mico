@@ -34,9 +34,9 @@ Full matrix:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_public_dev_v2.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_v2.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_v2.json --out-json build/bench/aggregate_dac2027_llm_v2.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_v2.json --aggregate-result build/bench/aggregate_dac2027_llm_v2.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m5_heldout_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_heldout20.json"
 ```
 
 ## Public-Development Results
@@ -73,44 +73,44 @@ matrix:
 
 ## Held-Out Results
 
-Run ID: `5f6cda725ff4f2e7`.
+Run ID: `38a6b47f9d51a71b`.
 
 | Profile | Baseline | JSON valid | Positive compiler pass | Positive lint pass | Unsafe rejection |
 |---|---|---:|---:|---:|---:|
-| `smoke` | `direct_verilog` | 5/12 | n/a | 0/6 | n/a |
-| `smoke` | `sv_interface` | 5/12 | n/a | 0/6 | n/a |
-| `smoke` | `mico_source` | 10/12 | 0/6 | 0/6 | 6/6 |
-| `smoke` | `mico_json_ast` | 12/12 | 6/6 | 6/6 | 6/6 |
-| `smoke` | `mico_json_ast_repair` | 12/12 | 6/6 | 6/6 | 6/6 |
-| `low_cost_crosscheck` | `direct_verilog` | 11/12 | n/a | 0/6 | n/a |
-| `low_cost_crosscheck` | `sv_interface` | 12/12 | n/a | 0/6 | n/a |
-| `low_cost_crosscheck` | `mico_source` | 12/12 | 0/6 | 0/6 | 6/6 |
-| `low_cost_crosscheck` | `mico_json_ast` | 12/12 | 6/6 | 6/6 | 6/6 |
-| `low_cost_crosscheck` | `mico_json_ast_repair` | 12/12 | 6/6 | 6/6 | 6/6 |
-| `quality_code` | `direct_verilog` | 7/12 | n/a | 1/6 | n/a |
-| `quality_code` | `sv_interface` | 8/12 | n/a | 0/6 | n/a |
-| `quality_code` | `mico_source` | 11/12 | 0/6 | 0/6 | 6/6 |
-| `quality_code` | `mico_json_ast` | 12/12 | 6/6 | 6/6 | 6/6 |
-| `quality_code` | `mico_json_ast_repair` | 12/12 | 6/6 | 6/6 | 6/6 |
+| `smoke` | `direct_verilog` | 9/20 | n/a | 0/10 | n/a |
+| `smoke` | `sv_interface` | 9/20 | n/a | 0/10 | n/a |
+| `smoke` | `mico_source` | 15/20 | 0/10 | 0/10 | 10/10 |
+| `smoke` | `mico_json_ast` | 20/20 | 10/10 | 10/10 | 10/10 |
+| `smoke` | `mico_json_ast_repair` | 20/20 | 10/10 | 10/10 | 10/10 |
+| `low_cost_crosscheck` | `direct_verilog` | 19/20 | n/a | 0/10 | n/a |
+| `low_cost_crosscheck` | `sv_interface` | 19/20 | n/a | 0/10 | n/a |
+| `low_cost_crosscheck` | `mico_source` | 20/20 | 0/10 | 0/10 | 10/10 |
+| `low_cost_crosscheck` | `mico_json_ast` | 20/20 | 9/10 | 9/10 | 9/10 |
+| `low_cost_crosscheck` | `mico_json_ast_repair` | 20/20 | 10/10 | 10/10 | 10/10 |
+| `quality_code` | `direct_verilog` | 12/20 | n/a | 2/10 | n/a |
+| `quality_code` | `sv_interface` | 13/20 | n/a | 0/10 | n/a |
+| `quality_code` | `mico_source` | 18/20 | 0/10 | 0/10 | 10/10 |
+| `quality_code` | `mico_json_ast` | 20/20 | 10/10 | 10/10 | 10/10 |
+| `quality_code` | `mico_json_ast_repair` | 20/20 | 10/10 | 10/10 | 10/10 |
 
 Paired final-pass comparisons for `mico_json_ast_repair` on the held-out
 matrix:
 
 | Comparison | Comparable attempts | Repair wins | Baseline wins | Ties |
 |---|---:|---:|---:|---:|
-| vs. `direct_verilog` | 36 | 19 | 0 | 17 |
-| vs. `sv_interface` | 36 | 19 | 0 | 17 |
-| vs. `mico_source` | 36 | 18 | 0 | 18 |
-| vs. `mico_json_ast` | 36 | 0 | 0 | 36 |
+| vs. `direct_verilog` | 60 | 30 | 0 | 30 |
+| vs. `sv_interface` | 60 | 31 | 0 | 29 |
+| vs. `mico_source` | 60 | 30 | 0 | 30 |
+| vs. `mico_json_ast` | 60 | 2 | 0 | 58 |
 
 ## Repair Evidence
 
 - Public-dev repair rows: 186.
 - Public-dev rows with repair turns: 10.
 - Public-dev accepted compiler-after-repair rows: 10.
-- Held-out repair rows: 36.
-- Held-out rows with repair turns: 3.
-- Held-out accepted compiler-after-repair rows: 3.
+- Held-out repair rows: 60.
+- Held-out rows with repair turns: 4.
+- Held-out accepted compiler-after-repair rows: 4.
 
 All accepted repair-turn wins in this run use the explicitly marked
 `deterministic_adapter_instance_collapse` fallback. The paper may claim that
@@ -122,8 +122,8 @@ must not claim that the free-form model repair patch alone is broadly reliable.
 | Artifact | SHA-256 |
 |---|---|
 | `build/llm/bench_execute_dac2027_public_dev_v2.json` | `cc6bc3c11cc9ed434790f85506a8aa5d1c5d154ad66d61faff7ce83fc8fe9803` |
-| `build/llm/bench_execute_dac2027_heldout_v2.json` | `d27be9e9d8d1decbd5bc7a5885457894858f92741c4951a046cb11064769eea6` |
-| `build/bench/aggregate_dac2027_llm_v2.json` | `8fb1a2c0f1d230d6da3525868f158bf2004e64f4685e3ad29ec3e086b64a667b` |
+| `build/llm/bench_execute_dac2027_heldout_20.json` | `866902f272cf072b17c5161a3d32e91f592e2b9be2ff67b32924dfc8954b9072` |
+| `build/bench/aggregate_dac2027_llm_heldout20.json` | `65165e8c55ff2d8c4abf1d15a8b793c2ba9caa153b42aabba666e1b7ba832e2e` |
 | `build/llm/repair_fallback_v1_targeted.json` | `5be654a3e02f2d0b49a8d29024826ac4c54f11b765391f9f64ce099075e2a466` |
 
 ## Claim Boundary

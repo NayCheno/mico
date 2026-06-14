@@ -79,9 +79,10 @@ The committed `T001`--`T062` tasks in
 split. They are used for deterministic regression, documentation, prompt
 debugging, and artifact reproduction. The separate
 `benchmarks/module_compose_bench_heldout.yaml` manifest is the held-out scoring
-split. It includes three additional subsystem case studies (`T063`--`T065`),
-their paired negative variants (`T066`--`T068`), and fixed seed calibration
-tasks that cover L1--L3. Full LLM advantage claims must report public-dev and
+split. It includes seven additional subsystem case-study positives
+(`T063`--`T065`, `T069`, `T071`, `T073`, and `T075`), seven paired negative
+variants, and fixed seed calibration tasks that cover L1--L3. Full LLM
+advantage claims must report public-dev and
 held-out results separately; sanitized held-out prompts, results, aggregate
 hashes, and manifest metadata should be archived as release assets after
 scoring.
@@ -154,8 +155,9 @@ and `qor` over QoR-enabled positive tasks.
 L3/L5/L6 still contain seed approximations, but T058--T062 add dedicated
 streaming, width-bridge, register/status, protocol-bridge, and telemetry
 subsystem RTL case studies.
-The held-out manifest adds T063--T065 for AXI/APB wrapper, video pipeline, and
-explicit CDC event/status case studies.
+The held-out manifest adds T063--T065 and T069/T071/T073/T075 for AXI/APB
+wrapper, video pipeline, explicit CDC event/status, telemetry, protocol bridge,
+and register/status case studies.
 
 ## Paper Table Aggregation
 

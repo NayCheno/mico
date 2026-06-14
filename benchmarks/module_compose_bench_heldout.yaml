@@ -1,12 +1,13 @@
 name: ModuleComposeBenchHeldOut
-version: 0.1.0
-minimum_tasks: 12
+version: 0.2.0
+minimum_tasks: 20
 purpose: Held-out scoring manifest for DAC 2027 prompt and case-study validation.
 scope_notes:
   - This manifest is not used for prompt iteration; final LLM claims must report it separately from the public development manifest.
-  - It adds three dedicated held-out subsystem cases, bringing the committed case-study corpus from 5 public-dev cases to 8 total cases.
-  - The held-out cases cover AXI/APB wrapper composition, video-style pipeline composition, and explicit CDC event/status composition.
+  - It adds seven dedicated held-out subsystem positives, bringing the committed case-study corpus from 5 public-dev cases to 12 total cases.
+  - The held-out cases cover AXI/APB wrapper composition, video-style pipeline composition, explicit CDC event/status composition, telemetry filtering, request/response protocol bridging, and register/status composition.
   - T063--T065 have committed MICO source, RTL collateral, directed simulation, QoR references, and paired negative variants T066--T068.
+  - T069--T076 extend held-out realism with four additional subsystem variants and four paired hard negatives using existing case-study RTL collateral.
   - CDC correctness remains out of scope; the CDC case uses smoke FIFO collateral and may only be claimed as explicit-adapter gating plus smoke validation.
 levels:
   L1: same-domain direct interface connections
@@ -21,7 +22,7 @@ split_policy:
     task_selector: none
   held_out:
     status: committed_held_out
-    description: T063--T068 are dedicated held-out scoring cases; the remaining seed tasks provide fixed per-level calibration coverage for the runner.
+    description: T063--T076 are dedicated held-out scoring cases; the remaining seed tasks provide fixed per-level calibration coverage for the runner.
     release_policy: Archive sanitized held-out prompts, result JSON, aggregate hashes, and this manifest hash as release assets after scoring.
   prompt_leakage_controls:
     - Prompt builders must strip expected compose bodies from MICO sources for held-out scoring.
@@ -226,6 +227,126 @@ tasks:
       compose_pass: false
       lint_pass: false
       diagnostics: [DirectionMismatch]
+  - id: T069_telemetry_filter_holdout_case
+    level: L6
+    type: positive
+    path: tasks/T069_telemetry_filter_holdout_case
+    request: Connect a telemetry source through a filter, explicit width adapter, accumulator, and host sink using renamed held-out subsystem instances.
+    module_inventory: [CaseTelemetrySource, CaseTelemetryFilter, CaseTelemetryAccumulator64, CaseHostSink64]
+    interface_inventory: [Telemetry32, Telemetry64]
+    adapter_inventory: [CaseWiden32To64]
+    mico_source: benchmarks/tasks/T069_telemetry_filter_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study, heldout_subsystem, telemetry_chain, explicit_adapter]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T070_telemetry_missing_widen_holdout
+    level: L6
+    type: negative
+    path: tasks/T070_telemetry_missing_widen_holdout
+    request: Reject a telemetry filter path that connects a 32-bit filter output directly into the 64-bit accumulator without the widening adapter.
+    module_inventory: [CaseTelemetrySource, CaseTelemetryFilter, CaseTelemetryAccumulator64, CaseHostSink64]
+    interface_inventory: [Telemetry32, Telemetry64]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T070_telemetry_missing_widen_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, heldout_subsystem, unsafe_width_without_adapter, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+  - id: T071_protocol_bridge_holdout_case
+    level: L5
+    type: positive
+    path: tasks/T071_protocol_bridge_holdout_case
+    request: Connect a held-out request source through a request/response protocol bridge into a response sink.
+    module_inventory: [CaseProtocolSource, CaseProtocolBridge, CaseProtocolSink]
+    interface_inventory: [ProtoReq, ProtoRsp]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T071_protocol_bridge_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study, heldout_subsystem, protocol_bridge, request_response]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T072_protocol_reversed_response_holdout
+    level: L5
+    type: negative
+    path: tasks/T072_protocol_reversed_response_holdout
+    request: Reject a held-out protocol bridge variant that drives the bridge response output from the sink response input.
+    module_inventory: [CaseProtocolSource, CaseProtocolBridge, CaseProtocolSink]
+    interface_inventory: [ProtoReq, ProtoRsp]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T072_protocol_reversed_response_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, heldout_subsystem, direction_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+  - id: T073_register_status_holdout_case
+    level: L5
+    type: positive
+    path: tasks/T073_register_status_holdout_case
+    request: Connect a held-out APB-like command stream through a register file into a status sink with renamed instances.
+    module_inventory: [CaseApbCommandSource, CaseRegisterFile, CaseStatusSink]
+    interface_inventory: [RegWord]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T073_register_status_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study, heldout_subsystem, register_wrapper, status_path]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T074_register_status_reversed_holdout
+    level: L5
+    type: negative
+    path: tasks/T074_register_status_reversed_holdout
+    request: Reject a held-out register/status variant that drives the register-file status output from the status sink input.
+    module_inventory: [CaseApbCommandSource, CaseRegisterFile, CaseStatusSink]
+    interface_inventory: [RegWord]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T074_register_status_reversed_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, heldout_subsystem, direction_mismatch, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+  - id: T075_video_pipeline_holdout_case
+    level: L6
+    type: positive
+    path: tasks/T075_video_pipeline_holdout_case
+    request: Connect a held-out pixel stream through a line buffer and threshold stage into a frame sink with renamed instances.
+    module_inventory: [CasePixelSource, CaseLineBuffer, CaseThresholdFilter, CaseFrameSink]
+    interface_inventory: [PixelStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T075_video_pipeline_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study, heldout_subsystem, video_pipeline, filter_chain]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T076_video_missing_stage_holdout
+    level: L6
+    type: negative
+    path: tasks/T076_video_missing_stage_holdout
+    request: Reject a held-out video pipeline that connects through an undeclared threshold filter instance.
+    module_inventory: [CasePixelSource, CaseLineBuffer, CaseFrameSink]
+    interface_inventory: [PixelStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T076_video_missing_stage_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, heldout_subsystem, unknown_instance, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [UnknownInstance]
 metrics:
   - Compose-Pass@1
   - Repair-Turns

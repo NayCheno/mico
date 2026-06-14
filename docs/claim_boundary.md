@@ -72,6 +72,9 @@ The current repository supports these claims when the release gate passes:
 - The committed benchmark manifest is schema-valid and documented as the public
   development split; final LLM advantage claims still require separately
   archived held-out results.
+- The committed held-out manifest contains 20 scoring tasks with ten positives,
+  ten negatives, seven subsystem positives, and seven paired negative variants;
+  deterministic held-out scoring currently passes 20/20 expected outcomes.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
 - All 36 positive tasks pass Icarus/VVP simulation smoke checks. Twenty-eight use

@@ -1,0 +1,34 @@
+clockdom Sys(clk, rst);
+
+interface ProtoReq @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface ProtoRsp @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseProtocolSource @Sys {
+  out req: ProtoReq;
+}
+
+extern module CaseProtocolBridge @Sys {
+  in req: ProtoReq;
+  out rsp: ProtoRsp;
+}
+
+extern module CaseProtocolSink @Sys {
+  in rsp: ProtoRsp;
+}
+
+compose Top @Sys {
+  inst req_source: CaseProtocolSource;
+  inst req_rsp_bridge: CaseProtocolBridge;
+  inst rsp_sink: CaseProtocolSink;
+  connect req_source.req -> req_rsp_bridge.req;
+  connect rsp_sink.rsp -> req_rsp_bridge.rsp;
+}

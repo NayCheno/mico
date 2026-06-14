@@ -12,8 +12,8 @@ smoke flow, source-level JSON AST path, 62-task benchmark runner, benchmark
 aggregation script, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
 experiments + paper" artifact: full paid LLM pass-rate matrices, broader case
-study diversity, full formal coverage, timing QoR, and final paper-table
-integration remain open milestones.
+study diversity, full formal coverage, broad timing/QoR evidence, and final
+paper-table integration remain open milestones.
 
 ## Sources Reviewed
 
@@ -27,7 +27,8 @@ integration remain open milestones.
   and the `mico_ir`, `mico_frontend`, `mico_codegen`, and `mico_cli` crates.
 - RTL and EDA flow: `rtl/examples/mico_example_leafs.sv`,
   `scripts/eda-smoke.sh`, `scripts/eda-docker.ps1`,
-  `scripts/eda-docker.sh`, and `scripts/run-vivado-host.ps1`.
+  `scripts/eda-docker.sh`, `scripts/run-vivado-host.ps1`, and
+  `scripts/vivado-qor-subset.tcl`.
 - Benchmark and LLM assets: `benchmarks/module_compose_bench_manifest.yaml`,
   `benchmarks/run_bench.py`, `benchmarks/aggregate_results.py`,
   `schemas/*.schema.json`, `prompts/`,
@@ -123,7 +124,7 @@ Current limitations:
 - CLI argument parsing is still hand-written.
 - `verify --eda` is an open-source lint/elaboration/hierarchy smoke gate; it
   is not a replacement for the full benchmark runner, selected formal
-  harnesses, CDC proof work, or timing/Vivado QoR.
+  harnesses, CDC proof work, or broad timing/Vivado QoR.
 - JSON diagnostics still use `null` spans for checker errors that are tracked
   by graph node rather than source-byte location.
 
@@ -142,7 +143,9 @@ fourteen committed directed harnesses plus generated ready/valid formal
 harnesses for the remaining single-clock positives.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
-references, and reports `qor_available: 9/9`.
+references, and reports `qor_available: 9/9`. A separate host-Vivado subset
+script performs out-of-context synthesis and measurement-copy timing extraction
+for four representative tasks.
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -153,8 +156,10 @@ Current limitations:
 
 - Formal coverage is limited to single-clock smoke properties, with fourteen
   task-specific directed monitors.
-- QoR is structural area/wire accounting plus a generic mapped-cell proxy; it is
-  not timing closure, technology-mapped delay, or Vivado QoR.
+- Broad QoR is structural area/wire accounting plus a generic mapped-cell proxy.
+  The Vivado evidence is limited to a four-task out-of-context subset; it is not
+  routed timing closure, technology-mapped delay for the full benchmark, or
+  board-level implementation.
 - Adapter correctness boundaries are documented but not yet backed by full
   properties.
 
@@ -200,7 +205,7 @@ Current limitations:
   L5/L6 now include dedicated register/status, protocol bridge, streaming
   accelerator, width-bridge, and telemetry-chain case-study RTL, but broader
   subsystem diversity is still needed.
-- Full task-specific formal coverage and timing/Vivado QoR remain pending.
+- Full task-specific formal coverage and broad timing/Vivado QoR remain pending.
 
 ### LLM Provider Workflow
 
@@ -247,9 +252,10 @@ The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section describe the 62-task deterministic
 result, 36/36 positive-task smoke simulation coverage, 31/31 single-clock
 bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
-summaries, and the negative authenticated low-cost LLM matrix. They must not
-claim full per-task formal proof, timing QoR, arbitrary LTL, or positive LLM
-pass-rate improvements. Host LaTeX is the repository policy for paper builds.
+summaries, the four-task representative Vivado subset, and the negative
+authenticated low-cost LLM matrix. They must not claim full per-task formal
+proof, broad timing closure, arbitrary LTL, or positive LLM pass-rate
+improvements. Host LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
@@ -334,6 +340,6 @@ Claims not yet supported:
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke
   denominator.
-- Timing QoR, Vivado QoR, or technology-mapped delay conclusions.
+- Full timing closure, broad Vivado QoR, or technology-mapped delay conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
 - Arbitrary LTL or complete temporal contract proving.

@@ -14,7 +14,7 @@ positive structured-output or repair-loop advantage.
   \item RQ2: does the compiler reject unsafe width, direction, protocol, domain, adapter, and contract errors?
   \item RQ3: do accepted wrappers pass open-source RTL lint/elaboration and supported simulations?
   \item RQ4: can selected ready/valid and width properties be checked with bounded formal harnesses?
-  \item RQ5: what structural QoR overhead is visible against small hand-written references?
+  \item RQ5: what structural QoR overhead is visible against small hand-written references, and what does a representative Vivado subset show?
 \end{itemize}
 
 \begin{table}[t]
@@ -72,6 +72,7 @@ A separate held-out manifest contains 12 scoring tasks. It adds three subsystem 
     Simulation pass & 36/36 & positives; 20 directed + 16 generated \\
     Bounded formal & 31/31 & single-clock; 14 directed + 17 generated \\
     QoR summaries & 9/9 & structural + generic mapped \\
+    Vivado subset & 4 tasks & OOC measurement copies \\
     Unsafe rejection & 26/26 & negative tasks \\
     JSON AST path & 62/62 & source-to-AST checks \\
     \bottomrule
@@ -101,6 +102,8 @@ The case studies use dedicated RTL under \texttt{rtl/case\_studies/} rather than
 
 The table values above are reproducible from \texttt{benchmarks/run\_bench.py} and the aggregate table generator. \texttt{benchmarks/aggregate\_results.py} writes a schema-versioned aggregate JSON record, CSV tables, and LaTeX snippets for the main deterministic result table, per-level rates with denominators and Wilson confidence intervals, unsafe diagnostic taxonomy, structural and generic-mapped QoR rows, and conservative ablation/counterfactual rows. When supplied with sanitized LLM batch records, it also emits LLM baseline summaries, repair-turn distributions, token/cost tables, paired comparisons, and failure taxonomy tables. Validate-only LLM records are explicitly marked as not scored rather than counted as failures.
 
+A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl} through the pinned Windows launcher. It synthesizes measurement-only copies of T001, T003, T058, and held-out T063 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT counts are 16/16, 22/22, 31/31, and 16/16, respectively; WNS is positive for all rows under the measurement-copy constraints. This is representative out-of-context evidence, not board-level implementation or all-task timing closure.
+
 \subsection{Authenticated LLM Matrix}
 
 The artifact includes a batch runner for five baselines and JSON-AST repair-loop plumbing. The current authenticated low-cost matrix executes 62 tasks across two low-cost profiles and five baselines, for 620 attempts. The result is negative for the current prompt/model settings: no baseline produces a positive-task compiler pass or lint pass. Therefore this paper does not claim that MICO prompting improves LLM pass rate.
@@ -128,7 +131,7 @@ The artifact includes a batch runner for five baselines and JSON-AST repair-loop
 
 Here S is the smoke profile, L is the low-cost cross-check profile, DV is direct Verilog, SVI is SystemVerilog-interface prompting, MS is MICO source, JA is MICO JSON AST, and JAR is JSON AST with repair. The dominant failures are invalid JSON responses, model refusals or explicit rejections, and compiler rejection of malformed MICO source or JSON AST. For paired comparisons over 124 comparable profile-task pairs, JSON-AST repair ties dominate: it records 4--12 repair wins, 4--8 baseline wins, and 104--113 ties depending on the paired baseline. These data support the artifact and failure-taxonomy workflow, not a pass-rate-improvement claim.
 
-The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate and execute LLM benchmark prompts through sanitized records, and pass open-source EDA smoke checks in a controlled Docker environment.
+The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate and execute LLM benchmark prompts through sanitized records, run the representative host-Vivado subset when Vivado is available, and pass open-source EDA smoke checks in a controlled Docker environment.
 
 For a DAC 2027 research manuscript, this negative matrix leaves two valid
 routes. If stronger prompts and profiles produce nonzero positive structured

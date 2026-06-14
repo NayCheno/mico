@@ -144,6 +144,14 @@ This repository pins the allowed host Vivado root to `D:\Application\vivado\2025
 
 `VIVADO_BIN` may only be used to point inside the same required Vivado root.
 
+The current representative Vivado QoR/timing subset is:
+
+```powershell
+.\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl
+```
+
+It writes only ignored report files under `build/reports/vivado-host/`.
+
 ## Paper LaTeX Exception
 
 Do not compile the paper in Docker. The authoritative IEEE-style paper entrypoint is `paper/main.tex`, with body sections under `paper/sections/`; use the Windows host LaTeX distribution:

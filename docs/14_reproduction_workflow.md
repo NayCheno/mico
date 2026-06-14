@@ -123,8 +123,9 @@ Expected current benchmark result:
   availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks
 - `json_ast_path: 62/62` for source-to-AST-to-check equivalence
-- CDC formal proof, timing QoR, technology-mapped delay, and Vivado QoR remain
-  not run.
+- CDC formal proof, full timing closure, technology-mapped delay, and broad
+  Vivado QoR remain outside the deterministic benchmark runner. A separate
+  representative Vivado subset is documented below.
 - T058--T062 provide dedicated streaming, width-bridge, register/status,
   protocol-bridge, and telemetry subsystem case studies; broader latency and
   bus IP studies remain future work.
@@ -247,6 +248,18 @@ Use Vivado only for Xilinx-specific project synthesis, implementation, bitstream
 
 The host launcher is pinned to `D:\Application\vivado\2025.2\Vivado\bin\vivado.bat` by default and rejects Vivado paths outside `D:\Application\vivado\2025.2\Vivado`. It writes journals and logs under ignored `build/reports/vivado-host/` unless `-ReportDir` is set to another ignored output directory. Keep Vivado project directories, bitstreams, and generated reports out of source control unless a reviewer explicitly requests a small text report.
 
+For the current representative QoR/timing subset, run:
+
+```powershell
+.\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl
+```
+
+The subset targets `xc7a35tcpg236-1` and writes
+`vivado_qor_subset_summary.json`, `vivado_qor_subset_summary.csv`, and
+`vivado_qor_subset_delta.csv` under ignored `build/reports/vivado-host/`.
+It uses build-only measurement copies of four wrappers and does not claim
+board-level implementation, route timing closure, or all-task Vivado QoR.
+
 ## Paper Build
 
 Compile the paper with the Windows-host LaTeX distribution:
@@ -272,6 +285,8 @@ Before publishing a result or submission artifact:
   summaries.
 - Benchmark aggregation writes `build/bench/aggregate_results.json` plus CSV and
   TeX snippets under ignored build directories.
+- The representative Vivado subset passes if host Vivado is available at the
+  pinned path; generated reports remain ignored.
 - LLM provider validate-only passes; the batch LLM runner can generate the
   validate-only matrix and offline-fixture smoke outputs; authenticated smoke
   runs only when a local key and budget are configured.

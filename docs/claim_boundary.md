@@ -78,6 +78,10 @@ The current repository supports these claims when the release gate passes:
   JSON.
 - Nine reference-enabled positive tasks have structural Yosys area/wire and
   generic mapped-cell QoR summaries against committed hand-written wrappers.
+- A dedicated host-Vivado subset script synthesizes measurement-only copies for
+  four representative tasks (`T001`, `T003`, `T058`, and held-out `T063`) on
+  `xc7a35tcpg236-1` and reports LUT/FF/BRAM/DSP plus WNS summaries under
+  ignored `build/reports/vivado-host/`.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and produce sanitized `mico.llm.run.v0` metadata.
 - The LLM benchmark runner can plan the full baseline matrix, run offline
@@ -103,8 +107,9 @@ The current repository must not claim:
 - Full task-specific formal proof coverage beyond the bounded formal smoke
   denominator.
 - CDC correctness proof for the smoke FIFO collateral.
-- Timing closure, technology-mapped delay, or Vivado QoR unless a dedicated
-  Vivado or mapped-timing artifact is produced.
+- Full timing closure, routed implementation, bitstream generation,
+  technology-mapped delay claims for the complete benchmark, or Vivado QoR
+  beyond the dedicated four-task out-of-context subset.
 - Arbitrary LTL proving or complete temporal contract verification.
 - Semantic correctness of arbitrary model-proposed repairs beyond the compiler,
   schema, and EDA gates that accept or reject the patched result.
@@ -122,6 +127,8 @@ must be reviewed or archived externally before stronger claims are made:
 - `build/llm/bench_validate.json`
 - optional sanitized authenticated LLM result files under `build/llm/`
 - `build/release/full_check_manifest.json`
+- optional `build/reports/vivado-host/vivado_qor_subset_summary.json` and CSV
+  summaries from the host-Vivado subset
 - generated paper table snippets under `build/paper_tables/`
 - the host LaTeX build log and final paper PDF hash for release artifacts
 
@@ -140,6 +147,7 @@ evidence files above:
 - LLM claims map only to sanitized `mico.llm.bench.v0` files from authenticated
   runs;
 - QoR claims must identify whether they are structural Yosys summaries,
-  technology-mapped timing, or Vivado QoR;
+  generic-mapped Yosys summaries, the four-task Vivado measurement-copy subset,
+  or a future technology-mapped timing artifact;
 - CDC, formal, and timing limitations must remain visible in the abstract,
   evaluation, threats, and conclusion until stronger evidence exists.

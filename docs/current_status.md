@@ -49,6 +49,11 @@ This file is the short, traceable status page for the current repository. Use
 - Structural and generic-mapped Yosys QoR extraction for supported positive
   benchmark wrappers, compared against committed hand-written reference wrappers
   with generated CSV/TeX summaries.
+- Representative host-Vivado out-of-context QoR/timing subset for four tasks
+  (`T001`, `T003`, `T058`, and held-out `T063`) through
+  `scripts/vivado-qor-subset.tcl`. The flow uses build-only measurement copies,
+  targets `xc7a35tcpg236-1`, and writes JSON/CSV summaries under ignored
+  `build/reports/vivado-host/`.
 - Aggregate benchmark result generator that merges deterministic results and
   optional LLM batch records into CSV plus LaTeX table snippets for main
   results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
@@ -103,7 +108,8 @@ This file is the short, traceable status page for the current repository. Use
 - Directed task-specific formal harnesses beyond the selected direct stream,
   width adapter, and streaming case-study tasks.
 - CDC correctness proof for the smoke FIFO collateral.
-- Timing/Vivado QoR and technology-mapped delay reporting.
+- Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
+  beyond the representative four-task Vivado subset.
 - Release-archived full paid multi-profile LLM baseline result artifacts and
   any positive pass-rate improvement claims.
 - Complete generated paper-table snippet integration and final statistical
@@ -129,8 +135,10 @@ Current deterministic benchmark scope:
   20 declared and 16 generated simulations, plus 14 declared and 17 generated
   single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
-  CDC proof, full task-specific formal coverage, timing QoR, technology-mapped
-  delay, and Vivado QoR remain intentionally unclaimed.
+  CDC proof, full task-specific formal coverage, broad timing QoR,
+  technology-mapped delay, and broad Vivado QoR remain intentionally unclaimed.
+  The separate Vivado subset covers only four representative tasks and uses
+  measurement-only build copies.
 - L3/L5/L6 include seed approximations plus the dedicated T058--T062 streaming,
   width-bridge, register/status, protocol-bridge, and telemetry subsystem case
   studies.
@@ -158,6 +166,7 @@ Component commands:
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+.\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl
 .\scripts\eda-docker.ps1 python3 scripts/llm-provider-smoke.py --config config/llm-provider.local.yaml --profile smoke --validate-only
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_validate.json --aggregate-result build/bench/aggregate_results.json"

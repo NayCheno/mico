@@ -92,6 +92,8 @@ Supported now:
   and generated smoke harnesses for the remaining 17 single-clock positives.
 - 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
+- Four-task representative host-Vivado out-of-context QoR/timing subset with
+  generated/reference summaries for `T001`, `T003`, `T058`, and held-out `T063`.
 - Held-out manifest with 12 scoring tasks, including three additional
   subsystem case studies and three paired negative variants; deterministic
   held-out scoring currently passes 12/12 expected outcomes.
@@ -103,7 +105,8 @@ Unsupported now:
 - full directed simulation coverage;
 - full task-specific formal proof coverage;
 - CDC correctness proof;
-- timing closure, technology-mapped delay, or Vivado QoR;
+- full timing closure, technology-mapped delay, or broad Vivado QoR beyond the
+  current four-task out-of-context subset;
 - final submission-readiness.
 
 ## Evidence Schedule

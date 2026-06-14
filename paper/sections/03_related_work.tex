@@ -1,17 +1,9 @@
 \section{Related Work}
 
-\subsection{LLMs for RTL}
-
 VerilogEval, RTLCoder, OpenLLM-RTL, and ChipNeMo show that LLMs can be evaluated and adapted for hardware tasks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025,chipnemo2023}. These works motivate better benchmarks and domain context, but the artifact emitted by a model is still often RTL text. MICO is complementary: it does not assume the model has become trustworthy. It narrows the model's output to a checked composition representation and uses compiler diagnostics plus RTL tools as the acceptance boundary.
-
-\subsection{Interface Abstractions}
 
 SystemVerilog interfaces, Chisel bundles and bulk connections, Amaranth wiring, and CIRCT ESI all demonstrate that interface abstraction has practical value~\cite{chisel_interfaces,amaranth_wiring,circt_esi}. MICO differs in its objective. It targets the integration of existing RTL/IP modules, not complete hardware description. It restricts LLM output to structured AST/JSON forms, not arbitrary host-language code. It also treats clock/reset domains, protocol contracts, adapter synthesis, and formal collateral as part of the interface type system.
 
 CPPL is the closest recent work~\cite{cppl2026}. If MICO merely claimed ``structured language plus CIRCT,'' it would overlap too much with CPPL. The boundary is narrower: CPPL targets LLM-friendly circuit generation, while MICO targets LLM-friendly module interconnect and integration. Its central objects are interfaces, clock domains, contracts, adapters, and compose graphs.
 
-CIRCT provides a natural downstream target. The HW dialect aligns with Verilog modules, ESI provides typed channels and valid/ready wrapping, and Verif/LTL can represent assertions and temporal properties~\cite{circt_hw,circt_esi}. Anvil and AutoSVA further motivate treating timing safety and module interaction properties as language or tooling concerns rather than informal comments~\cite{anvil2025,autosva2021}.
-
-\subsection{Verification and Contracts}
-
-MICO's contract layer is not intended to replace simulation, formal verification, lint, CDC analysis, or synthesis. It is a front-end discipline for making obligations explicit early. This is aligned with AutoSVA's focus on module interaction properties and Anvil's emphasis on timing-safety as a language concern~\cite{autosva2021,anvil2025}. The difference is again the LLM boundary: contracts must be available as structured compiler artifacts so a repair loop can preserve or refine them instead of deleting them during a free-form rewrite.
+CIRCT provides a natural downstream target through HW, ESI, and Verif/LTL~\cite{circt_hw,circt_esi}. Anvil and AutoSVA motivate treating timing safety and module interaction properties as language/tool obligations rather than comments~\cite{anvil2025,autosva2021}. MICO's v0 contract layer is not a replacement for simulation, formal verification, CDC analysis, or synthesis; it makes selected obligations explicit early so a repair loop cannot silently delete them during a free-form rewrite.

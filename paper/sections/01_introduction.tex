@@ -1,19 +1,16 @@
 \section{Introduction}
 
-In real RTL projects, a large portion of top-level and subsystem code does not describe core datapath behavior. Instead, it connects existing modules, wrappers, buses, channels, and clock/reset infrastructure. A ready/valid stream that appears as one semantic edge in a block diagram expands into \texttt{data}, \texttt{valid}, \texttt{ready}, and optional sideband signals in SystemVerilog. In AXI, TileLink, NoC, CDC, low-power, and multi-reset-domain designs, this wiring grows rapidly. For human engineers, this code is repetitive, hard to review, and easy to break. For LLMs, it is worse: the model must track long-range textual dependencies and implicit protocol constraints across a large context.
+Much top-level RTL and subsystem code does not implement new datapath logic; it connects existing modules, wrappers, channels, buses, and clock/reset infrastructure. A ready/valid edge in a diagram expands into payload, valid, ready, sideband, reset, and sometimes CDC or protocol-adapter wiring. For LLMs this is a poor target: free-form RTL requires long-range consistency over names, directions, widths, protocols, domains, resets, and validation collateral.
 
-This paper takes the position that an LLM should not be asked to directly generate final RTL for integration-heavy designs. Instead, the LLM should propose candidate module connection graphs and contract drafts, while correctness is enforced by a compiler and downstream verification tools. Prior work such as VerilogEval, RTLCoder, and OpenLLM-RTL shows that RTL generation can be evaluated with automated benchmarks, but direct Verilog generation still suffers from correctness and generalization failures~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025}. ChipNeMo demonstrates the value of domain adaptation for chip design tasks~\cite{chipnemo2023}. CPPL further shows that moving LLM hardware generation into a statically checked front-end DSL/JSON IR and lowering to CIRCT is a promising direction~\cite{cppl2026}. MICO focuses on a narrower target: module interconnect, adapter synthesis, and contract validation.
+MICO takes a narrower position than general RTL generation benchmarks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025}, domain-adapted chip LLMs~\cite{chipnemo2023}, and recent checked prompt languages~\cite{cppl2026}. The LLM proposes a module-composition graph and optional repair patch; the compiler is the authority. The compiler checks interfaces, roles, widths, protocols, clock domains, adapters, and v0 ready/valid contracts before emitting RTL and traceability artifacts.
 
-MICO treats module composition as a typed graph synthesis problem. The LLM acts as a proposal engine; the compiler is the authority. The compiler accepts or rejects proposed connections based on explicit interface, role, width, protocol, clock-domain, and contract rules. Accepted designs can then be lowered to SystemVerilog wrappers, SVA collateral, and eventually CIRCT HW/ESI/Verif/LTL IR.
-
-This paper makes five contributions:
+This paper makes four contributions:
 
 \begin{enumerate}
-  \item It formulates LLM-assisted RTL integration as a typed module-composition problem rather than a direct RTL generation problem.
-  \item It introduces MICO, a small language core with clock domains, interfaces, contracts, extern modules, adapters, and compose graphs.
-  \item It describes a Rust compiler architecture that turns model proposals into checked IR, deterministic diagnostics, traceable SystemVerilog wrappers, and repair prompts.
-  \item It defines ModuleComposeBench, an evaluation methodology for measuring first-pass composition, repair turns, unsafe rejection, and downstream RTL validation on existing RTL/IP integration tasks.
-  \item It reports the current reproducible artifact boundary: 62 deterministic tasks, five public-development subsystem case studies plus a held-out case-study split, generated SV/SVA/trace artifacts, 20 directed simulations, 14 directed formal monitors, selected QoR results, and a batch LLM evaluation harness whose full paid model matrix is intentionally not claimed yet.
+  \item a typed module-composition formulation for LLM-assisted RTL integration;
+  \item the MICO language and Rust compiler path for checked graphs, diagnostics, JSON AST repair, SV/SVA emit, and traceability;
+  \item ModuleComposeBench, with public-development and held-out manifests, positive/negative tasks, case studies, simulation, formal smoke, and QoR collateral;
+  \item an evidence-backed artifact boundary showing deterministic success and a negative authenticated low-cost LLM matrix.
 \end{enumerate}
 
-The current artifact is intentionally narrow. It does not claim to replace general HDLs or downstream verification. Instead, it attacks the integration layer where human engineers already rely on structure, naming discipline, and review checklists, and where LLMs are most exposed to long-range textual consistency failures.
+The artifact does not replace HDLs or downstream verification. It attacks the integration layer where engineers already rely on structure, naming discipline, and review checklists, and where LLMs are most exposed to textual consistency failures.

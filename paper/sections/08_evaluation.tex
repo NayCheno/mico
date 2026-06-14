@@ -1,140 +1,42 @@
 \section{Evaluation: ModuleComposeBench}
 
-ModuleComposeBench evaluates whether a model can integrate existing RTL/IP modules, not merely generate standalone Verilog. Tasks include wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC insertion, and unsafe ambiguity rejection.
+ModuleComposeBench evaluates integration of existing RTL/IP modules: wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC adapter insertion, and unsafe ambiguity rejection. Metrics include first-pass compose success, lint/elaboration, simulation, bounded formal smoke, unsafe rejection, JSON AST equivalence, QoR delta, and repair turns.
 
-Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO source prompting, MICO JSON AST prompting without compiler-feedback repair, and MICO JSON AST prompting with compiler-feedback repair.
+The current artifact answers five evidence-bounded questions: whether intended compositions are accepted, unsafe compositions are rejected, accepted wrappers pass open-source RTL validation, selected ready/valid and width properties survive bounded formal checks, and generated wrappers remain comparable with hand-written references.
 
-The evaluation is organized around five research questions. These questions
-match the current deterministic artifact boundary. A future DAC-ready version
-must add a sixth question only if a new authenticated LLM matrix supports a
-positive structured-output or repair-loop advantage.
+\subsection{Deterministic Results}
 
-\begin{itemize}
-  \item RQ1: does the checked representation accept intended module compositions?
-  \item RQ2: does the compiler reject unsafe width, direction, protocol, domain, adapter, and contract errors?
-  \item RQ3: do accepted wrappers pass open-source RTL lint/elaboration and supported simulations?
-  \item RQ4: can selected ready/valid and width properties be checked with bounded formal harnesses?
-  \item RQ5: what structural QoR overhead is visible against small hand-written references, and what does a representative Vivado subset show?
-\end{itemize}
+The public-development manifest has 62 tasks: 36 positives and 26 negatives across L1--L6. A separate held-out manifest adds 12 scoring tasks, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, and paired negative variants. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash.
 
 \begin{table}[t]
   \centering
-  \caption{Evaluation dimensions}
-  \begin{tabular}{lll}
-    \toprule
-    Dimension & Direct RTL & MICO \\
-    \midrule
-    Output & RTL text & Typed compose graph \\
-    Error boundary & Simulation/review & Compiler + RTL tools \\
-    Repair unit & Code rewrite & JSON AST patch \\
-    CDC handling & Often implicit & Explicit adapter \\
-    \bottomrule
-  \end{tabular}
+  \caption{Deterministic results generated from aggregate JSON}
+  \input{../build/paper_tables/deterministic_summary.tex}
 \end{table}
 
-\subsection{Benchmark Protocol}
+The eight subsystem case studies use dedicated RTL under \texttt{rtl/case\_studies/}: T058 streaming accelerator, T059 width/protocol bridge, T060 register/status wrapper, T061 request/response protocol bridge, T062 telemetry chain, and held-out T063--T065 for AXI/APB, video, and CDC event/status composition. All pass the same compiler, JSON AST, lint/elaboration, simulation, selected formal, and QoR gates as the seed tasks. CDC remains an explicit-adapter smoke validation, not a CDC correctness proof.
 
-Each benchmark task contains a module inventory, protocol/interface library, optional adapter library, natural-language integration request, expected safety constraints, and reference validation collateral. A run records the model profile, prompt hash, first-pass compiler result, repair turns, lint result, simulation/formal result when available, unsafe rejection result for negative tasks, and generated artifacts. The same task is evaluated across baselines so that improvements can be attributed to the representation and repair loop rather than task selection.
+Simulation covers all 36 positives. Twenty tasks use committed directed testbenches and the remaining 16 use generated ready/valid smoke harnesses from traceability reports. Bounded formal smoke covers 31 single-clock positives: 14 committed directed monitors and 17 generated monitors. Structural and generic-mapped Yosys QoR is available for 9/9 reference-enabled tasks.
 
-\begin{table}[t]
-  \centering
-  \caption{ModuleComposeBench task strata}
-  \begin{tabular}{lll}
-    \toprule
-    Level & Focus & Example \\
-    \midrule
-    L1 & direct streams & FIFO chain \\
-    L2 & widths/params & width adapter \\
-    L3 & latency/protocol seeds & skid/pipeline checks \\
-    L4 & CDC/RDC & async FIFO \\
-    L5 & bus/register seeds & control/status wrapper \\
-    L6 & subsystem seeds & multi-block chain \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl} through the pinned Windows launcher. It synthesizes measurement-only copies of T001, T003, T058, and held-out T063 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT counts are 16/16, 22/22, 31/31, and 16/16, respectively; WNS is positive for all rows. This is representative out-of-context evidence, not board-level implementation or all-task timing closure.
 
-\subsection{Current Deterministic Results}
+\subsection{LLM Matrix}
 
-The current public-development artifact includes 62 deterministic tasks: 36 positive composition tasks and 26 negative rejection tasks. The manifest spans L1--L6, including same-domain stream wiring, width adaptation, latency/backpressure seeds, CDC/RDC adapter tasks, bus/register wrapper seeds, subsystem seeds, and unsafe examples for direct CDC, width mismatches, reversed direction, missing or invalid contract guarantees, unknown declarations, duplicate declarations, protocol mismatches, and adapter misuse. Five public-development subsystem case studies cover a streaming accelerator chain, a width/protocol bridge, a register/status wrapper path, a request/response protocol bridge, and a multi-IP telemetry chain. They validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, supported Icarus simulations, single-clock bounded SymbiYosys smoke proofs, structural and generic-mapped QoR aggregation, and machine-generated table aggregation path are reproducible.
-
-A separate held-out manifest contains 12 scoring tasks. It adds three subsystem cases for an AXI/APB-style wrapper, a video-filter pipeline, and an explicit CDC event/status path, plus three paired negative variants. The held-out manifest is run and reported separately from the public-development manifest; benchmark and LLM result records include the manifest path and SHA-256 hash.
+The batch runner supports Direct Verilog, SystemVerilog-interface, MICO source, MICO JSON AST, and JSON AST repair baselines. The current authenticated low-cost matrix ran 62 tasks across two low-cost profiles and five baselines, for 620 attempts. It is a negative result under the current prompts/models.
 
 \begin{table}[t]
   \centering
-  \caption{Seed artifact smoke results}
+  \caption{Authenticated low-cost LLM matrix summary}
   \begin{tabular}{lll}
     \toprule
     Metric & Result & Scope \\
     \midrule
-    Expected outcome & 62/62 & all tasks \\
-    Compose pass & 36/36 & positive tasks \\
-    Lint/elab pass & 36/36 & positive tasks \\
-    Simulation pass & 36/36 & positives; 20 directed + 16 generated \\
-    Bounded formal & 31/31 & single-clock; 14 directed + 17 generated \\
-    QoR summaries & 9/9 & structural + generic mapped \\
-    Vivado subset & 4 tasks & OOC measurement copies \\
-    Unsafe rejection & 26/26 & negative tasks \\
-    JSON AST path & 62/62 & source-to-AST checks \\
+    Positive compiler pass & 0/36 & MICO baselines \\
+    Positive RTL lint pass & 0/36 & Direct/SV-interface \\
+    Unsafe rejection & 15--18/26 & MICO baselines \\
+    JSON validity & 15--25/62 & profile/baseline dependent \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
-  \centering
-  \caption{Dedicated subsystem case studies}
-  \begin{tabular}{llll}
-    \toprule
-    Task & Scenario & Dynamic & Static \\
-    \midrule
-    T058 & stream accelerator & sim & formal + QoR \\
-    T059 & width bridge & sim & QoR \\
-    T060 & register/status & sim & QoR \\
-    T061 & protocol bridge & sim & generated formal + QoR \\
-    T062 & telemetry chain & sim & generated formal + QoR \\
-    T063 & AXI/APB wrapper & sim & generated formal + QoR \\
-    T064 & video pipeline & sim & generated formal + QoR \\
-    T065 & CDC event/status & sim & QoR; CDC smoke only \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-The case studies use dedicated RTL under \texttt{rtl/case\_studies/} rather than the smoke-only leaf modules used by the original seeds. T058 connects a DMA-like source, skid buffer, XOR filter, and result sink. T059 requires an explicit 32-bit to 64-bit width adapter before a processing block and host sink. T060 models an APB-like command stream through a register/status transform. T061 routes a request/response command stream through a protocol bridge into a response sink. T062 composes a telemetry source, filter, explicit 32-bit to 64-bit adapter, accumulator, and host sink. The held-out T063--T065 tasks add an AXI/APB-style wrapper, video pipeline, and explicit CDC event/status path. All eight are validated by the same benchmark runner as the seed tasks, and their QoR references are hand-written wrappers committed under \texttt{benchmarks/qor/reference/}. The CDC case remains a smoke validation of explicit adapter use rather than a CDC correctness proof.
-
-The table values above are reproducible from \texttt{benchmarks/run\_bench.py} and the aggregate table generator. \texttt{benchmarks/aggregate\_results.py} writes a schema-versioned aggregate JSON record, CSV tables, and LaTeX snippets for the main deterministic result table, per-level rates with denominators and Wilson confidence intervals, unsafe diagnostic taxonomy, structural and generic-mapped QoR rows, and conservative ablation/counterfactual rows. When supplied with sanitized LLM batch records, it also emits LLM baseline summaries, repair-turn distributions, token/cost tables, paired comparisons, and failure taxonomy tables. Validate-only LLM records are explicitly marked as not scored rather than counted as failures.
-
-A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl} through the pinned Windows launcher. It synthesizes measurement-only copies of T001, T003, T058, and held-out T063 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT counts are 16/16, 22/22, 31/31, and 16/16, respectively; WNS is positive for all rows under the measurement-copy constraints. This is representative out-of-context evidence, not board-level implementation or all-task timing closure.
-
-\subsection{Authenticated LLM Matrix}
-
-The artifact includes a batch runner for five baselines and JSON-AST repair-loop plumbing. The current authenticated low-cost matrix executes 62 tasks across two low-cost profiles and five baselines, for 620 attempts. The result is negative for the current prompt/model settings: no baseline produces a positive-task compiler pass or lint pass. Therefore this paper does not claim that MICO prompting improves LLM pass rate.
-
-\begin{table}[t]
-  \centering
-  \caption{Authenticated low-cost LLM matrix}
-  \begin{tabular}{lllll}
-    \toprule
-    Setting & JSON & Comp. & Lint & Unsafe \\
-    \midrule
-    S/DV & 18/62 & n/a & 0/36 & n/a \\
-    S/SVI & 18/62 & n/a & 0/36 & n/a \\
-    S/MS & 16/62 & 0/36 & 0/36 & 15/26 \\
-    S/JA & 15/62 & 0/36 & 0/36 & 15/26 \\
-    S/JAR & 17/62 & 0/36 & 0/36 & 17/26 \\
-    L/DV & 23/62 & n/a & 0/36 & n/a \\
-    L/SVI & 15/62 & n/a & 0/36 & n/a \\
-    L/MS & 25/62 & 0/36 & 0/36 & 16/26 \\
-    L/JA & 17/62 & 0/36 & 0/36 & 17/26 \\
-    L/JAR & 19/62 & 0/36 & 0/36 & 18/26 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Here S is the smoke profile, L is the low-cost cross-check profile, DV is direct Verilog, SVI is SystemVerilog-interface prompting, MS is MICO source, JA is MICO JSON AST, and JAR is JSON AST with repair. The dominant failures are invalid JSON responses, model refusals or explicit rejections, and compiler rejection of malformed MICO source or JSON AST. For paired comparisons over 124 comparable profile-task pairs, JSON-AST repair ties dominate: it records 4--12 repair wins, 4--8 baseline wins, and 104--113 ties depending on the paired baseline. These data support the artifact and failure-taxonomy workflow, not a pass-rate-improvement claim.
-
-The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate and execute LLM benchmark prompts through sanitized records, run the representative host-Vivado subset when Vivado is available, and pass open-source EDA smoke checks in a controlled Docker environment.
-
-For a DAC 2027 research manuscript, this negative matrix leaves two valid
-routes. If stronger prompts and profiles produce nonzero positive structured
-passes with supported paired comparisons, the paper can become a positive
-LLM-improvement study. If they do not, the claim must remain a benchmark,
-compiler-gate, repairability, and failure-taxonomy contribution.
+These data do not support a pass-rate-improvement claim. They do support the artifact contribution: prompts and responses are hashed, compiler/EDA failures are classified, validate-only runs are not counted as failures, and repair turns are represented as auditable JSON patches. A future positive paper requires nonzero structured positive passes and paired comparisons across at least two profiles; otherwise the correct framing is a compiler-gated benchmark/tool paper plus negative LLM study.

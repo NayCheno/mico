@@ -98,8 +98,9 @@ This file is the short, traceable status page for the current repository. Use
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist and generated
   `build/release/full_check_manifest.json` metadata record.
-- IEEE-style paper draft with conservative deterministic benchmark claims and a
-  negative authenticated low-cost LLM matrix summary.
+- IEEE-style paper draft compressed to a five-page DAC-style manuscript, with a
+  generated deterministic summary table, conservative deterministic benchmark
+  claims, and a negative authenticated low-cost LLM matrix summary.
 
 ## Not Yet Implemented
 
@@ -112,8 +113,8 @@ This file is the short, traceable status page for the current repository. Use
   beyond the representative four-task Vivado subset.
 - Release-archived full paid multi-profile LLM baseline result artifacts and
   any positive pass-rate improvement claims.
-- Complete generated paper-table snippet integration and final statistical
-  appendix.
+- Full generated statistical appendix and any final submission-only table
+  integration beyond the deterministic summary table.
 - Broader subsystem case studies beyond the current five public-dev plus three
   held-out deterministic cases.
 - Immutable release tag; the current policy uses a reviewable release branch

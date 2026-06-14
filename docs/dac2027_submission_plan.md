@@ -98,6 +98,8 @@ Supported now:
   subsystem case studies and three paired negative variants; deterministic
   held-out scoring currently passes 12/12 expected outcomes.
 - Sanitized low-cost LLM matrix summary showing a negative result.
+- Five-page DAC-style paper draft with deterministic summary table generated
+  from aggregate JSON.
 
 Unsupported now:
 

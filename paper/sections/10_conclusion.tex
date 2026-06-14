@@ -1,12 +1,7 @@
 \section{Conclusion}
 
-MICO reframes LLM-assisted RTL integration as compiler-checked module composition. Its core objects are interfaces, contracts, clock domains, adapters, and compose graphs. By constraining model output and validating every candidate through a Rust compiler and EDA tools, MICO aims to make LLM-assisted hardware integration more diagnosable, repairable, and trustworthy than direct free-form RTL generation.
+MICO reframes LLM-assisted RTL integration as compiler-checked module composition over interfaces, contracts, clock domains, adapters, and compose graphs. The model proposes; the compiler, schemas, RTL tools, and benchmark gates decide.
 
-The present artifact demonstrates the deterministic end-to-end path: parse and check MICO source, build typed IR, emit traceable SystemVerilog wrappers, run 62 ModuleComposeBench tasks including five public-development subsystem case studies plus a held-out case-study split, run Verilator/Yosys smoke checks, execute positive-task simulations with 20 directed harnesses, prove selected directed properties with 14 directed monitors plus generated single-clock formal smoke properties, summarize structural and generic-mapped QoR, run a four-task representative Vivado out-of-context subset, and report a negative authenticated low-cost LLM matrix through sanitized records. The remaining work for a strong submission is clear: improve prompt/model routing before claiming LLM pass-rate gains, continue broadening subsystem diversity, add task-specific formal and broader timing/QoR evidence, and package the artifact for independent reproduction.
+The current artifact demonstrates a deterministic path through parsing, checking, typed IR, traceable SV/SVA emission, 62 public-development tasks, a held-out split, 36 simulations, 31 bounded formal smoke checks, Yosys QoR, a four-task Vivado subset, and sanitized LLM records. Its authenticated low-cost LLM result is negative, so the evidence-backed contribution is a benchmark, compiler gate, repairable representation, and failure-taxonomy workflow.
 
-The DAC 2027 submission boundary is therefore evidence-driven: either the next
-LLM matrix justifies a positive structured-output and repair claim, or the paper
-must be framed as a negative LLM study plus compiler-gated benchmark/tool
-artifact. In both cases, unsupported claims about full formal proof, CDC
-correctness, full timing closure, broad Vivado QoR, or LLM pass-rate
-improvement remain outside the paper until corresponding artifacts exist.
+The DAC submission boundary remains evidence-driven: either the next matrix supports a positive structured-output and repair claim, or the paper should remain a negative LLM study plus compiler-gated benchmark/tool artifact. Full formal proof, CDC correctness, full timing closure, broad Vivado QoR, and LLM pass-rate improvement remain outside the claim boundary until matching artifacts exist.

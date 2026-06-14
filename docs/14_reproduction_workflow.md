@@ -262,6 +262,14 @@ board-level implementation, route timing closure, or all-task Vivado QoR.
 
 ## Paper Build
 
+The paper's main deterministic result table is read from generated aggregate
+output under `build/paper_tables/`. Run the benchmark aggregation command before
+compiling from a clean checkout:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json"
+```
+
 Compile the paper with the Windows-host LaTeX distribution:
 
 ```powershell

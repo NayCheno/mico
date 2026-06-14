@@ -1,16 +1,14 @@
 \section{Motivation: Connection Entropy}
 
-We use connection entropy to describe the amplification from semantic design intent to primitive RTL connections:
+We use connection entropy to describe amplification from semantic intent to primitive RTL wiring:
 
 \begin{equation}
   CE = \frac{\text{primitive signal edges}}{\text{semantic interface edges}}.
 \end{equation}
 
-A designer may intend a simple chain from a producer through a FIFO to a consumer. In primitive RTL, that chain expands into many individual signal connections. As connection entropy grows, LLMs are more likely to omit ports, reverse ready/valid direction, mismatch payload widths, confuse reset polarity, cross clock domains without synchronization, generate inconsistent parameters, or produce wrappers that simulate only because the testbench misses the actual protocol bug.
+A simple producer-FIFO-consumer chain may be one semantic edge sequence, but it expands into payload, valid, ready, reset, and instance-specific port bindings. As connection entropy grows, LLMs omit ports, reverse ready/valid direction, mismatch widths, confuse reset polarity, cross clock domains without synchronization, or create wrappers that pass weak tests for the wrong reason. Prompt engineering can reduce these failures but does not remove the coupled obligations from the target string.
 
-Prompt engineering can reduce some failures, but it does not change the underlying problem: free-form RTL text generation leaves too many coupled correctness obligations in one target string. MICO instead constrains the output space. The model proposes a structured design graph, adapter plan, and contract skeleton. The compiler rejects unsafe connections and returns structured diagnostics that can drive a repair prompt.
-
-The design principles are direct:
+MICO constrains the output space:
 
 \begin{itemize}
   \item LLMs produce candidates, not trusted RTL.
@@ -20,20 +18,4 @@ The design principles are direct:
   \item Verification collateral is generated from interface contracts.
 \end{itemize}
 
-This framing distinguishes two kinds of complexity. \emph{Local RTL complexity} is the logic inside a module: arithmetic, state machines, memories, and datapaths. \emph{Composition complexity} is the set of obligations required to connect already-existing modules safely. MICO focuses on the latter. A direct RTL prompt must solve both at once. A MICO prompt only proposes a semantic graph; the compiler expands that graph into primitive wiring and rejects illegal edges before RTL tools are asked to elaborate it.
-
-\begin{table}[t]
-  \centering
-  \caption{Typical composition failures targeted by MICO}
-  \begin{tabular}{lll}
-    \toprule
-    Failure & Free-form RTL symptom & MICO gate \\
-    \midrule
-    Direction & ready/valid reversed & role check \\
-    Width & silent truncation & field width check \\
-    Protocol & ad hoc handshake & interface contract \\
-    CDC & direct cross-domain wire & adapter check \\
-    Reset & mixed polarity/domain & clockdom metadata \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+This distinguishes local RTL complexity from composition complexity. MICO does not try to synthesize arbitrary datapaths; it checks whether already-existing modules are connected safely before RTL tools elaborate the wrapper.

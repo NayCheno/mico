@@ -39,11 +39,11 @@ This file is the short, traceable status page for the current repository. Use
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Icarus simulation coverage for all 36 positive tasks: 20 tasks use committed
+- Icarus simulation coverage for all 36 positive tasks: 28 tasks use committed
   directed testbenches, and the remaining accepted positives use auto-generated
   ready/valid smoke harnesses derived from traceability JSON.
 - Bounded SymbiYosys formal smoke coverage for 31 single-clock positive tasks:
-  14 tasks use committed directed monitors, and the remaining single-clock
+  20 tasks use committed directed monitors, and the remaining single-clock
   positives use generated ready/valid formal harnesses derived from
   traceability JSON.
 - Structural and generic-mapped Yosys QoR extraction for supported positive
@@ -118,8 +118,8 @@ This file is the short, traceable status page for the current repository. Use
 
 - Broader semantic repair policies beyond schema-valid JSON AST operations.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Directed task-specific formal harnesses beyond the selected direct stream,
-  width adapter, and streaming case-study tasks.
+- Directed task-specific formal harnesses beyond the 20 committed single-clock
+  monitors.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
   beyond the representative four-task Vivado subset.
@@ -149,7 +149,7 @@ Current deterministic benchmark scope:
   positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
   rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
   31/31, structural plus generic-mapped QoR available 9/9. The mode split is
-  20 declared and 16 generated simulations, plus 14 declared and 17 generated
+  28 declared and 8 generated simulations, plus 20 declared and 11 generated
   single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, broad timing QoR,

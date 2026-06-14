@@ -74,11 +74,11 @@ The current repository supports these claims when the release gate passes:
   archived held-out results.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
-- All 36 positive tasks pass Icarus/VVP simulation smoke checks. Twenty use
+- All 36 positive tasks pass Icarus/VVP simulation smoke checks. Twenty-eight use
   committed directed testbenches; the remaining positives use generated
   ready/valid smoke harnesses derived from traceability JSON.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
-  checks. Fourteen use committed directed monitors; the remaining single-clock
+  checks. Twenty use committed directed monitors; the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
   JSON.
 - Nine reference-enabled positive tasks have structural Yosys area/wire and
@@ -113,10 +113,10 @@ The current repository must not claim:
 - Full paid LLM benchmark matrix raw results committed as artifact data.
 - Broad free-form LLM repair reliability. Current accepted repair-turn wins are
   limited to the explicitly recorded deterministic adapter-instance fallback.
-- Full directed functional simulation coverage beyond the 20 committed
+- Full directed functional simulation coverage beyond the 28 committed
   directed harnesses.
-- Full task-specific formal proof coverage beyond the bounded formal smoke
-  denominator.
+- Full task-specific formal proof coverage beyond the 20 committed
+  single-clock monitors and bounded formal smoke denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, routed implementation, bitstream generation,
   technology-mapped delay claims for the complete benchmark, or Vivado QoR

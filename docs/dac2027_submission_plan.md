@@ -112,10 +112,10 @@ Supported now:
 - 62 ModuleComposeBench tasks with 36 positive and 26 negative tasks.
 - 62/62 expected deterministic outcomes.
 - 36/36 positive lint/elaboration smoke.
-- 36/36 positive Icarus smoke simulations, with 20 directed harnesses and
-  generated ready/valid smoke harnesses for the remaining 16 positives.
-- 31/31 single-clock bounded formal smoke checks, with 14 directed monitors
-  and generated smoke harnesses for the remaining 17 single-clock positives.
+- 36/36 positive Icarus smoke simulations, with 28 directed harnesses and
+  generated ready/valid smoke harnesses for the remaining 8 positives.
+- 31/31 single-clock bounded formal smoke checks, with 20 directed monitors
+  and generated smoke harnesses for the remaining 11 single-clock positives.
 - 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
 - Four-task representative host-Vivado out-of-context QoR/timing subset with
@@ -137,8 +137,10 @@ Unsupported now:
   benchmark splits;
 - broad free-form model-generated repair reliability beyond the recorded
   adapter-instance compiler-feedback fallback;
-- full directed simulation coverage;
-- full task-specific formal proof coverage;
+- full directed simulation coverage beyond the 28 committed directed
+  harnesses;
+- full task-specific formal proof coverage beyond the 20 committed
+  single-clock monitors;
 - CDC correctness proof;
 - full timing closure, technology-mapped delay, or broad Vivado QoR beyond the
   current four-task out-of-context subset;

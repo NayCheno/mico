@@ -51,6 +51,9 @@ This file is the short, traceable status page for the current repository. Use
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
+- Full release-candidate validation wrappers in `scripts/full-check.sh` and
+  `scripts/full-check.ps1`, plus a top-level release checklist and generated
+  `build/release/full_check_manifest.json` metadata record.
 - IEEE-style paper draft with conservative deterministic benchmark claims.
 
 ## Not Yet Implemented
@@ -69,7 +72,8 @@ This file is the short, traceable status page for the current repository. Use
 - Direct inclusion of generated paper-table snippets in the final submission
   text.
 - Broader subsystem case studies beyond the three committed deterministic cases.
-- Full release-candidate validation script.
+- Immutable release tag; the current policy uses a reviewable release branch
+  first, then tags only after final artifact approval.
 
 ## Current ModuleComposeBench Boundary
 
@@ -93,6 +97,12 @@ Current deterministic benchmark scope:
 ## Validation Commands
 
 Run Rust, Python, benchmark, and open-source EDA validation inside Docker:
+
+```powershell
+.\scripts\full-check.ps1 -WithLatex
+```
+
+Component commands:
 
 ```powershell
 .\scripts\eda-docker.ps1 mico-verify-tools

@@ -34,6 +34,35 @@ $env:MICO_EDA_REBUILD = "1"
 Remove-Item Env:\MICO_EDA_REBUILD
 ```
 
+## Full Release Gate
+
+Run the full release-candidate gate from Windows:
+
+```powershell
+.\scripts\full-check.ps1 -WithLatex
+```
+
+The PowerShell wrapper prints the host Docker version, runs
+`scripts/full-check.sh` inside the Docker EDA image, and optionally compiles the
+paper with host LaTeX. The Docker gate verifies tools, runs Rust
+fmt/check/tests, runs EDA smoke, runs the deterministic benchmark, validates the
+LLM provider config without provider requests, plans the full LLM baseline
+matrix without provider requests, regenerates aggregate result tables, validates
+JSON outputs, and writes `build/release/full_check_manifest.json`.
+
+Linux/WSL equivalent:
+
+```bash
+./scripts/eda-docker.sh bash scripts/full-check.sh --llm-config config/llm-provider.local.yaml
+latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
+```
+
+Read the top-level `RELEASE_CHECKLIST.md` before publishing a release branch or
+tag. The generated release manifest records tool versions, prompt hashes,
+selected model/profile metadata, benchmark manifest hash, result JSON hashes,
+and the latest paper commit hash; it is an ignored build artifact and must not
+be committed.
+
 ## Rust Compiler
 
 Run the Rust compiler checks inside Docker:
@@ -190,6 +219,8 @@ If `latexmk` is unavailable, run the documented `pdflatex`/`bibtex` fallback fro
 
 Before publishing a result or submission artifact:
 
+- `.\scripts\full-check.ps1 -WithLatex` passes, or the Docker gate plus host
+  LaTeX commands above pass separately.
 - `git status --short` shows no unstaged or staged source changes.
 - Docker tool verification passes.
 - Rust format, check, and tests pass.

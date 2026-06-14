@@ -36,6 +36,12 @@ For repeatable Rust and open-source RTL/EDA validation, use the persistent Ubunt
 Start with the end-to-end workflow in `docs/14_reproduction_workflow.md`:
 
 ```powershell
+.\scripts\full-check.ps1 -WithLatex
+```
+
+Or run the component checks manually:
+
+```powershell
 .\scripts\eda-docker.ps1 mico-verify-tools
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"

@@ -246,18 +246,19 @@ Current limitations:
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section describe the 62-task deterministic
 result, 36/36 positive-task smoke simulation coverage, 31/31 single-clock
-bounded formal smoke coverage, and structural plus generic-mapped Yosys QoR
-summaries. They must not claim full per-task formal proof, timing QoR, arbitrary
-LTL, or multi-model pass-rate improvements. Host LaTeX is the repository policy
-for paper builds.
+bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
+summaries, and the negative authenticated low-cost LLM matrix. They must not
+claim full per-task formal proof, timing QoR, arbitrary LTL, or positive LLM
+pass-rate improvements. Host LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
 - The paper is still an evidence-limited submission candidate, not a complete
   experimental paper.
-- Generated table snippets are available under ignored `build/paper_tables/`,
-  but the paper source still carries conservative seed-result text until final
-  paid result matrices are archived.
+- Generated table snippets are available under ignored `build/paper_tables/`;
+  the paper source now carries the deterministic table values and low-cost LLM
+  summary, while raw result archives and final statistical appendices remain
+  release work.
 - Broader case-study diversity and full reproducibility hashes are pending.
 
 ## Validation Gates For This Snapshot

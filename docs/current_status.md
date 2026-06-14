@@ -82,7 +82,8 @@ This file is the short, traceable status page for the current repository. Use
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist and generated
   `build/release/full_check_manifest.json` metadata record.
-- IEEE-style paper draft with conservative deterministic benchmark claims.
+- IEEE-style paper draft with conservative deterministic benchmark claims and a
+  negative authenticated low-cost LLM matrix summary.
 
 ## Not Yet Implemented
 
@@ -94,8 +95,8 @@ This file is the short, traceable status page for the current repository. Use
 - Timing/Vivado QoR and technology-mapped delay reporting.
 - Release-archived full paid multi-profile LLM baseline result artifacts and
   any positive pass-rate improvement claims.
-- Direct inclusion of generated paper-table snippets in the final submission
-  text.
+- Complete generated paper-table snippet integration and final statistical
+  appendix.
 - Broader subsystem case studies beyond the five committed deterministic cases.
 - Immutable release tag; the current policy uses a reviewable release branch
   first, then tags only after final artifact approval.

@@ -2,7 +2,7 @@
 
 ModuleComposeBench evaluates whether a model can integrate existing RTL/IP modules, not merely generate standalone Verilog. Tasks include wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC insertion, and unsafe ambiguity rejection.
 
-Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO AST prompting without compiler-feedback repair, and MICO AST prompting with compiler-feedback repair.
+Metrics include first-pass compose success, repair turns, lint pass, simulation pass, formal pass, unsafe rejection rate, QoR delta, and connection entropy reduction. Baselines include direct Verilog prompting, SystemVerilog-interface prompting, MICO source prompting, MICO JSON AST prompting without compiler-feedback repair, and MICO JSON AST prompting with compiler-feedback repair.
 
 The evaluation is organized around five research questions:
 
@@ -93,8 +93,31 @@ The case studies use dedicated RTL under \texttt{rtl/case\_studies/} rather than
 
 The table values above are reproducible from \texttt{benchmarks/run\_bench.py} and the aggregate table generator. \texttt{benchmarks/aggregate\_results.py} writes a schema-versioned aggregate JSON record, CSV tables, and LaTeX snippets for the main deterministic result table, per-level rates with denominators and Wilson confidence intervals, unsafe diagnostic taxonomy, structural and generic-mapped QoR rows, and conservative ablation/counterfactual rows. When supplied with sanitized LLM batch records, it also emits LLM baseline summaries, repair-turn distributions, token/cost tables, paired comparisons, and failure taxonomy tables. Validate-only LLM records are explicitly marked as not scored rather than counted as failures.
 
-\subsection{LLM Baseline Boundary}
+\subsection{Authenticated LLM Matrix}
 
-The paper does not claim final LLM pass-rate improvements yet. The artifact includes the batch runner for five baselines and JSON-AST repair-loop plumbing, but the full paid low-cost and cross-model matrices are not committed as result data. Validate-only runs exercise prompt/profile/model routing without provider requests, and offline-fixture runs exercise the compiler and open-source EDA scoring path without paid calls. A final submission must run the paid matrices, archive sanitized result JSON, and regenerate the paper tables from those artifacts.
+The artifact includes a batch runner for five baselines and JSON-AST repair-loop plumbing. The current authenticated low-cost matrix executes 62 tasks across two low-cost profiles and five baselines, for 620 attempts. The result is negative for the current prompt/model settings: no baseline produces a positive-task compiler pass or lint pass. Therefore this paper does not claim that MICO prompting improves LLM pass rate.
 
-The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate LLM benchmark prompts without paid requests, and pass open-source EDA smoke checks in a controlled Docker environment.
+\begin{table}[t]
+  \centering
+  \caption{Authenticated low-cost LLM matrix}
+  \begin{tabular}{lllll}
+    \toprule
+    Setting & JSON & Comp. & Lint & Unsafe \\
+    \midrule
+    S/DV & 18/62 & n/a & 0/36 & n/a \\
+    S/SVI & 18/62 & n/a & 0/36 & n/a \\
+    S/MS & 16/62 & 0/36 & 0/36 & 15/26 \\
+    S/JA & 15/62 & 0/36 & 0/36 & 15/26 \\
+    S/JAR & 17/62 & 0/36 & 0/36 & 17/26 \\
+    L/DV & 23/62 & n/a & 0/36 & n/a \\
+    L/SVI & 15/62 & n/a & 0/36 & n/a \\
+    L/MS & 25/62 & 0/36 & 0/36 & 16/26 \\
+    L/JA & 17/62 & 0/36 & 0/36 & 17/26 \\
+    L/JAR & 19/62 & 0/36 & 0/36 & 18/26 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Here S is the smoke profile, L is the low-cost cross-check profile, DV is direct Verilog, SVI is SystemVerilog-interface prompting, MS is MICO source, JA is MICO JSON AST, and JAR is JSON AST with repair. The dominant failures are invalid JSON responses, model refusals or explicit rejections, and compiler rejection of malformed MICO source or JSON AST. For paired comparisons over 124 comparable profile-task pairs, JSON-AST repair ties dominate: it records 4--12 repair wins, 4--8 baseline wins, and 104--113 ties depending on the paired baseline. These data support the artifact and failure-taxonomy workflow, not a pass-rate-improvement claim.
+
+The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural and generic-mapped QoR CSV/TeX summaries, validate and execute LLM benchmark prompts through sanitized records, and pass open-source EDA smoke checks in a controlled Docker environment.

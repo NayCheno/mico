@@ -23,13 +23,13 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 
 1. Keep the current claim boundary frozen and evidence-backed; see
    `docs/claim_boundary.md`.
-2. Run and archive the full paid low-cost LLM baseline matrix when cost settings are configured.
+2. Archive the authenticated low-cost LLM matrix externally and improve prompt/model settings before any positive LLM claim.
 3. Broaden simulation, formal, and QoR coverage beyond the current enabled subsets.
 4. Promote generated paper-table snippets into the final evidence-driven evaluation.
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for selected sim/QoR-enabled positive seeds and case studies, Icarus simulation coverage for all 36 positive tasks through nine committed harnesses plus generated ready/valid smoke harnesses, bounded SymbiYosys smoke coverage for 31 single-clock positive tasks through three committed directed harnesses plus generated ready/valid formal harnesses, structural and generic-mapped Yosys QoR summaries for supported positive tasks, a 62-task ModuleComposeBench runner with required task metadata and five dedicated subsystem case studies, an aggregate-results generator for CSV/TeX paper tables, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The paper is still a submission candidate in progress and does not yet claim full per-task formal coverage, timing QoR, arbitrary LTL, or multi-model pass-rate improvements.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for selected sim/QoR-enabled positive seeds and case studies, Icarus simulation coverage for all 36 positive tasks through nine committed harnesses plus generated ready/valid smoke harnesses, bounded SymbiYosys smoke coverage for 31 single-clock positive tasks through three committed directed harnesses plus generated ready/valid formal harnesses, structural and generic-mapped Yosys QoR summaries for supported positive tasks, a 62-task ModuleComposeBench runner with required task metadata and five dedicated subsystem case studies, an aggregate-results generator for CSV/TeX paper tables, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The authenticated low-cost LLM matrix is currently a negative result and does not support pass-rate improvement claims. The paper is still a submission candidate in progress and does not yet claim full per-task formal coverage, timing QoR, arbitrary LTL, or positive LLM improvements.
 
 For the current claim boundary, read `docs/claim_boundary.md`,
 `docs/current_status.md`, and `docs/13_architecture_audit.md`.

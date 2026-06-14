@@ -25,13 +25,15 @@
 | `docs/12_docker_eda_environment.md` | Persistent Ubuntu 24.04 Docker environment for Rust and open-source RTL/EDA validation, with Windows-host Vivado and LaTeX exceptions. |
 | `docs/13_architecture_audit.md` | Current architecture audit, implemented state, claim boundary, gaps, and next priority order. |
 | `docs/14_reproduction_workflow.md` | Clean-checkout reproduction workflow covering Docker Rust/EDA, benchmarks, LLM provider smoke, host Vivado, and host LaTeX. |
+| `docs/15_case_studies.md` | Dedicated subsystem case-study inventory, collateral paths, and reproduction commands. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | 57-task ModuleComposeBench seed suite, manifest, runner, result aggregator, and scoring schema. |
+| `benchmarks/` | 60-task ModuleComposeBench suite, manifest, runner, result aggregator, and scoring schema. |
+| `rtl/case_studies/` | Dedicated subsystem RTL collateral for streaming, width-bridge, and register/status case-study tasks. |
 | `benchmarks/formal/` | SymbiYosys harness monitors for selected seed formal checks. |
 | `benchmarks/qor/` | Hand-written reference wrappers for structural Yosys QoR comparison. |
-| `benchmarks/sim/` | Icarus/VVP SystemVerilog testbenches for positive seed simulation. |
+| `benchmarks/sim/` | Icarus/VVP SystemVerilog testbenches for supported positive benchmark tasks. |
 | `prompts/` | Prompt templates and JSON schema for LLM output. |
 | `source/` | Uploaded and edited source reports. |

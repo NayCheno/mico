@@ -1,11 +1,11 @@
 name: ModuleComposeBench
-version: 0.2.0
+version: 0.3.0
 minimum_tasks: 50
 purpose: Evaluate LLM-assisted RTL module composition with typed interfaces, contracts, adapters, and clock-domain checks.
 scope_notes:
-  - The deterministic compiler baseline covers 57 hand-written seed tasks.
+  - The deterministic compiler baseline covers 57 hand-written seed tasks plus 3 dedicated subsystem case studies.
   - L1/L2/L4 tasks use committed smoke RTL collateral for lint/elaboration.
-  - L3/L5/L6 entries are publishable-scale seed approximations until dedicated latency, bus, and subsystem RTL case studies are added.
+  - L3/L5/L6 include seed approximations plus dedicated streaming, width-bridge, and register/status case-study RTL.
   - Simulation, formal, and QoR denominators include only tasks with committed harnesses or reference wrappers.
 levels:
   L1: same-domain direct interface connections
@@ -902,6 +902,69 @@ tasks:
     mico_source: benchmarks/tasks/T057_control_status_width_seed/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     expected_features: [bus_wrapper_seed, width_adapter]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T058_streaming_accelerator_case
+    level: L6
+    type: positive
+    path: tasks/T058_streaming_accelerator_case
+    request: Connect a DMA-like source through a skid buffer and XOR filter into a result sink using a ready-valid accelerator stream.
+    module_inventory: [CaseDmaSource, CaseSkidBuffer, CaseXorFilter, CaseResultSink]
+    interface_inventory: [AccelStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T058_streaming_accelerator_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_streaming_accelerator_case.sv
+    sim_top: tb_streaming_accelerator_case
+    formal_harness: benchmarks/formal/tb_streaming_accelerator_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    qor_reference: benchmarks/qor/reference/T058_streaming_accelerator_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, streaming_accelerator, skid_buffer, filter_chain, formal_property, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T059_width_protocol_bridge_case
+    level: L6
+    type: positive
+    path: tasks/T059_width_protocol_bridge_case
+    request: Connect a 32-bit sensor stream through an explicit zero-extension adapter into a 64-bit processing block and host sink.
+    module_inventory: [CaseSensor32, CaseAccel64, CaseHostSink64]
+    interface_inventory: [SensorWord32, AccelWord64]
+    adapter_inventory: [CaseWiden32To64]
+    mico_source: benchmarks/tasks/T059_width_protocol_bridge_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_width_protocol_bridge_case.sv
+    sim_top: tb_width_protocol_bridge_case
+    qor_reference: benchmarks/qor/reference/T059_width_protocol_bridge_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, width_bridge, processing_chain, explicit_adapter, qor_reference]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      diagnostics: []
+  - id: T060_register_status_case
+    level: L5
+    type: positive
+    path: tasks/T060_register_status_case
+    request: Connect an APB-like command source through a register-file status transform into a status sink.
+    module_inventory: [CaseApbCommandSource, CaseRegisterFile, CaseStatusSink]
+    interface_inventory: [RegWord]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T060_register_status_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_register_status_case.sv
+    sim_top: tb_register_status_case
+    qor_reference: benchmarks/qor/reference/T060_register_status_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features: [case_study, register_wrapper, status_path, qor_reference]
     expected:
       compose_pass: true
       lint_pass: true

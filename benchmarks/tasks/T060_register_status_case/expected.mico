@@ -1,0 +1,28 @@
+clockdom Sys(clk, rst);
+
+interface RegWord @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseApbCommandSource @Sys {
+  out req: RegWord;
+}
+
+extern module CaseRegisterFile @Sys {
+  in write: RegWord;
+  out status: RegWord;
+}
+
+extern module CaseStatusSink @Sys {
+  in status: RegWord;
+}
+
+compose Top @Sys {
+  inst cmd: CaseApbCommandSource;
+  inst regs: CaseRegisterFile;
+  inst sink: CaseStatusSink;
+  connect cmd.req -> regs.write;
+  connect regs.status -> sink.status;
+}

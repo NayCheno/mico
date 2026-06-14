@@ -1,0 +1,56 @@
+`default_nettype none
+
+module Top(
+  input logic clk,
+  input logic rst
+);
+  logic [31:0] dma_tx__skid_input_payload;
+  logic dma_tx__skid_input_ready;
+  logic dma_tx__skid_input_valid;
+  logic [31:0] skid_output__filter_input_payload;
+  logic skid_output__filter_input_ready;
+  logic skid_output__filter_input_valid;
+  logic [31:0] filter_output__sink_rx_payload;
+  logic filter_output__sink_rx_ready;
+  logic filter_output__sink_rx_valid;
+
+  CaseDmaSource dma (
+    .clk(clk),
+    .rst(rst),
+    .tx_payload(dma_tx__skid_input_payload),
+    .tx_valid(dma_tx__skid_input_valid),
+    .tx_ready(dma_tx__skid_input_ready)
+  );
+
+  CaseSkidBuffer skid (
+    .clk(clk),
+    .rst(rst),
+    .input_payload(dma_tx__skid_input_payload),
+    .input_valid(dma_tx__skid_input_valid),
+    .input_ready(dma_tx__skid_input_ready),
+    .output_payload(skid_output__filter_input_payload),
+    .output_valid(skid_output__filter_input_valid),
+    .output_ready(skid_output__filter_input_ready)
+  );
+
+  CaseXorFilter filter (
+    .clk(clk),
+    .rst(rst),
+    .input_payload(skid_output__filter_input_payload),
+    .input_valid(skid_output__filter_input_valid),
+    .input_ready(skid_output__filter_input_ready),
+    .output_payload(filter_output__sink_rx_payload),
+    .output_valid(filter_output__sink_rx_valid),
+    .output_ready(filter_output__sink_rx_ready)
+  );
+
+  CaseResultSink sink (
+    .clk(clk),
+    .rst(rst),
+    .rx_payload(filter_output__sink_rx_payload),
+    .rx_valid(filter_output__sink_rx_valid),
+    .rx_ready(filter_output__sink_rx_ready)
+  );
+endmodule
+
+`default_nettype wire

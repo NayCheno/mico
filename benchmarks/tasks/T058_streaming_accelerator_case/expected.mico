@@ -1,0 +1,35 @@
+clockdom Sys(clk, rst);
+
+interface AccelStream @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseDmaSource @Sys {
+  out tx: AccelStream;
+}
+
+extern module CaseSkidBuffer @Sys {
+  in input: AccelStream;
+  out output: AccelStream;
+}
+
+extern module CaseXorFilter @Sys {
+  in input: AccelStream;
+  out output: AccelStream;
+}
+
+extern module CaseResultSink @Sys {
+  in rx: AccelStream;
+}
+
+compose Top @Sys {
+  inst dma: CaseDmaSource;
+  inst skid: CaseSkidBuffer;
+  inst filter: CaseXorFilter;
+  inst sink: CaseResultSink;
+  connect dma.tx -> skid.input;
+  connect skid.output -> filter.input;
+  connect filter.output -> sink.rx;
+}

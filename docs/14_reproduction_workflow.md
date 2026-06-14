@@ -76,17 +76,17 @@ Run the deterministic benchmark runner:
 
 Expected current benchmark result:
 
-- `expected_outcome_pass: 57/57`
-- `compose_pass_1: 31/31` for positive tasks
-- `lint_pass: 31/31` for positive tasks
-- `sim_pass: 4/4` for positive tasks with committed Icarus testbenches
-- `formal_pass: 2/2` for formal-enabled direct stream and width adapter tasks
-- `qor_available: 4/4` for positive tasks with committed reference wrappers
+- `expected_outcome_pass: 60/60`
+- `compose_pass_1: 34/34` for positive tasks
+- `lint_pass: 34/34` for positive tasks
+- `sim_pass: 7/7` for positive tasks with committed Icarus testbenches
+- `formal_pass: 3/3` for formal-enabled direct, width, and streaming case tasks
+- `qor_available: 7/7` for positive tasks with committed reference wrappers
 - `unsafe_rejection: 26/26` for negative tasks
-- `json_ast_path: 57/57` for source-to-AST-to-check equivalence
+- `json_ast_path: 60/60` for source-to-AST-to-check equivalence
 - CDC formal proof and timing QoR remain not run.
-- L3/L5/L6 tasks are deterministic seed approximations until dedicated
-  latency, bus, and subsystem RTL case studies are committed.
+- T058--T060 provide dedicated streaming, width-bridge, and register/status
+  subsystem case studies; broader latency and bus IP studies remain future work.
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 
@@ -195,7 +195,7 @@ Before publishing a result or submission artifact:
 - Rust format, check, and tests pass.
 - EDA smoke passes with Verilator, Icarus, Yosys, and the SymbiYosys smoke proof.
 - ModuleComposeBench runner writes a JSON result under `build/bench/` with
-  expected, lint, simulation, selected formal, QoR, and unsafe-rejection
+  expected, lint, simulation, selected formal, QoR, case-study, and unsafe-rejection
   summaries.
 - Benchmark aggregation writes `build/bench/aggregate_results.json` plus CSV and
   TeX snippets under ignored build directories.

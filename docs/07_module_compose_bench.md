@@ -65,7 +65,7 @@ Include intentionally invalid tasks to measure rejection ability:
 ## Current runner
 
 The repository includes a deterministic runner for the current positive and
-negative seed tasks:
+negative benchmark tasks:
 
 ```bash
 ./scripts/eda-docker.sh bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
@@ -81,19 +81,21 @@ The runner reads `benchmarks/module_compose_bench_manifest.yaml`, validates
 required task metadata, runs `mico_cli check --format json`, emits
 SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and
 executes Verilator, Icarus, and Yosys smoke checks against
-`rtl/examples/mico_example_leafs.sv`. The current manifest has 57 tasks: 31
-positive composition tasks and 26 negative unsafe-rejection tasks across L1-L6.
+`rtl/examples/mico_example_leafs.sv` and dedicated case-study collateral under
+`rtl/case_studies/`. The current manifest has 60 tasks: 34 positive composition
+tasks and 26 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral. Positive
-seed tasks with
+tasks with
 `sim_testbench` and `sim_top` also compile with Icarus and execute with `vvp`;
 simulation stdout/stderr artifacts are written under ignored `build/bench/`.
-Positive seed tasks with `formal_harness` and `formal_top` also generate a
+Positive tasks with `formal_harness` and `formal_top` also generate a
 SymbiYosys job under ignored `build/bench/` and run bounded proofs against the
 generated wrapper plus committed harness monitor. The current enabled formal
-subset is `T003_width_adapter` and `T004_direct_stream`; CDC remains smoke-only
-and is not reported as a proof.
-Positive seed tasks with `qor_reference` also run Yosys structural `stat -json`
+subset is `T003_width_adapter`, `T004_direct_stream`, and
+`T058_streaming_accelerator_case`; CDC remains smoke-only and is not reported as
+a proof.
+Positive tasks with `qor_reference` also run Yosys structural `stat -json`
 for the generated wrapper and the committed hand-written reference wrapper. The
 current QoR scope is area-cell and wire-count delta; no timing or Vivado result
 is claimed. The runner writes `qor_summary.csv` and `qor_summary.tex` under
@@ -103,8 +105,8 @@ codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with `summary` aggregation plus per-task results. The current
 runner aggregates `formal_pass` over formal-enabled tasks and `qor` over
 QoR-enabled positive tasks.
-L3/L5/L6 entries are compiler and wrapper seed approximations until dedicated
-latency, bus, and subsystem RTL case studies are added.
+L3/L5/L6 still contain seed approximations, but T058--T060 add dedicated
+streaming, width-bridge, and register/status subsystem RTL case studies.
 
 ## Paper Table Aggregation
 

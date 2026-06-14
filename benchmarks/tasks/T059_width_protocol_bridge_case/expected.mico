@@ -1,0 +1,40 @@
+clockdom Sys(clk, rst);
+
+interface SensorWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface AccelWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseSensor32 @Sys {
+  out tx: SensorWord32;
+}
+
+extern module CaseAccel64 @Sys {
+  in rx: AccelWord64;
+  out tx: AccelWord64;
+}
+
+extern module CaseHostSink64 @Sys {
+  in rx: AccelWord64;
+}
+
+adapter CaseWiden32To64 from SensorWord32@Sys to AccelWord64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst sensor: CaseSensor32;
+  inst accel: CaseAccel64;
+  inst host: CaseHostSink64;
+  adapt sensor.tx -> CaseWiden32To64 -> accel.rx;
+  connect accel.tx -> host.rx;
+}

@@ -41,7 +41,7 @@
 
 ## Phase 5: Benchmark and paper
 
-- Maintain the 57-task ModuleComposeBench seed manifest and add dedicated L3/L5/L6 case-study RTL.
+- Maintain the 60-task ModuleComposeBench manifest and expand dedicated L3/L5/L6 case-study RTL.
 - Run baselines.
 - Report pass rates, repair turns, PPA, formal results.
 - Prepare open-source artifact.

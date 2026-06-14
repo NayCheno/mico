@@ -30,21 +30,23 @@ This file is the short, traceable status page for the current repository. Use
 - Golden SV/SVA/traceability fixture tests for the four positive seed tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Per-task Icarus simulation harnesses for the four positive seed tasks.
-- Selected bounded SymbiYosys formal harnesses for the direct stream and width
-  adapter seed tasks.
-- Structural Yosys QoR extraction for positive seed wrappers, compared against
-  committed hand-written reference wrappers with generated CSV/TeX summaries.
+- Per-task Icarus simulation harnesses for four positive seed tasks plus three
+  subsystem case-study tasks.
+- Selected bounded SymbiYosys formal harnesses for the direct stream, width
+  adapter, and streaming accelerator case-study tasks.
+- Structural Yosys QoR extraction for supported positive benchmark wrappers,
+  compared against committed hand-written reference wrappers with generated
+  CSV/TeX summaries.
 - Aggregate benchmark result generator that merges deterministic results and
   optional LLM batch records into CSV plus LaTeX table snippets for main
   results, per-level metrics, unsafe diagnostics, QoR, ablations, repair turns,
   token/cost, paired comparisons, and failure taxonomy.
-- 57 ModuleComposeBench seed tasks with required natural-language requests,
-  module/interface/adapter inventories, expected diagnostics, and explicit RTL
-  collateral.
+- 60 ModuleComposeBench tasks with required natural-language requests,
+  module/interface/adapter inventories, expected diagnostics, explicit RTL
+  collateral, and three dedicated subsystem case studies.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
-- Batch LLM benchmark runner for the 57-task manifest with Direct Verilog,
+- Batch LLM benchmark runner for the 60-task manifest with Direct Verilog,
   SystemVerilog-interface, MICO source, MICO JSON AST, and MICO JSON AST +
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
@@ -58,36 +60,35 @@ This file is the short, traceable status page for the current repository. Use
 - Full repair patch ingestion and application; the patch schema exists, but
   the compiler does not yet apply patches.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Formal harnesses beyond the selected direct stream and width adapter seeds.
+- Formal harnesses beyond the selected direct stream, width adapter, and
+  streaming case-study tasks.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing/Vivado QoR and technology-mapped delay reporting.
 - Committed full paid multi-profile LLM baseline result artifacts and pass-rate
   claims.
-- Dedicated non-smoke L3/L5/L6 RTL case studies beyond the current seed
-  approximations.
 - Direct inclusion of generated paper-table snippets in the final submission
   text.
-- Reproducible subsystem case studies.
+- Broader subsystem case studies beyond the three committed deterministic cases.
 - Full release-candidate validation script.
 
 ## Current ModuleComposeBench Boundary
 
 Current deterministic benchmark scope:
 
-- Total tasks: 57, with 31 positives and 26 negatives.
-- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 8, and L6 6.
+- Total tasks: 60, with 34 positives and 26 negatives.
+- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 9, and L6 8.
 - The deterministic compiler baseline includes same-domain stream wiring,
   width adaptation, latency/backpressure seed tasks, CDC/RDC adapter tasks,
   bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
-- Expected current result: expected outcome 57/57, positive compose 31/31,
-  positive lint/elaboration smoke 31/31, positive simulation 4/4, unsafe
-  rejection 26/26, JSON AST path 57/57, selected bounded formal 2/2, structural
-  QoR available 4/4.
-- `formal_pass` is claimed only for formal-enabled direct stream and width
-  adapter seeds; CDC proof and timing QoR remain intentionally unclaimed.
-- L3/L5/L6 entries are seed approximations that exercise compiler and wrapper
-  paths over the existing smoke RTL collateral. They are not substitutes for the
-  planned subsystem case studies.
+- Expected current result: expected outcome 60/60, positive compose 34/34,
+  positive lint/elaboration smoke 34/34, positive simulation 7/7, unsafe
+  rejection 26/26, JSON AST path 60/60, selected bounded formal 3/3, structural
+  QoR available 7/7.
+- `formal_pass` is claimed only for formal-enabled direct stream, width adapter,
+  and streaming case-study tasks; CDC proof and timing QoR remain intentionally
+  unclaimed.
+- L3/L5/L6 include seed approximations plus the dedicated T058--T060 streaming,
+  width-bridge, and register/status subsystem case studies.
 
 ## Validation Commands
 

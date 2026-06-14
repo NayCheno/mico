@@ -4,12 +4,12 @@ Audit date: 2026-06-14.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, 57-task seed benchmark runner, benchmark
+smoke flow, source-level JSON AST path, 60-task benchmark runner, benchmark
 aggregation script, LLM provider
 validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
-experiments + paper" artifact: full paid LLM pass-rate matrices, dedicated case
-studies, full formal coverage, timing QoR, and final paper-table integration
-remain open milestones.
+experiments + paper" artifact: full paid LLM pass-rate matrices, broader case
+study diversity, full formal coverage, timing QoR, and final paper-table
+integration remain open milestones.
 
 ## Sources Reviewed
 
@@ -118,23 +118,25 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench also has Icarus/VVP simulation harnesses for the four
-positive seed tasks and reports `sim_pass: 4/4` in the deterministic runner.
-It has selected bounded SymbiYosys harnesses for the width adapter and direct
-stream seeds and reports `formal_pass: 2/2` over that enabled subset.
-It also parses Yosys structural `stat -json` output for positive seed wrappers,
+ModuleComposeBench also has Icarus/VVP simulation harnesses for seven positive
+tasks, including three dedicated subsystem case studies, and reports
+`sim_pass: 7/7` in the deterministic runner. It has selected bounded
+SymbiYosys harnesses for the width adapter, direct stream, and streaming
+accelerator case-study tasks and reports `formal_pass: 3/3` over that enabled
+subset.
+It also parses Yosys structural `stat -json` output for positive benchmark wrappers,
 compares against committed hand-written references, and reports
-`qor_available: 4/4`.
+`qor_available: 7/7`.
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
-not required for seed results; when Vivado is needed, the only allowed host
+not required for deterministic benchmark results; when Vivado is needed, the only allowed host
 root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to the direct stream and width adapter seed
-  tasks.
+- Formal coverage is limited to the direct stream, width adapter, and streaming
+  accelerator case-study tasks.
 - QoR is structural area/wire accounting only; it is not timing closure,
   technology-mapped delay, or Vivado QoR.
 - Adapter correctness boundaries are documented but not yet backed by full
@@ -142,10 +144,10 @@ Current limitations:
 
 ### ModuleComposeBench
 
-`benchmarks/module_compose_bench_manifest.yaml` currently contains 57 seed
-tasks with required natural-language requests, module/interface/adapter
-inventories, expected diagnostics, and RTL collateral. The current deterministic
-scope is:
+`benchmarks/module_compose_bench_manifest.yaml` currently contains 60 tasks:
+57 hand-written seeds plus 3 dedicated subsystem case studies with required
+natural-language requests, module/interface/adapter inventories, expected
+diagnostics, and RTL collateral. The current deterministic scope is:
 
 | Level | Total | Positive | Negative | Focus |
 |---|---:|---:|---:|---|
@@ -153,13 +155,13 @@ scope is:
 | L2 | 13 | 7 | 6 | width and parameter adaptation |
 | L3 | 10 | 6 | 4 | latency/backpressure and protocol seeds |
 | L4 | 10 | 5 | 5 | CDC/RDC adapter and rejection seeds |
-| L5 | 8 | 3 | 5 | bus/register wrapper seeds |
-| L6 | 6 | 1 | 5 | multi-IP subsystem seeds |
+| L5 | 9 | 4 | 5 | bus/register wrapper seeds and register/status case |
+| L6 | 8 | 3 | 5 | multi-IP subsystem seeds and streaming/width case studies |
 
-The current expected result is 57/57 expected outcomes, 31/31 positive
-compose-pass, 31/31 positive lint/elaboration pass, 26/26 unsafe rejection, and
-57/57 JSON AST path equivalence. Supported subsets remain 4/4 positive
-simulations, 2/2 selected bounded formal proofs, and 4/4 structural QoR
+The current expected result is 60/60 expected outcomes, 34/34 positive
+compose-pass, 34/34 positive lint/elaboration pass, 26/26 unsafe rejection, and
+60/60 JSON AST path equivalence. Supported subsets are 7/7 positive
+simulations, 3/3 selected bounded formal proofs, and 7/7 structural QoR
 comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
@@ -169,11 +171,10 @@ supported, and writes `schema_version = mico.bench.results.v0`.
 
 Current limitations:
 
-- L3 latency/backpressure, L5 bus/register wrappers, and L6 subsystem entries
-  are seed approximations over the existing smoke RTL collateral, not dedicated
-  subsystem case studies.
-- Full formal coverage, broader QoR, and dedicated subsystem validation
-  collateral are still pending.
+- L3 latency/backpressure still relies on seed approximations over smoke RTL;
+  L5/L6 now include dedicated register/status, streaming accelerator, and
+  width-bridge case-study RTL, but broader subsystem diversity is still needed.
+- Full formal coverage and broader QoR remain pending.
 
 ### LLM Provider Workflow
 
@@ -184,7 +185,7 @@ profile/model/base URL shape, records prompt SHA-256, model/profile metadata,
 repair turns, optional compiler and EDA JSON artifact attachments, token usage,
 and cost fields in a sanitized `mico.llm.run.v0` record.
 
-`scripts/run_llm_bench.py` adds the batch benchmark harness for the 57-task
+`scripts/run_llm_bench.py` adds the batch benchmark harness for the 60-task
 manifest. It supports Direct Verilog, SystemVerilog-interface, MICO source,
 MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
 validate-only mode for prompt/profile matrix checks, offline-fixture mode for
@@ -205,7 +206,7 @@ Current limitations:
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section deliberately describe the artifact
-as a 57-task deterministic seed result with four positive seed simulations and two
+as a 60-task deterministic result with seven positive-task simulations and three
 selected bounded formal proofs plus structural Yosys QoR summaries. They do
 not claim full per-task formal proof, timing QoR, arbitrary LTL, or multi-model
 pass-rate improvements. Host LaTeX is the repository policy for paper builds.
@@ -217,7 +218,7 @@ Current limitations:
 - Generated table snippets are available under ignored `build/paper_tables/`,
   but the paper source still carries conservative seed-result text until final
   paid result matrices are archived.
-- Dedicated case studies and full reproducibility hashes are pending.
+- Broader case-study diversity and full reproducibility hashes are pending.
 
 ## Validation Gates For This Snapshot
 
@@ -243,7 +244,7 @@ paper workflow.
 The next work should proceed in this order:
 
 1. Run and archive full low-cost LLM baseline matrices when cost settings are configured.
-2. Add broader formal/QoR coverage, subsystem case studies, and release-candidate
+2. Add broader formal/QoR coverage, additional subsystem studies, and release-candidate
    validation scripts.
 3. Promote generated aggregate table snippets into the final paper evaluation.
 
@@ -253,24 +254,27 @@ Current claims supported by the repository:
 
 - MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
   small v0 language.
-- The 57-task manifest meets the publishable-scale deterministic benchmark
-  threshold and spans L1-L6 with 31 positive and 26 negative tasks.
+- The 60-task manifest meets the publishable-scale deterministic benchmark
+  threshold and spans L1-L6 with 34 positive and 26 negative tasks.
 - The compiler rejects key unsafe seed cases: missing width adaptation, direct
   CDC, reversed direction, missing adapter guarantees, unknown adapter
   guarantees, and adapter guarantees invalid for their kind.
 - The compiler parses and checks a conservative ready/valid v0 contract subset
   for adapter requirement coverage.
-- Positive seed wrappers pass open-source lint/elaboration smoke checks.
+- Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - Positive seed SV/SVA/traceability output is covered by committed golden
   fixtures.
-- Positive seed simulations pass with committed Icarus/VVP testbenches.
-- Selected direct-stream and width-adapter seeds pass bounded SymbiYosys
-  checks.
-- Positive seed wrappers have structural Yosys area/wire QoR metrics against
-  committed hand-written references.
+- Positive seed and case-study simulations pass with committed Icarus/VVP
+  testbenches.
+- Selected direct-stream, width-adapter, and streaming accelerator case-study
+  tasks pass bounded SymbiYosys checks.
+- Three dedicated subsystem case studies have committed RTL, MICO source,
+  simulation testbenches, and structural QoR references.
+- Positive seed and case-study wrappers have structural Yosys area/wire QoR
+  metrics against committed hand-written references.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
-- The LLM benchmark runner can plan the full 57-task low-cost baseline matrix,
+- The LLM benchmark runner can plan the full 60-task low-cost baseline matrix,
   validate offline compiler/EDA scoring paths, and execute authenticated
   provider subsets without storing secrets.
 - `benchmarks/aggregate_results.py` can merge deterministic and optional LLM
@@ -282,8 +286,9 @@ Claims not yet supported:
 
 - Multi-model or multi-baseline LLM pass-rate improvements.
 - Full paid LLM benchmark matrix results committed as artifact data.
-- Simulation coverage beyond the four positive seed tasks.
-- Formal proof coverage beyond the selected direct and width seeds.
+- Simulation coverage beyond the seven harness-enabled positive tasks.
+- Formal proof coverage beyond the selected direct, width, and streaming case
+  tasks.
 - Timing QoR, Vivado QoR, or technology-mapped delay conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
 - Arbitrary LTL or complete temporal contract proving.

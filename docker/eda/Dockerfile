@@ -121,6 +121,13 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
         pytest-xdist \
         pyyaml
 
+# Ubuntu 24.04 does not package SymbiYosys as `sby`; install the lightweight
+# upstream driver so formal smoke checks can use the same Docker surface.
+ARG SBY_REPO=https://github.com/YosysHQ/sby.git
+RUN git clone --depth 1 "${SBY_REPO}" /tmp/sby \
+    && make -C /tmp/sby install PREFIX=/usr/local \
+    && rm -rf /tmp/sby
+
 COPY docker/eda/verify-tools.sh /usr/local/bin/mico-verify-tools
 RUN chmod +x /usr/local/bin/mico-verify-tools
 

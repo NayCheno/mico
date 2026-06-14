@@ -64,7 +64,7 @@ Run the open-source RTL smoke flow in Docker:
 .\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
 ```
 
-The smoke flow emits wrappers for stream FIFO, CDC FIFO, and width adapter examples, then checks them with Verilator and Yosys against `rtl/examples/mico_example_leafs.sv`. The CDC leaf is smoke-only collateral, not a formal CDC proof.
+The smoke flow emits wrappers and SVA skeletons for stream FIFO, CDC FIFO, and width adapter examples. It checks wrappers with Verilator, Icarus, and Yosys, checks SVA skeletons with Verilator, and runs a minimal SymbiYosys smoke proof. The CDC leaf is smoke-only collateral, not a formal CDC proof.
 
 ## ModuleComposeBench Seeds
 
@@ -112,7 +112,7 @@ Use Vivado only for Xilinx-specific project synthesis, implementation, bitstream
 .\scripts\run-vivado-host.ps1 -Source .\path\to\flow.tcl
 ```
 
-If Vivado is not on `PATH`, set `VIVADO_BIN` to the local `vivado.bat` path. Keep Vivado journals, logs, project directories, bitstreams, and reports out of source control unless a reviewer explicitly requests a small text report.
+The host launcher is pinned to `D:\Application\vivado\2025.2\Vivado\bin\vivado.bat` by default and rejects Vivado paths outside `D:\Application\vivado\2025.2\Vivado`. It writes journals and logs under ignored `build/reports/vivado-host/` unless `-ReportDir` is set to another ignored output directory. Keep Vivado project directories, bitstreams, and generated reports out of source control unless a reviewer explicitly requests a small text report.
 
 ## Paper Build
 
@@ -131,7 +131,7 @@ Before publishing a result or submission artifact:
 - `git status --short` shows no unstaged or staged source changes.
 - Docker tool verification passes.
 - Rust format, check, and tests pass.
-- EDA smoke passes with Verilator and Yosys.
+- EDA smoke passes with Verilator, Icarus, Yosys, and the SymbiYosys smoke proof.
 - ModuleComposeBench seed runner writes a JSON result under `build/bench/`.
 - LLM provider validate-only passes; authenticated smoke passes when a local key is configured.
 - Paper LaTeX build completes on the Windows host.

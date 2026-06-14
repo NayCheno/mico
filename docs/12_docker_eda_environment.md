@@ -57,12 +57,12 @@ The Dockerfile installs it non-interactively under `/opt/rust`, adds `rustfmt` a
 Required apt tools include:
 
 - Rust toolchain via rustup: `rustc`, `cargo`, `rustfmt`, `clippy`
-- RTL/EDA: `yosys`, `verilator`, `iverilog`, `ghdl`, `tclsh`, `z3`
+- RTL/EDA: `yosys`, `yosys-smtbmc`, `sby` (SymbiYosys driver), `verilator`, `iverilog`, `ghdl`, `tclsh`, `z3`
 - Build/runtime: `build-essential`, `cmake`, `ninja`, `python3`, `pip`, `git`
 - Python EDA helpers: `cocotb`, `edalize`, `fusesoc`, `pytest`, `pyyaml`
 - LLM provider smoke tests: OpenAI Python SDK, configured by `$opencode-go-provider`
 
-The Dockerfile also installs optional Ubuntu packages when available, such as `boolector`, `berkeley-abc`, `gtkwave`, `nextpnr-*`, `fpga-icestorm`, `openocd`, and `ghdl-yosys-plugin`.
+The Dockerfile also installs optional Ubuntu packages when available, such as `boolector`, `berkeley-abc`, `gtkwave`, `nextpnr-*`, `fpga-icestorm`, `openocd`, and `ghdl-yosys-plugin`. Ubuntu 24.04 does not package the SymbiYosys `sby` driver, so the Dockerfile installs it from the upstream `YosysHQ/sby` repository during image build.
 
 ## Windows Usage
 
@@ -135,12 +135,13 @@ Vivado is not installed in the Docker image. Use the Windows host installation:
 .\scripts\run-vivado-host.ps1 -Source .\path\to\flow.tcl
 ```
 
-If `vivado` is not on `PATH`, set `VIVADO_BIN`:
+This repository pins the allowed host Vivado root to `D:\Application\vivado\2025.2\Vivado`. The launcher writes Vivado journal and log files under ignored `build/reports/vivado-host/` by default and exports `MICO_VIVADO_REPORT_DIR` for Tcl scripts.
 
 ```powershell
-$env:VIVADO_BIN = "C:\Xilinx\Vivado\2024.2\bin\vivado.bat"
 .\scripts\run-vivado-host.ps1 -Source .\path\to\flow.tcl
 ```
+
+`VIVADO_BIN` may only be used to point inside the same required Vivado root.
 
 ## Paper LaTeX Exception
 

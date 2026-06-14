@@ -82,19 +82,27 @@ This file is the short, traceable status page for the current repository. Use
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
 - Authenticated low-cost LLM matrix execution has been run for 62 tasks, two
   low-cost profiles, and five baselines. The sanitized summary in
-  `docs/16_llm_matrix_results.md` is a negative result: current prompts/models
-  do not produce positive-task compiler or lint passes, so no LLM improvement
-  claim is supported.
+  `docs/16_llm_matrix_results.md` is retained as a historical negative result
+  for the original prompts.
 - A follow-up prompt/model pilot in
   `docs/17_llm_prompt_redesign_pilot.md` adds JSON response mode, schema-valid
   JSON AST declaration skeletons with stripped compose bodies, larger structured
   output budgets, compact repair diagnostics, and stronger profile validation.
   The selected pilot subset is no longer zero-pass, but it is not a full
   pass-rate improvement claim.
+- A full authenticated structured matrix rerun in
+  `docs/22_llm_full_matrix_v2.md` covers public-development and held-out splits
+  across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It
+  supports a Branch A candidate claim for the tested profiles: MICO JSON AST
+  and MICO JSON AST plus compiler-feedback repair produce nonzero to full
+  positive compiler/lint passes and strong unsafe rejection, while direct
+  Verilog, SystemVerilog-interface, and MICO-source baselines remain weak.
 - Repository-owned JSON AST repair patch applicator in the compiler/CLI. The
   `repair-json` command supports dry-run, apply, and immediate re-check using
   `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch
-  application to this CLI path.
+  application to this CLI path. The batch runner also includes a narrow,
+  explicitly recorded deterministic fallback for the common adapter-as-instance
+  model error; broader free-form repair remains unsupported.
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist, generated
   `build/release/full_check_manifest.json` metadata record, and
@@ -115,8 +123,11 @@ This file is the short, traceable status page for the current repository. Use
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
   beyond the representative four-task Vivado subset.
-- Release-archived full paid multi-profile LLM baseline result artifacts and
-  any positive pass-rate improvement claims.
+- Release-archived full paid multi-profile LLM baseline result artifacts.
+- Positive pass-rate improvement claims beyond the exact v2 tested profiles,
+  prompts, public-development split, and held-out split.
+- Broad free-form LLM repair reliability beyond the adapter-as-instance
+  deterministic fallback recorded in `docs/22_llm_full_matrix_v2.md`.
 - Full generated statistical appendix and any final submission-only table
   integration beyond the deterministic summary table.
 - Broader subsystem case studies beyond the current five public-dev plus three

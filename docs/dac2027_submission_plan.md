@@ -123,13 +123,20 @@ Supported now:
 - Held-out manifest with 12 scoring tasks, including three additional
   subsystem case studies and three paired negative variants; deterministic
   held-out scoring currently passes 12/12 expected outcomes.
-- Sanitized low-cost LLM matrix summary showing a negative result.
+- Historical sanitized low-cost LLM matrix summary showing a negative result
+  for the original prompts.
+- Structured v2 authenticated LLM full matrix across public-development and
+  held-out splits showing a tested-profile Branch A candidate result for MICO
+  JSON AST and compiler-feedback repair.
 - Five-page DAC-style paper draft with deterministic summary table generated
   from aggregate JSON.
 
 Unsupported now:
 
-- positive LLM pass-rate improvement;
+- LLM pass-rate improvement beyond the exact v2 tested profiles, prompts, and
+  benchmark splits;
+- broad free-form model-generated repair reliability beyond the recorded
+  adapter-instance compiler-feedback fallback;
 - full directed simulation coverage;
 - full task-specific formal proof coverage;
 - CDC correctness proof;

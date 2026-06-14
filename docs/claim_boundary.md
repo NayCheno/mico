@@ -25,9 +25,14 @@ The final paper must choose one branch before submission:
   prompts and model profiles still fail but the deterministic benchmark,
   failure taxonomy, and reproducible artifact become the main contribution.
 
-Until that evidence exists, README, documentation, and paper text must not
-claim that MICO improves LLM pass rate over direct RTL or
-SystemVerilog-interface prompting.
+The v2 authenticated matrix in `docs/22_llm_full_matrix_v2.md` now supports a
+bounded Branch A candidate claim for the tested profiles and prompts: MICO JSON
+AST prompting, with the recorded compiler-feedback repair fallback, improves
+positive-task pass rate and unsafe rejection over direct RTL,
+SystemVerilog-interface, and MICO-source prompting on the current
+public-development and held-out splits. README, documentation, and paper text
+must keep this claim tied to that matrix and must not generalize it to
+untested models, prompts, or benchmark splits.
 
 ## Environment Policy
 
@@ -87,11 +92,15 @@ The current repository supports these claims when the release gate passes:
 - The LLM benchmark runner can plan the full baseline matrix, run offline
   fixture checks, execute authenticated provider subsets when local credentials
   and budget are configured, and emit sanitized `mico.llm.bench.v0` records.
-- The current authenticated low-cost matrix summary is a negative result and
-  does not support a MICO-vs-baseline LLM pass-rate improvement claim.
+- The historical authenticated low-cost matrix summary is a negative result for
+  the original prompts. The v2 structured matrix supersedes it for current
+  LLM claims and supports a bounded tested-profile MICO-vs-baseline pass-rate
+  improvement claim.
 - The compiler/CLI can dry-run, apply, and re-check schema-valid JSON AST
   repair patches through `repair-json`; the LLM benchmark runner uses this path
-  for JSON AST repair turns.
+  for JSON AST repair turns. The v2 matrix additionally records a narrow
+  deterministic adapter-instance repair fallback that is accepted only through
+  the same compiler path.
 - Aggregate scripts can merge deterministic and optional LLM artifacts into
   CSV, JSON, and TeX table snippets for the paper.
 
@@ -99,9 +108,11 @@ The current repository supports these claims when the release gate passes:
 
 The current repository must not claim:
 
-- Multi-model or multi-baseline LLM pass-rate improvement from the current
-  low-cost matrix.
+- LLM pass-rate improvement beyond the tested v2 OpenCode Go profiles,
+  prompts, public-development split, and held-out split.
 - Full paid LLM benchmark matrix raw results committed as artifact data.
+- Broad free-form LLM repair reliability. Current accepted repair-turn wins are
+  limited to the explicitly recorded deterministic adapter-instance fallback.
 - Full directed functional simulation coverage beyond the 20 committed
   directed harnesses.
 - Full task-specific formal proof coverage beyond the bounded formal smoke

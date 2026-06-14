@@ -799,7 +799,28 @@ def evaluate_response(
     if baseline == "mico_json_ast_repair" and task["type"] == "positive" and not compiler["check_pass"]:
         current_ast = ast
         current_compiler = compiler
-        for turn in range(1, max_repair_turns + 1):
+        deterministic_patch = deterministic_adapter_instance_patch(current_ast)
+        if deterministic_patch is not None and max_repair_turns > 0:
+            repair_record = deterministic_repair_record(deterministic_patch, 1)
+            patched, apply_result = apply_repair_patch(current_ast, deterministic_patch, artifact_dir, 1)
+            repair_record["apply_result"] = apply_result
+            if patched is not None:
+                current_ast = patched
+                patched_path = artifact_dir / "candidate.repair1.ast.json"
+                patched_path.write_text(
+                    json.dumps(current_ast, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                current_compiler = evaluate_mico_json(task, patched_path, artifact_dir)
+                repair_record["applied"] = True
+                repair_record["compiler_result"] = current_compiler
+                compiler = current_compiler
+                ast_path = patched_path
+            repairs.append(repair_record)
+
+        for turn in range(len(repairs) + 1, max_repair_turns + 1):
+            if compiler["check_pass"]:
+                break
             repair_prompt = build_repair_prompt(task, current_ast, current_compiler)
             repair_response, repair_usage, cache_hit = provider_call(repair_prompt, f"repair{turn}")
             repair_payload = repair_response.get("json")
@@ -835,6 +856,119 @@ def evaluate_response(
             repairs.append(repair_record)
     eda = evaluate_mico_sv_if_possible(task, None, ast_path, compiler, artifact_dir)
     return compiler, eda, repairs
+
+
+def deterministic_adapter_instance_patch(ast: dict[str, Any]) -> dict[str, Any] | None:
+    adapters = ast.get("adapters", [])
+    adapter_names = {
+        str(adapter.get("name"))
+        for adapter in adapters
+        if isinstance(adapter, dict) and isinstance(adapter.get("name"), str)
+    }
+    if not adapter_names:
+        return None
+    module_names = {
+        str(module.get("name"))
+        for module in ast.get("modules", [])
+        if isinstance(module, dict) and isinstance(module.get("name"), str)
+    }
+    operations: list[dict[str, Any]] = []
+    for compose in ast.get("composes", []):
+        if not isinstance(compose, dict):
+            continue
+        compose_name = compose.get("name")
+        instances = compose.get("instances", [])
+        connections = compose.get("connections", [])
+        if not isinstance(compose_name, str) or not isinstance(instances, list) or not isinstance(connections, list):
+            continue
+        for instance in instances:
+            if not isinstance(instance, dict):
+                continue
+            instance_name = instance.get("name")
+            module_name = instance.get("module")
+            if not isinstance(instance_name, str) or not isinstance(module_name, str):
+                continue
+            if module_name not in adapter_names or module_name in module_names:
+                continue
+            inbound = [
+                connection
+                for connection in connections
+                if isinstance(connection, dict)
+                and isinstance(connection.get("to"), dict)
+                and connection["to"].get("instance") == instance_name
+            ]
+            outbound = [
+                connection
+                for connection in connections
+                if isinstance(connection, dict)
+                and isinstance(connection.get("from"), dict)
+                and connection["from"].get("instance") == instance_name
+            ]
+            if len(inbound) != 1 or len(outbound) != 1:
+                continue
+            source = inbound[0].get("from")
+            sink = outbound[0].get("to")
+            if not isinstance(source, dict) or not isinstance(sink, dict):
+                continue
+            operations.extend(
+                [
+                    {
+                        "op": "remove_connection",
+                        "compose": compose_name,
+                        "from": inbound[0]["from"],
+                        "to": inbound[0]["to"],
+                    },
+                    {
+                        "op": "remove_connection",
+                        "compose": compose_name,
+                        "from": outbound[0]["from"],
+                        "to": outbound[0]["to"],
+                    },
+                    {
+                        "op": "remove_instance",
+                        "compose": compose_name,
+                        "name": instance_name,
+                    },
+                    {
+                        "op": "add_connection",
+                        "compose": compose_name,
+                        "connection": {
+                            "from": source,
+                            "to": sink,
+                            "adapter": module_name,
+                        },
+                    },
+                ]
+            )
+    if not operations:
+        return None
+    return {
+        "schema_version": "mico.repair_patch.v0",
+        "kind": "repair_patch",
+        "operations": operations,
+    }
+
+
+def deterministic_repair_record(patch: dict[str, Any], turn: int) -> dict[str, Any]:
+    patch_text = json.dumps(patch, sort_keys=True, separators=(",", ":"))
+    return {
+        "turn": turn,
+        "strategy": "deterministic_adapter_instance_collapse",
+        "prompt_sha256": None,
+        "cache_hit": False,
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+        "response": {
+            "requested": False,
+            "content_sha256": sha256_text(patch_text),
+            "json_valid": True,
+            "json": patch,
+            "parse_error": None,
+        },
+        "patch_json_valid": True,
+        "applied": False,
+        "apply_result": None,
+        "compiler_result": None,
+    }
 
 
 def not_run_compiler(reason: str) -> dict[str, Any]:

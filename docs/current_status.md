@@ -39,8 +39,9 @@ This file is the short, traceable status page for the current repository. Use
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Per-task Icarus simulation harnesses for four positive seed tasks plus three
-  subsystem case-study tasks.
+- Icarus simulation coverage for all 34 positive tasks: seven tasks use
+  committed directed testbenches, and the remaining accepted positives use
+  auto-generated ready/valid smoke harnesses derived from traceability JSON.
 - Selected bounded SymbiYosys formal harnesses for the direct stream, width
   adapter, and streaming accelerator case-study tasks.
 - Structural Yosys QoR extraction for supported positive benchmark wrappers,
@@ -98,7 +99,7 @@ Current deterministic benchmark scope:
   width adaptation, latency/backpressure seed tasks, CDC/RDC adapter tasks,
   bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
 - Expected current result: expected outcome 60/60, positive compose 34/34,
-  positive lint/elaboration smoke 34/34, positive simulation 7/7, unsafe
+  positive lint/elaboration smoke 34/34, positive simulation 34/34, unsafe
   rejection 26/26, JSON AST path 60/60, selected bounded formal 3/3, structural
   QoR available 7/7.
 - `formal_pass` is claimed only for formal-enabled direct stream, width adapter,

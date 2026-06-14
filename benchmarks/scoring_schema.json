@@ -216,9 +216,10 @@
         "sim_status": {"type": "string"},
         "sim_result": {
           "type": "object",
-          "required": ["enabled", "compile_pass", "run_pass", "testbench", "top", "stdout", "stderr"],
+          "required": ["enabled", "mode", "compile_pass", "run_pass", "testbench", "top", "stdout", "stderr"],
           "properties": {
             "enabled": {"type": "boolean"},
+            "mode": {"type": "string", "enum": ["declared", "autogen", "rejected"]},
             "compile_pass": {"type": "boolean"},
             "run_pass": {"type": "boolean"},
             "testbench": {"anyOf": [{"type": "null"}, {"type": "string"}]},

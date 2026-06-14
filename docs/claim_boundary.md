@@ -44,7 +44,9 @@ The current repository supports these claims when the release gate passes:
   codes, graph-node references, and repair actions.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
-- Seven harness-enabled positive tasks pass committed Icarus/VVP simulations.
+- All 34 positive tasks pass Icarus/VVP simulation smoke checks. Seven use
+  committed directed testbenches; the remaining positives use generated
+  ready/valid smoke harnesses derived from traceability JSON.
 - Three selected direct, width-adapter, and streaming case-study tasks pass
   bounded SymbiYosys checks.
 - Seven reference-enabled positive tasks have structural Yosys QoR summaries
@@ -66,8 +68,8 @@ The current repository must not claim:
 
 - Multi-model or multi-baseline LLM pass-rate improvement before sanitized paid
   matrix results are archived and aggregated.
-- Full per-task simulation coverage beyond the current simulation-enabled
-  denominator.
+- Full directed functional simulation coverage beyond the seven committed
+  directed harnesses.
 - Full formal proof coverage beyond the selected bounded formal denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing closure, technology-mapped delay, or Vivado QoR unless a dedicated

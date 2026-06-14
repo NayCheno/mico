@@ -115,7 +115,8 @@ Expected current benchmark result:
 - `expected_outcome_pass: 60/60`
 - `compose_pass_1: 34/34` for positive tasks
 - `lint_pass: 34/34` for positive tasks
-- `sim_pass: 7/7` for positive tasks with committed Icarus testbenches
+- `sim_pass: 34/34` for positive tasks; seven use committed directed Icarus
+  testbenches and the rest use generated ready/valid smoke harnesses
 - `formal_pass: 3/3` for formal-enabled direct, width, and streaming case tasks
 - `qor_available: 7/7` for positive tasks with committed reference wrappers
 - `unsafe_rejection: 26/26` for negative tasks

@@ -133,12 +133,13 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench also has Icarus/VVP simulation harnesses for seven positive
-tasks, including three dedicated subsystem case studies, and reports
-`sim_pass: 7/7` in the deterministic runner. It has selected bounded
-SymbiYosys harnesses for the width adapter, direct stream, and streaming
-accelerator case-study tasks and reports `formal_pass: 3/3` over that enabled
-subset.
+ModuleComposeBench reports `sim_pass: 34/34` for positive tasks. Seven tasks,
+including the three dedicated subsystem case studies, use committed directed
+Icarus/VVP testbenches; the remaining accepted positive tasks use generated
+ready/valid smoke harnesses derived from traceability JSON. It has selected
+bounded SymbiYosys harnesses for the width adapter, direct stream, and
+streaming accelerator case-study tasks and reports `formal_pass: 3/3` over
+that enabled subset.
 It also parses Yosys structural `stat -json` output for positive benchmark wrappers,
 compares against committed hand-written references, and reports
 `qor_available: 7/7`.
@@ -174,9 +175,9 @@ diagnostics, and RTL collateral. The current deterministic scope is:
 | L6 | 8 | 3 | 5 | multi-IP subsystem seeds and streaming/width case studies |
 
 The current expected result is 60/60 expected outcomes, 34/34 positive
-compose-pass, 34/34 positive lint/elaboration pass, 26/26 unsafe rejection, and
-60/60 JSON AST path equivalence. Supported subsets are 7/7 positive
-simulations, 3/3 selected bounded formal proofs, and 7/7 structural QoR
+compose-pass, 34/34 positive lint/elaboration pass, 34/34 positive simulation
+smoke pass, 26/26 unsafe rejection, and 60/60 JSON AST path equivalence.
+Supported subsets are 3/3 selected bounded formal proofs and 7/7 structural QoR
 comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
@@ -223,11 +224,11 @@ Current limitations:
 ### Paper
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
-The current abstract and evaluation section deliberately describe the artifact
-as a 60-task deterministic result with seven positive-task simulations and three
-selected bounded formal proofs plus structural Yosys QoR summaries. They do
-not claim full per-task formal proof, timing QoR, arbitrary LTL, or multi-model
-pass-rate improvements. Host LaTeX is the repository policy for paper builds.
+The current abstract and evaluation section describe the 60-task deterministic
+result, 34/34 positive-task smoke simulation coverage, three selected bounded
+formal proofs, and structural Yosys QoR summaries. They must not claim full
+per-task formal proof, timing QoR, arbitrary LTL, or multi-model pass-rate
+improvements. Host LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
@@ -284,8 +285,8 @@ Current claims supported by the repository:
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - The seven sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- Positive seed and case-study simulations pass with committed Icarus/VVP
-  testbenches.
+- All 34 positive tasks pass Icarus/VVP simulation; seven use committed
+  directed testbenches and the rest use generated ready/valid smoke harnesses.
 - Selected direct-stream, width-adapter, and streaming accelerator case-study
   tasks pass bounded SymbiYosys checks.
 - Three dedicated subsystem case studies have committed RTL, MICO source,
@@ -306,7 +307,8 @@ Claims not yet supported:
 
 - Multi-model or multi-baseline LLM pass-rate improvements.
 - Full paid LLM benchmark matrix results committed as artifact data.
-- Simulation coverage beyond the seven harness-enabled positive tasks.
+- Full directed functional simulation coverage beyond the seven committed
+  directed harnesses.
 - Formal proof coverage beyond the selected direct, width, and streaming case
   tasks.
 - Timing QoR, Vivado QoR, or technology-mapped delay conclusions.

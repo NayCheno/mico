@@ -26,7 +26,7 @@ Expected current case-study-inclusive result:
 - `expected_outcome_pass: 60/60`
 - `compose_pass_1: 34/34`
 - `lint_pass: 34/34`
-- `sim_pass: 7/7`
+- `sim_pass: 34/34`
 - `formal_pass: 3/3`
 - `qor_available: 7/7`
 - `unsafe_rejection: 26/26`

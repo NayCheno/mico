@@ -202,6 +202,117 @@ prep -top {formal_top}
     )
 
 
+def sv_safe_name(value: str) -> str:
+    normalized = [ch if ch.isalnum() or ch == "_" else "_" for ch in value]
+    out = "".join(normalized)
+    if not out or out[0].isdigit():
+        out = f"_{out}"
+    return out
+
+
+def is_reset_port(name: str) -> bool:
+    lowered = name.lower()
+    return "rst" in lowered or "reset" in lowered
+
+
+def reset_active_value(name: str) -> str:
+    lowered = name.lower()
+    return "1'b0" if lowered.endswith("_n") or lowered.endswith("n") else "1'b1"
+
+
+def reset_inactive_value(name: str) -> str:
+    return "1'b1" if reset_active_value(name) == "1'b0" else "1'b0"
+
+
+def trace_signals(trace: dict[str, Any]) -> list[dict[str, Any]]:
+    signals: dict[str, dict[str, Any]] = {}
+    for compose in trace.get("composes", []):
+        if not isinstance(compose, dict):
+            continue
+        for connection in compose.get("connections", []):
+            if not isinstance(connection, dict):
+                continue
+            for binding in connection.get("field_bindings", []):
+                if not isinstance(binding, dict):
+                    continue
+                signal = binding.get("signal")
+                if isinstance(signal, str) and signal:
+                    signals.setdefault(signal, binding)
+    return [signals[name] for name in sorted(signals)]
+
+
+def write_autogen_sim_testbench(tb_path: Path, task_id: str, trace_path: Path) -> str:
+    trace = json.loads(trace_path.read_text(encoding="utf-8"))
+    composes = trace.get("composes", [])
+    compose = composes[0] if composes and isinstance(composes[0], dict) else {}
+    ports = [str(port) for port in compose.get("clock_reset_ports", []) if isinstance(port, str)]
+    clocks = [port for port in ports if not is_reset_port(port)]
+    resets = [port for port in ports if is_reset_port(port)]
+    if not clocks:
+        raise ValueError(f"trace for {task_id} does not list a clock port")
+    signals = trace_signals(trace)
+    if not signals:
+        raise ValueError(f"trace for {task_id} does not contain field bindings")
+
+    top = f"tb_{sv_safe_name(task_id).lower()}_autogen"
+    lines = [
+        "`timescale 1ns/1ps",
+        "",
+        f"module {top};",
+    ]
+    for clock in clocks:
+        lines.append(f"  logic {clock} = 1'b0;")
+    for reset in resets:
+        lines.append(f"  logic {reset} = {reset_active_value(reset)};")
+    lines.extend(["", "  Top dut ("])
+    for index, port in enumerate(ports):
+        comma = "," if index + 1 < len(ports) else ""
+        lines.append(f"    .{port}({port}){comma}")
+    lines.extend(["  );", ""])
+    for index, clock in enumerate(clocks):
+        period = 5 + (index * 2)
+        lines.append(f"  always #{period} {clock} = ~{clock};")
+    lines.extend(
+        [
+            "",
+            "  initial begin",
+            f"    repeat (2) @(posedge {clocks[0]});",
+        ]
+    )
+    for reset in resets:
+        lines.append(f"    {reset} = {reset_inactive_value(reset)};")
+    lines.extend(
+        [
+            f"    repeat (4) @(posedge {clocks[0]});",
+            "    #1;",
+            "",
+        ]
+    )
+    for binding in signals:
+        signal = str(binding["signal"])
+        field = str(binding.get("field", ""))
+        lines.append(f"    if (^dut.{signal} === 1'bx) begin")
+        lines.append(f"      $fatal(1, \"autogen sim saw X on {signal}\");")
+        lines.append("    end")
+        if field in {"valid", "ready"}:
+            lines.append(f"    if (dut.{signal} !== 1'b1) begin")
+            lines.append(f"      $fatal(1, \"autogen sim expected {signal} asserted\");")
+            lines.append("    end")
+    lines.extend(
+        [
+            "",
+            f"    $display(\"SIM PASS {task_id} autogen\");",
+            "    $finish;",
+            "  end",
+            "endmodule",
+            "",
+        ]
+    )
+    tb_path.parent.mkdir(parents=True, exist_ok=True)
+    tb_path.write_text("\n".join(lines), encoding="utf-8")
+    return top
+
+
 def task_qor_reference(repo: Path, task: dict[str, Any]) -> Path | None:
     reference = task.get("qor_reference")
     if reference is None:
@@ -401,6 +512,7 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     json_ir = task_build_dir / "typed_ir_json.json"
     vvp = task_build_dir / "top.vvp"
     sim_vvp = task_build_dir / "sim.vvp"
+    autogen_sim_tb = task_build_dir / "sim_autogen.sv"
     sim_stdout = task_build_dir / "sim.stdout.txt"
     sim_stderr = task_build_dir / "sim.stderr.txt"
     formal_dir = task_build_dir / "formal"
@@ -491,11 +603,18 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     sva_lint_pass = False
     iverilog_pass = False
     yosys_pass = False
-    sim_enabled = sim_testbench is not None and sim_top is not None
+    sim_enabled = expected_accept
     sim_compile_pass = False
     sim_run_pass = False
     sim_pass = False
-    sim_status = "not_run" if expected_accept else "rejected"
+    sim_status = "blocked" if expected_accept else "rejected"
+    sim_mode = (
+        "rejected"
+        if not expected_accept
+        else "declared"
+        if sim_testbench is not None and sim_top is not None
+        else "autogen"
+    )
     formal_enabled = formal_harness is not None and formal_top is not None
     formal_pass = False
     formal_status = "blocked" if expected_accept and formal_enabled else "not_run"
@@ -582,6 +701,10 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         sva_lint_pass = sva_lint.returncode == 0
 
     if emit_sv_pass and expected_accept and sim_enabled:
+        if sim_testbench is None or sim_top is None:
+            sim_testbench = autogen_sim_tb
+            sim_top = write_autogen_sim_testbench(autogen_sim_tb, task_id, trace)
+            sim_mode = "autogen"
         sim_compile = run(
             [
                 "iverilog",
@@ -652,6 +775,8 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         notes = ["formal_pass is not run because this task has no formal harness."]
     else:
         notes = []
+    if expected_accept and sim_mode == "autogen":
+        notes.append("simulation uses an auto-generated ready/valid smoke harness.")
     if expected_accept and not qor_enabled:
         notes.append("qor is not run because this task has no QoR reference wrapper.")
     if qor_available:
@@ -711,6 +836,7 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         "sim_status": sim_status,
         "sim_result": {
             "enabled": sim_enabled,
+            "mode": sim_mode,
             "compile_pass": sim_compile_pass,
             "run_pass": sim_run_pass,
             "testbench": str(sim_testbench.relative_to(repo)).replace("\\", "/")

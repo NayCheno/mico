@@ -85,10 +85,14 @@ executes Verilator, Icarus, and Yosys smoke checks against
 `rtl/case_studies/`. The current manifest has 60 tasks: 34 positive composition
 tasks and 26 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
-inventory, adapter inventory, expected diagnostics, and RTL collateral. Positive
-tasks with
-`sim_testbench` and `sim_top` also compile with Icarus and execute with `vvp`;
-simulation stdout/stderr artifacts are written under ignored `build/bench/`.
+inventory, adapter inventory, expected diagnostics, and RTL collateral.
+Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
+testbenches. Accepted positive tasks without a declared testbench get an
+auto-generated ready/valid smoke harness from the emitted traceability JSON;
+the generated harness instantiates `Top`, toggles clock/reset ports, and checks
+generated payload/valid/ready wires for unknown values with valid/ready asserted
+after reset. Simulation stdout/stderr artifacts are written under ignored
+`build/bench/`.
 Positive tasks with `formal_harness` and `formal_top` also generate a
 SymbiYosys job under ignored `build/bench/` and run bounded proofs against the
 generated wrapper plus committed harness monitor. The current enabled formal

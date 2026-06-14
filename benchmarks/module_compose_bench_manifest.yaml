@@ -6,7 +6,8 @@ scope_notes:
   - The deterministic compiler baseline covers 57 hand-written seed tasks plus 3 dedicated subsystem case studies.
   - L1/L2/L4 tasks use committed smoke RTL collateral for lint/elaboration.
   - L3/L5/L6 include seed approximations plus dedicated streaming, width-bridge, and register/status case-study RTL.
-  - Simulation, formal, and QoR denominators include only tasks with committed harnesses or reference wrappers.
+  - Simulation and single-clock formal denominators include committed and generated smoke harnesses; QoR includes tasks with committed reference wrappers.
+  - CDC formal correctness remains out of scope for this manifest revision.
 levels:
   L1: same-domain direct interface connections
   L2: width and parameter adaptation

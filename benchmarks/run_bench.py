@@ -217,7 +217,7 @@ def is_reset_port(name: str) -> bool:
 
 def reset_active_value(name: str) -> str:
     lowered = name.lower()
-    return "1'b0" if lowered.endswith("_n") or lowered.endswith("n") else "1'b1"
+    return "1'b0" if lowered.endswith("_n") or lowered in {"rstn", "resetn"} else "1'b1"
 
 
 def reset_inactive_value(name: str) -> str:
@@ -241,10 +241,49 @@ def trace_signals(trace: dict[str, Any]) -> list[dict[str, Any]]:
     return [signals[name] for name in sorted(signals)]
 
 
-def write_autogen_sim_testbench(tb_path: Path, task_id: str, trace_path: Path) -> str:
-    trace = json.loads(trace_path.read_text(encoding="utf-8"))
+def trace_first_compose(trace: dict[str, Any]) -> dict[str, Any]:
     composes = trace.get("composes", [])
     compose = composes[0] if composes and isinstance(composes[0], dict) else {}
+    return compose
+
+
+def trace_clock_reset_ports(trace: dict[str, Any]) -> tuple[list[str], list[str]]:
+    compose = trace_first_compose(trace)
+    ports = [str(port) for port in compose.get("clock_reset_ports", []) if isinstance(port, str)]
+    clocks = [port for port in ports if not is_reset_port(port)]
+    resets = [port for port in ports if is_reset_port(port)]
+    return clocks, resets
+
+
+def sv_width_decl(width_bits: Any) -> str:
+    width = int(width_bits) if isinstance(width_bits, int) and width_bits > 0 else 1
+    return f"[{width - 1}:0] " if width > 1 else ""
+
+
+def sv_expr_list(signals: list[str]) -> str:
+    if len(signals) == 1:
+        return signals[0]
+    return "{" + ", ".join(signals) + "}"
+
+
+def ready_valid_properties(compose: dict[str, Any]) -> list[dict[str, str]]:
+    properties: list[dict[str, str]] = []
+    for item in compose.get("sva_properties", []):
+        if not isinstance(item, dict):
+            continue
+        if item.get("kind") != "ready_valid_stable_payload":
+            continue
+        payload = item.get("payload")
+        valid = item.get("valid")
+        ready = item.get("ready")
+        if isinstance(payload, str) and isinstance(valid, str) and isinstance(ready, str):
+            properties.append({"payload": payload, "valid": valid, "ready": ready})
+    return properties
+
+
+def write_autogen_sim_testbench(tb_path: Path, task_id: str, trace_path: Path) -> str:
+    trace = json.loads(trace_path.read_text(encoding="utf-8"))
+    compose = trace_first_compose(trace)
     ports = [str(port) for port in compose.get("clock_reset_ports", []) if isinstance(port, str)]
     clocks = [port for port in ports if not is_reset_port(port)]
     resets = [port for port in ports if is_reset_port(port)]
@@ -311,6 +350,120 @@ def write_autogen_sim_testbench(tb_path: Path, task_id: str, trace_path: Path) -
     tb_path.parent.mkdir(parents=True, exist_ok=True)
     tb_path.write_text("\n".join(lines), encoding="utf-8")
     return top
+
+
+def write_autogen_formal_harness(harness_path: Path, task_id: str, trace_path: Path) -> str:
+    trace = json.loads(trace_path.read_text(encoding="utf-8"))
+    compose = trace_first_compose(trace)
+    clocks, resets = trace_clock_reset_ports(trace)
+    if len(clocks) != 1:
+        raise ValueError("auto formal requires exactly one clock domain")
+    if len(resets) > 1:
+        raise ValueError("auto formal requires at most one reset")
+    signals = trace_signals(trace)
+    if not signals:
+        raise ValueError(f"trace for {task_id} does not contain field bindings")
+    valid_ready_signals = [
+        str(binding["signal"])
+        for binding in signals
+        if str(binding.get("field", "")) in {"valid", "ready"}
+    ]
+    if not valid_ready_signals:
+        raise ValueError("auto formal requires ready/valid field bindings")
+
+    clock = clocks[0]
+    reset = resets[0] if resets else None
+    monitor = f"tb_{sv_safe_name(task_id).lower()}_formal_autogen"
+    reset_inactive = reset_inactive_value(reset) if reset is not None else None
+    reset_guard = f"{reset} == {reset_inactive}" if reset is not None else "1'b1"
+    reset_past_guard = reset_guard
+    properties = ready_valid_properties(compose)
+
+    port_decls = [f"input wire {clock}"]
+    if reset is not None:
+        port_decls.append(f"input wire {reset}")
+    for binding in signals:
+        signal = str(binding["signal"])
+        port_decls.append(f"input wire {sv_width_decl(binding.get('width_bits'))}{signal}")
+
+    lines = [
+        "`default_nettype none",
+        "",
+        f"module {monitor} (",
+    ]
+    for index, decl in enumerate(port_decls):
+        comma = "," if index + 1 < len(port_decls) else ""
+        lines.append(f"  {decl}{comma}")
+    lines.extend(
+        [
+            ");",
+            "  reg past_valid = 1'b0;",
+            "",
+            f"  always @(posedge {clock}) begin",
+        ]
+    )
+    if reset is not None:
+        lines.extend(
+            [
+                "    if (!past_valid) begin",
+                f"      assume ({reset} == {reset_active_value(reset)});",
+                "    end else begin",
+                f"      assume ({reset} == {reset_inactive});",
+                "    end",
+            ]
+        )
+    lines.extend(
+        [
+            "    past_valid <= 1'b1;",
+            "",
+            f"    assert (!$isunknown({sv_expr_list([str(binding['signal']) for binding in signals])}));",
+            "",
+            f"    if (past_valid && {reset_guard}) begin",
+        ]
+    )
+    for signal in valid_ready_signals:
+        lines.append(f"      assert ({signal} == 1'b1);")
+    lines.append("    end")
+
+    for prop in properties:
+        lines.extend(
+            [
+                (
+                    "    if (past_valid && "
+                    f"$past({reset_past_guard} && {prop['valid']} && !{prop['ready']})) begin"
+                ),
+                f"      assert ({prop['payload']} == $past({prop['payload']}));",
+                "    end",
+            ]
+        )
+
+    bind_ports = [clock]
+    if reset is not None:
+        bind_ports.append(reset)
+    bind_ports.extend(str(binding["signal"]) for binding in signals)
+
+    lines.extend(
+        [
+            "  end",
+            "endmodule",
+            "",
+            f"bind Top {monitor} mico_{sv_safe_name(task_id).lower()}_formal_autogen (",
+        ]
+    )
+    for index, port in enumerate(bind_ports):
+        comma = "," if index + 1 < len(bind_ports) else ""
+        lines.append(f"  .{port}({port}){comma}")
+    lines.extend(
+        [
+            ");",
+            "",
+            "`default_nettype wire",
+            "",
+        ]
+    )
+    harness_path.parent.mkdir(parents=True, exist_ok=True)
+    harness_path.write_text("\n".join(lines), encoding="utf-8")
+    return "Top"
 
 
 def task_qor_reference(repo: Path, task: dict[str, Any]) -> Path | None:
@@ -516,6 +669,7 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
     sim_stdout = task_build_dir / "sim.stdout.txt"
     sim_stderr = task_build_dir / "sim.stderr.txt"
     formal_dir = task_build_dir / "formal"
+    autogen_formal_harness = task_build_dir / "formal_autogen.sv"
     formal_sby = formal_dir / "task.sby"
     formal_stdout = formal_dir / "sby.stdout.txt"
     formal_stderr = formal_dir / "sby.stderr.txt"
@@ -616,10 +770,15 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         else "autogen"
     )
     formal_enabled = formal_harness is not None and formal_top is not None
+    formal_mode = (
+        "rejected"
+        if not expected_accept
+        else "declared"
+        if formal_enabled
+        else "not_run"
+    )
     formal_pass = False
-    formal_status = "blocked" if expected_accept and formal_enabled else "not_run"
-    if not expected_accept:
-        formal_status = "rejected"
+    formal_status = "blocked" if expected_accept else "rejected"
     qor_enabled = qor_reference is not None
     qor_generated_pass = False
     qor_reference_pass = False
@@ -733,6 +892,15 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         sim_pass = sim_compile_pass and sim_run_pass
         sim_status = "pass" if sim_pass else "failed"
 
+    if emit_sv_pass and emit_trace_pass and expected_accept and not formal_enabled:
+        try:
+            formal_top = write_autogen_formal_harness(autogen_formal_harness, task_id, trace)
+            formal_harness = autogen_formal_harness
+            formal_enabled = True
+            formal_mode = "autogen"
+        except ValueError as exc:
+            formal_status = f"not_run: {exc}"
+
     if emit_sv_pass and expected_accept and formal_enabled:
         formal_dir.mkdir(parents=True, exist_ok=True)
         assert formal_harness is not None
@@ -772,11 +940,13 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
 
     lint_pass = verilator_pass and sva_lint_pass and iverilog_pass and yosys_pass
     if expected_accept and not formal_enabled:
-        notes = ["formal_pass is not run because this task has no formal harness."]
+        notes = ["formal_pass is not run because this task is outside the formal smoke denominator."]
     else:
         notes = []
     if expected_accept and sim_mode == "autogen":
         notes.append("simulation uses an auto-generated ready/valid smoke harness.")
+    if expected_accept and formal_mode == "autogen":
+        notes.append("formal uses an auto-generated single-clock ready/valid smoke harness.")
     if expected_accept and not qor_enabled:
         notes.append("qor is not run because this task has no QoR reference wrapper.")
     if qor_available:
@@ -850,6 +1020,7 @@ def run_task(repo: Path, task: dict[str, Any], build_dir: Path) -> dict[str, Any
         "formal_status": formal_status,
         "formal_result": {
             "enabled": formal_enabled,
+            "mode": formal_mode,
             "prove_pass": formal_pass,
             "harness": str(formal_harness.relative_to(repo)).replace("\\", "/")
             if formal_harness is not None

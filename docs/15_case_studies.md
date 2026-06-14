@@ -27,7 +27,7 @@ Expected current case-study-inclusive result:
 - `compose_pass_1: 34/34`
 - `lint_pass: 34/34`
 - `sim_pass: 34/34`
-- `formal_pass: 3/3`
+- `formal_pass: 29/29`
 - `qor_available: 7/7`
 - `unsafe_rejection: 26/26`
 - `json_ast_path: 60/60`

@@ -47,8 +47,10 @@ The current repository supports these claims when the release gate passes:
 - All 34 positive tasks pass Icarus/VVP simulation smoke checks. Seven use
   committed directed testbenches; the remaining positives use generated
   ready/valid smoke harnesses derived from traceability JSON.
-- Three selected direct, width-adapter, and streaming case-study tasks pass
-  bounded SymbiYosys checks.
+- Twenty-nine single-clock positive tasks pass bounded SymbiYosys formal smoke
+  checks. Three use committed directed monitors; the remaining single-clock
+  positives use generated ready/valid formal harnesses derived from traceability
+  JSON.
 - Seven reference-enabled positive tasks have structural Yosys QoR summaries
   against committed hand-written wrappers.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
@@ -70,7 +72,8 @@ The current repository must not claim:
   matrix results are archived and aggregated.
 - Full directed functional simulation coverage beyond the seven committed
   directed harnesses.
-- Full formal proof coverage beyond the selected bounded formal denominator.
+- Full task-specific formal proof coverage beyond the bounded formal smoke
+  denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing closure, technology-mapped delay, or Vivado QoR unless a dedicated
   Vivado or mapped-timing artifact is produced.

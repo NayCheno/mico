@@ -52,7 +52,7 @@ Each benchmark task contains a module inventory, protocol/interface library, opt
 
 \subsection{Current Deterministic Results}
 
-The current artifact includes 60 deterministic tasks: 34 positive composition tasks and 26 negative rejection tasks. The manifest spans L1--L6, including same-domain stream wiring, width adaptation, latency/backpressure seeds, CDC/RDC adapter tasks, bus/register wrapper seeds, subsystem seeds, and unsafe examples for direct CDC, width mismatches, reversed direction, missing or invalid contract guarantees, unknown declarations, duplicate declarations, protocol mismatches, and adapter misuse. Three dedicated subsystem case studies cover a streaming accelerator chain, a width/protocol bridge, and a register/status wrapper path. They validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, supported Icarus simulations, selected bounded SymbiYosys proofs, structural QoR aggregation, and machine-generated table aggregation path are reproducible.
+The current artifact includes 60 deterministic tasks: 34 positive composition tasks and 26 negative rejection tasks. The manifest spans L1--L6, including same-domain stream wiring, width adaptation, latency/backpressure seeds, CDC/RDC adapter tasks, bus/register wrapper seeds, subsystem seeds, and unsafe examples for direct CDC, width mismatches, reversed direction, missing or invalid contract guarantees, unknown declarations, duplicate declarations, protocol mismatches, and adapter misuse. Three dedicated subsystem case studies cover a streaming accelerator chain, a width/protocol bridge, and a register/status wrapper path. They validate that the compiler, JSON AST path, ready/valid v0 contract checks, SystemVerilog/SVA emitters, traceability report, Verilator lint, Icarus elaboration, Yosys elaboration, supported Icarus simulations, single-clock bounded SymbiYosys smoke proofs, structural QoR aggregation, and machine-generated table aggregation path are reproducible.
 
 \begin{table}[t]
   \centering
@@ -65,7 +65,7 @@ The current artifact includes 60 deterministic tasks: 34 positive composition ta
     Compose pass & 34/34 & positive tasks \\
     Lint/elab pass & 34/34 & positive tasks \\
     Simulation pass & 34/34 & positives; 7 directed + generated smoke \\
-    Selected formal pass & 3/3 & direct, width, streaming case \\
+    Bounded formal & 29/29 & single-clock; 3 directed + generated \\
     Structural QoR & 7/7 & reference-enabled positives \\
     Unsafe rejection & 26/26 & negative tasks \\
     JSON AST path & 60/60 & source-to-AST checks \\
@@ -95,4 +95,4 @@ The table values above are reproducible from \texttt{benchmarks/run\_bench.py} a
 
 The paper does not claim final LLM pass-rate improvements yet. The artifact includes the batch runner for five baselines and JSON-AST repair-loop plumbing, but the full paid low-cost and cross-model matrices are not committed as result data. Validate-only runs exercise prompt/profile/model routing without provider requests, and offline-fixture runs exercise the compiler and open-source EDA scoring path without paid calls. A final submission must run the paid matrices, archive sanitized result JSON, and regenerate the paper tables from those artifacts.
 
-The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove the selected direct, width, and streaming case properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, validate LLM benchmark prompts without paid requests, and pass open-source EDA smoke checks in a controlled Docker environment.
+The value of the current result is reproducibility: a clean checkout can run the Rust tests, emit wrappers and SVA skeletons, reject unsafe negative examples, execute positive-task smoke simulations, prove selected directed properties plus generated single-clock formal smoke properties, aggregate machine-readable benchmark JSON including structural QoR CSV/TeX summaries, validate LLM benchmark prompts without paid requests, and pass open-source EDA smoke checks in a controlled Docker environment.

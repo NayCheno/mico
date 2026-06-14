@@ -42,8 +42,10 @@ This file is the short, traceable status page for the current repository. Use
 - Icarus simulation coverage for all 34 positive tasks: seven tasks use
   committed directed testbenches, and the remaining accepted positives use
   auto-generated ready/valid smoke harnesses derived from traceability JSON.
-- Selected bounded SymbiYosys formal harnesses for the direct stream, width
-  adapter, and streaming accelerator case-study tasks.
+- Bounded SymbiYosys formal smoke coverage for 29 single-clock positive tasks:
+  three tasks use committed directed monitors, and the remaining single-clock
+  positives use generated ready/valid formal harnesses derived from traceability
+  JSON.
 - Structural Yosys QoR extraction for supported positive benchmark wrappers,
   compared against committed hand-written reference wrappers with generated
   CSV/TeX summaries.
@@ -77,8 +79,8 @@ This file is the short, traceable status page for the current repository. Use
 
 - Broader semantic repair policies beyond schema-valid JSON AST operations.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Formal harnesses beyond the selected direct stream, width adapter, and
-  streaming case-study tasks.
+- Directed task-specific formal harnesses beyond the selected direct stream,
+  width adapter, and streaming case-study tasks.
 - CDC correctness proof for the smoke FIFO collateral.
 - Timing/Vivado QoR and technology-mapped delay reporting.
 - Committed full paid multi-profile LLM baseline result artifacts and pass-rate
@@ -100,11 +102,11 @@ Current deterministic benchmark scope:
   bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
 - Expected current result: expected outcome 60/60, positive compose 34/34,
   positive lint/elaboration smoke 34/34, positive simulation 34/34, unsafe
-  rejection 26/26, JSON AST path 60/60, selected bounded formal 3/3, structural
-  QoR available 7/7.
-- `formal_pass` is claimed only for formal-enabled direct stream, width adapter,
-  and streaming case-study tasks; CDC proof and timing QoR remain intentionally
-  unclaimed.
+  rejection 26/26, JSON AST path 60/60, single-clock bounded formal smoke
+  29/29, structural QoR available 7/7.
+- `formal_pass` is claimed only for the single-clock formal smoke denominator;
+  CDC proof, full task-specific formal coverage, and timing QoR remain
+  intentionally unclaimed.
 - L3/L5/L6 include seed approximations plus the dedicated T058--T060 streaming,
   width-bridge, and register/status subsystem case studies.
 

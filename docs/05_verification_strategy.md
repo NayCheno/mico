@@ -87,11 +87,12 @@ generated ready/valid smoke harness derived from traceability JSON. The
 generated harness is a dynamic wiring/protocol sanity check, not a substitute
 for task-specific functional scoreboards.
 
-ModuleComposeBench additionally runs selected bounded SymbiYosys checks when a
-task declares `formal_harness` and `formal_top`. In the current benchmark suite,
-`T004_direct_stream` proves direct ready/valid reset, no-unknown, and stalled
-payload stability properties, `T003_width_adapter` proves ready/valid
-preservation and zero-extension for the width adapter, and
-`T058_streaming_accelerator_case` proves the bounded ready/valid data path for
-the streaming case. `T002_cdc_fifo` is still simulation/lint smoke only and must
-not be treated as CDC proof.
+ModuleComposeBench additionally runs bounded SymbiYosys checks for the
+single-clock formal smoke denominator. `T004_direct_stream`,
+`T003_width_adapter`, and `T058_streaming_accelerator_case` use committed
+directed monitors for direct stream, width-adapter, and streaming case-study
+properties. The remaining single-clock positives use generated ready/valid
+formal smoke harnesses derived from traceability JSON. These generated harnesses
+check no-unknowns, asserted ready/valid after reset, and bounded stable-payload
+properties when the compiler emitted matching ready/valid SVA metadata. CDC
+tasks are still simulation/lint smoke only and must not be treated as CDC proof.

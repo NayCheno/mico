@@ -233,9 +233,10 @@
         "formal_status": {"type": "string"},
         "formal_result": {
           "type": "object",
-          "required": ["enabled", "prove_pass", "harness", "top", "depth", "sby", "stdout", "stderr"],
+          "required": ["enabled", "mode", "prove_pass", "harness", "top", "depth", "sby", "stdout", "stderr"],
           "properties": {
             "enabled": {"type": "boolean"},
+            "mode": {"type": "string", "enum": ["declared", "autogen", "not_run", "rejected"]},
             "prove_pass": {"type": "boolean"},
             "harness": {"anyOf": [{"type": "null"}, {"type": "string"}]},
             "top": {"anyOf": [{"type": "null"}, {"type": "string"}]},

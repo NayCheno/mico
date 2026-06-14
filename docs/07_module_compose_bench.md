@@ -93,12 +93,13 @@ the generated harness instantiates `Top`, toggles clock/reset ports, and checks
 generated payload/valid/ready wires for unknown values with valid/ready asserted
 after reset. Simulation stdout/stderr artifacts are written under ignored
 `build/bench/`.
-Positive tasks with `formal_harness` and `formal_top` also generate a
-SymbiYosys job under ignored `build/bench/` and run bounded proofs against the
-generated wrapper plus committed harness monitor. The current enabled formal
-subset is `T003_width_adapter`, `T004_direct_stream`, and
-`T058_streaming_accelerator_case`; CDC remains smoke-only and is not reported as
-a proof.
+Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
+under ignored `build/bench/` and run bounded proofs against the generated
+wrapper plus committed harness monitor. Accepted single-clock positives without
+a declared harness get an auto-generated ready/valid formal smoke harness from
+traceability JSON. The current enabled formal denominator is 29/29: three
+committed directed harnesses plus 26 generated single-clock smoke harnesses.
+CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json`
 for the generated wrapper and the committed hand-written reference wrapper. The
 current QoR scope is area-cell and wire-count delta; no timing or Vivado result

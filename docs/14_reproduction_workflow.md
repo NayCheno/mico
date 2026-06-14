@@ -117,7 +117,8 @@ Expected current benchmark result:
 - `lint_pass: 34/34` for positive tasks
 - `sim_pass: 34/34` for positive tasks; seven use committed directed Icarus
   testbenches and the rest use generated ready/valid smoke harnesses
-- `formal_pass: 3/3` for formal-enabled direct, width, and streaming case tasks
+- `formal_pass: 29/29` for single-clock formal smoke tasks; three use committed
+  directed monitors and the rest use generated ready/valid formal harnesses
 - `qor_available: 7/7` for positive tasks with committed reference wrappers
 - `unsafe_rejection: 26/26` for negative tasks
 - `json_ast_path: 60/60` for source-to-AST-to-check equivalence

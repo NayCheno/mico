@@ -136,10 +136,10 @@ hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
 ModuleComposeBench reports `sim_pass: 34/34` for positive tasks. Seven tasks,
 including the three dedicated subsystem case studies, use committed directed
 Icarus/VVP testbenches; the remaining accepted positive tasks use generated
-ready/valid smoke harnesses derived from traceability JSON. It has selected
-bounded SymbiYosys harnesses for the width adapter, direct stream, and
-streaming accelerator case-study tasks and reports `formal_pass: 3/3` over
-that enabled subset.
+ready/valid smoke harnesses derived from traceability JSON. It reports
+`formal_pass: 29/29` over the single-clock formal smoke denominator: three
+committed directed harnesses plus generated ready/valid formal harnesses for the
+remaining single-clock positives.
 It also parses Yosys structural `stat -json` output for positive benchmark wrappers,
 compares against committed hand-written references, and reports
 `qor_available: 7/7`.
@@ -177,8 +177,8 @@ diagnostics, and RTL collateral. The current deterministic scope is:
 The current expected result is 60/60 expected outcomes, 34/34 positive
 compose-pass, 34/34 positive lint/elaboration pass, 34/34 positive simulation
 smoke pass, 26/26 unsafe rejection, and 60/60 JSON AST path equivalence.
-Supported subsets are 3/3 selected bounded formal proofs and 7/7 structural QoR
-comparisons.
+Supported subsets are 29/29 single-clock bounded formal smoke proofs and 7/7
+structural QoR comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
 records expected diagnostic codes for negative tasks, emits SV/SVA/trace
@@ -225,10 +225,10 @@ Current limitations:
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
 The current abstract and evaluation section describe the 60-task deterministic
-result, 34/34 positive-task smoke simulation coverage, three selected bounded
-formal proofs, and structural Yosys QoR summaries. They must not claim full
-per-task formal proof, timing QoR, arbitrary LTL, or multi-model pass-rate
-improvements. Host LaTeX is the repository policy for paper builds.
+result, 34/34 positive-task smoke simulation coverage, 29/29 single-clock
+bounded formal smoke coverage, and structural Yosys QoR summaries. They must not
+claim full per-task formal proof, timing QoR, arbitrary LTL, or multi-model
+pass-rate improvements. Host LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
@@ -287,8 +287,9 @@ Current claims supported by the repository:
   outputs are covered by committed golden fixtures.
 - All 34 positive tasks pass Icarus/VVP simulation; seven use committed
   directed testbenches and the rest use generated ready/valid smoke harnesses.
-- Selected direct-stream, width-adapter, and streaming accelerator case-study
-  tasks pass bounded SymbiYosys checks.
+- Twenty-nine single-clock positive tasks pass bounded SymbiYosys formal smoke
+  checks; three use committed directed monitors and the rest use generated
+  ready/valid formal harnesses.
 - Three dedicated subsystem case studies have committed RTL, MICO source,
   simulation testbenches, and structural QoR references.
 - Positive seed and case-study wrappers have structural Yosys area/wire QoR
@@ -309,8 +310,8 @@ Claims not yet supported:
 - Full paid LLM benchmark matrix results committed as artifact data.
 - Full directed functional simulation coverage beyond the seven committed
   directed harnesses.
-- Formal proof coverage beyond the selected direct, width, and streaming case
-  tasks.
+- Full task-specific formal proof coverage beyond the bounded formal smoke
+  denominator.
 - Timing QoR, Vivado QoR, or technology-mapped delay conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
 - Arbitrary LTL or complete temporal contract proving.

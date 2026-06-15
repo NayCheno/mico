@@ -159,7 +159,9 @@ try {
         Copy-BundleTree "paper/tables" "paper/tables"
     }
     $optionalAggregateFiles = @(
+        "build/bench/aggregate_dac2027_llm_stats.json",
         "build/bench/aggregate_dac2027_llm_heldout20.json",
+        "build/bench/aggregate_m3_heldout_directed.json",
         "build/bench/aggregate_m5_heldout.json"
     )
     foreach ($file in $optionalAggregateFiles) {
@@ -189,6 +191,7 @@ try {
         "build/bench/qor_summary.tex",
         "build/bench/qor_structural.csv",
         "build/bench/llm_summary.csv",
+        "build/bench/llm_compact_summary.csv",
         "build/bench/llm_failure_taxonomy.csv",
         "build/bench/llm_paired_comparisons.csv",
         "build/bench/llm_cost_tokens.csv",

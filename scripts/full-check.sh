@@ -276,6 +276,11 @@ result_paths = [
     "build/bench/aggregate_results.json",
     "build/bench/aggregate_heldout_results.json",
 ]
+authenticated_llm_paths = [
+    "build/llm/bench_execute_dac2027_public_dev_v2.json",
+    "build/llm/bench_execute_dac2027_heldout_20.json",
+    "build/bench/aggregate_dac2027_llm_stats.json",
+]
 manifest_paths = [
     "benchmarks/module_compose_bench_manifest.yaml",
     "benchmarks/module_compose_bench_heldout.yaml",
@@ -321,6 +326,16 @@ payload = {
         {"path": rel, "sha256": sha256_file(repo / rel)}
         for rel in result_paths
     ],
+    "authenticated_llm_evidence": {
+        "included_in_bundle": False,
+        "note": "Full authenticated execute records are hashed when present but are not bundled by default.",
+        "available": any((repo / rel).exists() for rel in authenticated_llm_paths),
+        "artifacts": [
+            {"path": rel, "sha256": sha256_file(repo / rel)}
+            for rel in authenticated_llm_paths
+            if (repo / rel).exists()
+        ],
+    },
     "vivado_subset": {
         "host_tool_exception": True,
         "available": any((repo / rel).exists() for rel in vivado_subset_paths),

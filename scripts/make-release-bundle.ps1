@@ -141,6 +141,7 @@ try {
         "docs/17_llm_prompt_redesign_pilot.md",
         "docs/18_directed_verification_hardening.md",
         "docs/19_vivado_qor_subset.md",
+        "docs/qor_vivado_subset_report.md",
         "docs/20_paper_dac_ready.md",
         "docs/21_artifact_release_candidate.md",
         "docs/22_llm_full_matrix_v2.md",
@@ -196,7 +197,9 @@ try {
         "build/reports/vivado-host/vivado_qor_subset_summary.json",
         "build/reports/vivado-host/vivado_qor_subset_summary.csv",
         "build/reports/vivado-host/vivado_qor_subset_delta.csv",
-        "build/reports/vivado-host/vivado_qor_subset_summary.tex"
+        "build/reports/vivado-host/vivado_qor_subset_summary.tex",
+        "build/reports/vivado-host/vivado_qor_thresholds.json",
+        "build/reports/vivado-host/vivado_qor_thresholds.tex"
     )
     foreach ($file in $vivadoFiles) {
         if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {

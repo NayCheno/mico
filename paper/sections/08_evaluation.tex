@@ -64,8 +64,18 @@ A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
 through the pinned Windows launcher. It synthesizes measurement-only copies of
 T001--T004 and T058--T065 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT
 counts match on all 12 rows, and WNS is positive for all generated and
-reference copies. This is representative out-of-context evidence, not
+reference copies. A Docker-side threshold check enforces a median
+generated/reference LUT delta of at most 5\% and nonnegative WNS before writing
+the paper snippet in Table~\ref{tab:vivado-qor-thresholds}. This is
+representative out-of-context evidence, not
 board-level implementation or all-task timing closure.
+
+\begin{table}[t]
+  \centering
+  \caption{Vivado out-of-context QoR threshold summary}
+  \label{tab:vivado-qor-thresholds}
+  \resizebox{\columnwidth}{!}{\input{tables/vivado_qor_thresholds.tex}}
+\end{table}
 
 \begin{table}[t]
   \centering

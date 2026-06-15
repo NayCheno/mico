@@ -63,7 +63,7 @@ The release manifest records:
   deterministic benchmark JSON, aggregate JSON, and generated tables;
 - authenticated v3 LLM evidence sidecar hashes;
 - optional v3 authenticated LLM execute and aggregate hashes when those ignored artifacts are present;
-- optional Vivado subset summary hashes when host Vivado evidence exists;
+- optional Vivado subset and QoR threshold hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used;
 - current source commit hash and latest paper commit hash.
 
@@ -92,6 +92,7 @@ The release bundle manifest records:
 - `python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json` passes in Docker.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/realism_results.json --manifest benchmarks/module_compose_bench_realism.yaml --out-json build/bench/aggregate_realism_results.json --out-dir build/bench/realism_tables --paper-table-dir build/paper_tables/realism` passes in Docker.
 - `python3 scripts/write-formal-coverage-matrix.py` writes formal coverage CSV/TeX artifacts from the three deterministic result JSON files.
+- Host `.\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl` passes when Vivado is available at the pinned path, then `python3 scripts/check-vivado-qor-summary.py --paper-tex paper/tables/vivado_qor_thresholds.tex` passes in Docker.
 - `python3 scripts/write-release-claim-table-json.py --output build/release/release_claim_table.json` passes in Docker.
 - `python3 scripts/write-llm-evidence-hashes.py --output build/release/llm_evidence_hashes.json` passes in Docker for validate-only gates and records missing authenticated v3 evidence as optional; run it with `--require` for the final LLM evidence seal.
 - `python3 scripts/write-deterministic-evidence-hashes.py --output build/release/deterministic_evidence_hashes.json --full-check-manifest build/release/full_check_manifest.json` passes in Docker.

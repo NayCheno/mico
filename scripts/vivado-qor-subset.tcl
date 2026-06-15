@@ -18,8 +18,10 @@ if {[string first "${repo_root_json}/" $report_root_json] == 0} {
 # source RTL or benchmark wrappers.
 set part_name "xc7a35tcpg236-1"
 set clock_period_ns "10.000"
+set vivado_version [version -short]
 set vivado_flow "out_of_context_synth_measurement_copy"
 set top_copy_policy "build-only sanitized top copies add mico_observe plus KEEP/DONT_TOUCH attributes; source RTL is unchanged"
+set constraint_assumptions "out-of-context synthesis; 10 ns clocks on declared clock ports; zero-delay reset inputs and mico_observe output; no board, placement, routing, or bitstream constraints"
 
 set tasks {
   {T001_stream_fifo rtl/examples/mico_example_leafs.sv build/bench/T001_stream_fifo/top.sv benchmarks/qor/reference/T001_stream_fifo_ref.sv {clk}}
@@ -145,7 +147,8 @@ proc timing_record {} {
   return [dict create status timed wns $slack pass $pass]
 }
 
-proc run_case {repo_root report_root part_name clock_period_ns task kind rtl wrapper clocks} {
+proc run_case {repo_root report_root part_name clock_period_ns vivado_version task kind rtl wrapper clocks} {
+  set case_start_ms [clock milliseconds]
   set case_name "${task}_${kind}"
   set case_dir [file join $report_root $case_name]
   file mkdir $case_dir
@@ -197,10 +200,13 @@ proc run_case {repo_root report_root part_name clock_period_ns task kind rtl wra
     set timing [timing_record]
   }
   close_project
+  set elapsed_seconds [format "%.3f" [expr {([clock milliseconds] - $case_start_ms) / 1000.0}]]
 
   return [dict create \
     task $task \
     kind $kind \
+    vivado_version $vivado_version \
+    elapsed_seconds $elapsed_seconds \
     status $status \
     lut $lut_count \
     ff $ff_count \
@@ -264,11 +270,13 @@ proc tex_number {value {fmt "%.3f"}} {
 }
 
 set records {}
+set run_start_ms [clock milliseconds]
 foreach task_info $tasks {
   lassign $task_info task rtl generated_wrapper reference_wrapper clocks
-  lappend records [run_case $repo_root $report_root $part_name $clock_period_ns $task generated $rtl $generated_wrapper $clocks]
-  lappend records [run_case $repo_root $report_root $part_name $clock_period_ns $task reference $rtl $reference_wrapper $clocks]
+  lappend records [run_case $repo_root $report_root $part_name $clock_period_ns $vivado_version $task generated $rtl $generated_wrapper $clocks]
+  lappend records [run_case $repo_root $report_root $part_name $clock_period_ns $vivado_version $task reference $rtl $reference_wrapper $clocks]
 }
+set run_elapsed_seconds [format "%.3f" [expr {([clock milliseconds] - $run_start_ms) / 1000.0}]]
 
 set deltas {}
 foreach task_info $tasks {
@@ -290,9 +298,9 @@ foreach task_info $tasks {
 
 set csv_path [file join $report_root "vivado_qor_subset_summary.csv"]
 set csv [open $csv_path w]
-puts $csv "task,kind,status,lut,ff,bram,dsp,wns,timing_status,timing_pass"
+puts $csv "task,kind,vivado_version,elapsed_seconds,status,lut,ff,bram,dsp,wns,timing_status,timing_pass"
 foreach record $records {
-  puts $csv "[dict get $record task],[dict get $record kind],[dict get $record status],[dict get $record lut],[dict get $record ff],[dict get $record bram],[dict get $record dsp],[dict get $record wns],[dict get $record timing_status],[dict get $record timing_pass]"
+  puts $csv "[dict get $record task],[dict get $record kind],[dict get $record vivado_version],[dict get $record elapsed_seconds],[dict get $record status],[dict get $record lut],[dict get $record ff],[dict get $record bram],[dict get $record dsp],[dict get $record wns],[dict get $record timing_status],[dict get $record timing_pass]"
 }
 close $csv
 
@@ -332,20 +340,27 @@ set json_path [file join $report_root "vivado_qor_subset_summary.json"]
 set json [open $json_path w]
 puts $json "{"
 puts $json "  \"schema_version\": \"mico.vivado_qor_subset.v0\","
+puts $json "  \"vivado_version\": \"[json_escape $vivado_version]\","
 puts $json "  \"vivado_part\": \"[json_escape $part_name]\","
 puts $json "  \"vivado_flow\": \"[json_escape $vivado_flow]\","
 puts $json "  \"clock_period_ns\": [json_value $clock_period_ns],"
+puts $json "  \"run_elapsed_seconds\": [json_value $run_elapsed_seconds],"
+puts $json "  \"constraint_assumptions\": \"[json_escape $constraint_assumptions]\","
 puts $json "  \"top_copy_policy\": \"[json_escape $top_copy_policy]\","
 puts $json "  \"report_root\": \"[json_escape $report_root_json]\","
 puts $json "  \"records\": \["
 for {set i 0} {$i < [llength $records]} {incr i} {
   set record [lindex $records $i]
   puts $json "    {"
-  set keys {task kind status lut ff bram dsp wns timing_status timing_pass error}
+  set keys {task kind vivado_version elapsed_seconds status lut ff bram dsp wns timing_status timing_pass error}
   for {set j 0} {$j < [llength $keys]} {incr j} {
     set key [lindex $keys $j]
     set comma [expr {$j + 1 < [llength $keys] ? "," : ""}]
-    puts $json "      \"${key}\": [json_value [dict get $record $key]]${comma}"
+    if {$key eq "vivado_version"} {
+      puts $json "      \"${key}\": \"[json_escape [dict get $record $key]]\"${comma}"
+    } else {
+      puts $json "      \"${key}\": [json_value [dict get $record $key]]${comma}"
+    }
   }
   set comma [expr {$i + 1 < [llength $records] ? "," : ""}]
   puts $json "    }${comma}"

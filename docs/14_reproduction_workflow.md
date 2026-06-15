@@ -49,8 +49,10 @@ fmt/check/tests, runs `git diff --check`, runs the documentation claim guard,
 runs EDA smoke, runs the deterministic benchmark, validates the LLM provider
 config without provider requests, plans the full LLM baseline matrix without
 provider requests, runs the held-out benchmark split,
-regenerates aggregate result tables for both public-development and held-out
-results, writes a formal coverage matrix from the deterministic evidence,
+regenerates aggregate result tables for public-development, held-out, and
+supplemental realism results, writes a formal coverage matrix from the
+deterministic evidence, runs the Vivado QoR threshold check when a host Vivado
+summary JSON is already present,
 validates JSON outputs against the repository JSON Schemas, and writes
 `build/release/full_check_manifest.json`. With `-WithLatex`, the wrapper also
 updates the manifest with the final paper PDF hash after the host LaTeX build.
@@ -275,14 +277,20 @@ For the current representative QoR/timing subset, run:
 
 ```powershell
 .\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl
+.\scripts\eda-docker.ps1 python3 scripts/check-vivado-qor-summary.py --paper-tex paper/tables/vivado_qor_thresholds.tex
 ```
 
 The subset targets `xc7a35tcpg236-1` and writes
 `vivado_qor_subset_summary.json`, `vivado_qor_subset_summary.csv`, and
 `vivado_qor_subset_delta.csv` under ignored `build/reports/vivado-host/`.
-It uses build-only measurement copies for all 12 QoR-enabled public and
-held-out tasks (`T001`--`T004` and `T058`--`T065`) and does not claim
-board-level implementation, route timing closure, or all-task Vivado QoR.
+The Docker threshold check also writes `vivado_qor_thresholds.json` and
+`vivado_qor_thresholds.tex`, and can refresh the committed paper snippet
+`paper/tables/vivado_qor_thresholds.tex`. It uses build-only measurement
+copies for all 12 QoR-enabled public and held-out tasks (`T001`--`T004` and
+`T058`--`T065`), records Vivado `2025.2`, target part, per-row runtime, and
+constraint assumptions, and checks median LUT delta <= 5.0% plus nonnegative
+generated/reference WNS. It does not claim board-level implementation, route
+timing closure, or all-task Vivado QoR.
 
 ## Paper Build
 
@@ -318,7 +326,8 @@ Before publishing a result or submission artifact:
 - Benchmark aggregation writes `build/bench/aggregate_results.json` plus CSV and
   TeX snippets under ignored build directories.
 - The representative Vivado subset passes if host Vivado is available at the
-  pinned path; generated reports remain ignored.
+  pinned path, then `scripts/check-vivado-qor-summary.py` passes in Docker;
+  generated reports remain ignored.
 - LLM provider validate-only passes; the batch LLM runner can generate the
   validate-only matrix and offline-fixture smoke outputs; authenticated smoke
   runs only when a local key and budget are configured.

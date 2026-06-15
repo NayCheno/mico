@@ -123,6 +123,9 @@ run_step "Aggregate supplemental realism benchmark records" python3 benchmarks/a
     --out-dir build/bench/realism_tables \
     --paper-table-dir build/paper_tables/realism
 run_step "Formal coverage matrix" python3 scripts/write-formal-coverage-matrix.py
+if [[ -f build/reports/vivado-host/vivado_qor_subset_summary.json ]]; then
+    run_step "Vivado QoR threshold check" python3 scripts/check-vivado-qor-summary.py
+fi
 run_step "JSON schema validation" python3 scripts/validate_json_schemas.py \
     --bench-result build/bench/seed_results.json \
     --bench-result build/bench/heldout_results.json \
@@ -320,6 +323,8 @@ vivado_subset_paths = [
     "build/reports/vivado-host/vivado_qor_subset_summary.csv",
     "build/reports/vivado-host/vivado_qor_subset_delta.csv",
     "build/reports/vivado-host/vivado_qor_subset_summary.tex",
+    "build/reports/vivado-host/vivado_qor_thresholds.json",
+    "build/reports/vivado-host/vivado_qor_thresholds.tex",
 ]
 
 payload = {

@@ -28,7 +28,14 @@ The flow uses `D:\Application\vivado\2025.2\Vivado` through
 `scripts/run-vivado-host.ps1`, targets `xc7a35tcpg236-1`, and writes all
 reports under ignored `build/reports/vivado-host/`.
 The Tcl flow emits JSON, CSV, per-task delta CSV, and a paper-ready TeX table
-for release-manifest hashing and bundle inclusion.
+for release-manifest hashing and bundle inclusion. The Docker-side post-check
+`scripts/check-vivado-qor-summary.py` consumes the JSON report, enforces the
+current QoR threshold, and writes threshold JSON/TeX sidecars.
+
+The report records Vivado `2025.2`, target part `xc7a35tcpg236-1`, 10 ns clock
+assumptions, per-row elapsed seconds, and the total host run time. The final
+2026-06-15 run took 372.775 s wall-clock as reported by
+`vivado_qor_subset_summary.json`.
 
 The committed source RTL and benchmark wrappers are not modified. The Tcl script
 creates build-only sanitized copies that:
@@ -53,6 +60,7 @@ Vivado command:
 
 ```powershell
 .\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl
+.\scripts\eda-docker.ps1 python3 scripts/check-vivado-qor-summary.py --paper-tex paper/tables/vivado_qor_thresholds.tex
 ```
 
 Result summary:
@@ -75,15 +83,22 @@ Result summary:
 All generated/reference rows passed out-of-context synthesis and timing-path extraction in the
 measurement-copy flow. FF, BRAM, and DSP counts are zero for this subset because
 the current representative leaf RTL is combinational smoke collateral.
+The Vivado log reported 0 errors and 0 critical warnings for each synthesis
+step; ordinary unconnected-port warnings are expected for these measurement
+copies. The threshold sidecar reports 12/12 task pairs checked, median LUT
+delta 0.000%, maximum absolute LUT delta 0.000%, minimum generated WNS
+4.854 ns, minimum reference WNS 4.584 ns, and status `pass`.
 
 Artifact hashes from the ignored report directory:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `1ab79afa2bc32881fa05af7e896a5e1019f015b73d1986edc3f5c59fc43e5d89` |
-| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `a2be4556f6c127ddf5d65d2befc060c094ff0eaedd02b42fbf99a88c01f21ce3` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `2f04cca899b2fd91278d1dd62d8bd7fa0ca52b7ca49e5baa298b1bb12624bb8b` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `951d8e8a72d84844799c62b3f97b902239ca3cf380b96930998a2608e83e2084` |
 | `build/reports/vivado-host/vivado_qor_subset_delta.csv` | `5953f168b6a78e5f11c10e32e6af6642ff09792c9f41c03722d98c5f08d77060` |
 | `build/reports/vivado-host/vivado_qor_subset_summary.tex` | `62f8b650775252d77afe97b739b58853cd441270dd8635bea04b12c2fc555f13` |
+| `build/reports/vivado-host/vivado_qor_thresholds.json` | `5c6fd69471e4d4d729f08e98a885301e793142fefc48cf9c2a5f04ea51a0ca2a` |
+| `build/reports/vivado-host/vivado_qor_thresholds.tex` | `771f238db9f24f4fbefb5f8381185921849261f5047110a39761a7b2e487c3c9` |
 
 ## Claim Boundary
 

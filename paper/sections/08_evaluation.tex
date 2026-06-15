@@ -66,7 +66,7 @@ JSON used by the release workflow.
 
 \begin{table*}[t]
   \centering
-  \caption{JSON AST repair paired comparisons generated from aggregate JSON}
+  \caption{JSON AST repair paired comparisons with exact paired tests generated from aggregate JSON}
   \resizebox{\textwidth}{!}{\input{tables/llm_paired_comparisons.tex}}
 \end{table*}
 
@@ -84,6 +84,10 @@ Repair is beneficial but bounded. Compared with direct Verilog,
 \texttt{mico\_json\_ast\_repair} has 105 wins, 0 losses, and 81 ties on the
 public split, and 30 wins, 0 losses, and 30 ties on held-out. Compared with
 plain \texttt{mico\_json\_ast}, repair adds 11 public wins and 2 held-out wins.
+Two-sided exact paired tests over discordant attempts give $p<10^{-31}$
+against the unstructured public baselines, $p=9.77\times10^{-4}$ against plain
+public JSON AST, $p<2\times10^{-9}$ against held-out unstructured baselines,
+and no significant held-out difference from plain JSON AST ($p=0.50$).
 All accepted repair-turn wins in this run are attributed to the recorded
 \texttt{deterministic\_adapter\_instance\_collapse} fallback, so the paper claims
 compiler-feedback repair for a common adapter-as-instance error pattern rather

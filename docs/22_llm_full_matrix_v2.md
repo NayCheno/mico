@@ -1,6 +1,6 @@
 # LLM Full Matrix v2
 
-Snapshot date: 2026-06-14.
+Snapshot date: 2026-06-15.
 
 This page records the M2 structured LLM full-matrix rerun for the DAC 2027
 plan. The result files, response caches, prompts emitted under `build/`, and
@@ -43,9 +43,15 @@ Full matrix:
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_public_dev_v2.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_stats.json --out-dir build/bench/dac2027_llm_stats --paper-table-dir build/paper_tables/dac2027_llm_stats"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_stats.json"
 ```
+
+The aggregate emits paper tables for the main LLM summary, paired comparisons,
+Wilson confidence intervals, repair-turn distributions, failure taxonomy,
+token/cost accounting, and JSON validity. The paired table reports a two-sided
+exact sign-test p-value over discordant paired attempts; this is equivalent to
+the exact McNemar/binomial test for these 2x2 paired outcomes.
 
 ## Public-Development Results
 
@@ -72,12 +78,12 @@ Run ID: `086e4e2035a675a2`.
 Paired final-pass comparisons for `mico_json_ast_repair` on the public-dev
 matrix:
 
-| Comparison | Comparable attempts | Repair wins | Baseline wins | Ties |
-|---|---:|---:|---:|---:|
-| vs. `direct_verilog` | 186 | 105 | 0 | 81 |
-| vs. `sv_interface` | 186 | 110 | 0 | 76 |
-| vs. `mico_source` | 186 | 112 | 0 | 74 |
-| vs. `mico_json_ast` | 186 | 11 | 0 | 175 |
+| Comparison | Comparable attempts | Repair wins | Baseline wins | Exact p | Ties |
+|---|---:|---:|---:|---:|---:|
+| vs. `direct_verilog` | 186 | 105 | 0 | `4.93e-32` | 81 |
+| vs. `sv_interface` | 186 | 110 | 0 | `1.54e-33` | 76 |
+| vs. `mico_source` | 186 | 112 | 0 | `3.85e-34` | 74 |
+| vs. `mico_json_ast` | 186 | 11 | 0 | `9.77e-4` | 175 |
 
 ## Held-Out Results
 
@@ -104,12 +110,12 @@ Run ID: `38a6b47f9d51a71b`.
 Paired final-pass comparisons for `mico_json_ast_repair` on the held-out
 matrix:
 
-| Comparison | Comparable attempts | Repair wins | Baseline wins | Ties |
-|---|---:|---:|---:|---:|
-| vs. `direct_verilog` | 60 | 30 | 0 | 30 |
-| vs. `sv_interface` | 60 | 31 | 0 | 29 |
-| vs. `mico_source` | 60 | 30 | 0 | 30 |
-| vs. `mico_json_ast` | 60 | 2 | 0 | 58 |
+| Comparison | Comparable attempts | Repair wins | Baseline wins | Exact p | Ties |
+|---|---:|---:|---:|---:|---:|
+| vs. `direct_verilog` | 60 | 30 | 0 | `1.86e-9` | 30 |
+| vs. `sv_interface` | 60 | 31 | 0 | `9.31e-10` | 29 |
+| vs. `mico_source` | 60 | 30 | 0 | `1.86e-9` | 30 |
+| vs. `mico_json_ast` | 60 | 2 | 0 | `0.500` | 58 |
 
 ## Repair Evidence
 
@@ -131,7 +137,7 @@ must not claim that the free-form model repair patch alone is broadly reliable.
 |---|---|
 | `build/llm/bench_execute_dac2027_public_dev_v2.json` | `cc6bc3c11cc9ed434790f85506a8aa5d1c5d154ad66d61faff7ce83fc8fe9803` |
 | `build/llm/bench_execute_dac2027_heldout_20.json` | `866902f272cf072b17c5161a3d32e91f592e2b9be2ff67b32924dfc8954b9072` |
-| `build/bench/aggregate_dac2027_llm_heldout20.json` | `65165e8c55ff2d8c4abf1d15a8b793c2ba9caa153b42aabba666e1b7ba832e2e` |
+| `build/bench/aggregate_dac2027_llm_stats.json` | `c688b7eeb2a5a130da042ea21aecd429a0035f81d4017996f0f126595f7b4b46` |
 | `build/llm/repair_fallback_v1_targeted.json` | `5be654a3e02f2d0b49a8d29024826ac4c54f11b765391f9f64ce099075e2a466` |
 
 ## Claim Boundary
@@ -149,5 +155,6 @@ The claim remains bounded:
   should be reported separately from plain JSON AST generation.
 - Raw provider responses and local configuration remain external ignored
   artifacts.
-- Final paper statistics and release packaging must regenerate from the v2
-  aggregate result before submission.
+- The statistics aggregate is schema-valid and regenerated from the v2 result
+  files, but external archival of raw/sanitized execute artifacts is still
+  required before immutable release.

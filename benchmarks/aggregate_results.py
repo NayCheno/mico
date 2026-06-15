@@ -426,10 +426,21 @@ def paired_comparisons(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any
                     "comparable_tasks": comparable,
                     "target_wins": target_wins,
                     "baseline_wins": baseline_wins,
+                    "discordant_pairs": target_wins + baseline_wins,
+                    "exact_p_value": exact_sign_test_p_value(target_wins, baseline_wins),
                     "ties": ties,
                 }
             )
     return rows
+
+
+def exact_sign_test_p_value(target_wins: int, baseline_wins: int) -> float:
+    discordant = target_wins + baseline_wins
+    if discordant == 0:
+        return 1.0
+    tail = min(target_wins, baseline_wins)
+    probability = sum(math.comb(discordant, k) for k in range(tail + 1)) / (2**discordant)
+    return min(1.0, 2.0 * probability)
 
 
 def llm_failure_taxonomy(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -795,6 +806,7 @@ def main() -> int:
                 ("comparable_tasks", "Tasks"),
                 ("target_wins", "Repair Wins"),
                 ("baseline_wins", "Baseline Wins"),
+                ("exact_p_value", "Exact p"),
                 ("ties", "Ties"),
             ],
             paired,

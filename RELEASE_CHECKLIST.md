@@ -17,10 +17,12 @@ Linux/WSL:
 latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 ```
 
-The Docker gate writes `build/release/full_check_manifest.json` and
-`build/release/deterministic_evidence_hashes.json`. These files are generated
-build artifacts and must not be committed. After the final gate passes, package
-the review archive with:
+The Docker gate writes `build/release/full_check_manifest.json`,
+`build/release/deterministic_evidence_hashes.json`,
+`build/release/release_claim_table.json`, and
+`build/release/llm_evidence_hashes.json`. These files are generated build
+artifacts and must not be committed. After the final gate passes, package the
+review archive with:
 
 ```powershell
 .\scripts\make-release-bundle.ps1
@@ -53,10 +55,13 @@ The release manifest records:
 - Python version;
 - prompt SHA-256 hashes for files under `prompts/`;
 - selected LLM model/profile metadata with API keys redacted;
-- public-development and held-out benchmark manifest SHA-256 hashes;
-- result JSON SHA-256 hashes for deterministic, held-out, LLM validate-only, provider validate-only, and aggregate outputs;
-- deterministic evidence sidecar hashes for public-development and held-out
-  manifests, deterministic benchmark JSON, aggregate JSON, and generated tables;
+- public-development, held-out, and supplemental realism benchmark manifest SHA-256 hashes;
+- result JSON SHA-256 hashes for deterministic, held-out, supplemental realism,
+  LLM validate-only, provider validate-only, and aggregate outputs;
+- release claim table and deterministic evidence sidecar hashes for
+  public-development, held-out, and supplemental realism manifests,
+  deterministic benchmark JSON, aggregate JSON, and generated tables;
+- authenticated v3 LLM evidence sidecar hashes;
 - optional v3 authenticated LLM execute and aggregate hashes when those ignored artifacts are present;
 - optional Vivado subset summary hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used;
@@ -67,7 +72,10 @@ The release bundle manifest records:
 - source archive hash;
 - full-check manifest hash;
 - final `paper/main.pdf` SHA-256 hash;
-- included schema, prompt, benchmark manifest, deterministic result, held-out result, validate-only LLM result, sanitized LLM summary, Vivado summary, table, and reproduction-guide file hashes;
+- included schema, prompt, benchmark manifest, deterministic result, held-out
+  result, supplemental realism result, validate-only LLM result, sanitized LLM
+  summary, Vivado summary, table, artifact quickstart, and reproduction-guide
+  file hashes;
 - generated bundle SHA-256 sidecar path.
 
 ## Required Checks
@@ -81,6 +89,10 @@ The release bundle manifest records:
 - `python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json` passes in Docker without provider requests.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_validate.json --out-json build/bench/aggregate_results.json` passes in Docker.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_heldout_results.json --out-dir build/bench/heldout_tables --paper-table-dir build/paper_tables/heldout` passes in Docker.
+- `python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json` passes in Docker.
+- `python3 benchmarks/aggregate_results.py --bench-result build/bench/realism_results.json --manifest benchmarks/module_compose_bench_realism.yaml --out-json build/bench/aggregate_realism_results.json --out-dir build/bench/realism_tables --paper-table-dir build/paper_tables/realism` passes in Docker.
+- `python3 scripts/write-release-claim-table-json.py --output build/release/release_claim_table.json` passes in Docker.
+- `python3 scripts/write-llm-evidence-hashes.py --output build/release/llm_evidence_hashes.json` passes in Docker when authenticated v3 evidence is present.
 - `python3 scripts/write-deterministic-evidence-hashes.py --output build/release/deterministic_evidence_hashes.json --full-check-manifest build/release/full_check_manifest.json` passes in Docker.
 - `python3 -m json.tool` validates every generated JSON result used by the release manifest.
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.

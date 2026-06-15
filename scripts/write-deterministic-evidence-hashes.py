@@ -120,6 +120,7 @@ def build_payload(full_check_manifest: str) -> dict[str, Any]:
     ]
     release_files = [
         full_check_manifest,
+        "build/release/release_claim_table.json",
     ]
     table_roots = [
         "build/paper_tables",

@@ -113,6 +113,8 @@ def scan_stale_claims() -> list[str]:
         ("README.md", r"\bnine-task\b", "Vivado subset is now 12 tasks"),
         ("docs/13_architecture_audit.md", r"\bnine representative tasks\b", "Vivado subset is now 12 tasks"),
         ("docs/14_reproduction_workflow.md", r"\bnine representative tasks\b", "Vivado subset is now 12 tasks"),
+        ("docs/dac2027_submission_plan.md", r"\b[Nn]ine-task\b", "Vivado subset is now 12 tasks"),
+        ("docs/dac2027_submission_plan.md", r"\bnine representative\b", "Vivado subset is now 12 tasks"),
         ("docs/19_vivado_qor_subset.md", r"\bnine representative\b", "Vivado subset is now 12 tasks"),
         ("docs/release_claim_table.md", r"\b9 representative tasks\b", "Vivado subset is now 12 tasks"),
         ("docs/13_architecture_audit.md", r"\bnegative authenticated low-cost LLM matrix\b", "v2 bounded Branch A candidate must be described"),

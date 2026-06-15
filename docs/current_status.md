@@ -104,12 +104,14 @@ This file is the short, traceable status page for the current repository. Use
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist, generated
   `build/release/full_check_manifest.json` metadata record, and
-  `build/release/deterministic_evidence_hashes.json` deterministic evidence
-  hash sidecar, and `scripts/make-release-bundle.ps1` review ZIP/sidecar
-  packager. The release
-  gate records public-development and held-out benchmark hashes, sanitized LLM
-  validate-only hashes, optional Vivado subset hashes, and the final paper PDF
-  hash when `-WithLatex` is used.
+  `build/release/deterministic_evidence_hashes.json`,
+  `build/release/release_claim_table.json`, and
+  `build/release/llm_evidence_hashes.json` release sidecars, and
+  `scripts/make-release-bundle.ps1` review ZIP/sidecar packager with a bundled
+  artifact quickstart. The release gate records public-development, held-out,
+  and supplemental realism benchmark hashes, sanitized LLM validate-only and
+  authenticated v3 hashes, optional Vivado subset hashes, and the final paper
+  PDF hash when `-WithLatex` is used.
 - IEEE-style paper draft compressed to a five-page DAC-style manuscript, with
   generated deterministic tables, conservative claim boundaries, and a bounded
   tested-profile v3 structured LLM matrix summary.

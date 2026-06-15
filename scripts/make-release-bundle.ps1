@@ -1,6 +1,8 @@
 param(
     [string] $Manifest = "build/release/full_check_manifest.json",
     [string] $DeterministicEvidence = "build/release/deterministic_evidence_hashes.json",
+    [string] $ReleaseClaimTable = "build/release/release_claim_table.json",
+    [string] $LlmEvidence = "build/release/llm_evidence_hashes.json",
     [string] $OutputDir = "build/release",
     [string] $BundleName = "mico-release-candidate",
     [switch] $AllowDirty
@@ -127,6 +129,7 @@ try {
     Copy-BundleTree "prompts" "prompts"
     Copy-BundleFile "README.md" "README.md"
     Copy-BundleFile "RELEASE_CHECKLIST.md" "RELEASE_CHECKLIST.md"
+    Copy-BundleFile "docs/artifact_quickstart.md" "ARTIFACT_README.md"
     Copy-BundleFile "config/llm-provider.example.yaml" "config/llm-provider.example.yaml"
     Copy-BundleFile "benchmarks/module_compose_bench_manifest.yaml" "manifests/module_compose_bench_manifest.yaml"
     Copy-BundleFile "benchmarks/module_compose_bench_heldout.yaml" "manifests/module_compose_bench_heldout.yaml"
@@ -144,6 +147,7 @@ try {
         "docs/23_heldout_benchmark_hardening.md",
         "docs/24_llm_matrix_v3.md",
         "docs/25_realism_supplement.md",
+        "docs/artifact_quickstart.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",
         "docs/dac2027_full_check_baseline_2026-06-15.md",
@@ -154,6 +158,8 @@ try {
     }
     Copy-BundleFile $Manifest "release/full_check_manifest.json"
     Copy-BundleFile $DeterministicEvidence "release/deterministic_evidence_hashes.json"
+    Copy-BundleFile $ReleaseClaimTable "release/release_claim_table.json"
+    Copy-BundleFile $LlmEvidence "release/llm_evidence_hashes.json"
     Copy-BundleFile "build/bench/seed_results.json" "results/deterministic/seed_results.json"
     Copy-BundleFile "build/bench/heldout_results.json" "results/deterministic/heldout_results.json"
     Copy-BundleFile "build/bench/realism_results.json" "results/deterministic/realism_results.json"
@@ -284,6 +290,14 @@ try {
         deterministic_evidence_hashes = [ordered]@{
             path = "release/deterministic_evidence_hashes.json"
             sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\deterministic_evidence_hashes.json")
+        }
+        release_claim_table = [ordered]@{
+            path = "release/release_claim_table.json"
+            sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\release_claim_table.json")
+        }
+        llm_evidence_hashes = [ordered]@{
+            path = "release/llm_evidence_hashes.json"
+            sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\llm_evidence_hashes.json")
         }
         paper_pdf = [ordered]@{
             path = "paper/main.pdf"

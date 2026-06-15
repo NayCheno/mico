@@ -19,10 +19,12 @@ git diff --check
 
 The Docker portion of `full-check` now covers Rust format/check/tests, open
 source EDA smoke, the 62-task public-development benchmark, the 20-task
-held-out benchmark, validate-only LLM provider and batch records, aggregate
-table generation, schema validation, and generated-output policy checks. The
-PowerShell wrapper then builds the paper with host LaTeX and updates the release
-manifest with the final `paper/main.pdf` SHA-256 hash.
+held-out benchmark, the 14-task supplemental realism benchmark, validate-only
+LLM provider and batch records, aggregate table generation, schema validation,
+release claim JSON, LLM evidence hash JSON, paper-summary table generation, and
+generated-output policy checks. The PowerShell wrapper then builds the paper
+with host LaTeX and updates the release manifest with the final
+`paper/main.pdf` SHA-256 hash.
 
 ## Manifest Contents
 
@@ -33,17 +35,23 @@ manifest with the final `paper/main.pdf` SHA-256 hash.
   Yosys, SymbiYosys, and Z3;
 - selected redacted LLM provider/profile metadata;
 - prompt SHA-256 hashes;
-- public-development and held-out benchmark manifest SHA-256 hashes;
-- deterministic, held-out, validate-only LLM, and aggregate result JSON hashes;
+- public-development, held-out, and supplemental realism benchmark manifest
+  SHA-256 hashes;
+- deterministic, held-out, supplemental realism, validate-only LLM, and
+  aggregate result JSON hashes;
+- release claim JSON and LLM evidence hash JSON paths;
 - authenticated v3 execute-result and statistics aggregate hashes when those
   ignored evidence files are present;
 - optional Vivado subset summary hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used.
 
 `build/release/deterministic_evidence_hashes.json` records the deterministic
-evidence subset used by the M1 gate: public-development and held-out manifest
-hashes, deterministic benchmark result hashes, aggregate result hashes,
-generated table hashes, and tool versions.
+evidence subset used by the M1/M3.4 gates: public-development, held-out, and
+supplemental realism manifest hashes, deterministic benchmark result hashes,
+aggregate result hashes, generated table hashes, release claim JSON hash, and
+tool versions. `build/release/release_claim_table.json` records the
+machine-readable claim-to-evidence map. `build/release/llm_evidence_hashes.json`
+records sanitized hashes and metadata for the authenticated v3 LLM evidence.
 
 These files are generated output. Do not commit them.
 
@@ -53,11 +61,14 @@ These files are generated output. Do not commit them.
 `build/release/`. The bundle includes:
 
 - a `git archive` source ZIP for the exact source commit;
+- an `ARTIFACT_README.md` quickstart with expected hash locations and known
+  limitations;
 - schemas, prompts, benchmark manifests, and the LLM provider example config;
 - reproduction, claim-boundary, LLM, verification, Vivado, paper, and release
   notes;
-- deterministic public-development and held-out results;
+- deterministic public-development, held-out, and supplemental realism results;
 - deterministic evidence hash sidecar;
+- release claim and LLM evidence hash sidecars;
 - validate-only sanitized LLM records;
 - sanitized v3 authenticated LLM execute records and aggregate summaries
   when present;

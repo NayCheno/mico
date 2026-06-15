@@ -393,6 +393,11 @@ out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encodin
 print(f"wrote {display(out)}")
 PY
 
+run_step "Release claim table JSON" python3 scripts/write-release-claim-table-json.py \
+    --output build/release/release_claim_table.json
+run_step "LLM evidence hashes" python3 scripts/write-llm-evidence-hashes.py \
+    --output build/release/llm_evidence_hashes.json
+run_step "Paper summary tables" python3 scripts/write-paper-summary-tables.py
 run_step "Deterministic evidence hashes" python3 scripts/write-deterministic-evidence-hashes.py \
     --output build/release/deterministic_evidence_hashes.json \
     --full-check-manifest "${release_manifest}"

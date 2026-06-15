@@ -130,8 +130,8 @@ Supported now:
   monitors.
 - 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
-- Nine-task representative host-Vivado out-of-context QoR/timing subset with
-  generated/reference summaries for `T001`, `T003`, and `T058`--`T064`.
+- 12-task host-Vivado out-of-context QoR/timing subset covering all
+  QoR-enabled public and held-out tasks: `T001`--`T004` and `T058`--`T065`.
 - Held-out manifest with 20 scoring tasks, including seven subsystem positives
   and seven paired negative variants; deterministic held-out scoring currently
   passes 20/20 expected outcomes. The non-CDC held-out subsystem positives now

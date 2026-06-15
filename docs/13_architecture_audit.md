@@ -1,6 +1,6 @@
 # MICO Current Architecture Audit
 
-Audit date: 2026-06-14.
+Audit date: 2026-06-15.
 
 The authoritative claim and environment boundary for this snapshot is
 `docs/claim_boundary.md`; this audit explains the implementation evidence and
@@ -8,12 +8,14 @@ remaining gaps behind that boundary.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, 62-task benchmark runner, benchmark
-aggregation script, LLM provider
-validation script, and a cautiously worded paper draft. It is still not a complete "engineering +
-experiments + paper" artifact: full paid LLM pass-rate matrices, broader case
-study diversity, full formal coverage, broad timing/QoR evidence, and final
-paper-table integration remain open milestones.
+smoke flow, source-level JSON AST path, 62-task public-development benchmark,
+20-task held-out split, benchmark aggregation script, LLM provider validation
+script, structured v2 LLM matrix summary, release-candidate scripts, and a
+cautiously worded paper draft. Numeric result claims are tracked in
+`docs/release_claim_table.md`. It is still not a complete "engineering +
+experiments + paper" artifact: release-archived authenticated LLM evidence,
+broader case-study diversity, full formal coverage, broad timing/QoR evidence,
+and final paper-table integration remain open milestones.
 
 ## Sources Reviewed
 
@@ -134,18 +136,18 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Twenty tasks,
-including the five public-development subsystem case studies, use committed
-directed Icarus/VVP testbenches; the remaining accepted positive tasks use
-generated ready/valid smoke harnesses derived from traceability JSON. It
-reports `formal_pass: 31/31` over the single-clock formal smoke denominator:
-fourteen committed directed harnesses plus generated ready/valid formal
-harnesses for the remaining single-clock positives.
+ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Thirty-two
+tasks, including the five public-development subsystem case studies, use
+committed directed Icarus/VVP testbenches; the remaining four accepted positive
+tasks use generated ready/valid smoke harnesses derived from traceability JSON.
+It reports `formal_pass: 31/31` over the single-clock formal smoke denominator:
+twenty-four committed directed harnesses plus generated ready/valid formal
+harnesses for the remaining seven single-clock positives.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
 references, and reports `qor_available: 9/9`. A separate host-Vivado subset
 script performs out-of-context synthesis and measurement-copy timing extraction
-for four representative tasks.
+for nine representative tasks (`T001`, `T003`, and `T058`--`T064`).
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -154,10 +156,10 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to single-clock smoke properties, with fourteen
+- Formal coverage is limited to single-clock smoke properties, with twenty-four
   task-specific directed monitors.
 - Broad QoR is structural area/wire accounting plus a generic mapped-cell proxy.
-  The Vivado evidence is limited to a four-task out-of-context subset; it is not
+  The Vivado evidence is limited to a nine-task out-of-context subset; it is not
   routed timing closure, technology-mapped delay for the full benchmark, or
   board-level implementation.
 - Adapter correctness boundaries are documented but not yet backed by full
@@ -193,11 +195,14 @@ records expected diagnostic codes for negative tasks, emits SV/SVA/trace
 artifacts for positive tasks, runs open-source EDA smoke checks where
 supported, and writes `schema_version = mico.bench.results.v0`.
 
-The committed task set is documented as the public development split. Held-out
-LLM claims require a separately versioned manifest and sanitized result archive
-that is not used for prompt iteration. The batch prompt builder includes task
-requests, inventories, and interface/module declarations, but strips committed
-`compose` bodies from expected MICO sources before constructing prompts.
+The committed public-development manifest is paired with
+`benchmarks/module_compose_bench_heldout.yaml`, a 20-task held-out split with
+ten positives, ten negatives, seven subsystem positives, and seven paired
+negative variants. LLM claims require sanitized result archives that record the
+evaluated manifest path and SHA-256 hash. The batch prompt builder includes
+task requests, inventories, and interface/module declarations, but strips
+committed `compose` bodies from expected MICO sources before constructing
+prompts.
 
 Current limitations:
 
@@ -231,17 +236,22 @@ semantics stay aligned.
 
 An authenticated low-cost matrix has been executed for 62 tasks, two low-cost
 profiles, and five baselines. The sanitized summary is recorded in
-`docs/16_llm_matrix_results.md`. The result is negative for the current
-prompt/model settings: positive-task compiler and lint pass rates are 0/36 for
-all reported baselines, while MICO baselines reject 15--18 of 26 unsafe tasks
-depending on profile and representation. This does not support an LLM advantage
-claim.
+`docs/16_llm_matrix_results.md` and remains a historical negative result for
+the original prompts. The newer structured v2 matrix in
+`docs/22_llm_full_matrix_v2.md` covers public-development and held-out splits
+across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It supports
+only the bounded tested-profile Branch A candidate claim described in
+`docs/claim_boundary.md`: MICO JSON AST and MICO JSON AST plus the recorded
+compiler-feedback repair fallback improve positive-task compiler/lint pass and
+unsafe rejection over the tested direct RTL, SystemVerilog-interface, and
+MICO-source baselines. It does not support arbitrary-model or broad
+free-form-repair claims.
 
 Current limitations:
 
-- Full paid low-cost raw result matrices remain ignored build artifacts and
-  should be archived externally for release review; no raw provider payloads or
-  secrets are committed.
+- Full paid raw result matrices remain ignored build artifacts and should be
+  archived externally for release review; no raw provider payloads or secrets
+  are committed.
 - Failure taxonomy, repair-turn, token/cost, and paired-comparison aggregation
   are available when sanitized LLM batch result JSON files are supplied.
 - Cost estimates still require local ignored profile rates.
@@ -249,22 +259,25 @@ Current limitations:
 ### Paper
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
-The current abstract and evaluation section describe the 62-task deterministic
-result, 36/36 positive-task smoke simulation coverage, 31/31 single-clock
+The current abstract and evaluation section describe the 62-task
+public-development deterministic result, the 20-task held-out split, 36/36
+public positive-task smoke simulation coverage, 31/31 public single-clock
 bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
-summaries, the four-task representative Vivado subset, and the negative
-authenticated low-cost LLM matrix. They must not claim full per-task formal
-proof, broad timing closure, arbitrary LTL, or positive LLM pass-rate
-improvements. Host LaTeX is the repository policy for paper builds.
+summaries, the nine-task representative Vivado subset, and the bounded v2
+tested-profile LLM result. Paper numbers must remain traceable to
+`docs/release_claim_table.md` and generated table artifacts. The manuscript
+must not claim full per-task formal proof, broad timing closure, arbitrary LTL,
+or LLM improvements beyond the tested v2 profiles, prompts, and splits. Host
+LaTeX is the repository policy for paper builds.
 
 Current limitations:
 
 - The paper is still an evidence-limited submission candidate, not a complete
   experimental paper.
 - Generated table snippets are available under ignored `build/paper_tables/`;
-  the paper source now carries the deterministic table values and low-cost LLM
-  summary, while raw result archives and final statistical appendices remain
-  release work.
+  the paper source now carries deterministic and bounded v2 LLM table values,
+  while raw result archives and final statistical appendices remain release
+  work.
 - Broader case-study diversity and full reproducibility hashes are pending.
 
 ## Validation Gates For This Snapshot
@@ -292,10 +305,12 @@ paper PDF compilation from `paper/main.tex`.
 
 The next work should proceed in this order:
 
-1. Run and archive full low-cost LLM baseline matrices when cost settings are configured.
-2. Add broader formal/QoR coverage, additional subsystem studies, and release-candidate
-   validation scripts.
-3. Promote generated aggregate table snippets into the final paper evaluation.
+1. Reproduce and archive the deterministic public-development and held-out
+   evidence bundle with release hashes.
+2. Rebind or rerun authenticated v2 LLM execute records against the current
+   manifest hashes before treating Branch A as submission-ready.
+3. Add broader directed formal/QoR coverage and additional subsystem studies,
+   or keep the corresponding limitations prominent in the paper.
 
 ## Claim Boundary
 
@@ -313,20 +328,26 @@ Current claims supported by the repository:
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - Selected sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- All 36 positive tasks pass Icarus/VVP simulation; 20 use committed directed
+- All 36 positive tasks pass Icarus/VVP simulation; 32 use committed directed
   testbenches and the rest use generated ready/valid smoke harnesses.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
-  checks; 14 use committed directed monitors and the rest use generated
+  checks; 24 use committed directed monitors and the rest use generated
   ready/valid formal harnesses.
-- Five dedicated subsystem case studies have committed RTL, MICO source,
-  simulation testbenches, and structural/generic-mapped QoR references.
+- Five public-development and seven held-out subsystem case studies have
+  committed RTL, MICO source, simulation collateral, and selected
+  structural/generic-mapped QoR references.
 - Positive seed and case-study wrappers have structural Yosys area/wire and
   generic mapped-cell QoR metrics against committed hand-written references.
+- The held-out manifest has 20 scoring tasks, ten positives, ten negatives,
+  seven subsystem positives, seven paired negative variants, and 20/20
+  deterministic expected outcomes.
+- The dedicated Vivado subset covers nine representative out-of-context
+  measurement-copy tasks and remains separate from broad timing-closure claims.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
-- The LLM benchmark runner can plan the full 62-task low-cost baseline matrix,
-  validate offline compiler/EDA scoring paths, and execute authenticated
-  provider subsets without storing secrets.
+- The LLM benchmark runner can plan the full public-development and held-out
+  baseline matrices, validate offline compiler/EDA scoring paths, and execute
+  authenticated provider subsets without storing secrets.
 - `benchmarks/aggregate_results.py` can merge deterministic and optional LLM
   batch artifacts into CSV and TeX tables for deterministic summaries,
   per-level rates, QoR, ablations, repair turns, token/cost, paired comparison,
@@ -334,12 +355,15 @@ Current claims supported by the repository:
 
 Claims not yet supported:
 
-- Multi-model or multi-baseline LLM pass-rate improvements.
+- LLM pass-rate improvements beyond the exact v2 tested profiles, prompts,
+  public-development split, and held-out split.
 - Full paid LLM benchmark matrix results committed as artifact data.
-- Full directed functional simulation coverage beyond the 20 committed
+- Broad free-form LLM repair reliability beyond the recorded deterministic
+  adapter-instance fallback.
+- Full directed functional simulation coverage beyond the 32 committed
   directed harnesses.
-- Full task-specific formal proof coverage beyond the bounded formal smoke
-  denominator.
+- Full task-specific formal proof coverage beyond the 24 committed
+  single-clock monitors and bounded formal smoke denominator.
 - Full timing closure, broad Vivado QoR, or technology-mapped delay conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
 - Arbitrary LTL or complete temporal contract proving.

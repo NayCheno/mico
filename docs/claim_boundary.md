@@ -34,6 +34,9 @@ public-development and held-out splits. README, documentation, and paper text
 must keep this claim tied to that matrix and must not generalize it to
 untested models, prompts, or benchmark splits.
 
+Numeric claim values, evidence artifact paths, schema names, release hash
+locations, and paper locations are tracked in `docs/release_claim_table.md`.
+
 ## Environment Policy
 
 Rust, Python, benchmark scripts, LLM validation, open-source RTL/EDA checks,

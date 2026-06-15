@@ -4,6 +4,7 @@ Snapshot date: 2026-06-15.
 
 This file is the short, traceable status page for the current repository. Use
 `docs/claim_boundary.md` for the authoritative claim boundary,
+`docs/release_claim_table.md` for numeric claim values and evidence mapping,
 `docs/13_architecture_audit.md` for the detailed audit, and
 `docs/14_reproduction_workflow.md` for reproduction commands.
 
@@ -110,9 +111,9 @@ This file is the short, traceable status page for the current repository. Use
   gate records public-development and held-out benchmark hashes, sanitized LLM
   validate-only hashes, optional Vivado subset hashes, and the final paper PDF
   hash when `-WithLatex` is used.
-- IEEE-style paper draft compressed to a five-page DAC-style manuscript, with a
-  generated deterministic summary table, conservative deterministic benchmark
-  claims, and a negative authenticated low-cost LLM matrix summary.
+- IEEE-style paper draft compressed to a five-page DAC-style manuscript, with
+  generated deterministic tables, conservative claim boundaries, and a bounded
+  tested-profile v2 structured LLM matrix summary.
 
 ## Not Yet Implemented
 

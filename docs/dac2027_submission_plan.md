@@ -7,6 +7,8 @@ research prototype toward a DAC 2027 Research Manuscript candidate. It does not
 replace `docs/claim_boundary.md`; instead, it records the venue target, the
 allowed claim branches, and the evidence gates that must be satisfied before
 the paper can make stronger claims.
+Current numeric result values and release evidence mappings are centralized in
+`docs/release_claim_table.md`.
 
 ## Venue Target
 

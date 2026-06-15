@@ -1,6 +1,6 @@
 # Reproduction Workflow
 
-This is the shortest path from a clean checkout to a locally reproducible MICO artifact. The default validation surface is the persistent Ubuntu 24.04 Docker EDA image. Windows-host tools are exceptions only for Vivado-specific flows and paper LaTeX.
+This is the shortest path from a clean checkout to a locally reproducible MICO artifact. The default validation surface is the persistent Ubuntu 24.04 Docker EDA image. Windows-host tools are exceptions only for Vivado-specific flows and paper LaTeX. Numeric result claims in this workflow are tracked in `docs/release_claim_table.md`.
 
 ## Prerequisites
 
@@ -123,10 +123,10 @@ Expected current benchmark result:
 - `expected_outcome_pass: 62/62`
 - `compose_pass_1: 36/36` for positive tasks
 - `lint_pass: 36/36` for positive tasks
-- `sim_pass: 36/36` for positive tasks; 20 use committed directed Icarus
-  testbenches and 16 use generated ready/valid smoke harnesses
-- `formal_pass: 31/31` for single-clock formal smoke tasks; 14 use committed
-  directed monitors and 17 use generated ready/valid formal harnesses
+- `sim_pass: 36/36` for positive tasks; 32 use committed directed Icarus
+  testbenches and 4 use generated ready/valid smoke harnesses
+- `formal_pass: 31/31` for single-clock formal smoke tasks; 24 use committed
+  directed monitors and 7 use generated ready/valid formal harnesses
 - `qor_available: 9/9` for positive tasks with committed reference wrappers;
   availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks
@@ -148,14 +148,17 @@ Run the held-out split separately:
 
 Expected held-out result:
 
-- `expected_outcome_pass: 12/12`
-- `compose_pass_1: 6/6`
-- `lint_pass: 6/6`
-- `sim_pass: 6/6`
-- `formal_pass: 5/5`
+- `expected_outcome_pass: 20/20`
+- `compose_pass_1: 10/10`
+- `lint_pass: 10/10`
+- `sim_pass: 10/10`
+- `formal_pass: 9/9`
 - `qor_available: 3/3`
-- `unsafe_rejection: 6/6`
-- `json_ast_path: 12/12`
+- `unsafe_rejection: 10/10`
+- `json_ast_path: 20/20`
+- mode split: 7 declared and 3 generated simulations, plus 6 declared and 3
+  generated single-clock formal checks; the explicit CDC held-out case remains
+  formal not-run
 
 Both public-dev and held-out benchmark JSON records include the manifest path
 and manifest SHA-256.
@@ -265,8 +268,9 @@ For the current representative QoR/timing subset, run:
 The subset targets `xc7a35tcpg236-1` and writes
 `vivado_qor_subset_summary.json`, `vivado_qor_subset_summary.csv`, and
 `vivado_qor_subset_delta.csv` under ignored `build/reports/vivado-host/`.
-It uses build-only measurement copies of four wrappers and does not claim
-board-level implementation, route timing closure, or all-task Vivado QoR.
+It uses build-only measurement copies for nine representative tasks (`T001`,
+`T003`, and `T058`--`T064`) and does not claim board-level implementation,
+route timing closure, or all-task Vivado QoR.
 
 ## Paper Build
 

@@ -93,9 +93,16 @@ def scan_stale_claims() -> list[str]:
         ("docs/18_directed_verification_hardening.md", r"\b4 generated ready/valid simulation\b", "public simulations are now all declared"),
         ("docs/23_heldout_benchmark_hardening.md", r"\{declared:\s*7,\s*autogen:\s*3\}", "held-out simulations are now all declared"),
         ("docs/14_reproduction_workflow.md", r"\b7 declared and 3 generated simulations\b", "held-out simulations are now all declared"),
-        ("docs/13_architecture_audit.md", r"\bfourteen committed\b", "public directed formal monitors are now 24"),
-        ("docs/14_reproduction_workflow.md", r"\b14 use committed\b", "public directed formal monitors are now 24"),
-        ("docs/13_architecture_audit.md", r"\b14 use committed\b", "public directed formal monitors are now 24"),
+        ("docs/13_architecture_audit.md", r"\bfourteen committed\b", "public directed formal monitors are now 31"),
+        ("docs/14_reproduction_workflow.md", r"\b14 use committed\b", "public directed formal monitors are now 31"),
+        ("docs/13_architecture_audit.md", r"\b14 use committed\b", "public directed formal monitors are now 31"),
+        ("docs/13_architecture_audit.md", r"\btwenty-four committed\b", "public directed formal monitors are now 31"),
+        ("docs/14_reproduction_workflow.md", r"\b24 use committed\b", "public directed formal monitors are now 31"),
+        ("docs/07_module_compose_bench.md", r"\{declared:\s*24,\s*autogen:\s*7\}", "public formal checks are now all declared"),
+        ("docs/18_directed_verification_hardening.md", r"\{declared:\s*24,\s*autogen:\s*7\}", "public formal checks are now all declared"),
+        ("docs/18_directed_verification_hardening.md", r"\b7 generated ready/valid formal\b", "public formal checks are now all declared"),
+        ("docs/23_heldout_benchmark_hardening.md", r"\{declared:\s*6,\s*autogen:\s*3\}", "held-out formal checks are now all declared"),
+        ("docs/14_reproduction_workflow.md", r"\b6 declared and 3\s+generated single-clock formal checks\b", "held-out formal checks are now all declared"),
         ("docs/14_reproduction_workflow.md", r"\b12/12\b", "held-out split is now 20/20"),
         ("docs/14_reproduction_workflow.md", r"\b6/6\b", "held-out positives/unsafe are now 10/10"),
         ("docs/14_reproduction_workflow.md", r"\b5/5\b", "held-out formal is now 9/9"),
@@ -119,10 +126,10 @@ def check_claim_table() -> list[str]:
     required_tokens = [
         "62 total, 36 positive, 26 negative",
         "36 declared, 0 generated",
-        "24 declared, 7 generated",
+        "31 declared, 0 generated",
         "20 total, 10 positive, 10 negative",
         "10 declared, 0 generated",
-        "6 declared, 3 generated",
+        "9 declared, 0 generated",
         "9 representative tasks",
         "build/release/full_check_manifest.json",
         "build/release/deterministic_evidence_hashes.json",
@@ -143,14 +150,14 @@ def check_manifests() -> list[str]:
     errors += expect("public negatives", public["negative"], 26)
     errors += expect("public levels", public["levels"], {"L1": 10, "L2": 13, "L3": 10, "L4": 10, "L5": 10, "L6": 9})
     errors += expect("public declared simulations", public["declared_sim"], 36)
-    errors += expect("public declared formal monitors", public["declared_formal"], 24)
+    errors += expect("public declared formal monitors", public["declared_formal"], 31)
     errors += expect("public QoR references", public["qor_reference"], 9)
 
     errors += expect("held-out total", heldout["total"], 20)
     errors += expect("held-out positives", heldout["positive"], 10)
     errors += expect("held-out negatives", heldout["negative"], 10)
     errors += expect("held-out declared simulations", heldout["declared_sim"], 10)
-    errors += expect("held-out declared formal monitors", heldout["declared_formal"], 6)
+    errors += expect("held-out declared formal monitors", heldout["declared_formal"], 9)
     errors += expect("held-out QoR references", heldout["qor_reference"], 3)
     return errors
 

@@ -78,17 +78,15 @@ The current repository supports these claims when the release gate passes:
 - The committed held-out manifest contains 20 scoring tasks with ten positives,
   ten negatives, seven subsystem positives, and seven paired negative variants;
   deterministic held-out scoring currently passes 20/20 expected outcomes. Its
-  directed verification denominator includes ten declared simulations and six
-  declared single-clock formal monitors for non-CDC subsystem cases; the
-  explicit CDC held-out case remains smoke-only for formal.
+  directed verification denominator includes ten declared simulations and nine
+  declared single-clock formal monitors; the explicit CDC held-out case remains
+  smoke-only for formal.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
 - All 36 positive tasks pass Icarus/VVP simulation smoke checks through
   committed directed testbenches.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
-  checks. Twenty-four use committed directed monitors; the remaining single-clock
-  positives use generated ready/valid formal harnesses derived from traceability
-  JSON.
+  checks through committed directed monitors.
 - Nine reference-enabled positive tasks have structural Yosys area/wire and
   generic mapped-cell QoR summaries against committed hand-written wrappers.
 - A dedicated host-Vivado subset script synthesizes measurement-only copies for
@@ -123,8 +121,8 @@ The current repository must not claim:
   limited to the explicitly recorded deterministic adapter-instance fallback.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
-- Full task-specific formal proof coverage beyond the 24 committed
-  single-clock monitors and bounded formal smoke denominator.
+- Exhaustive task-specific formal proof coverage beyond the bounded formal
+  smoke denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, routed implementation, bitstream generation,
   technology-mapped delay claims for the complete benchmark, or Vivado QoR

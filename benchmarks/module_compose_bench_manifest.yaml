@@ -1041,11 +1041,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_direct_stream_short_names.sv
     sim_top: tb_direct_stream_short_names
+    formal_harness: benchmarks/formal/tb_direct_stream_short_names_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, short_names]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T056_register_seed_fifo_chain
     level: L5
@@ -1059,11 +1063,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_register_seed_fifo_chain.sv
     sim_top: tb_register_seed_fifo_chain
+    formal_harness: benchmarks/formal/tb_register_seed_fifo_chain_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [bus_wrapper_seed, fifo_chain]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T057_control_status_width_seed
     level: L5
@@ -1077,11 +1085,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_control_status_width_seed.sv
     sim_top: tb_control_status_width_seed
+    formal_harness: benchmarks/formal/tb_control_status_width_seed_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [bus_wrapper_seed, width_adapter]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T058_streaming_accelerator_case
     level: L6
@@ -1120,6 +1132,9 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_width_protocol_bridge_case.sv
     sim_top: tb_width_protocol_bridge_case
+    formal_harness: benchmarks/formal/tb_width_protocol_bridge_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T059_width_protocol_bridge_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
@@ -1127,6 +1142,7 @@ tasks:
     expected:
       compose_pass: true
       lint_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T060_register_status_case
     level: L5
@@ -1141,6 +1157,9 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_register_status_case.sv
     sim_top: tb_register_status_case
+    formal_harness: benchmarks/formal/tb_register_status_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T060_register_status_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
@@ -1148,6 +1167,7 @@ tasks:
     expected:
       compose_pass: true
       lint_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T061_protocol_bridge_case
     level: L5
@@ -1162,6 +1182,9 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_protocol_bridge_case.sv
     sim_top: tb_protocol_bridge_case
+    formal_harness: benchmarks/formal/tb_protocol_bridge_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T061_protocol_bridge_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
@@ -1169,6 +1192,7 @@ tasks:
     expected:
       compose_pass: true
       lint_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T062_multi_ip_telemetry_case
     level: L6
@@ -1183,6 +1207,9 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_multi_ip_telemetry_case.sv
     sim_top: tb_multi_ip_telemetry_case
+    formal_harness: benchmarks/formal/tb_multi_ip_telemetry_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T062_multi_ip_telemetry_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
@@ -1190,6 +1217,7 @@ tasks:
     expected:
       compose_pass: true
       lint_pass: true
+      formal_pass: true
       diagnostics: []
 metrics:
   - Compose-Pass@1

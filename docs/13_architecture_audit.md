@@ -140,9 +140,8 @@ ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. All 36
 accepted positives, including the five public-development subsystem case
 studies and the CDC adapter variants, use committed directed Icarus/VVP
 testbenches.
-It reports `formal_pass: 31/31` over the single-clock formal smoke denominator:
-twenty-four committed directed harnesses plus generated ready/valid formal
-harnesses for the remaining seven single-clock positives.
+It reports `formal_pass: 31/31` over the single-clock formal smoke denominator,
+with all 31 enabled checks using committed directed monitors.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
 references, and reports `qor_available: 9/9`. A separate host-Vivado subset
@@ -328,11 +327,10 @@ Current claims supported by the repository:
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - Selected sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- All 36 positive tasks pass Icarus/VVP simulation; 32 use committed directed
-  testbenches and the rest use generated ready/valid smoke harnesses.
+- All 36 positive tasks pass Icarus/VVP simulation through committed directed
+  testbenches.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
-  checks; 24 use committed directed monitors and the rest use generated
-  ready/valid formal harnesses.
+  checks through committed directed monitors.
 - Five public-development and seven held-out subsystem case studies have
   committed RTL, MICO source, simulation collateral, and selected
   structural/generic-mapped QoR references.
@@ -362,8 +360,8 @@ Claims not yet supported:
   adapter-instance fallback.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
-- Full task-specific formal proof coverage beyond the 24 committed
-  single-clock monitors and bounded formal smoke denominator.
+- Exhaustive task-specific formal proof coverage beyond the bounded formal
+  smoke denominator.
 - Full timing closure, broad Vivado QoR, or technology-mapped delay conclusions.
 - CDC correctness proof for the smoke FIFO collateral.
 - Arbitrary LTL or complete temporal contract proving.

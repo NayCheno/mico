@@ -130,12 +130,10 @@ main table. Simulation stdout/stderr artifacts are written under ignored
 `build/bench/`.
 Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated
-wrapper plus committed harness monitor. Accepted single-clock positives without
-a declared harness get an auto-generated ready/valid formal smoke harness from
-traceability JSON. The current enabled formal denominator is 31/31: 24
-committed directed harnesses plus 7 generated single-clock smoke harnesses.
+wrapper plus committed harness monitor. The current enabled formal denominator
+is 31/31, all through committed directed single-clock monitors.
 The current public-development summary records
-`formal_mode_counts = {declared: 24, autogen: 7}`.
+`formal_mode_counts = {declared: 31}`.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
 flattened generic-mapped `stat -json` for the generated wrapper and the

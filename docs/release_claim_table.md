@@ -29,7 +29,7 @@ payloads, or API keys.
 | Unsafe rejection | 26/26 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | JSON AST path | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Single-clock bounded formal smoke | 31/31 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Formal mode split | 24 declared, 7 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Formal mode split | 31 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Structural and generic-mapped QoR | 9/9 reference-enabled public tasks | `build/bench/seed_results.json`, `build/bench/aggregate_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## Held-Out Claims
@@ -47,7 +47,7 @@ payloads, or API keys.
 | Held-out unsafe rejection | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out JSON AST path | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out single-clock bounded formal smoke | 9/9 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out formal mode split | 6 declared, 3 generated; explicit CDC case formal not-run | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Held-out formal mode split | 9 declared, 0 generated; explicit CDC case formal not-run | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Held-out QoR | 3/3 reference-enabled held-out tasks | `build/bench/heldout_results.json`, `build/bench/aggregate_heldout_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## LLM And Repair Claims
@@ -80,8 +80,8 @@ introduction, evaluation, conclusion, or release notes:
 - Four-task or four-wrapper Vivado subset.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
-- Full task-specific formal proof beyond 24 committed public single-clock
-  monitors and bounded smoke formal denominators.
+- Exhaustive task-specific formal proof beyond bounded ready/valid smoke
+  denominators.
 - CDC correctness proof.
 - Full timing closure, routed implementation, or technology-mapped delay for
   the complete benchmark.

@@ -14,8 +14,9 @@ The public-development manifest now has:
 - 0 generated ready/valid simulation smoke harnesses in the current main
   public-development result.
 - 31/31 single-clock bounded formal pass.
-- 24 committed directed formal monitors.
-- 7 generated ready/valid formal smoke monitors.
+- 31 committed directed formal monitors.
+- 0 generated ready/valid formal smoke monitors in the current main
+  public-development result.
 - CDC tasks remain lint/simulation smoke only; no CDC proof is claimed.
 
 New directed collateral covers:
@@ -35,6 +36,11 @@ New directed collateral covers:
   held-out seed calibration positives T013, T019, and T021.
 - The 2026-06-15 M3 audit pass added directed single-clock formal monitors for
   T051, T052, T053, and T054.
+- The 2026-06-15 M3.2 audit pass added directed single-clock formal monitors
+  for T055, T056, T057, and T059--T062, replacing the remaining public
+  generated formal fallback.
+- The 2026-06-15 M3.2 audit pass bound existing directed formal monitors for
+  held-out seed calibration positives T013, T019, and T021.
 
 ## Evidence
 
@@ -58,7 +64,7 @@ Result:
 - `unsafe_rejection: 26/26`
 - `json_ast_path: 62/62`
 - `sim_mode_counts: {declared: 36}`
-- `formal_mode_counts: {declared: 24, autogen: 7}`
+- `formal_mode_counts: {declared: 31}`
 
 Artifact hash:
 
@@ -71,7 +77,7 @@ Artifact hash:
 Held-out directed audit result:
 
 - `sim_mode_counts: {declared: 10}`
-- `formal_mode_counts: {declared: 6, autogen: 3}`
+- `formal_mode_counts: {declared: 9}`
 - T063, T064, T069, T071, T073, and T075 now use committed single-clock
   formal monitors. T065 remains CDC smoke-only and intentionally has no formal
   proof claim.

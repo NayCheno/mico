@@ -41,11 +41,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_direct_stream_alt_names.sv
     sim_top: tb_direct_stream_alt_names
+    formal_harness: benchmarks/formal/tb_direct_stream_alt_names_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, renamed_instances]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T007_reversed_direction
     level: L1
@@ -74,11 +78,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_width_alt_interfaces.sv
     sim_top: tb_width_alt_interfaces
+    formal_harness: benchmarks/formal/tb_width_alt_interfaces_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [width_adapter, renamed_interfaces]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T042_width_adapter_cross_domain
     level: L2
@@ -107,11 +115,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_latency_seed_fifo_chain.sv
     sim_top: tb_latency_seed_fifo_chain
+    formal_harness: benchmarks/formal/tb_latency_seed_fifo_chain_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [latency_seed, fifo_chain]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T043_skid_buffer_cross_domain
     level: L3

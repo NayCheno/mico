@@ -40,13 +40,10 @@ This file is the short, traceable status page for the current repository. Use
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Icarus simulation coverage for all 36 positive tasks: 32 tasks use committed
-  directed testbenches, and the remaining accepted positives use auto-generated
-  ready/valid smoke harnesses derived from traceability JSON.
-- Bounded SymbiYosys formal smoke coverage for 31 single-clock positive tasks:
-  24 tasks use committed directed monitors, and the remaining single-clock
-  positives use generated ready/valid formal harnesses derived from
-  traceability JSON.
+- Icarus simulation coverage for all 36 positive tasks through committed
+  directed testbenches.
+- Bounded SymbiYosys formal smoke coverage for all 31 single-clock positive
+  tasks through committed directed monitors.
 - Structural and generic-mapped Yosys QoR extraction for supported positive
   benchmark wrappers, compared against committed hand-written reference wrappers
   with generated CSV/TeX summaries.
@@ -121,8 +118,8 @@ This file is the short, traceable status page for the current repository. Use
 
 - Broader semantic repair policies beyond schema-valid JSON AST operations.
 - Arbitrary LTL or temporal contract proving beyond the v0 ready/valid subset.
-- Directed task-specific formal harnesses beyond the 24 committed single-clock
-  monitors.
+- Exhaustive task-specific formal proof beyond the bounded single-clock smoke
+  denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
   beyond the representative nine-task Vivado subset.
@@ -152,7 +149,7 @@ Current deterministic benchmark scope:
   positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
   rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
   31/31, structural plus generic-mapped QoR available 9/9. The mode split is
-  36 declared and 0 generated simulations, plus 24 declared and 7 generated
+  36 declared and 0 generated simulations, plus 31 declared and 0 generated
   single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, broad timing QoR,
@@ -169,7 +166,7 @@ Current deterministic benchmark scope:
   current result is 20/20 expected outcome, 10/10 positive lint/sim, 9/9
   single-clock formal smoke, 3/3 QoR, 10/10 unsafe rejection, and 20/20 JSON
   AST path. The held-out mode split is 10 declared and 0 generated simulations,
-  plus 6 declared and 3 generated single-clock formal checks; the explicit CDC
+  plus 9 declared and 0 generated single-clock formal checks; the explicit CDC
   case remains formal not-run.
 
 ## Validation Commands

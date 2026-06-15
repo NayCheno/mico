@@ -130,8 +130,8 @@ Expected current benchmark result:
 - `lint_pass: 36/36` for positive tasks
 - `sim_pass: 36/36` for positive tasks; all 36 use committed directed
   Icarus testbenches
-- `formal_pass: 31/31` for single-clock formal smoke tasks; 24 use committed
-  directed monitors and 7 use generated ready/valid formal harnesses
+- `formal_pass: 31/31` for single-clock formal smoke tasks; all 31 use
+  committed directed monitors
 - `qor_available: 9/9` for positive tasks with committed reference wrappers;
   availability includes structural and generic-mapped Yosys stat reports
 - `unsafe_rejection: 26/26` for negative tasks
@@ -161,7 +161,7 @@ Expected held-out result:
 - `qor_available: 3/3`
 - `unsafe_rejection: 10/10`
 - `json_ast_path: 20/20`
-- mode split: 10 declared and 0 generated simulations, plus 6 declared and 3
+- mode split: 10 declared and 0 generated simulations, plus 9 declared and 0
   generated single-clock formal checks; the explicit CDC held-out case remains
   formal not-run
 

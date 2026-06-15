@@ -148,6 +148,7 @@ try {
         "docs/23_heldout_benchmark_hardening.md",
         "docs/24_llm_matrix_v3.md",
         "docs/25_realism_supplement.md",
+        "docs/llm_final_matrix_report.md",
         "docs/artifact_quickstart.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",

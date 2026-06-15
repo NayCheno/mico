@@ -28,6 +28,7 @@
 | `docs/15_case_studies.md` | Dedicated subsystem case-study inventory, collateral paths, and reproduction commands. |
 | `docs/24_llm_matrix_v3.md` | Current manifest-bound authenticated LLM matrix summary and Branch A decision. |
 | `docs/25_realism_supplement.md` | Deterministic supplemental subsystem realism manifest, validation results, hashes, and LLM-claim boundary. |
+| `docs/llm_final_matrix_report.md` | M5 final v3 LLM evidence seal, hashes, table inventory, repair provenance, token/cost status, and v4 non-claim boundary. |
 | `docs/artifact_quickstart.md` | Anonymous artifact bundle quickstart, hash-check locations, and known limitations. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/final_claim_freeze.md` | Frozen DAC 2027 claim boundary, Branch A scope, unsupported-claim list, and release Go/No-Go rule. |

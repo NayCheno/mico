@@ -16,8 +16,8 @@ sanitized and does not contain API keys.
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_public_dev_v3.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_v3.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --paper-table-dir build/paper_tables/llm_v3"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --bench-result build/bench/seed_results.json --bench-manifest benchmarks/module_compose_bench_heldout.yaml --llm-bench build/llm/bench_execute_public_dev_v3.json --llm-bench build/llm/bench_execute_heldout_v3.json --aggregate-result build/bench/aggregate_llm_v3.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
+.\scripts\eda-docker.ps1 python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/seed_results.json --bench-result build/bench/heldout_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_public_dev_v3.json --llm-bench build/llm/bench_execute_heldout_v3.json --aggregate-result build/bench/aggregate_llm_v3.json
 ```
 
 ## Manifest Binding
@@ -92,10 +92,11 @@ free-form semantic repair.
 |---|---|
 | `build/llm/bench_execute_public_dev_v3.json` | `aa945b920002429c96961e47ee9ab9ffbbc9ff81ca954c2ea8cc458cbffd1f9b` |
 | `build/llm/bench_execute_heldout_v3.json` | `c2cf5d01016b77b5479db9226a5c473d93a4381ca3ff56a2c005fe74f2a0766b` |
-| `build/bench/aggregate_llm_v3.json` | `b8581a17b0b47eed3aa87f345b7f90f9a8a17a248017b293d128de158a972ab8` |
+| `build/bench/aggregate_llm_v3.json` | `467dd314d820e2d5082bb7e250e8b87f784c44a0974dc4a37a6f1545cc1ac325` |
 
 Generated CSV and TeX snippets are under `build/paper_tables/llm_v3/` and stay
-out of source control.
+out of source control. `docs/llm_final_matrix_report.md` records the M5 final
+hashes, table hashes, provenance, token/cost status, and v4 non-claim boundary.
 
 ## Branch Decision
 
@@ -112,6 +113,6 @@ prompts, public-development manifest, and held-out manifest:
 - the repair claim is explicitly limited to the recorded deterministic
   fallback and compiler-gated repair path.
 
-This does not make the repository submission-ready by itself. M3-M5 still need
-directed verification/QoR/paper/release gates, and the paper must keep CDC,
-formal, timing, arbitrary-model, and broad repair limitations visible.
+This does not make the repository submission-ready by itself. The remaining
+paper and release gates must keep CDC, formal, timing, arbitrary-model, and
+broad repair limitations visible.

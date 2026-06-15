@@ -31,6 +31,7 @@ payloads, or API keys.
 | JSON AST path | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Single-clock bounded formal smoke | 31/31 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Formal mode split | 31 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Formal property coverage matrix | 6 property classes; public 31/31, held-out 9/9, realism 6/6 | `build/bench/formal_coverage/formal_coverage_matrix.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/formal_coverage_matrix.tex` |
 | Structural and generic-mapped QoR | 9/9 reference-enabled public tasks | `build/bench/seed_results.json`, `build/bench/aggregate_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## Held-Out Claims

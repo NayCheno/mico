@@ -50,7 +50,8 @@ runs EDA smoke, runs the deterministic benchmark, validates the LLM provider
 config without provider requests, plans the full LLM baseline matrix without
 provider requests, runs the held-out benchmark split,
 regenerates aggregate result tables for both public-development and held-out
-results, validates JSON outputs against the repository JSON Schemas, and writes
+results, writes a formal coverage matrix from the deterministic evidence,
+validates JSON outputs against the repository JSON Schemas, and writes
 `build/release/full_check_manifest.json`. With `-WithLatex`, the wrapper also
 updates the manifest with the final paper PDF hash after the host LaTeX build.
 The Docker gate also writes

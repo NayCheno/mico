@@ -31,6 +31,7 @@
 | `docs/artifact_quickstart.md` | Anonymous artifact bundle quickstart, hash-check locations, and known limitations. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/final_claim_freeze.md` | Frozen DAC 2027 claim boundary, Branch A scope, unsupported-claim list, and release Go/No-Go rule. |
+| `docs/formal_coverage_matrix.md` | Bounded single-clock formal coverage matrix, property classes, and CDC non-claim boundary. |
 | `docs/release_claim_table.md` | Single source for current numeric claim values, evidence artifact paths, schema versions, hash sources, and paper locations. |
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
@@ -39,6 +40,7 @@
 | `scripts/write-release-claim-table-json.py` | Converts `docs/release_claim_table.md` into a hashed machine-readable release artifact. |
 | `scripts/write-llm-evidence-hashes.py` | Writes sanitized hash metadata for authenticated v3 LLM evidence files. |
 | `scripts/write-paper-summary-tables.py` | Generates compact paper summary tables from manifest and result evidence. |
+| `scripts/write-formal-coverage-matrix.py` | Generates bounded formal coverage task CSV, aggregate CSV, and TeX matrix artifacts. |
 | `rtl/case_studies/` | Dedicated subsystem RTL collateral for streaming, width-bridge, and register/status case-study tasks. |
 | `benchmarks/formal/` | SymbiYosys harness monitors for selected seed formal checks. |
 | `benchmarks/qor/` | Hand-written reference wrappers for structural Yosys QoR comparison. |

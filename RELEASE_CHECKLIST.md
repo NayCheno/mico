@@ -91,6 +91,7 @@ The release bundle manifest records:
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_heldout_results.json --out-dir build/bench/heldout_tables --paper-table-dir build/paper_tables/heldout` passes in Docker.
 - `python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json` passes in Docker.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/realism_results.json --manifest benchmarks/module_compose_bench_realism.yaml --out-json build/bench/aggregate_realism_results.json --out-dir build/bench/realism_tables --paper-table-dir build/paper_tables/realism` passes in Docker.
+- `python3 scripts/write-formal-coverage-matrix.py` writes formal coverage CSV/TeX artifacts from the three deterministic result JSON files.
 - `python3 scripts/write-release-claim-table-json.py --output build/release/release_claim_table.json` passes in Docker.
 - `python3 scripts/write-llm-evidence-hashes.py --output build/release/llm_evidence_hashes.json` passes in Docker for validate-only gates and records missing authenticated v3 evidence as optional; run it with `--require` for the final LLM evidence seal.
 - `python3 scripts/write-deterministic-evidence-hashes.py --output build/release/deterministic_evidence_hashes.json --full-check-manifest build/release/full_check_manifest.json` passes in Docker.

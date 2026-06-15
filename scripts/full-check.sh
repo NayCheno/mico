@@ -122,6 +122,7 @@ run_step "Aggregate supplemental realism benchmark records" python3 benchmarks/a
     --out-json build/bench/aggregate_realism_results.json \
     --out-dir build/bench/realism_tables \
     --paper-table-dir build/paper_tables/realism
+run_step "Formal coverage matrix" python3 scripts/write-formal-coverage-matrix.py
 run_step "JSON schema validation" python3 scripts/validate_json_schemas.py \
     --bench-result build/bench/seed_results.json \
     --bench-result build/bench/heldout_results.json \

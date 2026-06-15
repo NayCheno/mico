@@ -54,6 +54,12 @@ single-clock formal denominator. Structural and generic-mapped Yosys QoR is
 available for all 9 reference-enabled public tasks and all 3 held-out
 QoR-enabled tasks.
 
+\begin{table*}[t]
+  \centering
+  \caption{Bounded single-clock formal coverage by property class}
+  \resizebox{\textwidth}{!}{\input{tables/formal_coverage_matrix.tex}}
+\end{table*}
+
 A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
 through the pinned Windows launcher. It synthesizes measurement-only copies of
 T001--T004 and T058--T065 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT

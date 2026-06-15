@@ -237,6 +237,12 @@ try {
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/dac2027_llm_stats") -PathType Container) {
         Copy-BundleTree "build/bench/dac2027_llm_stats" "tables/dac2027_llm_stats"
     }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/llm_v3") -PathType Container) {
+        Copy-BundleTree "build/bench/llm_v3" "tables/llm_v3"
+    }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/paper_tables/llm_v3") -PathType Container) {
+        Copy-BundleTree "build/paper_tables/llm_v3" "tables/llm_v3_tex"
+    }
 
     $forbiddenBundlePaths = Get-ChildItem -LiteralPath $script:stageRoot -Recurse -File | Where-Object {
         $bundlePath = Convert-ToBundlePath $_.FullName

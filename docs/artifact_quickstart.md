@@ -17,8 +17,24 @@ back into the source repository.
   authenticated v3 LLM evidence.
 - `results/`: deterministic, validate-only LLM, optional authenticated LLM,
   aggregate, and Vivado result JSON/CSV/TeX files.
+- `tables/`: deterministic aggregate CSV/TeX files plus authenticated v3 LLM
+  CSV/TeX table directories when the final LLM matrix artifacts are present.
 - `paper/main.pdf`: host-LaTeX-built paper PDF.
 - `artifact_manifest.json`: per-file hashes for every file in the archive.
+
+## Expected Runtime
+
+Typical local runtime on the evaluation Windows workstation:
+
+- Docker full-check without LaTeX: about 8 minutes after the image is built.
+- Host LaTeX paper build: under 1 minute after TeX Live is installed.
+- Host Vivado QoR subset: about 6--7 minutes when the pinned Vivado install is
+  available; this step is optional for reviewers without Vivado.
+- Bundle creation and SHA-256 sidecar: under 1 minute.
+- Authenticated LLM execute reruns can be much longer and may incur provider
+  cost; the bundle includes sanitized v3 execute evidence when present, so
+  reviewers can validate hashes and aggregate statistics without replaying paid
+  provider requests.
 
 ## Quick Check
 

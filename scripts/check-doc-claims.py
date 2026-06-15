@@ -118,6 +118,7 @@ def check_claim_table() -> list[str]:
         "6 declared, 3 generated",
         "9 representative tasks",
         "build/release/full_check_manifest.json",
+        "build/release/deterministic_evidence_hashes.json",
         "mico.bench.results.v0",
         "mico.aggregate.results.v0",
         "mico.llm.bench.v0",

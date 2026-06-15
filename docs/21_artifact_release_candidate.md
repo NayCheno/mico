@@ -40,7 +40,12 @@ manifest with the final `paper/main.pdf` SHA-256 hash.
 - optional Vivado subset summary hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used.
 
-The manifest is generated output. Do not commit it.
+`build/release/deterministic_evidence_hashes.json` records the deterministic
+evidence subset used by the M1 gate: public-development and held-out manifest
+hashes, deterministic benchmark result hashes, aggregate result hashes,
+generated table hashes, and tool versions.
+
+These files are generated output. Do not commit them.
 
 ## Bundle Contents
 
@@ -52,6 +57,7 @@ The manifest is generated output. Do not commit it.
 - reproduction, claim-boundary, LLM, verification, Vivado, paper, and release
   notes;
 - deterministic public-development and held-out results;
+- deterministic evidence hash sidecar;
 - validate-only sanitized LLM records;
 - v2 authenticated LLM statistics and held-out hardening aggregate summaries
   when present;

@@ -17,7 +17,10 @@ Linux/WSL:
 latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 ```
 
-The Docker gate writes `build/release/full_check_manifest.json`. This file is a generated build artifact and must not be committed. After the final gate passes, package the review archive with:
+The Docker gate writes `build/release/full_check_manifest.json` and
+`build/release/deterministic_evidence_hashes.json`. These files are generated
+build artifacts and must not be committed. After the final gate passes, package
+the review archive with:
 
 ```powershell
 .\scripts\make-release-bundle.ps1
@@ -52,6 +55,8 @@ The release manifest records:
 - selected LLM model/profile metadata with API keys redacted;
 - public-development and held-out benchmark manifest SHA-256 hashes;
 - result JSON SHA-256 hashes for deterministic, held-out, LLM validate-only, provider validate-only, and aggregate outputs;
+- deterministic evidence sidecar hashes for public-development and held-out
+  manifests, deterministic benchmark JSON, aggregate JSON, and generated tables;
 - optional v2 authenticated LLM aggregate and held-out hardening aggregate hashes when those ignored artifacts are present;
 - optional Vivado subset summary hashes when host Vivado evidence exists;
 - final paper PDF SHA-256 hash when `-WithLatex` is used;
@@ -76,6 +81,7 @@ The release bundle manifest records:
 - `python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --profiles smoke,low_cost_crosscheck --output build/llm/bench_validate.json` passes in Docker without provider requests.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_validate.json --out-json build/bench/aggregate_results.json` passes in Docker.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_heldout_results.json --out-dir build/bench/heldout_tables --paper-table-dir build/paper_tables/heldout` passes in Docker.
+- `python3 scripts/write-deterministic-evidence-hashes.py --output build/release/deterministic_evidence_hashes.json --full-check-manifest build/release/full_check_manifest.json` passes in Docker.
 - `python3 -m json.tool` validates every generated JSON result used by the release manifest.
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.
 - `.\scripts\make-release-bundle.ps1` passes after the final source commit and writes the artifact ZIP plus `.sha256` sidecar.

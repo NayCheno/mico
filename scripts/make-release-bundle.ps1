@@ -1,5 +1,6 @@
 param(
     [string] $Manifest = "build/release/full_check_manifest.json",
+    [string] $DeterministicEvidence = "build/release/deterministic_evidence_hashes.json",
     [string] $OutputDir = "build/release",
     [string] $BundleName = "mico-release-candidate",
     [switch] $AllowDirty
@@ -149,6 +150,7 @@ try {
         Copy-BundleFile $doc $doc
     }
     Copy-BundleFile $Manifest "release/full_check_manifest.json"
+    Copy-BundleFile $DeterministicEvidence "release/deterministic_evidence_hashes.json"
     Copy-BundleFile "build/bench/seed_results.json" "results/deterministic/seed_results.json"
     Copy-BundleFile "build/bench/heldout_results.json" "results/deterministic/heldout_results.json"
     Copy-BundleFile "build/bench/aggregate_results.json" "results/deterministic/aggregate_results.json"
@@ -256,6 +258,10 @@ try {
         full_check_manifest = [ordered]@{
             path = "release/full_check_manifest.json"
             sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\full_check_manifest.json")
+        }
+        deterministic_evidence_hashes = [ordered]@{
+            path = "release/deterministic_evidence_hashes.json"
+            sha256 = Get-Sha256 (Join-Path $script:stageRoot "release\deterministic_evidence_hashes.json")
         }
         paper_pdf = [ordered]@{
             path = "paper/main.pdf"

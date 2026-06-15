@@ -371,5 +371,9 @@ out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encodin
 print(f"wrote {display(out)}")
 PY
 
+run_step "Deterministic evidence hashes" python3 scripts/write-deterministic-evidence-hashes.py \
+    --output build/release/deterministic_evidence_hashes.json \
+    --full-check-manifest "${release_manifest}"
+
 echo
 echo "MICO full release-candidate check passed"

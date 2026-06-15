@@ -9,9 +9,11 @@ path, schema, hash source, and paper location that must support it in a release
 candidate.
 
 Generated evidence stays under ignored `build/` paths. Hashes are recorded by
-`build/release/full_check_manifest.json` and release bundle sidecars after the
-Docker and host-tool gates run. Do not commit generated JSON, CSV, TeX snippets,
-Vivado reports, PDFs, local provider config, raw provider payloads, or API keys.
+`build/release/full_check_manifest.json`,
+`build/release/deterministic_evidence_hashes.json`, and release bundle sidecars
+after the Docker and host-tool gates run. Do not commit generated JSON, CSV,
+TeX snippets, Vivado reports, PDFs, local provider config, raw provider
+payloads, or API keys.
 
 ## Deterministic Public-Development Claims
 

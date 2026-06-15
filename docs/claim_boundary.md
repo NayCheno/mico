@@ -145,6 +145,7 @@ must be reviewed or archived externally before stronger claims are made:
 - `build/bench/heldout_results.json`
 - `build/bench/aggregate_results.json`
 - `build/bench/aggregate_heldout_results.json`
+- `build/release/deterministic_evidence_hashes.json`
 - `build/llm/provider_validate.json`
 - `build/llm/bench_validate.json`
 - optional sanitized authenticated LLM result files under `build/llm/`

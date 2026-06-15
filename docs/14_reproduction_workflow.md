@@ -52,6 +52,10 @@ regenerates aggregate result tables for both public-development and held-out
 results, validates JSON outputs against the repository JSON Schemas, and writes
 `build/release/full_check_manifest.json`. With `-WithLatex`, the wrapper also
 updates the manifest with the final paper PDF hash after the host LaTeX build.
+The Docker gate also writes
+`build/release/deterministic_evidence_hashes.json`, a sidecar for public and
+held-out manifests, deterministic benchmark JSON, aggregate JSON, generated
+tables, and tool versions.
 
 Linux/WSL equivalent:
 
@@ -65,8 +69,9 @@ tag. The generated release manifest records tool versions, prompt hashes,
 selected model/profile metadata, public-development and held-out benchmark
 manifest hashes, result JSON hashes, optional Vivado subset hashes, the latest
 paper commit hash, and the final paper PDF hash when available; it is an
-ignored build artifact and must not be committed. Package the review ZIP and
-sidecar with:
+ignored build artifact and must not be committed. The deterministic evidence
+sidecar records the non-LLM release evidence hashes used by M1. Package the
+review ZIP and bundle sidecar with:
 
 ```powershell
 .\scripts\make-release-bundle.ps1

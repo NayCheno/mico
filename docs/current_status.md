@@ -107,7 +107,9 @@ This file is the short, traceable status page for the current repository. Use
 - Full release-candidate validation wrappers in `scripts/full-check.sh` and
   `scripts/full-check.ps1`, plus a top-level release checklist, generated
   `build/release/full_check_manifest.json` metadata record, and
-  `scripts/make-release-bundle.ps1` review ZIP/sidecar packager. The release
+  `build/release/deterministic_evidence_hashes.json` deterministic evidence
+  hash sidecar, and `scripts/make-release-bundle.ps1` review ZIP/sidecar
+  packager. The release
   gate records public-development and held-out benchmark hashes, sanitized LLM
   validate-only hashes, optional Vivado subset hashes, and the final paper PDF
   hash when `-WithLatex` is used.

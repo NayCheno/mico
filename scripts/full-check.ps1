@@ -62,7 +62,7 @@ try {
             Write-Host "== Update release manifest paper hash =="
             $manifestJson = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
             $paperItem = Get-Item -LiteralPath $paperPdfPath
-            $latexmkVersion = ((& latexmk -version 2>$null) | Select-Object -First 1)
+            $latexmkVersion = ((& latexmk -version 2>$null) | Where-Object { $_ -match "Latexmk" } | Select-Object -First 1)
             $manifestJson | Add-Member -MemberType NoteProperty -Name paper_pdf -Value ([pscustomobject]@{
                 path = "paper/main.pdf"
                 sha256 = Get-Sha256 $paperPdfPath

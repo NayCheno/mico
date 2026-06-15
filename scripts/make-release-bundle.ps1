@@ -160,9 +160,7 @@ try {
     }
     $optionalAggregateFiles = @(
         "build/bench/aggregate_dac2027_llm_stats.json",
-        "build/bench/aggregate_dac2027_llm_heldout20.json",
-        "build/bench/aggregate_m3_heldout_directed.json",
-        "build/bench/aggregate_m5_heldout.json"
+        "build/bench/aggregate_m3_heldout_directed.json"
     )
     foreach ($file in $optionalAggregateFiles) {
         if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {
@@ -204,6 +202,9 @@ try {
     }
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/heldout_tables") -PathType Container) {
         Copy-BundleTree "build/bench/heldout_tables" "tables/heldout"
+    }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/dac2027_llm_stats") -PathType Container) {
+        Copy-BundleTree "build/bench/dac2027_llm_stats" "tables/dac2027_llm_stats"
     }
 
     $forbiddenBundlePaths = Get-ChildItem -LiteralPath $script:stageRoot -Recurse -File | Where-Object {

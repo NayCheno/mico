@@ -142,6 +142,7 @@ try {
         "docs/23_heldout_benchmark_hardening.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",
+        "docs/dac2027_full_check_baseline_2026-06-15.md",
         "docs/dac2027_submission_plan.md"
     )
     foreach ($doc in $docFiles) {

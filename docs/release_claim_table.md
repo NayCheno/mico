@@ -64,7 +64,7 @@ payloads, or API keys.
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---|---|---|---|---|
-| Vivado subset | 9 representative tasks: `T001`, `T003`, `T058`--`T064` | `build/reports/vivado-host/vivado_qor_subset_summary.json` | `scripts/vivado-qor-subset.tcl` output | `build/release/full_check_manifest.json: vivado_subset` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Vivado subset | 12 QoR-enabled tasks: `T001`--`T004`, `T058`--`T065` | `build/reports/vivado-host/vivado_qor_subset_summary.json` | `scripts/vivado-qor-subset.tcl` output | `build/release/full_check_manifest.json: vivado_subset` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Vivado tool root | `D:\Application\vivado\2025.2\Vivado` | `scripts/run-vivado-host.ps1` | Host launcher policy | Source commit hash | `paper/sections/09_artifact_reproducibility.tex` |
 | Full release gate | Docker gate plus optional host LaTeX | `build/release/full_check_manifest.json` | `mico.release.full_check.v0` | release bundle sidecar | `paper/sections/09_artifact_reproducibility.tex` |
 | Paper PDF hash | Final host-built PDF only | `paper/main.pdf` generated locally | Host LaTeX output | `build/release/full_check_manifest.json: paper_pdf` | Artifact appendix |
@@ -77,7 +77,7 @@ introduction, evaluation, conclusion, or release notes:
 - 60-task public benchmark.
 - 12-task or 12/12 held-out split.
 - 20 directed public simulations or 14 directed public formal monitors.
-- Four-task or four-wrapper Vivado subset.
+- Four-task, four-wrapper, or stale nine-task Vivado subset.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
 - Exhaustive task-specific formal proof beyond bounded ready/valid smoke

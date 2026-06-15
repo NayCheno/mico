@@ -140,8 +140,9 @@ flattened generic-mapped `stat -json` for the generated wrapper and the
 committed hand-written reference wrapper. The benchmark runner's QoR scope is
 area-cell, wire-count, and generic mapped-cell delta; no timing,
 technology-mapped delay, or Vivado result is produced by the runner. The
-separate host-Vivado subset in `scripts/vivado-qor-subset.tcl` covers nine
-representative tasks through measurement-only build copies. The runner writes
+separate host-Vivado subset in `scripts/vivado-qor-subset.tcl` covers all 12
+QoR-enabled public and held-out tasks through measurement-only build copies.
+The runner writes
 `qor_summary.csv` and `qor_summary.tex` under ignored `build/bench/`.
 Negative tasks are scored by expected compiler rejection and expected diagnostic
 codes. It writes a `mico.bench.results.v0` JSON object under ignored

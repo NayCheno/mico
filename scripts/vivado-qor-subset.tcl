@@ -13,9 +13,9 @@ if {[string first "${repo_root_json}/" $report_root_json] == 0} {
   set report_root_json [string range $report_root_json [expr {[string length $repo_root_json] + 1}] end]
 }
 
-# Representative host-Vivado subset for the DAC 2027 audit flow. The script
-# writes measurement-only copies under build/reports; it never modifies source
-# RTL or benchmark wrappers.
+# Host-Vivado QoR subset for all public and held-out QoR-enabled tasks. The
+# script writes measurement-only copies under build/reports; it never modifies
+# source RTL or benchmark wrappers.
 set part_name "xc7a35tcpg236-1"
 set clock_period_ns "10.000"
 set vivado_flow "out_of_context_synth_measurement_copy"
@@ -23,7 +23,9 @@ set top_copy_policy "build-only sanitized top copies add mico_observe plus KEEP/
 
 set tasks {
   {T001_stream_fifo rtl/examples/mico_example_leafs.sv build/bench/T001_stream_fifo/top.sv benchmarks/qor/reference/T001_stream_fifo_ref.sv {clk}}
+  {T002_cdc_fifo rtl/examples/mico_example_leafs.sv build/bench/T002_cdc_fifo/top.sv benchmarks/qor/reference/T002_cdc_fifo_ref.sv {aclk bclk}}
   {T003_width_adapter rtl/examples/mico_example_leafs.sv build/bench/T003_width_adapter/top.sv benchmarks/qor/reference/T003_width_adapter_ref.sv {clk}}
+  {T004_direct_stream rtl/examples/mico_example_leafs.sv build/bench/T004_direct_stream/top.sv benchmarks/qor/reference/T004_direct_stream_ref.sv {clk}}
   {T058_streaming_accelerator_case rtl/case_studies/mico_case_studies.sv build/bench/T058_streaming_accelerator_case/top.sv benchmarks/qor/reference/T058_streaming_accelerator_case_ref.sv {clk}}
   {T059_width_protocol_bridge_case rtl/case_studies/mico_case_studies.sv build/bench/T059_width_protocol_bridge_case/top.sv benchmarks/qor/reference/T059_width_protocol_bridge_case_ref.sv {clk}}
   {T060_register_status_case rtl/case_studies/mico_case_studies.sv build/bench/T060_register_status_case/top.sv benchmarks/qor/reference/T060_register_status_case_ref.sv {clk}}
@@ -31,6 +33,7 @@ set tasks {
   {T062_multi_ip_telemetry_case rtl/case_studies/mico_case_studies.sv build/bench/T062_multi_ip_telemetry_case/top.sv benchmarks/qor/reference/T062_multi_ip_telemetry_case_ref.sv {clk}}
   {T063_axi_apb_wrapper_case rtl/case_studies/mico_case_studies.sv build/bench/T063_axi_apb_wrapper_case/top.sv benchmarks/qor/reference/T063_axi_apb_wrapper_case_ref.sv {clk}}
   {T064_video_filter_pipeline_case rtl/case_studies/mico_case_studies.sv build/bench/T064_video_filter_pipeline_case/top.sv benchmarks/qor/reference/T064_video_filter_pipeline_case_ref.sv {clk}}
+  {T065_cdc_event_status_case rtl/case_studies/mico_case_studies.sv build/bench/T065_cdc_event_status_case/top.sv benchmarks/qor/reference/T065_cdc_event_status_case_ref.sv {aclk bclk}}
 }
 
 proc json_escape {value} {
@@ -84,8 +87,8 @@ proc add_vivado_observe_port {text} {
     if {[regexp {^\s*module\s+Top\s*\(} $line]} {
       set in_top 1
       set in_port_list 1
-    } elseif {$in_top && $in_port_list && [regexp {^\s*input\s+logic\s+rst\s*$} $line]} {
-      regsub {rst\s*$} $line {rst,} current
+    } elseif {$in_top && $in_port_list && [regexp {^(\s*)input\s+logic\s+([A-Za-z_][A-Za-z0-9_]*)\s*$} $line -> indent port_name]} {
+      set current "${indent}input logic ${port_name},"
       lappend out $current
       lappend out "  output logic mico_observe"
       continue
@@ -162,9 +165,11 @@ proc run_case {repo_root report_root part_name clock_period_ns task kind rtl wra
       set ports [get_ports -quiet $clock_name]
       if {[llength $ports] > 0} {
         create_clock -period $clock_period_ns -name $clock_name $ports
-        set data_inputs [get_ports -quiet rst]
-        if {[llength $data_inputs] > 0} {
-          set_input_delay -clock $clock_name 0.000 $data_inputs
+        set reset_inputs [get_ports -quiet {*rst*}]
+        foreach reset_input $reset_inputs {
+          if {[lsearch -exact $clocks [get_property NAME $reset_input]] < 0} {
+            set_input_delay -clock $clock_name 0.000 $reset_input
+          }
         }
         set observe_outputs [get_ports -quiet mico_observe]
         if {[llength $observe_outputs] > 0} {

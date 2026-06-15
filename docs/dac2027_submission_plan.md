@@ -171,7 +171,7 @@ Unsupported now:
   single-clock smoke denominator;
 - CDC correctness proof;
 - full timing closure, technology-mapped delay, or broad Vivado QoR beyond the
-  current nine-task out-of-context subset;
+  current 12-task out-of-context subset;
 - final submission-readiness.
 
 ## Evidence Schedule

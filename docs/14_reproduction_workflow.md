@@ -273,9 +273,9 @@ For the current representative QoR/timing subset, run:
 The subset targets `xc7a35tcpg236-1` and writes
 `vivado_qor_subset_summary.json`, `vivado_qor_subset_summary.csv`, and
 `vivado_qor_subset_delta.csv` under ignored `build/reports/vivado-host/`.
-It uses build-only measurement copies for nine representative tasks (`T001`,
-`T003`, and `T058`--`T064`) and does not claim board-level implementation,
-route timing closure, or all-task Vivado QoR.
+It uses build-only measurement copies for all 12 QoR-enabled public and
+held-out tasks (`T001`--`T004` and `T058`--`T065`) and does not claim
+board-level implementation, route timing closure, or all-task Vivado QoR.
 
 ## Paper Build
 

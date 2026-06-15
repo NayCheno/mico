@@ -146,7 +146,8 @@ It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
 references, and reports `qor_available: 9/9`. A separate host-Vivado subset
 script performs out-of-context synthesis and measurement-copy timing extraction
-for nine representative tasks (`T001`, `T003`, and `T058`--`T064`).
+for all 12 QoR-enabled public and held-out tasks (`T001`--`T004` and
+`T058`--`T065`).
 
 The committed RTL collateral in `rtl/examples/mico_example_leafs.sv` is
 smoke-only. The CDC FIFO collateral is not a CDC correctness proof. Vivado is
@@ -155,10 +156,10 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to single-clock smoke properties, with twenty-four
+- Formal coverage is limited to single-clock smoke properties, with 31
   task-specific directed monitors.
 - Broad QoR is structural area/wire accounting plus a generic mapped-cell proxy.
-  The Vivado evidence is limited to a nine-task out-of-context subset; it is not
+  The Vivado evidence is limited to a 12-task out-of-context subset; it is not
   routed timing closure, technology-mapped delay for the full benchmark, or
   board-level implementation.
 - Adapter correctness boundaries are documented but not yet backed by full
@@ -262,7 +263,7 @@ The current abstract and evaluation section describe the 62-task
 public-development deterministic result, the 20-task held-out split, 36/36
 public positive-task smoke simulation coverage, 31/31 public single-clock
 bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
-summaries, the nine-task representative Vivado subset, and the bounded v3
+summaries, the 12-task Vivado subset, and the bounded v3
 tested-profile LLM result. Paper numbers must remain traceable to
 `docs/release_claim_table.md` and generated table artifacts. The manuscript
 must not claim full per-task formal proof, broad timing closure, arbitrary LTL,
@@ -339,8 +340,9 @@ Current claims supported by the repository:
 - The held-out manifest has 20 scoring tasks, ten positives, ten negatives,
   seven subsystem positives, seven paired negative variants, and 20/20
   deterministic expected outcomes.
-- The dedicated Vivado subset covers nine representative out-of-context
-  measurement-copy tasks and remains separate from broad timing-closure claims.
+- The dedicated Vivado subset covers 12 QoR-enabled public and held-out
+  out-of-context measurement-copy tasks and remains separate from broad
+  timing-closure claims.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
 - The LLM benchmark runner can plan the full public-development and held-out

@@ -68,7 +68,7 @@ def scan_required_references() -> list[str]:
             errors.append(f"{rel}: missing docs/release_claim_table.md reference")
 
     numeric_claim_re = re.compile(
-        r"\b(62|36/36|31/31|26/26|20-task|20/20|10/10|32|24|nine-task)\b"
+        r"\b(62|36/36|31/31|26/26|20-task|20/20|10/10|12-task|32|24|nine-task)\b"
     )
     for path in sorted((REPO_ROOT / "paper" / "sections").glob("*.tex")):
         text = path.read_text(encoding="utf-8")
@@ -106,10 +106,15 @@ def scan_stale_claims() -> list[str]:
         ("docs/14_reproduction_workflow.md", r"\b12/12\b", "held-out split is now 20/20"),
         ("docs/14_reproduction_workflow.md", r"\b6/6\b", "held-out positives/unsafe are now 10/10"),
         ("docs/14_reproduction_workflow.md", r"\b5/5\b", "held-out formal is now 9/9"),
-        ("docs/13_architecture_audit.md", r"\bfour-task\b", "Vivado subset is now nine tasks"),
-        ("docs/14_reproduction_workflow.md", r"\bfour-task\b", "Vivado subset is now nine tasks"),
-        ("docs/13_architecture_audit.md", r"\bfour representative tasks\b", "Vivado subset is now nine tasks"),
-        ("docs/14_reproduction_workflow.md", r"\bfour wrappers\b", "Vivado subset is now nine tasks"),
+        ("docs/13_architecture_audit.md", r"\bfour-task\b", "Vivado subset is now 12 tasks"),
+        ("docs/14_reproduction_workflow.md", r"\bfour-task\b", "Vivado subset is now 12 tasks"),
+        ("docs/13_architecture_audit.md", r"\bfour representative tasks\b", "Vivado subset is now 12 tasks"),
+        ("docs/14_reproduction_workflow.md", r"\bfour wrappers\b", "Vivado subset is now 12 tasks"),
+        ("README.md", r"\bnine-task\b", "Vivado subset is now 12 tasks"),
+        ("docs/13_architecture_audit.md", r"\bnine representative tasks\b", "Vivado subset is now 12 tasks"),
+        ("docs/14_reproduction_workflow.md", r"\bnine representative tasks\b", "Vivado subset is now 12 tasks"),
+        ("docs/19_vivado_qor_subset.md", r"\bnine representative\b", "Vivado subset is now 12 tasks"),
+        ("docs/release_claim_table.md", r"\b9 representative tasks\b", "Vivado subset is now 12 tasks"),
         ("docs/13_architecture_audit.md", r"\bnegative authenticated low-cost LLM matrix\b", "v2 bounded Branch A candidate must be described"),
         ("rust_project/Cargo.toml", r"example\.com", "Cargo repository metadata must not be a placeholder"),
     ]
@@ -130,7 +135,7 @@ def check_claim_table() -> list[str]:
         "20 total, 10 positive, 10 negative",
         "10 declared, 0 generated",
         "9 declared, 0 generated",
-        "9 representative tasks",
+        "12 QoR-enabled tasks",
         "build/release/full_check_manifest.json",
         "build/release/deterministic_evidence_hashes.json",
         "mico.bench.results.v0",

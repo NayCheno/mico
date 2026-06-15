@@ -47,8 +47,8 @@ This file is the short, traceable status page for the current repository. Use
 - Structural and generic-mapped Yosys QoR extraction for supported positive
   benchmark wrappers, compared against committed hand-written reference wrappers
   with generated CSV/TeX summaries.
-- Representative host-Vivado out-of-context QoR/timing subset for nine tasks
-  (`T001`, `T003`, and `T058`--`T064`) through
+- Host-Vivado out-of-context QoR/timing subset for all 12 QoR-enabled public
+  and held-out tasks (`T001`--`T004` and `T058`--`T065`) through
   `scripts/vivado-qor-subset.tcl`. The flow uses build-only measurement copies,
   targets `xc7a35tcpg236-1`, and writes JSON/CSV summaries under ignored
   `build/reports/vivado-host/`.
@@ -122,7 +122,7 @@ This file is the short, traceable status page for the current repository. Use
   denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
-  beyond the representative nine-task Vivado subset.
+  beyond the dedicated 12-task Vivado subset.
 - Release-archived full paid multi-profile LLM baseline result artifacts.
 - Positive pass-rate improvement claims beyond the exact v3 tested profiles,
   prompts, public-development split, and held-out split.
@@ -154,7 +154,7 @@ Current deterministic benchmark scope:
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, broad timing QoR,
   technology-mapped delay, and broad Vivado QoR remain intentionally unclaimed.
-  The separate Vivado subset covers only nine representative tasks and uses
+  The separate Vivado subset covers 12 QoR-enabled public and held-out tasks and uses
   measurement-only build copies.
 - L3/L5/L6 include seed approximations plus the dedicated T058--T062 streaming,
   width-bridge, register/status, protocol-bridge, and telemetry subsystem case

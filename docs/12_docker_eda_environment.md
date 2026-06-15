@@ -144,7 +144,8 @@ This repository pins the allowed host Vivado root to `D:\Application\vivado\2025
 
 `VIVADO_BIN` may only be used to point inside the same required Vivado root.
 
-The current representative Vivado QoR/timing subset is:
+The current Vivado QoR/timing subset covers all 12 QoR-enabled public and
+held-out tasks:
 
 ```powershell
 .\scripts\run-vivado-host.ps1 -Source .\scripts\vivado-qor-subset.tcl

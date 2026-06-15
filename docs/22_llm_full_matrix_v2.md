@@ -47,11 +47,12 @@ Full matrix:
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_stats.json"
 ```
 
-The aggregate emits paper tables for the main LLM summary, paired comparisons,
-Wilson confidence intervals, repair-turn distributions, failure taxonomy,
-token/cost accounting, and JSON validity. The paired table reports a two-sided
-exact sign-test p-value over discordant paired attempts; this is equivalent to
-the exact McNemar/binomial test for these 2x2 paired outcomes.
+The aggregate emits paper tables for the full LLM summary, compact paper LLM
+summary, paired comparisons, Wilson confidence intervals, repair-turn
+distributions, failure taxonomy, token/cost accounting, and JSON validity. The
+paired table reports a two-sided exact sign-test p-value over discordant paired
+attempts; this is equivalent to the exact McNemar/binomial test for these 2x2
+paired outcomes.
 
 ## Public-Development Results
 
@@ -137,7 +138,7 @@ must not claim that the free-form model repair patch alone is broadly reliable.
 |---|---|
 | `build/llm/bench_execute_dac2027_public_dev_v2.json` | `cc6bc3c11cc9ed434790f85506a8aa5d1c5d154ad66d61faff7ce83fc8fe9803` |
 | `build/llm/bench_execute_dac2027_heldout_20.json` | `866902f272cf072b17c5161a3d32e91f592e2b9be2ff67b32924dfc8954b9072` |
-| `build/bench/aggregate_dac2027_llm_stats.json` | `c688b7eeb2a5a130da042ea21aecd429a0035f81d4017996f0f126595f7b4b46` |
+| `build/bench/aggregate_dac2027_llm_stats.json` | `9896c45f29185da5b47d5cefbb67eecb11dddad74cba4891c2aa48458252f8cc` |
 | `build/llm/repair_fallback_v1_targeted.json` | `5be654a3e02f2d0b49a8d29024826ac4c54f11b765391f9f64ce099075e2a466` |
 
 ## Claim Boundary

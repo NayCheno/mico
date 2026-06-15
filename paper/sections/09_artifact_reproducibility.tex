@@ -1,33 +1,17 @@
 \section{Artifact Reproducibility}
 
-MICO is packaged as a reproducible artifact, not a prompt-only demonstration. Rust, Python, open-source RTL tools, benchmark scoring, schema validation, LLM validation, and table generation run in the repository Ubuntu 24.04 Docker EDA environment. The host exceptions are documented: final PDF compilation uses Windows-host LaTeX, and Vivado-specific subset synthesis uses the pinned Windows Vivado launcher.
-
-\begin{table}[t]
-  \centering
-  \caption{Current reproducibility gates}
-  \begin{tabular}{lll}
-    \toprule
-    Gate & Evidence & Status \\
-    \midrule
-    Rust & fmt/check/test & pass \\
-    EDA & Verilator/Icarus/Yosys/SBY & pass \\
-    Bench & dev + held-out & pass \\
-    LLM & validate + authenticated v2 matrix & pass \\
-    Vivado & nine-task OOC subset & pass \\
-    Paper & host latexmk/pdflatex & pass \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+MICO is packaged as a reproducible artifact, not a prompt-only demonstration.
+Rust, Python, open-source RTL tools, benchmark scoring, schema validation, LLM
+validation, and table generation run in the repository Ubuntu 24.04 Docker EDA
+environment. The host exceptions are documented: final PDF compilation uses
+Windows-host \LaTeX{}, and Vivado-specific subset synthesis uses the pinned
+Windows Vivado launcher.
 
 The release workflow freezes the Docker recipe, Rust toolchain, prompts,
 provider profiles, manifests, and result hashes; runs the benchmark and
 aggregate table generator; validates LLM configuration without exposing
-credentials; executes authenticated provider matrices with redacted records when
-claims depend on them; runs the Vivado subset when reporting Xilinx evidence;
-and verifies that PDFs, logs, build outputs, local YAML files, raw provider
-payloads, and secrets are absent from the staged source tree. Core commands are
-\texttt{benchmarks/run\_bench.py}, \texttt{benchmarks/aggregate\_results.py},
-\texttt{scripts/run\_llm\_bench.py}, \path{scripts/vivado-qor-subset.tcl}, and
-host \texttt{latexmk}. The deterministic and LLM result tables in this paper are
-included from generated \LaTeX{} snippets under ignored \texttt{build/} paths so
-paper edits do not hand-maintain the main counts.
+credentials; records redacted authenticated provider matrices for LLM claims;
+runs the Vivado subset for Xilinx evidence; and rejects staged PDFs, logs, build
+outputs, local YAML files, raw provider payloads, and secret-like strings. The
+deterministic, LLM, and Vivado tables are generated artifacts, not
+hand-maintained counts.

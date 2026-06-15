@@ -286,6 +286,73 @@ def llm_summary(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return rows
 
 
+def llm_compact_summary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    compact_rows = []
+    labels = {
+        "direct_verilog": "Direct Verilog",
+        "sv_interface": "SV interface",
+        "mico_source": "MICO source",
+        "mico_json_ast": "JSON AST",
+        "mico_json_ast_repair": "JSON AST repair",
+    }
+    for attempts in sorted(
+        {int(row.get("attempts", 0)) for row in rows if row.get("mode") == "execute"},
+        reverse=True,
+    ):
+        split = "public-dev" if attempts == 62 else "held-out" if attempts == 20 else f"{attempts} tasks"
+        split_rows = [
+            row
+            for row in rows
+            if row.get("mode") == "execute" and int(row.get("attempts", 0)) == attempts
+        ]
+        for baseline in [
+            "direct_verilog",
+            "sv_interface",
+            "mico_source",
+            "mico_json_ast",
+            "mico_json_ast_repair",
+        ]:
+            baseline_rows = [row for row in split_rows if row.get("baseline") == baseline]
+            if not baseline_rows:
+                continue
+            compiler_baseline = baseline in {
+                "mico_source",
+                "mico_json_ast",
+                "mico_json_ast_repair",
+            }
+            compact_rows.append(
+                {
+                    "split": split,
+                    "baseline": labels[baseline],
+                    "profiles": len(baseline_rows),
+                    "positive_pass": compact_pass_cell(
+                        baseline_rows,
+                        "compiler_passed" if compiler_baseline else "lint_passed",
+                        "compiler_total" if compiler_baseline else "lint_total",
+                    ),
+                    "unsafe_reject": compact_pass_cell(
+                        baseline_rows,
+                        "unsafe_passed",
+                        "unsafe_total",
+                    ),
+                }
+            )
+    return compact_rows
+
+
+def compact_pass_cell(rows: list[dict[str, Any]], pass_key: str, total_key: str) -> str:
+    totals = {int(row.get(total_key, 0)) for row in rows}
+    if not totals or totals == {0}:
+        return "n/a"
+    if len(totals) != 1:
+        return "mixed"
+    total = totals.pop()
+    passes = sorted({int(row.get(pass_key, 0)) for row in rows})
+    if len(passes) == 1:
+        return f"{passes[0]}/{total}"
+    return f"{passes[0]}-{passes[-1]}/{total}"
+
+
 def is_scored_llm_result(item: dict[str, Any]) -> bool:
     response = item.get("response", {})
     compiler = item.get("compiler_result", {})
@@ -679,6 +746,7 @@ def main() -> int:
     ablations = ablation_rows(results, manifest)
     qor = qor_rows(results)
     llm_rows = llm_summary(llm_payloads)
+    llm_compact = llm_compact_summary(llm_rows)
     repair_rows = repair_turn_distribution(llm_payloads)
     cost_rows = cost_token_rows(llm_payloads)
     paired = paired_comparisons(llm_payloads)
@@ -693,6 +761,8 @@ def main() -> int:
     write_csv(out_dir / "qor_structural.csv", qor)
     if llm_rows:
         write_csv(out_dir / "llm_summary.csv", llm_rows)
+    if llm_compact:
+        write_csv(out_dir / "llm_compact_summary.csv", llm_compact)
     if repair_rows:
         write_csv(out_dir / "llm_repair_turns.csv", repair_rows)
     if cost_rows:
@@ -769,6 +839,18 @@ def main() -> int:
             ],
             llm_rows,
         )
+    if llm_compact:
+        write_tex_table(
+            paper_dir / "llm_compact_summary.tex",
+            [
+                ("split", "Split"),
+                ("baseline", "Baseline"),
+                ("profiles", "Profiles"),
+                ("positive_pass", "Positive Pass"),
+                ("unsafe_reject", "Unsafe Reject"),
+            ],
+            llm_compact,
+        )
     if repair_rows:
         write_tex_table(
             paper_dir / "llm_repair_turns.tex",
@@ -840,6 +922,7 @@ def main() -> int:
         "ablation_counterfactual": ablations,
         "qor_structural": qor,
         "llm_summary": llm_rows,
+        "llm_compact_summary": llm_compact,
         "llm_repair_turns": repair_rows,
         "llm_cost_tokens": cost_rows,
         "llm_paired_comparisons": paired,
@@ -854,6 +937,7 @@ def main() -> int:
     print(f"ablations={len(ablations)}")
     print(f"qor_rows={len(qor)}")
     print(f"llm_rows={len(llm_rows)}")
+    print(f"llm_compact_rows={len(llm_compact)}")
     return 0
 
 

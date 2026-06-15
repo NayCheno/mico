@@ -1,6 +1,6 @@
 # Vivado QoR Subset
 
-Snapshot date: 2026-06-14.
+Snapshot date: 2026-06-15.
 
 This records the M4 Vivado/QoR hardening step for the DAC 2027 plan. It adds a
 representative host-Vivado synthesis and timing subset without expanding
@@ -23,6 +23,8 @@ The Vivado subset covers nine representative positive tasks:
 The flow uses `D:\Application\vivado\2025.2\Vivado` through
 `scripts/run-vivado-host.ps1`, targets `xc7a35tcpg236-1`, and writes all
 reports under ignored `build/reports/vivado-host/`.
+The Tcl flow emits JSON, CSV, per-task delta CSV, and a paper-ready TeX table
+for release-manifest hashing and bundle inclusion.
 
 The committed source RTL and benchmark wrappers are not modified. The Tcl script
 creates build-only sanitized copies that:
@@ -73,6 +75,7 @@ Artifact hashes from the ignored report directory:
 | `build/reports/vivado-host/vivado_qor_subset_summary.json` | `486bb24f6117b873c7b69feefaad6956de5b5625ac92cc3122e88d05480bfd5c` |
 | `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `accff80b22a93a72a710abd0cdf9cf12c1da4d5ead847f906194d174f6ac056e` |
 | `build/reports/vivado-host/vivado_qor_subset_delta.csv` | `f87fe0646ac7588db98b7c4005619fc62accefdbc61ad1d4cefa08e5d7135db9` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.tex` | `eb011bb2eab92b247a6357c078d5fe980b2693e77e65a5dfc4cc8d3988144d49` |
 | `build/bench/aggregate_m4.json` | `e90333191861bf5980f7b51179c4a27b1a4796f76d963e257c4ccf557bc2cabf` |
 
 ## Claim Boundary

@@ -123,7 +123,7 @@ Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
 Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
 testbenches. The current public-development summary records
-`sim_mode_counts = {declared: 20, autogen: 16}`. Accepted positive tasks
+`sim_mode_counts = {declared: 32, autogen: 4}`. Accepted positive tasks
 without a declared testbench get an
 auto-generated ready/valid smoke harness from the emitted traceability JSON;
 the generated harness instantiates `Top`, toggles clock/reset ports, and checks
@@ -134,17 +134,17 @@ Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated
 wrapper plus committed harness monitor. Accepted single-clock positives without
 a declared harness get an auto-generated ready/valid formal smoke harness from
-traceability JSON. The current enabled formal denominator is 31/31: 14
-committed directed harnesses plus 17 generated single-clock smoke harnesses.
+traceability JSON. The current enabled formal denominator is 31/31: 24
+committed directed harnesses plus 7 generated single-clock smoke harnesses.
 The current public-development summary records
-`formal_mode_counts = {declared: 14, autogen: 17}`.
+`formal_mode_counts = {declared: 24, autogen: 7}`.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
 flattened generic-mapped `stat -json` for the generated wrapper and the
 committed hand-written reference wrapper. The benchmark runner's QoR scope is
 area-cell, wire-count, and generic mapped-cell delta; no timing,
 technology-mapped delay, or Vivado result is produced by the runner. The
-separate host-Vivado subset in `scripts/vivado-qor-subset.tcl` covers four
+separate host-Vivado subset in `scripts/vivado-qor-subset.tcl` covers nine
 representative tasks through measurement-only build copies. The runner writes
 `qor_summary.csv` and `qor_summary.tex` under ignored `build/bench/`.
 Negative tasks are scored by expected compiler rejection and expected diagnostic

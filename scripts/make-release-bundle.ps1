@@ -171,7 +171,8 @@ try {
     $vivadoFiles = @(
         "build/reports/vivado-host/vivado_qor_subset_summary.json",
         "build/reports/vivado-host/vivado_qor_subset_summary.csv",
-        "build/reports/vivado-host/vivado_qor_subset_delta.csv"
+        "build/reports/vivado-host/vivado_qor_subset_delta.csv",
+        "build/reports/vivado-host/vivado_qor_subset_summary.tex"
     )
     foreach ($file in $vivadoFiles) {
         if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {

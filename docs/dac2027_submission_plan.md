@@ -34,12 +34,13 @@ schedule, and the release gate dates before claiming submission readiness.
 
 ## CFP Monitor
 
-Latest manual check: 2026-06-14.
+Latest manual check: 2026-06-15.
 
 | Item | Current record |
 |---|---|
-| Official DAC 2027 event page | Published at `https://dac.com/2026/events/dac-2027`; lists July 10--16, 2027 at the San Jose Convention Center. |
-| DAC 2027 Research CFP | Not published in the reviewed DAC 2026 web tree or IEEE CEDA announcements at this snapshot. |
+| Official DAC 2027 event page | Rechecked at `https://dac.com/2026/events/dac-2027`; lists July 10--16, 2027 at the San Jose Convention Center. |
+| DAC future-dates archive | Rechecked at `https://archive.dac.com/about/future-dac-dates.html`; also lists 64th DAC 2027 on July 10--16, 2027 at the San Jose Convention Center. |
+| DAC 2027 Research CFP | Not published in the reviewed DAC event/future-date pages or DAC web search results at this snapshot. |
 | Research manuscript deadline | Not published for DAC 2027. Do not infer a submission-ready deadline from prior years. |
 | Provisional page limit | Use the DAC 2026 research FAQ convention as a planning constraint only: six manuscript pages plus one references-only page. Replace when the DAC 2027 CFP appears. |
 | Provisional review policy | Treat the submission as double-blind, with no author names or affiliations in the manuscript, following the DAC 2026 FAQ until DAC 2027 publishes its own rules. |
@@ -57,6 +58,14 @@ Monthly update rule:
   official manuscript deadline. Until the DAC 2027 deadline is known, use
   2026-10-07 as the conservative provisional freeze date, based on the DAC 2026
   mid-November research-manuscript cadence.
+
+Check log:
+
+- 2026-06-15: Official DAC 2027 event and future-date pages confirm only date
+  and venue. No DAC 2027 Research Track CFP, abstract deadline, manuscript
+  deadline, page limit, anonymity policy, rebuttal policy, artifact policy, or
+  topic taxonomy was found. Keep the provisional freeze and do not cite an
+  unconfirmed DAC 2027 submission deadline.
 
 ## Claim Branches
 

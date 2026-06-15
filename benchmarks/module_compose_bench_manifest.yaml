@@ -941,11 +941,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_direct_stream_control_alias.sv
     sim_top: tb_direct_stream_control_alias
+    formal_harness: benchmarks/formal/tb_direct_stream_control_alias_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, control_stream_seed]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T052_fifo_chain_status_alias
     level: L1
@@ -959,11 +963,15 @@ tasks:
     rtl_collateral: rtl/examples/mico_example_leafs.sv
     sim_testbench: benchmarks/sim/tb_fifo_chain_status_alias.sv
     sim_top: tb_fifo_chain_status_alias
+    formal_harness: benchmarks/formal/tb_fifo_chain_status_alias_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [fifo_chain, status_stream_seed]
     expected:
       compose_pass: true
       lint_pass: true
       sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T053_direct_stream_monitor_contract
     level: L1
@@ -975,10 +983,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T053_direct_stream_monitor_contract/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_monitor_contract.sv
+    sim_top: tb_direct_stream_monitor_contract
+    formal_harness: benchmarks/formal/tb_direct_stream_monitor_contract_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [direct_connect, fire_contract]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T054_fifo_chain_raw_alias
     level: L1
@@ -990,10 +1005,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T054_fifo_chain_raw_alias/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_fifo_chain_raw_alias.sv
+    sim_top: tb_fifo_chain_raw_alias
+    formal_harness: benchmarks/formal/tb_fifo_chain_raw_alias_formal.sv
+    formal_top: Top
+    formal_depth: 4
     expected_features: [fifo_chain, contractless_seed]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T055_direct_stream_short_names
     level: L1
@@ -1005,10 +1027,13 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T055_direct_stream_short_names/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_short_names.sv
+    sim_top: tb_direct_stream_short_names
     expected_features: [direct_connect, short_names]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T056_register_seed_fifo_chain
     level: L5
@@ -1038,10 +1063,13 @@ tasks:
     adapter_inventory: [Widen32To64]
     mico_source: benchmarks/tasks/T057_control_status_width_seed/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_control_status_width_seed.sv
+    sim_top: tb_control_status_width_seed
     expected_features: [bus_wrapper_seed, width_adapter]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T058_streaming_accelerator_case
     level: L6

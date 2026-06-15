@@ -18,3 +18,10 @@ deterministic, LLM, QoR, and paper-summary tables are generated artifacts, not
 hand-maintained counts. The committed numeric claim map is
 \texttt{docs/release\_claim\_table.md}; release builds record the corresponding
 hashes in ignored \texttt{build/} artifacts and in the anonymous review bundle.
+
+For reviewers, the one-command gate writes a release manifest, deterministic
+evidence sidecar, LLM evidence sidecar, deterministic and held-out benchmark
+JSON, aggregate JSON, generated table snippets, and optional Vivado hashes when
+the host subset has been run. The bundle script copies these sidecars, schemas,
+prompts, manifests, sanitized LLM records when present, and the paper PDF hash
+into an anonymous ZIP with a SHA-256 sidecar.

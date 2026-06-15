@@ -19,4 +19,26 @@ The compiler pipeline is deterministic:
   \item The CLI can emit human-readable or JSON diagnostics so that downstream prompt repair does not depend on terminal text scraping.
 \end{enumerate}
 
+Figure~\ref{fig:mico-pipeline} shows the acceptance boundary used by both the
+CLI and benchmark harness.
+
+\begin{figure*}[t]
+  \centering
+  \fbox{\begin{minipage}{0.96\textwidth}
+    \centering
+    LLM/user proposal
+    \(\rightarrow\) MICO source or JSON AST
+    \(\rightarrow\) schema/parser
+    \(\rightarrow\) typed IR and static checks
+    \(\rightarrow\) SV/SVA/traceability JSON
+    \(\rightarrow\) Docker EDA and benchmark gates
+    \par\smallskip
+    Compiler diagnostics
+    \(\rightarrow\) bounded JSON repair patch or deterministic fallback
+    \(\rightarrow\) re-check before acceptance
+  \end{minipage}}
+  \caption{MICO compiler-gated pipeline. The model proposes structured data; schemas, the Rust checker, and RTL/EDA gates decide acceptance.}
+  \label{fig:mico-pipeline}
+\end{figure*}
+
 The first implementation stage intentionally avoids a full MLIR binding. It emits conservative SystemVerilog wrappers, structured JSON IR, SVA skeletons, and traceability reports. A later stage can lower typed IR into CIRCT HW modules, ESI channels, and Verif/LTL assertions. Rust's enums, pattern matching, ownership model, and test ecosystem fit compiler passes and diagnostics.

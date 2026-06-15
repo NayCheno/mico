@@ -2,15 +2,24 @@
 
 Much top-level RTL and subsystem code does not implement new datapath logic; it connects existing modules, wrappers, channels, buses, and clock/reset infrastructure. A ready/valid edge in a diagram expands into payload, valid, ready, sideband, reset, and sometimes CDC or protocol-adapter wiring. For LLMs this is a poor target: free-form RTL requires long-range consistency over names, directions, widths, protocols, domains, resets, and validation collateral.
 
+The resulting failures are systematic rather than cosmetic. In the benchmark
+records, unstructured prompts most often fail by omitting ports, reversing
+producer/consumer direction, crossing clock domains without an explicit
+adapter, emitting syntactically plausible but semantically rejected wrappers, or
+returning JSON that cannot be machine-checked. MICO's causal hypothesis is that
+the target representation should expose these obligations as typed graph edges
+and contract checks before any RTL is accepted.
+
 MICO takes a narrower position than general RTL generation benchmarks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025}, domain-adapted chip LLMs~\cite{chipnemo2023}, and recent checked prompt languages~\cite{cppl2026}. The LLM proposes a module-composition graph and optional repair patch; the compiler is the authority. The compiler checks interfaces, roles, widths, protocols, clock domains, adapters, and v0 ready/valid contracts before emitting RTL and traceability artifacts.
 
-This paper makes four contributions:
+This paper makes five contributions:
 
 \begin{enumerate}
-  \item a typed module-composition formulation for LLM-assisted RTL integration;
+  \item a typed module-interface-contract representation that separates LLM proposal from compiler authority;
   \item the MICO language and Rust compiler path for checked graphs, diagnostics, JSON AST repair, SV/SVA emit, and traceability;
   \item ModuleComposeBench, with public-development, held-out, and supplemental realism manifests, positive/negative tasks, case studies, simulation, formal smoke, and QoR collateral;
-  \item an authenticated full-matrix evaluation showing that schema-guided JSON AST composition and compiler-feedback repair improve tested LLM integration correctness and unsafe rejection over direct RTL, SystemVerilog-interface, and MICO-source prompting.
+  \item an authenticated full-matrix evaluation showing that schema-guided JSON AST composition and a bounded compiler-feedback fallback improve tested LLM integration correctness and unsafe rejection over direct RTL, SystemVerilog-interface, and MICO-source prompting;
+  \item a reproducible artifact with Docker-first validation, schema gates, release hashes, a Vivado host-tool exception, and reviewer bundle metadata.
 \end{enumerate}
 
 The positive LLM claim is deliberately narrow. It covers the tested profiles,

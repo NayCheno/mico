@@ -8,6 +8,16 @@ We use connection entropy to describe amplification from semantic intent to prim
 
 A simple producer-FIFO-consumer chain may be one semantic edge sequence, but it expands into payload, valid, ready, reset, and instance-specific port bindings. As connection entropy grows, LLMs omit ports, reverse ready/valid direction, mismatch widths, confuse reset polarity, cross clock domains without synchronization, or create wrappers that pass weak tests for the wrong reason. Prompt engineering can reduce these failures but does not remove the coupled obligations from the target string.
 
+For example, direct RTL prompts in the matrix often produce a wrapper that names
+the intended producer, FIFO, and consumer but leaves ready/valid payload bits
+unconnected or drives a sink-side status port from the wrong direction. A MICO
+JSON AST answer for the same request names the instances and interface edges
+instead. The compiler can then reject a reversed edge before code generation or
+accept the graph and emit the concrete port bindings, traceability JSON, and
+directed simulation wrapper from the checked IR. The improvement is therefore
+not that the model writes better Verilog text; it is that the acceptance target
+is smaller, typed, and auditable.
+
 MICO constrains the output space:
 
 \begin{itemize}

@@ -45,9 +45,10 @@ Run the full release-candidate gate from Windows:
 The PowerShell wrapper prints the host Docker version, runs
 `scripts/full-check.sh` inside the Docker EDA image, and optionally compiles the
 paper with host LaTeX. The Docker gate verifies tools, runs Rust
-fmt/check/tests, runs EDA smoke, runs the deterministic benchmark, validates the
-LLM provider config without provider requests, plans the full LLM baseline
-matrix without provider requests, runs the held-out benchmark split,
+fmt/check/tests, runs `git diff --check`, runs the documentation claim guard,
+runs EDA smoke, runs the deterministic benchmark, validates the LLM provider
+config without provider requests, plans the full LLM baseline matrix without
+provider requests, runs the held-out benchmark split,
 regenerates aggregate result tables for both public-development and held-out
 results, validates JSON outputs against the repository JSON Schemas, and writes
 `build/release/full_check_manifest.json`. With `-WithLatex`, the wrapper also
@@ -63,6 +64,11 @@ Linux/WSL equivalent:
 ./scripts/eda-docker.sh bash scripts/full-check.sh --llm-config config/llm-provider.local.yaml
 latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex
 ```
+
+If the default ignored `config/llm-provider.local.yaml` is absent, the Docker
+gate uses `config/llm-provider.example.yaml` for validate-only provider and
+benchmark-planning steps. Authenticated provider execution still requires the
+ignored local config or `OPENCODE_GO_API_KEY`.
 
 Read the top-level `RELEASE_CHECKLIST.md` before publishing a release branch or
 tag. The generated release manifest records tool versions, prompt hashes,

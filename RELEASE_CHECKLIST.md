@@ -92,7 +92,7 @@ The release bundle manifest records:
 - `python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json` passes in Docker.
 - `python3 benchmarks/aggregate_results.py --bench-result build/bench/realism_results.json --manifest benchmarks/module_compose_bench_realism.yaml --out-json build/bench/aggregate_realism_results.json --out-dir build/bench/realism_tables --paper-table-dir build/paper_tables/realism` passes in Docker.
 - `python3 scripts/write-release-claim-table-json.py --output build/release/release_claim_table.json` passes in Docker.
-- `python3 scripts/write-llm-evidence-hashes.py --output build/release/llm_evidence_hashes.json` passes in Docker when authenticated v3 evidence is present.
+- `python3 scripts/write-llm-evidence-hashes.py --output build/release/llm_evidence_hashes.json` passes in Docker for validate-only gates and records missing authenticated v3 evidence as optional; run it with `--require` for the final LLM evidence seal.
 - `python3 scripts/write-deterministic-evidence-hashes.py --output build/release/deterministic_evidence_hashes.json --full-check-manifest build/release/full_check_manifest.json` passes in Docker.
 - `python3 -m json.tool` validates every generated JSON result used by the release manifest.
 - Host `latexmk -cd -pdf -interaction=nonstopmode -halt-on-error paper/main.tex` passes when `-WithLatex` is requested.
@@ -109,6 +109,11 @@ manifest-bound v3 matrix and Branch A decision are summarized in
 artifacts stay under ignored `build/llm/` paths. The default bundle may include
 sanitized v3 execute records and aggregate summaries when present, but it does
 not include provider caches, raw response text, local YAML, or API keys.
+
+If `config/llm-provider.local.yaml` is absent, the one-command gate falls back
+to `config/llm-provider.example.yaml` for validate-only provider and benchmark
+planning only. Authenticated LLM execution still requires the ignored local
+config or `OPENCODE_GO_API_KEY`.
 
 After the final source commit for a release candidate, rerun:
 

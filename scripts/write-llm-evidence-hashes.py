@@ -105,7 +105,7 @@ def collect_artifact(path: Path) -> dict[str, Any]:
     }
 
 
-def build_payload(paths: list[str]) -> dict[str, Any]:
+def build_payload(paths: list[str], require: bool) -> dict[str, Any]:
     resolved = [repo_path(path) for path in paths]
     missing = [display(path) for path in resolved if not path.exists()]
     artifacts = [collect_artifact(path) for path in resolved if path.exists()]
@@ -114,9 +114,11 @@ def build_payload(paths: list[str]) -> dict[str, Any]:
         "source_commit_hash": git_text(["rev-parse", "HEAD"]),
         "source_branch": git_text(["branch", "--show-current"]),
         "required_artifacts": paths,
+        "require_artifacts": require,
         "artifacts": artifacts,
-        "missing_required": missing,
-        "status": "complete" if not missing else "incomplete",
+        "missing_required": missing if require else [],
+        "missing_optional": [] if require else missing,
+        "status": "complete" if not missing else ("incomplete" if require else "missing_optional"),
         "redaction_policy": {
             "api_keys": "never stored",
             "local_provider_config": "not included",
@@ -130,6 +132,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="build/release/llm_evidence_hashes.json")
     parser.add_argument(
+        "--require",
+        action="store_true",
+        help="Fail if any configured authenticated LLM evidence artifact is missing.",
+    )
+    parser.add_argument(
         "--artifact",
         action="append",
         default=[
@@ -141,7 +148,7 @@ def main() -> int:
     args = parser.parse_args()
 
     output = repo_path(args.output)
-    payload = build_payload(args.artifact)
+    payload = build_payload(args.artifact, args.require)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {display(output)}")
@@ -149,6 +156,9 @@ def main() -> int:
         for item in payload["missing_required"]:
             print(f"missing required LLM evidence: {item}")
         return 1
+    if payload["missing_optional"]:
+        for item in payload["missing_optional"]:
+            print(f"missing optional LLM evidence: {item}")
     return 0
 
 

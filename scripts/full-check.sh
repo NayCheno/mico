@@ -66,9 +66,14 @@ if [[ "${MICO_ALLOW_HOST_FULL_CHECK:-0}" != "1" && ! -f /.dockerenv ]]; then
 fi
 
 if [[ ! -f "${llm_config}" ]]; then
-    echo "ERROR: missing LLM config: ${llm_config}" >&2
-    echo "Create an ignored local config from config/llm-provider.example.yaml before running the release gate." >&2
-    exit 1
+    if [[ "${llm_config}" == "config/llm-provider.local.yaml" && -f "config/llm-provider.example.yaml" ]]; then
+        echo "WARN: missing ${llm_config}; using config/llm-provider.example.yaml for validate-only release gate." >&2
+        llm_config="config/llm-provider.example.yaml"
+    else
+        echo "ERROR: missing LLM config: ${llm_config}" >&2
+        echo "Create an ignored local config from config/llm-provider.example.yaml before running the release gate." >&2
+        exit 1
+    fi
 fi
 
 run_step() {
@@ -80,6 +85,8 @@ run_step() {
 }
 
 run_step "Docker tool verification" mico-verify-tools
+run_step "Git whitespace diff check" git diff --check
+run_step "Documentation claim guard" python3 scripts/check-doc-claims.py
 run_step "Rust fmt/check/test" bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 run_step "EDA smoke" bash scripts/eda-smoke.sh
 run_step "Deterministic benchmark" python3 benchmarks/run_bench.py --output build/bench/seed_results.json

@@ -115,8 +115,9 @@ benchmark evidence become unusually strong.
 
 ## Current Boundary
 
-The current repository supports a deterministic artifact claim, not a positive
-LLM-improvement claim.
+The current repository supports a deterministic artifact claim plus a bounded
+tested-profile Branch A LLM-improvement claim. It is still not final submission
+ready until the M3-M5 verification, paper, and release gates pass.
 
 Supported now:
 
@@ -138,15 +139,29 @@ Supported now:
   remains smoke-only.
 - Historical sanitized low-cost LLM matrix summary showing a negative result
   for the original prompts.
-- Structured v2 authenticated LLM full matrix across public-development and
-  held-out splits showing a tested-profile Branch A candidate result for MICO
-  JSON AST and compiler-feedback repair.
+- Structured v3 authenticated LLM full matrix across public-development and
+  held-out splits showing a tested-profile Branch A result for MICO JSON AST
+  and compiler-feedback repair, bound to the current manifest hashes in
+  `docs/24_llm_matrix_v3.md`.
 - Five-page DAC-style paper draft with deterministic summary table generated
   from aggregate JSON.
 
+M2 branch decision:
+
+- Branch A is the current paper branch for the tested OpenCode Go profiles,
+  prompts, public-development manifest, and held-out manifest.
+- The v3 held-out execute record is bound to the current held-out manifest
+  SHA-256.
+- JSON AST repair reaches 36/36 public-development positives and 10/10
+  held-out positives across the tested profiles, while direct Verilog and
+  SV-interface baselines remain weaker.
+- Accepted repair-turn wins remain limited to the recorded
+  `deterministic_adapter_instance_collapse` fallback; broad free-form repair is
+  still unsupported.
+
 Unsupported now:
 
-- LLM pass-rate improvement beyond the exact v2 tested profiles, prompts, and
+- LLM pass-rate improvement beyond the exact v3 tested profiles, prompts, and
   benchmark splits;
 - broad free-form model-generated repair reliability beyond the recorded
   adapter-instance compiler-feedback fallback;

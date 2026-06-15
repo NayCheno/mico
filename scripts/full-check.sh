@@ -277,6 +277,9 @@ result_paths = [
     "build/bench/aggregate_heldout_results.json",
 ]
 authenticated_llm_paths = [
+    "build/llm/bench_execute_public_dev_v3.json",
+    "build/llm/bench_execute_heldout_v3.json",
+    "build/bench/aggregate_llm_v3.json",
     "build/llm/bench_execute_dac2027_public_dev_v2.json",
     "build/llm/bench_execute_dac2027_heldout_20.json",
     "build/bench/aggregate_dac2027_llm_stats.json",

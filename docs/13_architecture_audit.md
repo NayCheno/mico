@@ -10,7 +10,7 @@ This audit supersedes the initial scaffold audit. The repository is now a workin
 research prototype with a Rust parser/checker/codegen path, open-source EDA
 smoke flow, source-level JSON AST path, 62-task public-development benchmark,
 20-task held-out split, benchmark aggregation script, LLM provider validation
-script, structured v2 LLM matrix summary, release-candidate scripts, and a
+script, structured v3 LLM matrix summary, release-candidate scripts, and a
 cautiously worded paper draft. Numeric result claims are tracked in
 `docs/release_claim_table.md`. It is still not a complete "engineering +
 experiments + paper" artifact: release-archived authenticated LLM evidence,
@@ -237,10 +237,10 @@ semantics stay aligned.
 An authenticated low-cost matrix has been executed for 62 tasks, two low-cost
 profiles, and five baselines. The sanitized summary is recorded in
 `docs/16_llm_matrix_results.md` and remains a historical negative result for
-the original prompts. The newer structured v2 matrix in
-`docs/22_llm_full_matrix_v2.md` covers public-development and held-out splits
+the original prompts. The newer structured v3 matrix in
+`docs/24_llm_matrix_v3.md` covers public-development and held-out splits
 across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It supports
-only the bounded tested-profile Branch A candidate claim described in
+only the bounded tested-profile Branch A claim described in
 `docs/claim_boundary.md`: MICO JSON AST and MICO JSON AST plus the recorded
 compiler-feedback repair fallback improve positive-task compiler/lint pass and
 unsafe rejection over the tested direct RTL, SystemVerilog-interface, and
@@ -263,11 +263,11 @@ The current abstract and evaluation section describe the 62-task
 public-development deterministic result, the 20-task held-out split, 36/36
 public positive-task smoke simulation coverage, 31/31 public single-clock
 bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
-summaries, the nine-task representative Vivado subset, and the bounded v2
+summaries, the nine-task representative Vivado subset, and the bounded v3
 tested-profile LLM result. Paper numbers must remain traceable to
 `docs/release_claim_table.md` and generated table artifacts. The manuscript
 must not claim full per-task formal proof, broad timing closure, arbitrary LTL,
-or LLM improvements beyond the tested v2 profiles, prompts, and splits. Host
+or LLM improvements beyond the tested v3 profiles, prompts, and splits. Host
 LaTeX is the repository policy for paper builds.
 
 Current limitations:
@@ -275,7 +275,7 @@ Current limitations:
 - The paper is still an evidence-limited submission candidate, not a complete
   experimental paper.
 - Generated table snippets are available under ignored `build/paper_tables/`;
-  the paper source now carries deterministic and bounded v2 LLM table values,
+  the paper source now carries deterministic and bounded v3 LLM table values,
   while raw result archives and final statistical appendices remain release
   work.
 - Broader case-study diversity and full reproducibility hashes are pending.
@@ -307,8 +307,8 @@ The next work should proceed in this order:
 
 1. Reproduce and archive the deterministic public-development and held-out
    evidence bundle with release hashes.
-2. Rebind or rerun authenticated v2 LLM execute records against the current
-   manifest hashes before treating Branch A as submission-ready.
+2. Keep authenticated v3 LLM execute records bound to current manifest hashes
+   before treating Branch A as submission-ready.
 3. Add broader directed formal/QoR coverage and additional subsystem studies,
    or keep the corresponding limitations prominent in the paper.
 
@@ -355,7 +355,7 @@ Current claims supported by the repository:
 
 Claims not yet supported:
 
-- LLM pass-rate improvements beyond the exact v2 tested profiles, prompts,
+- LLM pass-rate improvements beyond the exact v3 tested profiles, prompts,
   public-development split, and held-out split.
 - Full paid LLM benchmark matrix results committed as artifact data.
 - Broad free-form LLM repair reliability beyond the recorded deterministic

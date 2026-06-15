@@ -25,8 +25,8 @@ The final paper must choose one branch before submission:
   prompts and model profiles still fail but the deterministic benchmark,
   failure taxonomy, and reproducible artifact become the main contribution.
 
-The v2 authenticated matrix in `docs/22_llm_full_matrix_v2.md` now supports a
-bounded Branch A candidate claim for the tested profiles and prompts: MICO JSON
+The v3 authenticated matrix in `docs/24_llm_matrix_v3.md` now supports a
+bounded Branch A claim for the tested profiles and prompts: MICO JSON
 AST prompting, with the recorded compiler-feedback repair fallback, improves
 positive-task pass rate and unsafe rejection over direct RTL,
 SystemVerilog-interface, and MICO-source prompting on the current
@@ -102,12 +102,12 @@ The current repository supports these claims when the release gate passes:
   fixture checks, execute authenticated provider subsets when local credentials
   and budget are configured, and emit sanitized `mico.llm.bench.v0` records.
 - The historical authenticated low-cost matrix summary is a negative result for
-  the original prompts. The v2 structured matrix supersedes it for current
+  the original prompts. The v3 structured matrix supersedes it for current
   LLM claims and supports a bounded tested-profile MICO-vs-baseline pass-rate
   improvement claim.
 - The compiler/CLI can dry-run, apply, and re-check schema-valid JSON AST
   repair patches through `repair-json`; the LLM benchmark runner uses this path
-  for JSON AST repair turns. The v2 matrix additionally records a narrow
+  for JSON AST repair turns. The v3 matrix additionally records a narrow
   deterministic adapter-instance repair fallback that is accepted only through
   the same compiler path.
 - Aggregate scripts can merge deterministic and optional LLM artifacts into
@@ -117,7 +117,7 @@ The current repository supports these claims when the release gate passes:
 
 The current repository must not claim:
 
-- LLM pass-rate improvement beyond the tested v2 OpenCode Go profiles,
+- LLM pass-rate improvement beyond the tested v3 OpenCode Go profiles,
   prompts, public-development split, and held-out split.
 - Full paid LLM benchmark matrix raw results committed as artifact data.
 - Broad free-form LLM repair reliability. Current accepted repair-turn wins are

@@ -17,7 +17,7 @@ The provider policy separates cost from correctness. Smoke tests and prompt deve
 The provider harness records validate-only and authenticated runs as redacted JSON artifacts: profile, model identifier, prompt hash, request settings, JSON validity, token/cost metadata when available, repair turns, compiler attachment, and EDA attachment. It records whether an API key was present but never stores or prints the key. The batch runner applies this to Direct Verilog, SystemVerilog-interface, MICO source, MICO JSON AST, and JSON AST repair baselines over the benchmark manifest.
 
 The repair baseline is reported with provenance. Model-produced patches are
-schema-checked and applied only through the compiler repair command. The v2
+schema-checked and applied only through the compiler repair command. The v3
 runner also records a narrow deterministic fallback for one recurring
 compiler-feedback pattern: the model declares an adapter but instantiates it as
 if it were a normal module. Accepted rows from this fallback are counted as

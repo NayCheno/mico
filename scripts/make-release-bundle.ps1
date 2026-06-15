@@ -141,6 +141,7 @@ try {
         "docs/21_artifact_release_candidate.md",
         "docs/22_llm_full_matrix_v2.md",
         "docs/23_heldout_benchmark_hardening.md",
+        "docs/24_llm_matrix_v3.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",
         "docs/dac2027_full_check_baseline_2026-06-15.md",
@@ -157,11 +158,21 @@ try {
     Copy-BundleFile "build/bench/aggregate_heldout_results.json" "results/deterministic/aggregate_heldout_results.json"
     Copy-BundleFile "build/llm/provider_validate.json" "results/llm_validate/provider_validate.json"
     Copy-BundleFile "build/llm/bench_validate.json" "results/llm_validate/bench_validate.json"
+    $sanitizedLlmExecuteFiles = @(
+        "build/llm/bench_execute_public_dev_v3.json",
+        "build/llm/bench_execute_heldout_v3.json"
+    )
+    foreach ($file in $sanitizedLlmExecuteFiles) {
+        if (Test-Path -LiteralPath (Resolve-RepoPath $file) -PathType Leaf) {
+            Copy-BundleFile $file ("results/llm_execute/" + (Split-Path -Leaf $file))
+        }
+    }
     Copy-BundleFile "paper/main.pdf" "paper/main.pdf"
     if (Test-Path -LiteralPath (Resolve-RepoPath "paper/tables") -PathType Container) {
         Copy-BundleTree "paper/tables" "paper/tables"
     }
     $optionalAggregateFiles = @(
+        "build/bench/aggregate_llm_v3.json",
         "build/bench/aggregate_dac2027_llm_stats.json",
         "build/bench/aggregate_m3_heldout_directed.json"
     )
@@ -219,7 +230,11 @@ try {
         $bundlePath -match "\.jou$" -or
         $bundlePath -match "\.wdb$" -or
         $bundlePath -match "\.xpr$" -or
-        $bundlePath -match "bench_execute.*\.json$"
+        ($bundlePath -match "bench_execute.*\.json$" -and
+            $bundlePath -notin @(
+                "results/llm_execute/bench_execute_public_dev_v3.json",
+                "results/llm_execute/bench_execute_heldout_v3.json"
+            ))
     }
     if ($forbiddenBundlePaths) {
         throw "Forbidden paths were staged for the bundle: $($forbiddenBundlePaths.FullName -join ', ')"
@@ -270,7 +285,7 @@ try {
         included_files = $files
         excluded_by_policy = @(
             "config/*.local.yaml",
-            "build/llm/bench_execute*.json",
+            "non-v3 execute records",
             "provider response caches",
             "logs",
             "Vivado project output",

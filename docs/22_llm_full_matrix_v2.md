@@ -2,6 +2,10 @@
 
 Snapshot date: 2026-06-15.
 
+Historical note: this v2 matrix is superseded for current submission claims by
+`docs/24_llm_matrix_v3.md`, which re-evaluates against the current
+public-development and held-out manifest SHA-256 hashes.
+
 This page records the M2 structured LLM full-matrix rerun for the DAC 2027
 plan. The result files, response caches, prompts emitted under `build/`, and
 local provider configuration remain ignored and are not committed.

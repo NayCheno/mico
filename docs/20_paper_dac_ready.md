@@ -15,7 +15,7 @@ The paper now follows Branch A, bounded to the current evidence:
 - typed JSON AST composition plus compiler-feedback repair improves tested
   LLM-assisted RTL/IP integration correctness and unsafe rejection;
 - public-development and held-out deterministic results are reported separately;
-- authenticated v2 LLM results are reported for the tested OpenCode Go profiles;
+- authenticated v3 LLM results are reported for the tested OpenCode Go profiles;
 - repair wins are bounded to the recorded deterministic adapter-instance
   fallback and are not generalized to arbitrary semantic repair;
 - no full formal proof, CDC correctness, broad timing closure, or all-task
@@ -42,7 +42,7 @@ content target.
 Aggregate command:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_stats.json --out-dir build/bench/dac2027_llm_stats --paper-table-dir build/paper_tables/dac2027_llm_stats"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_heldout_directed_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m3_heldout_directed.json --out-dir build/bench/heldout_m3_directed_tables --paper-table-dir build/paper_tables/heldout_m3_directed"
 ```
 

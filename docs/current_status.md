@@ -92,9 +92,9 @@ This file is the short, traceable status page for the current repository. Use
   The selected pilot subset is no longer zero-pass, but it is not a full
   pass-rate improvement claim.
 - A full authenticated structured matrix rerun in
-  `docs/22_llm_full_matrix_v2.md` covers public-development and held-out splits
+  `docs/24_llm_matrix_v3.md` covers public-development and held-out splits
   across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It
-  supports a Branch A candidate claim for the tested profiles: MICO JSON AST
+  supports a Branch A claim for the tested profiles: MICO JSON AST
   and MICO JSON AST plus compiler-feedback repair produce nonzero to full
   positive compiler/lint passes and strong unsafe rejection, while direct
   Verilog, SystemVerilog-interface, and MICO-source baselines remain weak.
@@ -115,7 +115,7 @@ This file is the short, traceable status page for the current repository. Use
   hash when `-WithLatex` is used.
 - IEEE-style paper draft compressed to a five-page DAC-style manuscript, with
   generated deterministic tables, conservative claim boundaries, and a bounded
-  tested-profile v2 structured LLM matrix summary.
+  tested-profile v3 structured LLM matrix summary.
 
 ## Not Yet Implemented
 
@@ -127,10 +127,10 @@ This file is the short, traceable status page for the current repository. Use
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
   beyond the representative nine-task Vivado subset.
 - Release-archived full paid multi-profile LLM baseline result artifacts.
-- Positive pass-rate improvement claims beyond the exact v2 tested profiles,
+- Positive pass-rate improvement claims beyond the exact v3 tested profiles,
   prompts, public-development split, and held-out split.
 - Broad free-form LLM repair reliability beyond the adapter-as-instance
-  deterministic fallback recorded in `docs/22_llm_full_matrix_v2.md`.
+  deterministic fallback recorded in `docs/24_llm_matrix_v3.md`.
 - Full generated statistical appendix and any final submission-only table
   integration beyond the deterministic summary table.
 - Broader subsystem case studies beyond the current five public-dev plus seven

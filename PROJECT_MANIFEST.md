@@ -26,6 +26,7 @@
 | `docs/13_architecture_audit.md` | Current architecture audit, implemented state, claim boundary, gaps, and next priority order. |
 | `docs/14_reproduction_workflow.md` | Clean-checkout reproduction workflow covering Docker Rust/EDA, benchmarks, LLM provider smoke, host Vivado, and host LaTeX. |
 | `docs/15_case_studies.md` | Dedicated subsystem case-study inventory, collateral paths, and reproduction commands. |
+| `docs/24_llm_matrix_v3.md` | Current manifest-bound authenticated LLM matrix summary and Branch A decision. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/release_claim_table.md` | Single source for current numeric claim values, evidence artifact paths, schema versions, hash sources, and paper locations. |
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |

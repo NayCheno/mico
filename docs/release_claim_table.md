@@ -55,10 +55,10 @@ payloads, or API keys.
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---|---|---|---|---|
 | Historical low-cost matrix | Negative result for original prompts | `docs/16_llm_matrix_results.md` plus ignored raw records | `mico.llm.bench.v0` when raw records are supplied | External archive or `build/release/full_check_manifest.json` when present | Background only |
-| Structured v2 matrix | Bounded Branch A candidate for tested profiles and prompts | `docs/22_llm_full_matrix_v2.md`, sanitized execute records under `build/llm/` when present | `mico.llm.bench.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex` |
+| Structured v3 matrix | Bounded Branch A result for tested profiles and prompts | `docs/24_llm_matrix_v3.md`, sanitized v3 execute records under `build/llm/` when present | `mico.llm.bench.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex` |
 | Tested profiles | `smoke`, `low_cost_crosscheck`, `quality_code` | `config/llm-provider.example.yaml`, sanitized execute records | `mico.llm.run.v0`, `mico.llm.bench.v0` | `build/release/full_check_manifest.json: llm` | `paper/sections/08_evaluation.tex` |
 | Baselines | `direct_verilog`, `sv_interface`, `mico_source`, `mico_json_ast`, `mico_json_ast_repair` | `prompts/llm_bench_baselines.yaml`, sanitized execute records | `mico.llm.bench.v0` | `build/release/full_check_manifest.json: prompts`, `authenticated_llm_evidence` | `paper/sections/06_llm_workflow.tex`, `paper/sections/08_evaluation.tex` |
-| Repair boundary | Accepted repair-turn wins are limited to the recorded deterministic adapter-instance fallback plus compiler-gated JSON AST repair path | `docs/22_llm_full_matrix_v2.md`, sanitized execute records | `mico.llm.bench.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Repair boundary | Accepted repair-turn wins are limited to the recorded deterministic adapter-instance fallback plus compiler-gated JSON AST repair path | `docs/24_llm_matrix_v3.md`, sanitized execute records | `mico.llm.bench.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 
 ## Vivado And Release Claims
 
@@ -84,7 +84,7 @@ introduction, evaluation, conclusion, or release notes:
 - CDC correctness proof.
 - Full timing closure, routed implementation, or technology-mapped delay for
   the complete benchmark.
-- LLM improvement beyond the exact v2 tested profiles, prompts,
+- LLM improvement beyond the exact v3 tested profiles, prompts,
   public-development split, and held-out split.
 - Broad free-form repair reliability beyond the recorded deterministic
   adapter-instance fallback and compiler-gated repair path.

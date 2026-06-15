@@ -33,19 +33,8 @@ A direct connection \(e_s \rightarrow e_t\) is legal only if \(e_s\) is a produc
 
 \begin{table}[t]
   \centering
-  \caption{Representative MICO v0 diagnostics}
-  \begin{tabular}{lll}
-    \toprule
-    Check & Example & Repair action \\
-    \midrule
-    name & duplicate instance & rename or delete \\
-    endpoint & unknown port & bind declared port \\
-    direction & consumer to consumer & reverse edge \\
-    width & u32 to u64 & insert width adapter \\
-    domain & Sys to Async & insert CDC adapter \\
-    contract & missing obligation & attach contract \\
-    \bottomrule
-  \end{tabular}
+  \caption{Compiler static checks and representative diagnostics}
+  \resizebox{\columnwidth}{!}{\input{tables/static_checks.tex}}
 \end{table}
 
 This design intentionally avoids silent convenience. MICO does not insert a CDC FIFO or truncating width adapter merely because doing so would make the wrapper compile. A model or user must declare the adapter explicitly, and the compiler records it in the typed IR and generated report.

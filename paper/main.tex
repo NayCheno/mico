@@ -26,8 +26,8 @@
 \title{MICO: Contract-Guided Module Composition for LLM-Assisted RTL Integration}
 
 \author{
-\IEEEauthorblockN{MICO Research Team}
-\IEEEauthorblockA{Research Scaffold}
+\IEEEauthorblockN{Anonymous Author(s)}
+\IEEEauthorblockA{Paper under double-blind review}
 }
 
 \begin{document}
@@ -35,7 +35,7 @@
 \maketitle
 
 \begin{abstract}
-LLMs can generate small Verilog fragments, but RTL integration remains brittle because correctness depends on port binding, direction, width, handshake protocol, clock/reset domains, CDC/RDC handling, adapters, and wrappers. MICO reframes LLM-assisted integration as compiler-checked module composition: models propose typed interface graphs and repair patches, while a Rust compiler validates the graph and emits traceable SystemVerilog, SVA skeletons, JSON IR, and diagnostics. The artifact passes 62/62 public-development ModuleComposeBench tasks and 20/20 held-out tasks, including 36/36 public positive simulations, 31/31 single-clock bounded formal smoke checks, 9/9 structural/generic Yosys QoR rows, and a 12-task Vivado out-of-context subset. In an authenticated v3 LLM matrix across three tested OpenCode Go profiles, schema-guided MICO JSON AST repair compiles and lints all positive public and held-out compositions and rejects all unsafe MICO tasks, while direct Verilog and SystemVerilog-interface prompts lint at most 8/36 public positives and 2/10 held-out positives. The claim is bounded: repair wins currently come from an explicitly recorded deterministic compiler-feedback fallback for one adapter-instance error pattern, and MICO does not claim exhaustive formal coverage, CDC correctness proof, routed timing closure, arbitrary LTL, or generalization to untested models.
+LLMs can generate small Verilog fragments, but RTL integration remains brittle because correctness depends on port binding, direction, width, handshake protocol, clock/reset domains, CDC/RDC handling, adapters, and wrappers. MICO reframes LLM-assisted integration as compiler-checked module composition: models propose typed interface graphs and repair patches, while a Rust compiler validates the graph and emits traceable SystemVerilog, SVA skeletons, JSON IR, and diagnostics. The artifact passes 62/62 public-development ModuleComposeBench tasks, 20/20 held-out tasks, and a deterministic 14-task realism supplement, including 36/36 public positive simulations, 31/31 single-clock public bounded formal smoke checks, 9/9 structural/generic public Yosys QoR rows, and a 12-task Vivado out-of-context subset. In an authenticated v3 LLM matrix across three tested OpenCode Go profiles, schema-guided MICO JSON AST repair compiles and lints all positive public and held-out compositions and rejects all unsafe MICO tasks, while direct Verilog and SystemVerilog-interface prompts lint at most 8/36 public positives and 2/10 held-out positives. The claim is bounded: repair wins currently come from an explicitly recorded deterministic compiler-feedback fallback for one adapter-instance error pattern, and MICO does not claim exhaustive formal coverage, CDC correctness proof, routed timing closure, arbitrary LTL, or generalization to untested models.
 \end{abstract}
 
 \begin{IEEEkeywords}

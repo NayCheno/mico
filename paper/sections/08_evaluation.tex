@@ -6,7 +6,13 @@ The current artifact answers five evidence-bounded questions: whether intended c
 
 \subsection{Deterministic Results}
 
-The public-development manifest has 62 tasks: 36 positives and 26 negatives across L1--L6. A separate held-out manifest has 20 scoring tasks: 10 positives and 10 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, and paired negative variants. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md}.
+The public-development manifest has 62 tasks: 36 positives and 26 negatives across L1--L6. A separate held-out manifest has 20 scoring tasks: 10 positives and 10 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, and paired negative variants. A deterministic-only realism supplement adds 14 tasks with seven positives and seven negatives without changing the locked LLM-scored manifests. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md}.
+
+\begin{table*}[t]
+  \centering
+  \caption{Benchmark split summary generated from manifest and result JSON}
+  \resizebox{\textwidth}{!}{\input{tables/benchmark_split_summary.tex}}
+\end{table*}
 
 \begin{table}[t]
   \centering
@@ -20,14 +26,23 @@ The public-development manifest has 62 tasks: 36 positives and 26 negatives acro
   \input{tables/heldout_deterministic_summary.tex}
 \end{table}
 
-The 12 subsystem positive case studies use dedicated RTL under
+\begin{table}[t]
+  \centering
+  \caption{Supplemental realism deterministic results}
+  \input{tables/realism_deterministic_summary.tex}
+\end{table}
+
+The 15 subsystem positive case studies use dedicated RTL under
 \texttt{rtl/case\_studies/}: five public-development tasks for streaming,
-width/protocol bridging, register/status, request/response, and telemetry, plus
+width/protocol bridging, register/status, request/response, and telemetry;
 seven held-out tasks for AXI/APB, video, CDC event/status, telemetry filtering,
-protocol bridging, and register/status variants. They pass the same compiler,
-JSON AST, lint/elaboration, simulation, selected formal, and QoR gates as their
-manifest denominators. CDC remains an explicit-adapter smoke validation, not a
-CDC correctness proof.
+protocol bridging, and register/status variants; and three supplemental realism
+tasks for DMA register-map/status composition, AXI-stream-like packetization,
+and memory-mapped control/data width adaptation. The held-out and supplemental
+manifests provide at least 10 paired negative subsystem variants. These cases
+pass the same compiler, JSON AST, lint/elaboration, simulation, selected
+formal, and QoR gates as their manifest denominators. CDC remains an
+explicit-adapter smoke validation, not a CDC correctness proof.
 
 Simulation covers all 36 public positives and all 10 held-out positives. In the
 public-development split, all 36 positives use committed directed testbenches.
@@ -45,6 +60,12 @@ T001--T004 and T058--T065 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT
 counts match on all 12 rows, and WNS is positive for all generated and
 reference copies. This is representative out-of-context evidence, not
 board-level implementation or all-task timing closure.
+
+\begin{table}[t]
+  \centering
+  \caption{QoR evidence scope}
+  \resizebox{\columnwidth}{!}{\input{tables/qor_scope_summary.tex}}
+\end{table}
 
 \subsection{LLM Matrix}
 
@@ -65,6 +86,18 @@ JSON used by the release workflow.
   \centering
   \caption{JSON AST repair paired comparisons with exact paired tests generated from aggregate JSON}
   \resizebox{\textwidth}{!}{\input{tables/llm_paired_comparisons.tex}}
+\end{table*}
+
+\begin{table*}[t]
+  \centering
+  \caption{Repair boundary and provenance}
+  \resizebox{\textwidth}{!}{\input{tables/llm_repair_boundary.tex}}
+\end{table*}
+
+\begin{table*}[t]
+  \centering
+  \caption{Compact LLM failure taxonomy}
+  \resizebox{\textwidth}{!}{\input{tables/llm_failure_taxonomy_compact.tex}}
 \end{table*}
 
 For the tested profiles, the schema-guided MICO JSON AST repair baseline reaches

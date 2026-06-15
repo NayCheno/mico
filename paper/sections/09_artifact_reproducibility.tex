@@ -8,12 +8,13 @@ Windows-host \LaTeX{}, and Vivado-specific subset synthesis uses the pinned
 Windows Vivado launcher.
 
 The release workflow freezes the Docker recipe, Rust toolchain, prompts,
-provider profiles, manifests, and result hashes; runs the benchmark and
-aggregate table generator; validates LLM configuration without exposing
-credentials; records redacted authenticated provider matrices for LLM claims;
-runs the Vivado subset for Xilinx evidence; and rejects staged PDFs, logs, build
-outputs, local YAML files, raw provider payloads, and secret-like strings. The
-deterministic, LLM, and Vivado tables are generated artifacts, not
+provider profiles, manifests, and result hashes; runs the public-development,
+held-out, and supplemental realism benchmarks; runs the aggregate and paper
+table generators; validates LLM configuration without exposing credentials;
+records redacted authenticated provider matrices for LLM claims; runs the
+Vivado subset for Xilinx evidence; and rejects staged PDFs, logs, build outputs,
+local YAML files, raw provider payloads, and secret-like strings. The
+deterministic, LLM, QoR, and paper-summary tables are generated artifacts, not
 hand-maintained counts. The committed numeric claim map is
 \texttt{docs/release\_claim\_table.md}; release builds record the corresponding
-hashes in ignored \texttt{build/} artifacts.
+hashes in ignored \texttt{build/} artifacts and in the anonymous review bundle.

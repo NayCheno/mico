@@ -30,13 +30,17 @@ manifest denominators. CDC remains an explicit-adapter smoke validation, not a
 CDC correctness proof.
 
 Simulation covers all 36 public positives and all 10 held-out positives. In the
-public-development split, 28 tasks use committed directed testbenches and the
-remaining 8 use generated ready/valid smoke harnesses from traceability
-reports. Bounded formal smoke covers 31 public single-clock positives: 20
-committed directed monitors and 11 generated monitors. The held-out split adds
-10/10 positive simulations and 9/9 single-clock formal smoke checks. Structural
-and generic-mapped Yosys QoR is available for all 9 reference-enabled public
-tasks and all 3 held-out QoR-enabled tasks.
+public-development split, 32 tasks use committed directed testbenches and the
+remaining 4 use generated ready/valid smoke harnesses from traceability
+reports. Bounded formal smoke covers 31 public single-clock positives: 24
+committed directed monitors and 7 generated monitors. The held-out split uses
+7 committed directed simulations and 3 generated simulation smoke harnesses;
+its non-CDC subsystem positives use 6 committed single-clock formal monitors,
+with 3 seed-calibration positives still using generated formal smoke. The
+explicit CDC held-out case remains smoke-only and is not counted in the
+single-clock formal denominator. Structural and generic-mapped Yosys QoR is
+available for all 9 reference-enabled public tasks and all 3 held-out
+QoR-enabled tasks.
 
 A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
 through the pinned Windows launcher. It synthesizes measurement-only copies of

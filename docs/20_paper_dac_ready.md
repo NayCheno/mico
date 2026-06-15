@@ -1,6 +1,6 @@
 # DAC-Ready Paper Pass
 
-Snapshot date: 2026-06-14.
+Snapshot date: 2026-06-15.
 
 This records the M6 paper hardening step for the DAC 2027 plan. DAC 2027 has
 not published its research manuscript CFP in this repository snapshot, so the
@@ -41,8 +41,8 @@ reviewed into the paper source. This avoids hand-maintained counts while keeping
 Aggregate command:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_paper_m7.json --paper-table-dir build/paper_tables/dac2027_llm_v2"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m5_heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m7_heldout.json --out-dir build/bench/heldout_m7_tables --paper-table-dir build/paper_tables/dac2027_heldout20"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_paper_m7.json --paper-table-dir build/paper_tables/dac2027_llm_v2"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_heldout_directed_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m7_heldout.json --out-dir build/bench/heldout_m7_tables --paper-table-dir build/paper_tables/dac2027_heldout20"
 ```
 
 Paper command:

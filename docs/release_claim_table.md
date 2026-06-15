@@ -21,6 +21,7 @@ payloads, or API keys.
 |---|---:|---|---|---|---|
 | Public-development manifest tasks | 62 total, 36 positive, 26 negative | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
 | Level distribution | L1 10, L2 13, L3 10, L4 10, L5 10, L6 9 | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
+| Public-development case-study positives and paired negatives | 5 positive, 0 paired negative variants | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/tables/benchmark_split_summary.tex` |
 | Expected outcomes | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Positive compose | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Positive lint/elaboration | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |

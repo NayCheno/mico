@@ -78,6 +78,26 @@ def manifest_pair(path: Path) -> str:
     return f"{positives}/{negatives}"
 
 
+def manifest_summary(path: Path) -> dict[str, Any]:
+    tasks = load_yaml(path).get("tasks", [])
+    levels = Counter(str(task.get("level")) for task in tasks)
+    case_positive = 0
+    case_negative = 0
+    for task in tasks:
+        features = set(task.get("expected_features", []))
+        if "calibration" in features:
+            continue
+        if task.get("type") == "positive" and "case_study" in features:
+            case_positive += 1
+        if task.get("type") == "negative" and "case_study_negative" in features:
+            case_negative += 1
+    return {
+        "pos_neg": manifest_pair(path),
+        "levels": ", ".join(f"{level}={levels[level]}" for level in sorted(levels)),
+        "case_pairs": f"{case_positive}/{case_negative}",
+    }
+
+
 def split_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     specs = [
         ("Public-dev", args.public_manifest, args.public_result, "Yosys reference"),
@@ -87,6 +107,7 @@ def split_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     rows = []
     for name, manifest, result, qor_label in specs:
         summary = load_json(repo_path(result)).get("summary", {})
+        manifest_stats = manifest_summary(repo_path(manifest))
         sim_modes = summary.get("sim_mode_counts", {})
         formal_modes = summary.get("formal_mode_counts", {})
         qor = summary.get("qor", {})
@@ -97,7 +118,9 @@ def split_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
             {
                 "split": name,
                 "tasks": summary.get("total_tasks", 0),
-                "pos_neg": manifest_pair(repo_path(manifest)),
+                "pos_neg": manifest_stats["pos_neg"],
+                "levels": manifest_stats["levels"],
+                "case_pairs": manifest_stats["case_pairs"],
                 "expected": fraction(summary, "expected_outcome_pass"),
                 "sim": f"{fraction(summary, 'sim_pass')} ({sim_declared} declared)",
                 "formal": f"{fraction(summary, 'formal_pass')} ({formal_declared} declared)",
@@ -313,6 +336,8 @@ def main() -> int:
             ("split", "Split"),
             ("tasks", "Tasks"),
             ("pos_neg", "Pos/Neg"),
+            ("levels", "Levels"),
+            ("case_pairs", "Cases/paired negatives"),
             ("expected", "Expected"),
             ("sim", "Simulation"),
             ("formal", "Formal"),

@@ -122,7 +122,9 @@ Supported now:
   generated/reference summaries for `T001`, `T003`, and `T058`--`T064`.
 - Held-out manifest with 20 scoring tasks, including seven subsystem positives
   and seven paired negative variants; deterministic held-out scoring currently
-  passes 20/20 expected outcomes.
+  passes 20/20 expected outcomes. The non-CDC held-out subsystem positives now
+  have committed directed formal monitors, while the explicit CDC held-out case
+  remains smoke-only.
 - Historical sanitized low-cost LLM matrix summary showing a negative result
   for the original prompts.
 - Structured v2 authenticated LLM full matrix across public-development and

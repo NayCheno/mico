@@ -1,6 +1,6 @@
 # Held-Out Benchmark Hardening
 
-Snapshot date: 2026-06-14.
+Snapshot date: 2026-06-15.
 
 This records the M5 held-out benchmark expansion for the DAC 2027 plan. The
 held-out manifest is committed for reproducible scoring, but generated result
@@ -14,6 +14,11 @@ JSON and aggregate tables remain under ignored `build/` paths.
 - 10 positive and 10 negative tasks.
 - 7 subsystem positive case-study variants.
 - 7 paired case-study negative variants.
+- 7 committed directed held-out simulation testbenches; the three seed
+  calibration positives still use generated ready/valid simulation smoke.
+- 6 committed directed single-clock held-out formal monitors covering all
+  non-CDC held-out subsystem case studies; the three seed calibration positives
+  still use generated formal smoke, and the CDC case remains formal not-run.
 - Per-task request text, module/interface/adapter inventories, expected
   diagnostics, RTL collateral, expected features, and prompt-leakage policy.
 
@@ -35,9 +40,9 @@ New M5 tasks:
 Commands:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m5_heldout_results.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m5_heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m5_heldout.json --out-dir build/bench/heldout_m5_tables --paper-table-dir build/paper_tables/heldout_m5"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m5_heldout_results.json --aggregate-result build/bench/aggregate_m5_heldout.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m3_heldout_directed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_heldout_directed_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m3_heldout_directed.json --out-dir build/bench/heldout_m3_directed_tables --paper-table-dir build/paper_tables/heldout_m3_directed"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --aggregate-result build/bench/aggregate_m3_heldout_directed.json"
 ```
 
 Result:
@@ -50,27 +55,34 @@ Result:
 - `qor_available: 3/3`
 - `unsafe_rejection: 10/10`
 - `json_ast_path: 20/20`
+- `sim_mode_counts: {declared: 7, autogen: 3}`
+- `formal_mode_counts: {declared: 6, autogen: 3}`
 
 Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `benchmarks/module_compose_bench_heldout.yaml` | `64953d83d910e840b400d0c58825442a1a3e6318aeb23b3b0b3b6cfde2e9e251` |
-| `build/bench/m5_heldout_results.json` | `de4724da19caabf367759021db4e1fbd4e864abb3ddd9033450ede301c06ca7e` |
-| `build/bench/aggregate_m5_heldout.json` | `1535c21ada6eae75c71c66890a7d5ee3a2524be17388d0bdeaba556c079b835e` |
+| `benchmarks/module_compose_bench_heldout.yaml` | `022839f2ad342d9050f392e43f001291c2560301742a00994ac20b1454548704` |
+| `build/bench/m3_heldout_directed_results.json` | `436585587c2f9e4560f7c93e4f33fdaa30aaedc7d4c05f82b9d14c97532cef7f` |
+| `build/bench/aggregate_m3_heldout_directed.json` | `2ac36b157411ca1d5283d62227bff423340113392108eb56b9e4ea14824c147f` |
 
 ## LLM Split Refresh
 
-Because this change revises the held-out manifest, the authenticated held-out
-LLM matrix was rerun for the 20-task split and the public-dev v2 matrix was
-re-aggregated with the new held-out result. Detailed pass-rate tables live in
+The original M5 change revised the held-out task set, so the authenticated
+held-out LLM matrix was rerun for the 20-task split and the public-dev v2
+matrix was re-aggregated with that held-out result. The 2026-06-15 directed
+verification update changes only committed simulation/formal collateral and
+manifest metadata for the same task IDs and prompts. It therefore invalidates
+the old held-out manifest SHA binding for final archives; before immutable
+release, rerun or explicitly rebind the authenticated held-out LLM matrix to
+the `022839f2...` manifest hash. Detailed pass-rate tables live in
 `docs/22_llm_full_matrix_v2.md`.
 
 Additional commands:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
 ```
 
 LLM refresh hashes:
@@ -82,8 +94,8 @@ LLM refresh hashes:
 
 ## Claim Boundary
 
-This strengthens the dev/held-out split and the subsystem case-study corpus.
-It does not make the held-out split private, and it does not add new Vivado or
-QoR claims for T069--T076. LLM and paper claims must report public-development
-and held-out scores separately and bind any archived results to the manifest
-SHA-256 above.
+This strengthens the dev/held-out split, the subsystem case-study corpus, and
+the directed verification denominator. It does not make the held-out split
+private, and it does not add new Vivado or QoR claims for T069--T076. LLM and
+paper claims must report public-development and held-out scores separately and
+bind any archived results to the manifest SHA-256 above.

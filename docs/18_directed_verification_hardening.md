@@ -37,7 +37,7 @@ Command:
 
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_manifest.yaml --output build/bench/m3_public_directed_results.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m3_heldout_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m3_heldout_directed_results.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --out-json build/bench/aggregate_m3_public_directed.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-result build/bench/m3_public_directed_results.json"
 ```
@@ -60,5 +60,13 @@ Artifact hash:
 | Artifact | SHA-256 |
 |---|---|
 | `build/bench/m3_public_directed_results.json` | `7eb098d4bac7c537c4051a743897f9913d5f95d935e639282aa4652d22a553bb` |
-| `build/bench/m3_heldout_results.json` | `10f5e13982ff4dcc585b7831e7f2f27d87e66656f0bddea56aa37701dd1a8db4` |
+| `build/bench/m3_heldout_directed_results.json` | `436585587c2f9e4560f7c93e4f33fdaa30aaedc7d4c05f82b9d14c97532cef7f` |
 | `build/bench/aggregate_m3_public_directed.json` | `06da5a85b1e2a2d25c491f988167dc070fbab5ee86a8ebec525652cd89252c1d` |
+
+Held-out directed audit result:
+
+- `sim_mode_counts: {declared: 7, autogen: 3}`
+- `formal_mode_counts: {declared: 6, autogen: 3}`
+- T063, T064, T069, T071, T073, and T075 now use committed single-clock
+  formal monitors. T065 remains CDC smoke-only and intentionally has no formal
+  proof claim.

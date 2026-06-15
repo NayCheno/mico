@@ -165,7 +165,9 @@ Current deterministic benchmark scope:
   telemetry, protocol bridge, and register/status composition. Its expected
   current result is 20/20 expected outcome, 10/10 positive lint/sim, 9/9
   single-clock formal smoke, 3/3 QoR, 10/10 unsafe rejection, and 20/20 JSON
-  AST path.
+  AST path. The held-out mode split is 7 declared and 3 generated simulations,
+  plus 6 declared and 3 generated single-clock formal checks; the explicit CDC
+  case remains formal not-run.
 
 ## Validation Commands
 

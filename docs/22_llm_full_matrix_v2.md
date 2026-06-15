@@ -6,6 +6,14 @@ This page records the M2 structured LLM full-matrix rerun for the DAC 2027
 plan. The result files, response caches, prompts emitted under `build/`, and
 local provider configuration remain ignored and are not committed.
 
+Manifest note: the held-out task IDs and prompts reported here are unchanged,
+but a 2026-06-15 directed-verification update added committed simulation and
+formal collateral to `benchmarks/module_compose_bench_heldout.yaml`, changing
+that manifest's SHA-256 to `022839f2ad342d9050f392e43f001291c2560301742a00994ac20b1454548704`.
+The authenticated held-out execute hashes below remain evidence for the prior
+manifest hash. Before immutable release, rerun or explicitly rebind the
+held-out LLM matrix to the current manifest hash.
+
 ## Runner Changes
 
 - `prompts/repair_prompt_template.md` now includes the supported repair
@@ -35,8 +43,8 @@ Full matrix:
 ```powershell
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_public_dev_v2.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m5_heldout_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_dac2027_public_dev_v2.json --llm-bench build/llm/bench_execute_dac2027_heldout_20.json --aggregate-result build/bench/aggregate_dac2027_llm_heldout20.json"
 ```
 
 ## Public-Development Results

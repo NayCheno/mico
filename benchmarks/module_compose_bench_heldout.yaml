@@ -139,6 +139,7 @@ tasks:
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T068_cdc_without_adapter_case
     level: L4
@@ -168,13 +169,18 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_axi_apb_wrapper_case.sv
     sim_top: tb_axi_apb_wrapper_case
+    formal_harness: benchmarks/formal/tb_axi_apb_wrapper_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T063_axi_apb_wrapper_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
-    expected_features: [case_study, axi_apb_wrapper, protocol_bridge, directed_simulation, qor_reference]
+    expected_features: [case_study, axi_apb_wrapper, protocol_bridge, directed_simulation, directed_formal, qor_reference]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T066_apb_direct_protocol_mismatch_case
     level: L5
@@ -204,13 +210,18 @@ tasks:
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
     sim_testbench: benchmarks/sim/tb_video_filter_pipeline_case.sv
     sim_top: tb_video_filter_pipeline_case
+    formal_harness: benchmarks/formal/tb_video_filter_pipeline_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
     qor_reference: benchmarks/qor/reference/T064_video_filter_pipeline_case_ref.sv
     qor_top: Top
     qor_reference_top: Top
-    expected_features: [case_study, video_pipeline, filter_chain, directed_simulation, qor_reference]
+    expected_features: [case_study, video_pipeline, filter_chain, directed_simulation, directed_formal, qor_reference]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T067_video_reversed_direction_case
     level: L6
@@ -237,10 +248,17 @@ tasks:
     adapter_inventory: [CaseWiden32To64]
     mico_source: benchmarks/tasks/T069_telemetry_filter_holdout_case/expected.mico
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
-    expected_features: [case_study, heldout_subsystem, telemetry_chain, explicit_adapter]
+    sim_testbench: benchmarks/sim/tb_telemetry_filter_holdout_case.sv
+    sim_top: tb_telemetry_filter_holdout_case
+    formal_harness: benchmarks/formal/tb_telemetry_filter_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, heldout_subsystem, telemetry_chain, explicit_adapter, directed_simulation, directed_formal]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T070_telemetry_missing_widen_holdout
     level: L6
@@ -267,10 +285,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T071_protocol_bridge_holdout_case/expected.mico
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
-    expected_features: [case_study, heldout_subsystem, protocol_bridge, request_response]
+    sim_testbench: benchmarks/sim/tb_protocol_bridge_holdout_case.sv
+    sim_top: tb_protocol_bridge_holdout_case
+    formal_harness: benchmarks/formal/tb_protocol_bridge_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, heldout_subsystem, protocol_bridge, request_response, directed_simulation, directed_formal]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T072_protocol_reversed_response_holdout
     level: L5
@@ -297,10 +322,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T073_register_status_holdout_case/expected.mico
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
-    expected_features: [case_study, heldout_subsystem, register_wrapper, status_path]
+    sim_testbench: benchmarks/sim/tb_register_status_holdout_case.sv
+    sim_top: tb_register_status_holdout_case
+    formal_harness: benchmarks/formal/tb_register_status_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, heldout_subsystem, register_wrapper, status_path, directed_simulation, directed_formal]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T074_register_status_reversed_holdout
     level: L5
@@ -327,10 +359,17 @@ tasks:
     adapter_inventory: []
     mico_source: benchmarks/tasks/T075_video_pipeline_holdout_case/expected.mico
     rtl_collateral: rtl/case_studies/mico_case_studies.sv
-    expected_features: [case_study, heldout_subsystem, video_pipeline, filter_chain]
+    sim_testbench: benchmarks/sim/tb_video_pipeline_holdout_case.sv
+    sim_top: tb_video_pipeline_holdout_case
+    formal_harness: benchmarks/formal/tb_video_pipeline_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, heldout_subsystem, video_pipeline, filter_chain, directed_simulation, directed_formal]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
+      formal_pass: true
       diagnostics: []
   - id: T076_video_missing_stage_holdout
     level: L6

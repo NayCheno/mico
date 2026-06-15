@@ -4,10 +4,10 @@ Snapshot date: 2026-06-15.
 
 This file is the authoritative boundary between evidence-backed MICO claims and
 work that remains unsupported. It should be read together with
-`docs/current_status.md`, `docs/13_architecture_audit.md`, and
-`docs/14_reproduction_workflow.md`. DAC 2027 submission planning lives in
-`docs/dac2027_submission_plan.md`; this file remains the source of truth for
-what the repository may currently claim.
+`docs/final_claim_freeze.md`, `docs/current_status.md`,
+`docs/13_architecture_audit.md`, and `docs/14_reproduction_workflow.md`. DAC
+2027 submission planning lives in `docs/dac2027_submission_plan.md`; this file
+remains the source of truth for what the repository may currently claim.
 
 ## Submission Target Boundary
 

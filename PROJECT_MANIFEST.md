@@ -30,6 +30,7 @@
 | `docs/25_realism_supplement.md` | Deterministic supplemental subsystem realism manifest, validation results, hashes, and LLM-claim boundary. |
 | `docs/artifact_quickstart.md` | Anonymous artifact bundle quickstart, hash-check locations, and known limitations. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
+| `docs/final_claim_freeze.md` | Frozen DAC 2027 claim boundary, Branch A scope, unsupported-claim list, and release Go/No-Go rule. |
 | `docs/release_claim_table.md` | Single source for current numeric claim values, evidence artifact paths, schema versions, hash sources, and paper locations. |
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |

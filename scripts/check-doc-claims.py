@@ -15,6 +15,76 @@ except ImportError as exc:  # pragma: no cover - covered by Docker tool setup
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
+UNSUPPORTED_CLAIM_PATTERNS: list[tuple[str, str]] = [
+    (r"\barbitrary[- ]model\b|\barbitrary models\b", "arbitrary-model LLM generalization"),
+    (r"\buntested models\b", "untested-model LLM generalization"),
+    (r"\bbroad free[- ]form repair\b|\bfree[- ]form model repair\b", "broad free-form repair"),
+    (r"\bautonomous semantic repair\b|\bautonomous model repair\b", "autonomous semantic repair"),
+    (r"\bgeneral LLM repair\b|\bmodel-general repair\b", "general repair reliability"),
+    (r"\bexhaustive formal\b|\bfull formal proof\b|\bfull per-task formal proof\b", "exhaustive/full formal proof"),
+    (r"\barbitrary LTL\b", "arbitrary LTL support"),
+    (r"\bCDC correctness proof\b|\bCDC proof\b|\bformal CDC proof\b", "CDC correctness proof"),
+    (r"\brouted timing closure\b|\bfull timing closure\b|\btiming closure\b", "timing closure"),
+    (r"\bboard-level implementation\b|\bbitstream generation\b", "board-level implementation or bitstream generation"),
+]
+
+CLAIM_SCAN_FILES = [
+    "README.md",
+    "PROJECT_MANIFEST.md",
+    "docs/current_status.md",
+    "docs/dac2027_submission_plan.md",
+    "docs/artifact_quickstart.md",
+    "docs/13_architecture_audit.md",
+    "docs/14_reproduction_workflow.md",
+    "docs/20_paper_dac_ready.md",
+    "docs/dac2027_full_check_baseline_2026-06-15.md",
+    "docs/final_claim_freeze.md",
+    "paper/main.tex",
+]
+
+DISCLAIMER_MARKERS = [
+    "not claim",
+    "does not claim",
+    "do not claim",
+    "must not claim",
+    "not support",
+    "does not support",
+    "not ",
+    "not as evidence",
+    "unsupported",
+    "unclaimed",
+    "non-claim",
+    "not yet implemented",
+    "outside the claim",
+    "outside the current claim",
+    "outside the scope",
+    "no ",
+    "not a ",
+    "not routed",
+    "not arbitrary",
+    "not exhaustive",
+    "not unrestricted",
+    "not generalized",
+    "rather than broad",
+    "rather than unrestricted",
+    "limited to",
+    "bounded",
+    "limitation",
+    "limitations",
+    "threats",
+    "claim boundary",
+    "frozen non-claims",
+    "known limitations",
+    "use vivado only",
+    "host-vivado",
+    "remains unsupported",
+    "remain unsupported",
+    "remains outside",
+    "remain outside",
+    "must not",
+    "never",
+]
+
 
 def read_text(rel: str) -> str:
     return (REPO_ROOT / rel).read_text(encoding="utf-8")
@@ -50,6 +120,32 @@ def expect(label: str, actual: Any, expected: Any) -> list[str]:
     if actual == expected:
         return []
     return [f"{label}: expected {expected!r}, got {actual!r}"]
+
+
+def is_disclaimed_context(lines: list[str], index: int) -> bool:
+    start = max(0, index - 8)
+    end = min(len(lines), index + 9)
+    window = " ".join(lines[start:end]).lower()
+    return any(marker in window for marker in DISCLAIMER_MARKERS)
+
+
+def scan_unsupported_affirmative_claims() -> list[str]:
+    errors: list[str] = []
+    scan_paths = [REPO_ROOT / rel for rel in CLAIM_SCAN_FILES]
+    scan_paths.extend(sorted((REPO_ROOT / "paper" / "sections").glob("*.tex")))
+    for path in scan_paths:
+        if not path.exists():
+            errors.append(f"{path.relative_to(REPO_ROOT).as_posix()}: missing claim-scan target")
+            continue
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for index, line in enumerate(lines):
+            for pattern, reason in UNSUPPORTED_CLAIM_PATTERNS:
+                if re.search(pattern, line, flags=re.IGNORECASE) and not is_disclaimed_context(lines, index):
+                    rel = path.relative_to(REPO_ROOT).as_posix()
+                    errors.append(
+                        f"{rel}:{index + 1}: unsupported affirmative claim ({reason}): {line.strip()!r}"
+                    )
+    return errors
 
 
 def scan_required_references() -> list[str]:
@@ -184,6 +280,7 @@ def main() -> int:
     errors.extend(check_claim_table())
     errors.extend(scan_required_references())
     errors.extend(scan_stale_claims())
+    errors.extend(scan_unsupported_affirmative_claims())
 
     if errors:
         print("Documentation claim check failed:", file=sys.stderr)

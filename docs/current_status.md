@@ -152,7 +152,7 @@ Current deterministic benchmark scope:
   positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
   rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
   31/31, structural plus generic-mapped QoR available 9/9. The mode split is
-  32 declared and 4 generated simulations, plus 24 declared and 7 generated
+  36 declared and 0 generated simulations, plus 24 declared and 7 generated
   single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, broad timing QoR,
@@ -168,7 +168,7 @@ Current deterministic benchmark scope:
   telemetry, protocol bridge, and register/status composition. Its expected
   current result is 20/20 expected outcome, 10/10 positive lint/sim, 9/9
   single-clock formal smoke, 3/3 QoR, 10/10 unsafe rejection, and 20/20 JSON
-  AST path. The held-out mode split is 7 declared and 3 generated simulations,
+  AST path. The held-out mode split is 10 declared and 0 generated simulations,
   plus 6 declared and 3 generated single-clock formal checks; the explicit CDC
   case remains formal not-run.
 

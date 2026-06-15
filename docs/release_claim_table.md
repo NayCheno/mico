@@ -25,7 +25,7 @@ payloads, or API keys.
 | Positive compose | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Positive lint/elaboration | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Positive simulation | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Simulation mode split | 32 declared, 4 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Simulation mode split | 36 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Unsafe rejection | 26/26 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | JSON AST path | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Single-clock bounded formal smoke | 31/31 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
@@ -43,7 +43,7 @@ payloads, or API keys.
 | Held-out positive compose | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out positive lint/elaboration | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out positive simulation | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out simulation mode split | 7 declared, 3 generated | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Held-out simulation mode split | 10 declared, 0 generated | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Held-out unsafe rejection | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out JSON AST path | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Held-out single-clock bounded formal smoke | 9/9 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
@@ -78,7 +78,8 @@ introduction, evaluation, conclusion, or release notes:
 - 12-task or 12/12 held-out split.
 - 20 directed public simulations or 14 directed public formal monitors.
 - Four-task or four-wrapper Vivado subset.
-- Full directed simulation beyond 32 committed public directed harnesses.
+- Exhaustive or randomized simulation coverage beyond the committed directed
+  smoke scenarios.
 - Full task-specific formal proof beyond 24 committed public single-clock
   monitors and bounded smoke formal denominators.
 - CDC correctness proof.

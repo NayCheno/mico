@@ -123,12 +123,10 @@ Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
 Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
 testbenches. The current public-development summary records
-`sim_mode_counts = {declared: 32, autogen: 4}`. Accepted positive tasks
-without a declared testbench get an
-auto-generated ready/valid smoke harness from the emitted traceability JSON;
-the generated harness instantiates `Top`, toggles clock/reset ports, and checks
-generated payload/valid/ready wires for unknown values with valid/ready asserted
-after reset. Simulation stdout/stderr artifacts are written under ignored
+`sim_mode_counts = {declared: 36}`. The runner still has an auto-generated
+ready/valid smoke harness fallback for newly added positive tasks without a
+declared testbench, but fallback simulation is not part of the current public
+main table. Simulation stdout/stderr artifacts are written under ignored
 `build/bench/`.
 Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated

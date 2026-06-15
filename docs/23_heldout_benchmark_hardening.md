@@ -14,8 +14,8 @@ JSON and aggregate tables remain under ignored `build/` paths.
 - 10 positive and 10 negative tasks.
 - 7 subsystem positive case-study variants.
 - 7 paired case-study negative variants.
-- 7 committed directed held-out simulation testbenches; the three seed
-  calibration positives still use generated ready/valid simulation smoke.
+- 10 committed directed held-out simulation testbenches; the three seed
+  calibration positives now reuse committed directed public seed benches.
 - 6 committed directed single-clock held-out formal monitors covering all
   non-CDC held-out subsystem case studies; the three seed calibration positives
   still use generated formal smoke, and the CDC case remains formal not-run.
@@ -55,7 +55,7 @@ Result:
 - `qor_available: 3/3`
 - `unsafe_rejection: 10/10`
 - `json_ast_path: 20/20`
-- `sim_mode_counts: {declared: 7, autogen: 3}`
+- `sim_mode_counts: {declared: 10}`
 - `formal_mode_counts: {declared: 6, autogen: 3}`
 
 Artifact hashes:

@@ -136,10 +136,10 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. Thirty-two
-tasks, including the five public-development subsystem case studies, use
-committed directed Icarus/VVP testbenches; the remaining four accepted positive
-tasks use generated ready/valid smoke harnesses derived from traceability JSON.
+ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. All 36
+accepted positives, including the five public-development subsystem case
+studies and the CDC adapter variants, use committed directed Icarus/VVP
+testbenches.
 It reports `formal_pass: 31/31` over the single-clock formal smoke denominator:
 twenty-four committed directed harnesses plus generated ready/valid formal
 harnesses for the remaining seven single-clock positives.
@@ -360,8 +360,8 @@ Claims not yet supported:
 - Full paid LLM benchmark matrix results committed as artifact data.
 - Broad free-form LLM repair reliability beyond the recorded deterministic
   adapter-instance fallback.
-- Full directed functional simulation coverage beyond the 32 committed
-  directed harnesses.
+- Exhaustive or randomized simulation coverage beyond the committed directed
+  smoke scenarios.
 - Full task-specific formal proof coverage beyond the 24 committed
   single-clock monitors and bounded formal smoke denominator.
 - Full timing closure, broad Vivado QoR, or technology-mapped delay conclusions.

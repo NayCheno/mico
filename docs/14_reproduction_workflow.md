@@ -128,8 +128,8 @@ Expected current benchmark result:
 - `expected_outcome_pass: 62/62`
 - `compose_pass_1: 36/36` for positive tasks
 - `lint_pass: 36/36` for positive tasks
-- `sim_pass: 36/36` for positive tasks; 32 use committed directed Icarus
-  testbenches and 4 use generated ready/valid smoke harnesses
+- `sim_pass: 36/36` for positive tasks; all 36 use committed directed
+  Icarus testbenches
 - `formal_pass: 31/31` for single-clock formal smoke tasks; 24 use committed
   directed monitors and 7 use generated ready/valid formal harnesses
 - `qor_available: 9/9` for positive tasks with committed reference wrappers;
@@ -161,7 +161,7 @@ Expected held-out result:
 - `qor_available: 3/3`
 - `unsafe_rejection: 10/10`
 - `json_ast_path: 20/20`
-- mode split: 7 declared and 3 generated simulations, plus 6 declared and 3
+- mode split: 10 declared and 0 generated simulations, plus 6 declared and 3
   generated single-clock formal checks; the explicit CDC held-out case remains
   formal not-run
 

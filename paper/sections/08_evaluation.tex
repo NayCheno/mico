@@ -30,11 +30,10 @@ manifest denominators. CDC remains an explicit-adapter smoke validation, not a
 CDC correctness proof.
 
 Simulation covers all 36 public positives and all 10 held-out positives. In the
-public-development split, 32 tasks use committed directed testbenches and the
-remaining 4 use generated ready/valid smoke harnesses from traceability
-reports. Bounded formal smoke covers 31 public single-clock positives: 24
+public-development split, all 36 positives use committed directed testbenches.
+Bounded formal smoke covers 31 public single-clock positives: 24
 committed directed monitors and 7 generated monitors. The held-out split uses
-7 committed directed simulations and 3 generated simulation smoke harnesses;
+10 committed directed simulations and no generated simulation smoke harnesses;
 its non-CDC subsystem positives use 6 committed single-clock formal monitors,
 with 3 seed-calibration positives still using generated formal smoke. The
 explicit CDC held-out case remains smoke-only and is not counted in the

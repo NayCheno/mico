@@ -78,14 +78,13 @@ The current repository supports these claims when the release gate passes:
 - The committed held-out manifest contains 20 scoring tasks with ten positives,
   ten negatives, seven subsystem positives, and seven paired negative variants;
   deterministic held-out scoring currently passes 20/20 expected outcomes. Its
-  directed verification denominator includes seven declared simulations and
-  six declared single-clock formal monitors for non-CDC subsystem cases; the
-  explicit CDC held-out case remains smoke-only.
+  directed verification denominator includes ten declared simulations and six
+  declared single-clock formal monitors for non-CDC subsystem cases; the
+  explicit CDC held-out case remains smoke-only for formal.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
-- All 36 positive tasks pass Icarus/VVP simulation smoke checks. Thirty-two use
-  committed directed testbenches; the remaining positives use generated
-  ready/valid smoke harnesses derived from traceability JSON.
+- All 36 positive tasks pass Icarus/VVP simulation smoke checks through
+  committed directed testbenches.
 - Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
   checks. Twenty-four use committed directed monitors; the remaining single-clock
   positives use generated ready/valid formal harnesses derived from traceability
@@ -122,8 +121,8 @@ The current repository must not claim:
 - Full paid LLM benchmark matrix raw results committed as artifact data.
 - Broad free-form LLM repair reliability. Current accepted repair-turn wins are
   limited to the explicitly recorded deterministic adapter-instance fallback.
-- Full directed functional simulation coverage beyond the 32 committed
-  directed harnesses.
+- Exhaustive or randomized simulation coverage beyond the committed directed
+  smoke scenarios.
 - Full task-specific formal proof coverage beyond the 24 committed
   single-clock monitors and bounded formal smoke denominator.
 - CDC correctness proof for the smoke FIFO collateral.

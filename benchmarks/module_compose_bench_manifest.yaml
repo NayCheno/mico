@@ -565,10 +565,13 @@ tasks:
     adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T027_cdc_alt_instances/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_cdc_alt_instances.sv
+    sim_top: tb_cdc_alt_instances
     expected_features: [cdc_adapter, renamed_instances]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T028_cdc_assumed_ready_valid
     level: L4
@@ -580,10 +583,13 @@ tasks:
     adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T028_cdc_assumed_ready_valid/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_cdc_assumed_ready_valid.sv
+    sim_top: tb_cdc_assumed_ready_valid
     expected_features: [cdc_adapter, contract_guarantee]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T029_cdc_contractless
     level: L4
@@ -595,10 +601,13 @@ tasks:
     adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T029_cdc_contractless/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_cdc_contractless.sv
+    sim_top: tb_cdc_contractless
     expected_features: [cdc_adapter, contractless_seed]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T030_cdc_alt_stream_names
     level: L4
@@ -610,10 +619,13 @@ tasks:
     adapter_inventory: [AsyncFifo32]
     mico_source: benchmarks/tasks/T030_cdc_alt_stream_names/expected.mico
     rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_cdc_alt_stream_names.sv
+    sim_top: tb_cdc_alt_stream_names
     expected_features: [cdc_adapter, renamed_interfaces]
     expected:
       compose_pass: true
       lint_pass: true
+      sim_pass: true
       diagnostics: []
   - id: T031_bus_seed_direct_stream
     level: L5

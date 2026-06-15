@@ -165,8 +165,8 @@ Unsupported now:
   benchmark splits;
 - broad free-form model-generated repair reliability beyond the recorded
   adapter-instance compiler-feedback fallback;
-- full directed simulation coverage beyond the 32 committed directed
-  harnesses;
+- exhaustive or randomized simulation coverage beyond the committed directed
+  smoke harnesses;
 - full task-specific formal proof coverage beyond the 24 committed
   single-clock monitors;
 - CDC correctness proof;

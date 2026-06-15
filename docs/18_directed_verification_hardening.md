@@ -10,8 +10,9 @@ not expand CDC correctness claims or timing/QoR claims.
 The public-development manifest now has:
 
 - 36/36 positive simulation pass.
-- 32 committed directed Icarus testbenches.
-- 4 generated ready/valid simulation smoke harnesses.
+- 36 committed directed Icarus testbenches.
+- 0 generated ready/valid simulation smoke harnesses in the current main
+  public-development result.
 - 31/31 single-clock bounded formal pass.
 - 24 committed directed formal monitors.
 - 7 generated ready/valid formal smoke monitors.
@@ -28,6 +29,10 @@ New directed collateral covers:
   T031, and T032.
 - The 2026-06-15 M3 audit pass added directed simulation for T053, T054, T055,
   and T057.
+- The 2026-06-15 M3.1 audit pass added directed simulation for T027, T028,
+  T029, and T030, replacing the remaining public generated simulation fallback.
+- The 2026-06-15 M3.1 audit pass bound existing directed simulation for
+  held-out seed calibration positives T013, T019, and T021.
 - The 2026-06-15 M3 audit pass added directed single-clock formal monitors for
   T051, T052, T053, and T054.
 
@@ -52,7 +57,7 @@ Result:
 - `qor_available: 9/9`
 - `unsafe_rejection: 26/26`
 - `json_ast_path: 62/62`
-- `sim_mode_counts: {declared: 32, autogen: 4}`
+- `sim_mode_counts: {declared: 36}`
 - `formal_mode_counts: {declared: 24, autogen: 7}`
 
 Artifact hash:
@@ -65,7 +70,7 @@ Artifact hash:
 
 Held-out directed audit result:
 
-- `sim_mode_counts: {declared: 7, autogen: 3}`
+- `sim_mode_counts: {declared: 10}`
 - `formal_mode_counts: {declared: 6, autogen: 3}`
 - T063, T064, T069, T071, T073, and T075 now use committed single-clock
   formal monitors. T065 remains CDC smoke-only and intentionally has no formal

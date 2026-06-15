@@ -12,17 +12,17 @@ the seed tasks.
 | Task | Focus | RTL | Simulation | Formal | QoR |
 |---|---|---|---|---|---|
 | `T058_streaming_accelerator_case` | DMA-like source -> skid buffer -> XOR filter -> result sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded ready-valid/data property | yes |
-| `T059_width_protocol_bridge_case` | 32-bit sensor stream -> explicit width adapter -> 64-bit accelerator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | not run | yes |
-| `T060_register_status_case` | APB-like command source -> register/status transform -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | not run | yes |
+| `T059_width_protocol_bridge_case` | 32-bit sensor stream -> explicit width adapter -> 64-bit accelerator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
+| `T060_register_status_case` | APB-like command source -> register/status transform -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
 | `T061_protocol_bridge_case` | request/response command source -> protocol bridge -> response sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
 | `T062_multi_ip_telemetry_case` | telemetry source -> filter -> explicit width adapter -> accumulator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
-| `T063_axi_apb_wrapper_case` | AXI-lite-like command source -> AXI/APB bridge -> APB-like peripheral sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
-| `T064_video_filter_pipeline_case` | pixel source -> line buffer -> threshold filter -> frame sink | `rtl/case_studies/mico_case_studies.sv` | yes | generated smoke | yes |
+| `T063_axi_apb_wrapper_case` | AXI-lite-like command source -> AXI/APB bridge -> APB-like peripheral sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded protocol property | yes |
+| `T064_video_filter_pipeline_case` | pixel source -> line buffer -> threshold filter -> frame sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded data/valid property | yes |
 | `T065_cdc_event_status_case` | event source -> explicit CDC FIFO -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | not run; CDC smoke only | yes |
-| `T069_telemetry_filter_holdout_case` | telemetry source -> filter -> explicit width adapter -> accumulator -> host sink | `rtl/case_studies/mico_case_studies.sv` | generated smoke | generated smoke | no |
-| `T071_protocol_bridge_holdout_case` | request source -> protocol bridge -> response sink | `rtl/case_studies/mico_case_studies.sv` | generated smoke | generated smoke | no |
-| `T073_register_status_holdout_case` | command source -> register file -> status sink | `rtl/case_studies/mico_case_studies.sv` | generated smoke | generated smoke | no |
-| `T075_video_pipeline_holdout_case` | pixel source -> line buffer -> threshold stage -> frame sink | `rtl/case_studies/mico_case_studies.sv` | generated smoke | generated smoke | no |
+| `T069_telemetry_filter_holdout_case` | telemetry source -> filter -> explicit width adapter -> accumulator -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded data/valid property | no |
+| `T071_protocol_bridge_holdout_case` | request source -> protocol bridge -> response sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded protocol property | no |
+| `T073_register_status_holdout_case` | command source -> register file -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded status property | no |
+| `T075_video_pipeline_holdout_case` | pixel source -> line buffer -> threshold stage -> frame sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded data/valid property | no |
 
 The held-out case studies have paired negative variants:
 

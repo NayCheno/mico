@@ -1,8 +1,10 @@
 # Subsystem Case Studies
 
 MICO includes five public-development subsystem case studies in the main
-62-task manifest and seven additional held-out subsystem case studies in
-`benchmarks/module_compose_bench_heldout.yaml`. They live in
+62-task manifest, seven additional held-out subsystem case studies in
+`benchmarks/module_compose_bench_heldout.yaml`, and three deterministic
+supplemental subsystem positives in
+`benchmarks/module_compose_bench_realism.yaml`. They live in
 `rtl/case_studies/` and are scored by the standard ModuleComposeBench runner, so
 they share the same compiler, lint, simulation, formal, and QoR result schema as
 the seed tasks.
@@ -23,6 +25,9 @@ the seed tasks.
 | `T071_protocol_bridge_holdout_case` | request source -> protocol bridge -> response sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded protocol property | no |
 | `T073_register_status_holdout_case` | command source -> register file -> status sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded status property | no |
 | `T075_video_pipeline_holdout_case` | pixel source -> line buffer -> threshold stage -> frame sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded data/valid property | no |
+| `T077_dma_register_map_case` | DMA register command source -> register file -> interrupt/status sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded status property | no |
+| `T079_axis_packetizer_case` | AXI-stream-like word source -> packetizer -> packet sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded packet property | no |
+| `T081_mmio_control_data_path_case` | MMIO control source -> explicit width adapter -> 64-bit data path -> host sink | `rtl/case_studies/mico_case_studies.sv` | yes | bounded data property | no |
 
 The held-out case studies have paired negative variants:
 
@@ -33,11 +38,14 @@ The held-out case studies have paired negative variants:
 - `T072_protocol_reversed_response_holdout` reverses the response direction.
 - `T074_register_status_reversed_holdout` reverses the status direction.
 - `T076_video_missing_stage_holdout` references an undeclared threshold stage.
+- `T078_dma_register_map_reversed_status` reverses a register-map status path.
+- `T080_axis_packetizer_missing_stage` omits the packetizer stage.
+- `T082_mmio_control_missing_widen` omits the control/data width adapter.
 
-The first eight positive case-study tasks declare committed source-level JSON
-AST fixtures (`expected.ast.json`) in their task directories. The M5 held-out
-extensions rely on regenerated JSON AST checks under ignored `build/` paths and
-do not add new QoR or Vivado claims.
+The public, core held-out, and supplemental positive case-study tasks declare
+committed source-level JSON AST fixtures (`expected.ast.json`) in their task
+directories. The later held-out extensions rely on regenerated JSON AST checks
+under ignored `build/` paths and do not add new QoR or Vivado claims.
 
 ## Reproduction
 
@@ -74,6 +82,22 @@ Expected held-out result:
 - `qor_available: 3/3`
 - `unsafe_rejection: 10/10`
 - `json_ast_path: 20/20`
+
+Run the deterministic realism supplement separately:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json"
+```
+
+Expected supplemental result:
+
+- `expected_outcome_pass: 14/14`
+- `compose_pass_1: 7/7`
+- `lint_pass: 7/7`
+- `sim_pass: 7/7`
+- `formal_pass: 6/6`
+- `unsafe_rejection: 7/7`
+- `json_ast_path: 14/14`
 
 Generate aggregate CSV and TeX snippets from the same JSON:
 

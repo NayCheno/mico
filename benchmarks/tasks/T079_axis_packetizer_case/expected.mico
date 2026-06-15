@@ -1,0 +1,34 @@
+clockdom Sys(clk, rst);
+
+interface AxisWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface AxisPacket64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseAxisWordSource @Sys {
+  out tx: AxisWord32;
+}
+
+extern module CaseAxisPacketizer @Sys {
+  in word: AxisWord32;
+  out packet: AxisPacket64;
+}
+
+extern module CaseAxisPacketSink @Sys {
+  in rx: AxisPacket64;
+}
+
+compose Top @Sys {
+  inst word_source: CaseAxisWordSource;
+  inst packetizer: CaseAxisPacketizer;
+  inst packet_sink: CaseAxisPacketSink;
+  connect word_source.tx -> packetizer.word;
+  connect packetizer.packet -> packet_sink.rx;
+}

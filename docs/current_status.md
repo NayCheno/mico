@@ -168,6 +168,13 @@ Current deterministic benchmark scope:
   AST path. The held-out mode split is 10 declared and 0 generated simulations,
   plus 9 declared and 0 generated single-clock formal checks; the explicit CDC
   case remains formal not-run.
+- Supplemental realism split:
+  `benchmarks/module_compose_bench_realism.yaml` has 14 deterministic-only
+  tasks with seven positives and seven negatives. It adds three subsystem
+  positives plus three paired negatives and passes 14/14 expected outcomes,
+  7/7 positive lint/sim, 6/6 bounded single-clock formal, 7/7 unsafe rejection,
+  and 14/14 JSON AST path. It is not included in v3 LLM claims until a separate
+  authenticated matrix reruns it.
 
 ## Validation Commands
 

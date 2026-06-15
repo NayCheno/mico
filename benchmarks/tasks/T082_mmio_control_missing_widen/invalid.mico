@@ -1,0 +1,37 @@
+clockdom Sys(clk, rst);
+
+interface CtrlWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+interface CtrlWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+}
+
+interface DataWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+}
+
+extern module CaseControlRegSource @Sys {
+  out tx: CtrlWord32;
+}
+
+extern module CaseControlDataPath64 @Sys {
+  in cfg: CtrlWord64;
+  out data: DataWord64;
+}
+
+extern module CaseHostSink64 @Sys {
+  in rx: DataWord64;
+}
+
+compose Top @Sys {
+  inst ctrl: CaseControlRegSource;
+  inst datapath: CaseControlDataPath64;
+  inst host: CaseHostSink64;
+  connect ctrl.tx -> datapath.cfg;
+  connect datapath.data -> host.rx;
+}

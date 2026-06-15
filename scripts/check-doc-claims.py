@@ -149,6 +149,7 @@ def check_manifests() -> list[str]:
     errors: list[str] = []
     public = task_summary(load_manifest("benchmarks/module_compose_bench_manifest.yaml"))
     heldout = task_summary(load_manifest("benchmarks/module_compose_bench_heldout.yaml"))
+    realism = task_summary(load_manifest("benchmarks/module_compose_bench_realism.yaml"))
 
     errors += expect("public total", public["total"], 62)
     errors += expect("public positives", public["positive"], 36)
@@ -164,6 +165,14 @@ def check_manifests() -> list[str]:
     errors += expect("held-out declared simulations", heldout["declared_sim"], 10)
     errors += expect("held-out declared formal monitors", heldout["declared_formal"], 9)
     errors += expect("held-out QoR references", heldout["qor_reference"], 3)
+
+    errors += expect("realism total", realism["total"], 14)
+    errors += expect("realism positives", realism["positive"], 7)
+    errors += expect("realism negatives", realism["negative"], 7)
+    errors += expect("realism levels", realism["levels"], {"L1": 2, "L2": 2, "L3": 2, "L4": 2, "L5": 2, "L6": 4})
+    errors += expect("realism declared simulations", realism["declared_sim"], 7)
+    errors += expect("realism declared formal monitors", realism["declared_formal"], 6)
+    errors += expect("realism QoR references", realism["qor_reference"], 0)
     return errors
 
 

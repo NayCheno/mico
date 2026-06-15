@@ -1,0 +1,201 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "CtrlWord32",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "CtrlWord64",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u64",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "DataWord64",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u64",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseControlRegSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "CtrlWord32"
+        }
+      ]
+    },
+    {
+      "name": "CaseControlDataPath64",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "cfg",
+          "direction": "in",
+          "interface": "CtrlWord64"
+        },
+        {
+          "name": "data",
+          "direction": "out",
+          "interface": "DataWord64"
+        }
+      ]
+    },
+    {
+      "name": "CaseHostSink64",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "DataWord64"
+        }
+      ]
+    }
+  ],
+  "adapters": [
+    {
+      "name": "CaseWiden32To64",
+      "from_interface": "CtrlWord32",
+      "from_domain": "Sys",
+      "to_interface": "CtrlWord64",
+      "to_domain": "Sys",
+      "kind": "width_adapter",
+      "attributes": [
+        {
+          "name": "mode",
+          "value": "zero_extend"
+        },
+        {
+          "name": "contract",
+          "value": "preserves_ready_valid"
+        }
+      ]
+    }
+  ],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "ctrl",
+          "module": "CaseControlRegSource"
+        },
+        {
+          "name": "datapath",
+          "module": "CaseControlDataPath64"
+        },
+        {
+          "name": "host",
+          "module": "CaseHostSink64"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "ctrl",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "datapath",
+            "port": "cfg"
+          },
+          "adapter": "CaseWiden32To64"
+        },
+        {
+          "from": {
+            "instance": "datapath",
+            "port": "data"
+          },
+          "to": {
+            "instance": "host",
+            "port": "rx"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

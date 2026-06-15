@@ -1,0 +1,295 @@
+name: ModuleComposeBenchRealismSupplement
+version: 0.1.0
+minimum_tasks: 6
+purpose: Supplemental deterministic subsystem realism cases for DAC 2027 evaluation hardening without changing the locked LLM-scored public or held-out manifests.
+scope_notes:
+  - This supplement adds three positive subsystem cases and three paired unsafe variants, plus L1-L4 calibration tasks reused from existing manifests so the runner's per-level invariant remains active.
+  - It is deterministic-only until an authenticated LLM rerun explicitly includes it.
+  - The cases cover DMA register-map/status composition, AXI-stream-like packetization, and memory-mapped control/data width adaptation.
+  - Each positive case has committed MICO source, JSON AST fixture, RTL collateral, directed simulation, and directed single-clock formal monitors.
+  - QoR and Vivado evidence remain governed by the main public and held-out QoR-enabled manifests.
+levels:
+  L1: same-domain direct interface connections
+  L2: width and parameter adaptation
+  L3: backpressure and latency adapter seeds
+  L4: CDC/RDC adapter and rejection seeds
+  L5: bus bridge/register wrapper seeds
+  L6: multi-IP subsystem integration seeds
+split_policy:
+  public_dev:
+    description: Supplemental public-development realism extension; not used for the locked v3 LLM matrix unless rerun.
+    task_selector: T077-T082
+  held_out:
+    status: not_applicable
+    description: This supplement is not a held-out scoring split.
+    release_policy: Archive with deterministic supplemental evidence only; do not mix with held-out LLM claims.
+  prompt_leakage_controls:
+    - Prompt builders must not use expected compose bodies, diagnostics, testbenches, or formal monitors as few-shot examples.
+    - LLM claims must report this supplement separately unless a new authenticated matrix reruns it.
+tasks:
+  - id: T013_direct_stream_alt_names
+    level: L1
+    type: positive
+    path: tasks/T013_direct_stream_alt_names
+    request: Connect Producer.tx to Consumer.rx using renamed instances and a Packet32 ready-valid interface.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [Packet32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T013_direct_stream_alt_names/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_direct_stream_alt_names.sv
+    sim_top: tb_direct_stream_alt_names
+    formal_harness: benchmarks/formal/tb_direct_stream_alt_names_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [direct_connect, renamed_instances, calibration]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T007_reversed_direction
+    level: L1
+    type: negative
+    path: tasks/T007_reversed_direction
+    request: Reject a reversed connection that drives Producer.tx from Consumer.rx.
+    module_inventory: [Producer, Consumer]
+    interface_inventory: [StreamU32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T007_reversed_direction/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [direction_mismatch, compiler_rejection, calibration]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch]
+  - id: T021_width_alt_interfaces
+    level: L2
+    type: positive
+    path: tasks/T021_width_alt_interfaces
+    request: Widen Source32.tx from NarrowStream to Sink64.rx on WideStream with Widen32To64.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [NarrowStream, WideStream]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T021_width_alt_interfaces/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_width_alt_interfaces.sv
+    sim_top: tb_width_alt_interfaces
+    formal_harness: benchmarks/formal/tb_width_alt_interfaces_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [width_adapter, renamed_interfaces, calibration]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T042_width_adapter_cross_domain
+    level: L2
+    type: negative
+    path: tasks/T042_width_adapter_cross_domain
+    request: Reject a width adapter that attempts to cross from Aclk to Bclk.
+    module_inventory: [Source32, Sink64]
+    interface_inventory: [StreamU32A, StreamU64B]
+    adapter_inventory: [Widen32To64]
+    mico_source: benchmarks/tasks/T042_width_adapter_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [width_adapter_domain_misuse, compiler_rejection, calibration]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T019_latency_seed_fifo_chain
+    level: L3
+    type: positive
+    path: tasks/T019_latency_seed_fifo_chain
+    request: Model a latency-buffer seed by placing a FIFO stage between Producer and Consumer.
+    module_inventory: [Producer, Fifo, Consumer]
+    interface_inventory: [LatencyStream32]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T019_latency_seed_fifo_chain/expected.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    sim_testbench: benchmarks/sim/tb_latency_seed_fifo_chain.sv
+    sim_top: tb_latency_seed_fifo_chain
+    formal_harness: benchmarks/formal/tb_latency_seed_fifo_chain_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [latency_seed, fifo_chain, calibration]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T043_skid_buffer_cross_domain
+    level: L3
+    type: negative
+    path: tasks/T043_skid_buffer_cross_domain
+    request: Reject a skid-buffer latency adapter that attempts to cross clock domains.
+    module_inventory: [Dma, Aes]
+    interface_inventory: [StreamU32]
+    adapter_inventory: [Skid32]
+    mico_source: benchmarks/tasks/T043_skid_buffer_cross_domain/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features: [latency_adapter_domain_misuse, compiler_rejection, calibration]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [AdapterMismatch]
+  - id: T065_cdc_event_status_case
+    level: L4
+    type: positive
+    path: tasks/T065_cdc_event_status_case
+    request: Bridge an event stream from SrcClk to a status sink on DstClk through an explicit CaseAsyncFifo32 CDC adapter.
+    module_inventory: [CaseEventSource, CaseEventStatusSink]
+    interface_inventory: [EventStream, StatusStream]
+    adapter_inventory: [CaseAsyncFifo32]
+    mico_source: benchmarks/tasks/T065_cdc_event_status_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T065_cdc_event_status_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_cdc_event_status_case.sv
+    sim_top: tb_cdc_event_status_case
+    expected_features: [case_study, cdc_subsystem, explicit_cdc_adapter, smoke_only_cdc, directed_simulation, calibration]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      diagnostics: []
+  - id: T068_cdc_without_adapter_case
+    level: L4
+    type: negative
+    path: tasks/T068_cdc_without_adapter_case
+    request: Reject a direct event/status connection across SrcClk and DstClk without the CaseAsyncFifo32 CDC adapter.
+    module_inventory: [CaseEventSource, CaseEventStatusSink]
+    interface_inventory: [EventStream, StatusStream]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T068_cdc_without_adapter_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, unsafe_cdc_without_adapter, compiler_rejection, calibration]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch, ClockDomainMismatch]
+  - id: T077_dma_register_map_case
+    level: L5
+    type: positive
+    path: tasks/T077_dma_register_map_case
+    request: Connect a DMA register command source through a register-map transform into an interrupt/status sink.
+    module_inventory: [CaseDmaRegisterSource, CaseRegisterFile, CaseStatusSink]
+    interface_inventory: [DmaRegWord, RegStatusWord]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T077_dma_register_map_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T077_dma_register_map_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_dma_register_map_case.sv
+    sim_top: tb_dma_register_map_case
+    formal_harness: benchmarks/formal/tb_dma_register_map_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, dma_register_map, status_path, directed_simulation, directed_formal]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T078_dma_register_map_reversed_status
+    level: L5
+    type: negative
+    path: tasks/T078_dma_register_map_reversed_status
+    request: Reject a DMA register-map composition that drives a register write input from a status sink input.
+    module_inventory: [CaseDmaRegisterSource, CaseRegisterFile, CaseStatusSink]
+    interface_inventory: [DmaRegWord, RegStatusWord]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T078_dma_register_map_reversed_status/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, reversed_status_direction, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [DirectionMismatch, InterfaceMismatch]
+  - id: T079_axis_packetizer_case
+    level: L6
+    type: positive
+    path: tasks/T079_axis_packetizer_case
+    request: Connect a 32-bit AXI-stream-like word source through a packetizer into a 64-bit packet sink.
+    module_inventory: [CaseAxisWordSource, CaseAxisPacketizer, CaseAxisPacketSink]
+    interface_inventory: [AxisWord32, AxisPacket64]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T079_axis_packetizer_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T079_axis_packetizer_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_axis_packetizer_case.sv
+    sim_top: tb_axis_packetizer_case
+    formal_harness: benchmarks/formal/tb_axis_packetizer_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, axi_stream_packetizer, protocol_bridge, directed_simulation, directed_formal]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T080_axis_packetizer_missing_stage
+    level: L6
+    type: negative
+    path: tasks/T080_axis_packetizer_missing_stage
+    request: Reject a direct 32-bit word source to 64-bit packet sink connection when the packetizer stage is omitted.
+    module_inventory: [CaseAxisWordSource, CaseAxisPacketSink]
+    interface_inventory: [AxisWord32, AxisPacket64]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T080_axis_packetizer_missing_stage/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, missing_packetizer_stage, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+  - id: T081_mmio_control_data_path_case
+    level: L6
+    type: positive
+    path: tasks/T081_mmio_control_data_path_case
+    request: Connect a memory-mapped control register source through an explicit width adapter into a 64-bit data path and host sink.
+    module_inventory: [CaseControlRegSource, CaseControlDataPath64, CaseHostSink64]
+    interface_inventory: [CtrlWord32, CtrlWord64, DataWord64]
+    adapter_inventory: [CaseWiden32To64]
+    mico_source: benchmarks/tasks/T081_mmio_control_data_path_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T081_mmio_control_data_path_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_mmio_control_data_path_case.sv
+    sim_top: tb_mmio_control_data_path_case
+    formal_harness: benchmarks/formal/tb_mmio_control_data_path_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features: [case_study, mmio_control_data_path, explicit_width_adapter, directed_simulation, directed_formal]
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T082_mmio_control_missing_widen
+    level: L6
+    type: negative
+    path: tasks/T082_mmio_control_missing_widen
+    request: Reject a 32-bit memory-mapped control stream connected directly into a 64-bit data path without the width adapter.
+    module_inventory: [CaseControlRegSource, CaseControlDataPath64, CaseHostSink64]
+    interface_inventory: [CtrlWord32, CtrlWord64, DataWord64]
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T082_mmio_control_missing_widen/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features: [case_study_negative, missing_width_adapter, compiler_rejection]
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics: [InterfaceMismatch]
+metrics:
+  - Compose-Pass@1
+  - Lint-Pass
+  - Sim-Pass
+  - Formal-Pass
+  - Unsafe-Rejection
+  - JSON-AST-Path

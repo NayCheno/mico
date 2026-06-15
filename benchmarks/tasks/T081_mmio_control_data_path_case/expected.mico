@@ -1,0 +1,46 @@
+clockdom Sys(clk, rst);
+
+interface CtrlWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface CtrlWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface DataWord64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseControlRegSource @Sys {
+  out tx: CtrlWord32;
+}
+
+extern module CaseControlDataPath64 @Sys {
+  in cfg: CtrlWord64;
+  out data: DataWord64;
+}
+
+extern module CaseHostSink64 @Sys {
+  in rx: DataWord64;
+}
+
+adapter CaseWiden32To64 from CtrlWord32@Sys to CtrlWord64@Sys {
+  kind width_adapter;
+  mode zero_extend;
+  contract preserves_ready_valid;
+}
+
+compose Top @Sys {
+  inst ctrl: CaseControlRegSource;
+  inst datapath: CaseControlDataPath64;
+  inst host: CaseHostSink64;
+  adapt ctrl.tx -> CaseWiden32To64 -> datapath.cfg;
+  connect datapath.data -> host.rx;
+}

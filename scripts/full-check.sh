@@ -86,6 +86,9 @@ run_step "Deterministic benchmark" python3 benchmarks/run_bench.py --output buil
 run_step "Held-out benchmark" python3 benchmarks/run_bench.py \
     --manifest benchmarks/module_compose_bench_heldout.yaml \
     --output build/bench/heldout_results.json
+run_step "Supplemental realism benchmark" python3 benchmarks/run_bench.py \
+    --manifest benchmarks/module_compose_bench_realism.yaml \
+    --output build/bench/realism_results.json
 run_step "LLM provider validate-only" python3 scripts/llm-provider-smoke.py \
     --config "${llm_config}" \
     --profile "${provider_profile}" \
@@ -106,18 +109,31 @@ run_step "Aggregate held-out benchmark records" python3 benchmarks/aggregate_res
     --out-json build/bench/aggregate_heldout_results.json \
     --out-dir build/bench/heldout_tables \
     --paper-table-dir build/paper_tables/heldout
+run_step "Aggregate supplemental realism benchmark records" python3 benchmarks/aggregate_results.py \
+    --bench-result build/bench/realism_results.json \
+    --manifest benchmarks/module_compose_bench_realism.yaml \
+    --out-json build/bench/aggregate_realism_results.json \
+    --out-dir build/bench/realism_tables \
+    --paper-table-dir build/paper_tables/realism
 run_step "JSON schema validation" python3 scripts/validate_json_schemas.py \
     --bench-result build/bench/seed_results.json \
     --bench-result build/bench/heldout_results.json \
+    --bench-result build/bench/realism_results.json \
     --llm-run build/llm/provider_validate.json \
     --llm-bench build/llm/bench_validate.json \
     --aggregate-result build/bench/aggregate_results.json \
-    --aggregate-result build/bench/aggregate_heldout_results.json
+    --aggregate-result build/bench/aggregate_heldout_results.json \
+    --aggregate-result build/bench/aggregate_realism_results.json
 run_step "Held-out manifest schema validation" python3 scripts/validate_json_schemas.py \
     --no-generate-smoke \
     --bench-manifest benchmarks/module_compose_bench_heldout.yaml \
     --bench-result build/bench/heldout_results.json \
     --aggregate-result build/bench/aggregate_heldout_results.json
+run_step "Supplemental realism manifest schema validation" python3 scripts/validate_json_schemas.py \
+    --no-generate-smoke \
+    --bench-manifest benchmarks/module_compose_bench_realism.yaml \
+    --bench-result build/bench/realism_results.json \
+    --aggregate-result build/bench/aggregate_realism_results.json
 
 tracked_generated="$(
     git ls-files -- \
@@ -271,10 +287,12 @@ def load_llm_metadata(path: Path) -> dict[str, Any]:
 result_paths = [
     "build/bench/seed_results.json",
     "build/bench/heldout_results.json",
+    "build/bench/realism_results.json",
     "build/llm/provider_validate.json",
     "build/llm/bench_validate.json",
     "build/bench/aggregate_results.json",
     "build/bench/aggregate_heldout_results.json",
+    "build/bench/aggregate_realism_results.json",
 ]
 authenticated_llm_paths = [
     "build/llm/bench_execute_public_dev_v3.json",
@@ -287,6 +305,7 @@ authenticated_llm_paths = [
 manifest_paths = [
     "benchmarks/module_compose_bench_manifest.yaml",
     "benchmarks/module_compose_bench_heldout.yaml",
+    "benchmarks/module_compose_bench_realism.yaml",
 ]
 vivado_subset_paths = [
     "build/reports/vivado-host/vivado_qor_subset_summary.json",

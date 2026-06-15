@@ -81,6 +81,10 @@ The current repository supports these claims when the release gate passes:
   directed verification denominator includes ten declared simulations and nine
   declared single-clock formal monitors; the explicit CDC held-out case remains
   smoke-only for formal.
+- The supplemental realism manifest contains 14 deterministic-only tasks,
+  including three new subsystem positives and three paired negatives. It raises
+  the committed case-study corpus to 15 positives and at least 10 paired
+  negatives without changing the locked v3 LLM-scored manifests.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
 - All 36 positive tasks pass Icarus/VVP simulation smoke checks through

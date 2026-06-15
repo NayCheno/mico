@@ -1,0 +1,155 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "AxisWord32",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "AxisPacket64",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u64",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseAxisWordSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "AxisWord32"
+        }
+      ]
+    },
+    {
+      "name": "CaseAxisPacketizer",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "word",
+          "direction": "in",
+          "interface": "AxisWord32"
+        },
+        {
+          "name": "packet",
+          "direction": "out",
+          "interface": "AxisPacket64"
+        }
+      ]
+    },
+    {
+      "name": "CaseAxisPacketSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "rx",
+          "direction": "in",
+          "interface": "AxisPacket64"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "word_source",
+          "module": "CaseAxisWordSource"
+        },
+        {
+          "name": "packetizer",
+          "module": "CaseAxisPacketizer"
+        },
+        {
+          "name": "packet_sink",
+          "module": "CaseAxisPacketSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "word_source",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "packetizer",
+            "port": "word"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "packetizer",
+            "port": "packet"
+          },
+          "to": {
+            "instance": "packet_sink",
+            "port": "rx"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

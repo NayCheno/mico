@@ -130,6 +130,7 @@ try {
     Copy-BundleFile "config/llm-provider.example.yaml" "config/llm-provider.example.yaml"
     Copy-BundleFile "benchmarks/module_compose_bench_manifest.yaml" "manifests/module_compose_bench_manifest.yaml"
     Copy-BundleFile "benchmarks/module_compose_bench_heldout.yaml" "manifests/module_compose_bench_heldout.yaml"
+    Copy-BundleFile "benchmarks/module_compose_bench_realism.yaml" "manifests/module_compose_bench_realism.yaml"
     $docFiles = @(
         "docs/14_reproduction_workflow.md",
         "docs/15_case_studies.md",
@@ -142,6 +143,7 @@ try {
         "docs/22_llm_full_matrix_v2.md",
         "docs/23_heldout_benchmark_hardening.md",
         "docs/24_llm_matrix_v3.md",
+        "docs/25_realism_supplement.md",
         "docs/claim_boundary.md",
         "docs/current_status.md",
         "docs/dac2027_full_check_baseline_2026-06-15.md",
@@ -154,8 +156,10 @@ try {
     Copy-BundleFile $DeterministicEvidence "release/deterministic_evidence_hashes.json"
     Copy-BundleFile "build/bench/seed_results.json" "results/deterministic/seed_results.json"
     Copy-BundleFile "build/bench/heldout_results.json" "results/deterministic/heldout_results.json"
+    Copy-BundleFile "build/bench/realism_results.json" "results/deterministic/realism_results.json"
     Copy-BundleFile "build/bench/aggregate_results.json" "results/deterministic/aggregate_results.json"
     Copy-BundleFile "build/bench/aggregate_heldout_results.json" "results/deterministic/aggregate_heldout_results.json"
+    Copy-BundleFile "build/bench/aggregate_realism_results.json" "results/deterministic/aggregate_realism_results.json"
     Copy-BundleFile "build/llm/provider_validate.json" "results/llm_validate/provider_validate.json"
     Copy-BundleFile "build/llm/bench_validate.json" "results/llm_validate/bench_validate.json"
     $sanitizedLlmExecuteFiles = @(
@@ -216,6 +220,9 @@ try {
     }
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/heldout_tables") -PathType Container) {
         Copy-BundleTree "build/bench/heldout_tables" "tables/heldout"
+    }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/realism_tables") -PathType Container) {
+        Copy-BundleTree "build/bench/realism_tables" "tables/realism"
     }
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/dac2027_llm_stats") -PathType Container) {
         Copy-BundleTree "build/bench/dac2027_llm_stats" "tables/dac2027_llm_stats"

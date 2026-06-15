@@ -105,15 +105,18 @@ def build_payload(full_check_manifest: str) -> dict[str, Any]:
     manifest_files = [
         "benchmarks/module_compose_bench_manifest.yaml",
         "benchmarks/module_compose_bench_heldout.yaml",
+        "benchmarks/module_compose_bench_realism.yaml",
         "benchmarks/manifest_schema.json",
     ]
     deterministic_results = [
         "build/bench/seed_results.json",
         "build/bench/heldout_results.json",
+        "build/bench/realism_results.json",
     ]
     aggregate_results = [
         "build/bench/aggregate_results.json",
         "build/bench/aggregate_heldout_results.json",
+        "build/bench/aggregate_realism_results.json",
     ]
     release_files = [
         full_check_manifest,

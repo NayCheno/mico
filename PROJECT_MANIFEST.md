@@ -27,12 +27,13 @@
 | `docs/14_reproduction_workflow.md` | Clean-checkout reproduction workflow covering Docker Rust/EDA, benchmarks, LLM provider smoke, host Vivado, and host LaTeX. |
 | `docs/15_case_studies.md` | Dedicated subsystem case-study inventory, collateral paths, and reproduction commands. |
 | `docs/24_llm_matrix_v3.md` | Current manifest-bound authenticated LLM matrix summary and Branch A decision. |
+| `docs/25_realism_supplement.md` | Deterministic supplemental subsystem realism manifest, validation results, hashes, and LLM-claim boundary. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/release_claim_table.md` | Single source for current numeric claim values, evidence artifact paths, schema versions, hash sources, and paper locations. |
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | 62-task public-development ModuleComposeBench suite plus the 20-task held-out split, manifests, runner, result aggregator, and scoring schema. |
+| `benchmarks/` | 62-task public-development ModuleComposeBench suite plus the 20-task held-out split, supplemental realism manifest, runner, result aggregator, and scoring schema. |
 | `rtl/case_studies/` | Dedicated subsystem RTL collateral for streaming, width-bridge, and register/status case-study tasks. |
 | `benchmarks/formal/` | SymbiYosys harness monitors for selected seed formal checks. |
 | `benchmarks/qor/` | Hand-written reference wrappers for structural Yosys QoR comparison. |

@@ -1,0 +1,25 @@
+clockdom Sys(clk, rst);
+
+interface AxisWord32 @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+}
+
+interface AxisPacket64 @Sys {
+  producer payload:u64, valid:bool;
+  consumer ready:bool;
+}
+
+extern module CaseAxisWordSource @Sys {
+  out tx: AxisWord32;
+}
+
+extern module CaseAxisPacketSink @Sys {
+  in rx: AxisPacket64;
+}
+
+compose Top @Sys {
+  inst word_source: CaseAxisWordSource;
+  inst packet_sink: CaseAxisPacketSink;
+  connect word_source.tx -> packet_sink.rx;
+}

@@ -283,6 +283,103 @@ module CaseTelemetryAccumulator64 (
   wire unused_inputs = clk ^ rst;
 endmodule
 
+module CaseDmaRegisterSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] tx_payload,
+  output logic        tx_valid,
+  input  logic        tx_ready
+);
+  always_comb begin
+    tx_payload = 32'h0000_0015;
+    tx_valid = !rst;
+  end
+
+  wire unused_inputs = clk ^ tx_ready;
+endmodule
+
+module CaseAxisWordSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] tx_payload,
+  output logic        tx_valid,
+  input  logic        tx_ready
+);
+  always_comb begin
+    tx_payload = 32'h0000_005a;
+    tx_valid = !rst;
+  end
+
+  wire unused_inputs = clk ^ tx_ready;
+endmodule
+
+module CaseAxisPacketizer (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [31:0] word_payload,
+  input  logic        word_valid,
+  output logic        word_ready,
+  output logic [63:0] packet_payload,
+  output logic        packet_valid,
+  input  logic        packet_ready
+);
+  always_comb begin
+    packet_payload = {16'hca5e, 16'h0001, word_payload};
+    packet_valid = word_valid;
+    word_ready = packet_ready;
+  end
+
+  wire unused_inputs = clk ^ rst;
+endmodule
+
+module CaseAxisPacketSink (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [63:0] rx_payload,
+  input  logic        rx_valid,
+  output logic        rx_ready
+);
+  always_comb begin
+    rx_ready = !rst;
+  end
+
+  wire unused_inputs = clk ^ rx_valid ^ rx_payload[0];
+endmodule
+
+module CaseControlRegSource (
+  input  logic        clk,
+  input  logic        rst,
+  output logic [31:0] tx_payload,
+  output logic        tx_valid,
+  input  logic        tx_ready
+);
+  always_comb begin
+    tx_payload = 32'h0000_00c0;
+    tx_valid = !rst;
+  end
+
+  wire unused_inputs = clk ^ tx_ready;
+endmodule
+
+module CaseControlDataPath64 (
+  input  logic        clk,
+  input  logic        rst,
+  input  logic [63:0] cfg_payload,
+  input  logic        cfg_valid,
+  output logic        cfg_ready,
+  output logic [63:0] data_payload,
+  output logic        data_valid,
+  input  logic        data_ready
+);
+  always_comb begin
+    data_payload = cfg_payload ^ 64'h0000_0000_0000_0f0f;
+    data_valid = cfg_valid;
+    cfg_ready = data_ready;
+  end
+
+  wire unused_inputs = clk ^ rst;
+endmodule
+
 module CaseAxiLiteSource (
   input  logic        clk,
   input  logic        rst,

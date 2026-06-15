@@ -1,0 +1,155 @@
+{
+  "schema_version": "mico.ast.v0",
+  "kind": "design",
+  "clock_domains": [
+    {
+      "name": "Sys",
+      "clock": "clk",
+      "reset": "rst"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "DmaRegWord",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    },
+    {
+      "name": "RegStatusWord",
+      "domain": "Sys",
+      "fields": [
+        {
+          "name": "payload",
+          "type": "u32",
+          "role": "producer"
+        },
+        {
+          "name": "valid",
+          "type": "bool",
+          "role": "producer"
+        },
+        {
+          "name": "ready",
+          "type": "bool",
+          "role": "consumer"
+        }
+      ],
+      "contracts": [
+        {
+          "name": "stable_payload",
+          "expr": "valid -> stable(payload) until ready"
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "CaseDmaRegisterSource",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "tx",
+          "direction": "out",
+          "interface": "DmaRegWord"
+        }
+      ]
+    },
+    {
+      "name": "CaseRegisterFile",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "write",
+          "direction": "in",
+          "interface": "DmaRegWord"
+        },
+        {
+          "name": "status",
+          "direction": "out",
+          "interface": "RegStatusWord"
+        }
+      ]
+    },
+    {
+      "name": "CaseStatusSink",
+      "domain": "Sys",
+      "extern": true,
+      "ports": [
+        {
+          "name": "status",
+          "direction": "in",
+          "interface": "RegStatusWord"
+        }
+      ]
+    }
+  ],
+  "adapters": [],
+  "composes": [
+    {
+      "name": "Top",
+      "domain": "Sys",
+      "instances": [
+        {
+          "name": "dma_cmd",
+          "module": "CaseDmaRegisterSource"
+        },
+        {
+          "name": "regs",
+          "module": "CaseRegisterFile"
+        },
+        {
+          "name": "irq_status",
+          "module": "CaseStatusSink"
+        }
+      ],
+      "connections": [
+        {
+          "from": {
+            "instance": "dma_cmd",
+            "port": "tx"
+          },
+          "to": {
+            "instance": "regs",
+            "port": "write"
+          },
+          "adapter": null
+        },
+        {
+          "from": {
+            "instance": "regs",
+            "port": "status"
+          },
+          "to": {
+            "instance": "irq_status",
+            "port": "status"
+          },
+          "adapter": null
+        }
+      ]
+    }
+  ]
+}

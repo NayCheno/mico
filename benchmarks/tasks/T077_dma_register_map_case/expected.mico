@@ -1,0 +1,34 @@
+clockdom Sys(clk, rst);
+
+interface DmaRegWord @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+interface RegStatusWord @Sys {
+  producer payload:u32, valid:bool;
+  consumer ready:bool;
+  contract stable_payload: valid -> stable(payload) until ready;
+}
+
+extern module CaseDmaRegisterSource @Sys {
+  out tx: DmaRegWord;
+}
+
+extern module CaseRegisterFile @Sys {
+  in write: DmaRegWord;
+  out status: RegStatusWord;
+}
+
+extern module CaseStatusSink @Sys {
+  in status: RegStatusWord;
+}
+
+compose Top @Sys {
+  inst dma_cmd: CaseDmaRegisterSource;
+  inst regs: CaseRegisterFile;
+  inst irq_status: CaseStatusSink;
+  connect dma_cmd.tx -> regs.write;
+  connect regs.status -> irq_status.status;
+}

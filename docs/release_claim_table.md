@@ -50,6 +50,17 @@ payloads, or API keys.
 | Held-out formal mode split | 9 declared, 0 generated; explicit CDC case formal not-run | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
 | Held-out QoR | 3/3 reference-enabled held-out tasks | `build/bench/heldout_results.json`, `build/bench/aggregate_heldout_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
+## Supplemental Realism Claims
+
+| Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
+|---|---:|---|---|---|---|
+| Supplemental realism manifest tasks | 14 total, 7 positive, 7 negative | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md`, `paper/sections/08_evaluation.tex` |
+| New supplemental subsystem pairs | 3 positive and 3 paired negative | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md` |
+| Supplemental expected outcomes | 14/14 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental positive simulation | 7/7 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental bounded formal smoke | 6/6 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental unsafe rejection | 7/7 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+
 ## LLM And Repair Claims
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |

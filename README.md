@@ -19,18 +19,18 @@ source/             Original/edited input reports used as research context
 
 Direct Verilog generation asks an LLM to solve too many coupled problems in one textual target: local logic, module binding, port naming, protocol semantics, timing domains, resets, wrappers, and validation. MICO instead treats module composition as a typed graph synthesis problem. The LLM is a proposal engine; the compiler is the authority.
 
-## Current next milestones
+## Current release posture
 
 1. Treat DAC 2027 Research Track as the primary target and use
    `docs/dac2027_submission_plan.md` as the venue-specific control document.
 2. Keep the current claim boundary frozen and evidence-backed; see
-   `docs/claim_boundary.md`.
-3. Archive the authenticated low-cost LLM matrix externally and improve
-   prompt/model settings before any positive LLM claim.
-4. Broaden simulation, formal, case-study, and QoR coverage beyond the current
-   enabled subsets.
-5. Promote generated paper-table snippets into the final evidence-driven
-   evaluation.
+   `docs/claim_boundary.md` and `docs/submission_claim_freeze.md`.
+3. Treat the authenticated v3 OpenCode Go matrix as a bounded tested-profile
+   Branch A result for the public-development and held-out splits only.
+4. Keep the supplemental realism split as deterministic-only evidence until it
+   is rerun in an authenticated LLM matrix.
+5. Use generated release manifests, paper tables, and hashes as the source of
+   truth for submission and artifact claims.
 
 ## Status And Reproduction
 

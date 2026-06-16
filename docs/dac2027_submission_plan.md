@@ -15,6 +15,7 @@ Current numeric result values and release evidence mappings are centralized in
 Primary target:
 
 - DAC 2027 Research Track / Research Manuscript.
+- CCF classification: CCF A.
 - Conference dates: 2027-07-10 through 2027-07-16.
 - Location: San Jose Convention Center, San Jose, California.
 - Technical fit: AI-assisted EDA, RTL/IP composition, hardware design
@@ -24,8 +25,13 @@ Primary target:
 Backup target:
 
 - ICCAD 2027, if the final emphasis becomes a narrower EDA method paper.
+- CCF classification: CCF B backup, not a CCF A target.
 - DAC/ICCAD tool, demo, workshop, or artifact track if the LLM result remains
   negative and the strongest contribution is a benchmark plus compiler gate.
+
+Venue classification is part of the frozen submission boundary: repository and
+paper planning may call DAC the CCF A full-paper target, while ICCAD must be
+described only as a CCF B EDA-method backup.
 
 ICCAD 2026 is not a full-paper target for work starting in July 2026 because
 its regular paper deadline was 2026-04-14.

@@ -1,6 +1,6 @@
 # Held-Out Benchmark Hardening
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This records the M5 held-out benchmark expansion for the DAC 2027 plan. The
 held-out manifest is committed for reproducible scoring, but generated result
@@ -39,9 +39,9 @@ New M5 tasks:
 Commands:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m3_heldout_directed_results.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_heldout_directed_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_m3_heldout_directed.json --out-dir build/bench/heldout_m3_directed_tables --paper-table-dir build/paper_tables/heldout_m3_directed"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/m3_heldout_directed_results.json --aggregate-result build/bench/aggregate_m3_heldout_directed.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/heldout_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/heldout_results.json --manifest benchmarks/module_compose_bench_heldout.yaml --out-json build/bench/aggregate_heldout_results.json --out-dir build/bench/heldout_tables --paper-table-dir build/paper_tables/heldout"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/heldout_results.json --aggregate-result build/bench/aggregate_heldout_results.json"
 ```
 
 Result:
@@ -61,35 +61,31 @@ Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `benchmarks/module_compose_bench_heldout.yaml` | `022839f2ad342d9050f392e43f001291c2560301742a00994ac20b1454548704` |
-| `build/bench/m3_heldout_directed_results.json` | `436585587c2f9e4560f7c93e4f33fdaa30aaedc7d4c05f82b9d14c97532cef7f` |
-| `build/bench/aggregate_m3_heldout_directed.json` | `2ac36b157411ca1d5283d62227bff423340113392108eb56b9e4ea14824c147f` |
+| `benchmarks/module_compose_bench_heldout.yaml` | `8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd` |
+| `build/bench/heldout_results.json` | `dfb08cff44789c07be42d66800eb21431128f22f2cddc6008ec2776f1a8bfc14` |
+| `build/bench/aggregate_heldout_results.json` | `1809f695c65b57443f3cf3aba803445547e209aed5a2746f6c5c2b2676c92376` |
 
 ## LLM Split Refresh
 
-The original M5 change revised the held-out task set, so the authenticated
-held-out LLM matrix was rerun for the 20-task split and the public-dev v2
-matrix was re-aggregated with that held-out result. The 2026-06-15 directed
-verification update changes only committed simulation/formal collateral and
-manifest metadata for the same task IDs and prompts. It therefore invalidates
-the old held-out manifest SHA binding for final archives; before immutable
-release, rerun or explicitly rebind the authenticated held-out LLM matrix to
-the `022839f2...` manifest hash. Detailed pass-rate tables live in
-`docs/22_llm_full_matrix_v2.md`.
+The original M5 change revised the held-out task set. The refreshed v3 LLM
+matrix now binds the authenticated held-out execute record to the current
+20-task held-out manifest hash above and supersedes the v2 held-out binding for
+submission claims. Detailed v3 pass-rate tables live in
+`docs/24_llm_matrix_v3.md` and `docs/llm_final_matrix_report.md`.
 
 Additional commands:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --manifest benchmarks/module_compose_bench_heldout.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_dac2027_heldout_20.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --llm-result build/llm/bench_execute_dac2027_public_dev_v2.json --llm-result build/llm/bench_execute_dac2027_heldout_20.json --out-json build/bench/aggregate_dac2027_llm_heldout20.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_v3.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
 ```
 
 LLM refresh hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_dac2027_heldout_20.json` | `866902f272cf072b17c5161a3d32e91f592e2b9be2ff67b32924dfc8954b9072` |
-| `build/bench/aggregate_dac2027_llm_heldout20.json` | `65165e8c55ff2d8c4abf1d15a8b793c2ba9caa153b42aabba666e1b7ba832e2e` |
+| `build/llm/bench_execute_heldout_v3.json` | `44f249e02b6e5df0bbb70dfefdbb9ab07f340ff306c780ab2b88b8a395af06ff` |
+| `build/bench/aggregate_llm_v3.json` | `123f8296533f5e07312873c547e8e598454704fb2605e406f977af403c7aedbd` |
 
 ## Claim Boundary
 

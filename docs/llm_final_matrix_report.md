@@ -1,6 +1,6 @@
 # LLM Final Matrix Report
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This is the M5 final LLM evidence report for the current paper branch. It
 records the authenticated v3 OpenCode Go matrix, aggregate statistics, repair
@@ -31,7 +31,7 @@ Run inside the Docker EDA environment:
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_public_dev_v3.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_v3.json"
 .\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
-.\scripts\eda-docker.ps1 python3 scripts/write-llm-evidence-hashes.py --require --output build/release/llm_evidence_hashes_m5.json
+.\scripts\eda-docker.ps1 python3 scripts/write-llm-evidence-hashes.py --require --output build/release/llm_evidence_hashes.json
 ```
 
 Schema validation command:
@@ -44,15 +44,15 @@ Schema validation command:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `aa945b920002429c96961e47ee9ab9ffbbc9ff81ca954c2ea8cc458cbffd1f9b` |
-| `build/llm/bench_execute_heldout_v3.json` | `c2cf5d01016b77b5479db9226a5c473d93a4381ca3ff56a2c005fe74f2a0766b` |
-| `build/bench/aggregate_llm_v3.json` | `467dd314d820e2d5082bb7e250e8b87f784c44a0974dc4a37a6f1545cc1ac325` |
-| `build/release/llm_evidence_hashes_m5.json` | `1eca511f1cf4bbd742c9bfaa8ecfb5d85aecb8b388721c287bfa8c75b4a340c4` |
+| `build/llm/bench_execute_public_dev_v3.json` | `f1c5aa83d2527241eae0b8efbae788b6ae630a8c4ef01de6d9f322fbc5ba9513` |
+| `build/llm/bench_execute_heldout_v3.json` | `44f249e02b6e5df0bbb70dfefdbb9ab07f340ff306c780ab2b88b8a395af06ff` |
+| `build/bench/aggregate_llm_v3.json` | `123f8296533f5e07312873c547e8e598454704fb2605e406f977af403c7aedbd` |
+| `build/release/llm_evidence_hashes.json` | `07e217f985dbea56818efcfd7602712b091e5a418b80f1b0eddfbaaa806de15d` |
 
 The public-development manifest hash is
-`cfdaddea824075347ed6c18c885a34aa033223965fecbf1b42389b9f811b9401`.
+`3b8c412659b22fcbcdb5954fc299a6250ecd237988ff85bc398f096b61bf2957`.
 The held-out manifest hash is
-`022839f2ad342d9050f392e43f001291c2560301742a00994ac20b1454548704`.
+`8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd`.
 
 ## Aggregate Coverage
 

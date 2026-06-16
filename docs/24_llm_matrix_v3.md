@@ -1,11 +1,12 @@
 # LLM Full Matrix v3
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This document supersedes the v2 evidence in `docs/22_llm_full_matrix_v2.md` for
-current submission claims. The v3 execute records are bound to the current
-public-development and held-out manifest SHA-256 hashes and therefore clear the
-held-out manifest-hash mismatch called out in the CCF-A submission plan.
+current submission claims. The v3 execute records were refreshed against the
+current public-development and held-out manifest SHA-256 hashes and therefore
+clear the held-out manifest-hash mismatch called out in the CCF-A submission
+plan.
 
 ## Commands Run
 
@@ -24,15 +25,15 @@ sanitized and does not contain API keys.
 
 | Artifact | Manifest | Manifest SHA-256 |
 |---|---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `benchmarks/module_compose_bench_manifest.yaml` | `cfdaddea824075347ed6c18c885a34aa033223965fecbf1b42389b9f811b9401` |
-| `build/llm/bench_execute_heldout_v3.json` | `benchmarks/module_compose_bench_heldout.yaml` | `022839f2ad342d9050f392e43f001291c2560301742a00994ac20b1454548704` |
+| `build/llm/bench_execute_public_dev_v3.json` | `benchmarks/module_compose_bench_manifest.yaml` | `3b8c412659b22fcbcdb5954fc299a6250ecd237988ff85bc398f096b61bf2957` |
+| `build/llm/bench_execute_heldout_v3.json` | `benchmarks/module_compose_bench_heldout.yaml` | `8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd` |
 
 ## Execute Summary
 
 | Split | Run id | Attempts | Execute requests in record | Cache hits | JSON-valid responses | MICO positive compiler pass | Unsafe rejection |
 |---|---|---:|---:|---:|---:|---:|---:|
-| Public-development | `2151920b66d00667` | 930 | 930 | 930 | 777 | 207/324 | 229/234 |
-| Held-out | `a8b6cc5e02d178e4` | 300 | 300 | 300 | 254 | 59/90 | 89/90 |
+| Public-development | `b86f9028890e6bd9` | 930 | 930 | 930 | 777 | 207/324 | 229/234 |
+| Held-out | `339f9a8c1e1a24e0` | 300 | 300 | 300 | 254 | 59/90 | 89/90 |
 
 The runner's `provider_requests` field records execute-mode responses whose
 original cache payload came from provider requests; `cache_hits` records cache
@@ -90,9 +91,9 @@ free-form semantic repair.
 
 | File | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `aa945b920002429c96961e47ee9ab9ffbbc9ff81ca954c2ea8cc458cbffd1f9b` |
-| `build/llm/bench_execute_heldout_v3.json` | `c2cf5d01016b77b5479db9226a5c473d93a4381ca3ff56a2c005fe74f2a0766b` |
-| `build/bench/aggregate_llm_v3.json` | `467dd314d820e2d5082bb7e250e8b87f784c44a0974dc4a37a6f1545cc1ac325` |
+| `build/llm/bench_execute_public_dev_v3.json` | `f1c5aa83d2527241eae0b8efbae788b6ae630a8c4ef01de6d9f322fbc5ba9513` |
+| `build/llm/bench_execute_heldout_v3.json` | `44f249e02b6e5df0bbb70dfefdbb9ab07f340ff306c780ab2b88b8a395af06ff` |
+| `build/bench/aggregate_llm_v3.json` | `123f8296533f5e07312873c547e8e598454704fb2605e406f977af403c7aedbd` |
 
 Generated CSV and TeX snippets are under `build/paper_tables/llm_v3/` and stay
 out of source control. `docs/llm_final_matrix_report.md` records the M5 final

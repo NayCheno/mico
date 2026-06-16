@@ -5,7 +5,8 @@ Snapshot date: 2026-06-15.
 This note records the M3.4 deterministic realism supplement. It intentionally
 does not change the locked public-development or held-out manifests used by the
 authenticated v3 LLM matrix; LLM claims must rerun explicitly before including
-this supplement.
+this supplement. The current M5 failure-taxonomy and ablation evidence is
+summarized in `docs/benchmark_realism_ablation_report_2026-06-16.md`.
 
 ## Scope
 

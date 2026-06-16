@@ -1,6 +1,6 @@
 # QoR Vivado Subset Report
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This report is the M4 reviewer-facing Vivado/QoR evidence record. It supports
 only the claim that the selected generated wrappers are not obviously bloated
@@ -46,7 +46,7 @@ Then run the threshold check inside the Docker EDA environment:
 
 ## Threshold Result
 
-The final 2026-06-15 run produced:
+The final 2026-06-16 run produced:
 
 | Metric | Value |
 |---|---:|
@@ -55,7 +55,7 @@ The final 2026-06-15 run produced:
 | Maximum absolute LUT delta | 0.000% |
 | Minimum generated WNS | 4.854 ns |
 | Minimum reference WNS | 4.584 ns |
-| Total host Vivado elapsed time | 372.775 s |
+| Total host Vivado elapsed time | 375.721 s |
 | Threshold status | pass |
 
 The threshold is median generated/reference LUT delta <= 5.0%, all generated
@@ -71,11 +71,11 @@ copied into the release bundle when present.
 
 | Artifact | SHA-256 |
 |---|---|
-| `vivado_qor_subset_summary.json` | `2f04cca899b2fd91278d1dd62d8bd7fa0ca52b7ca49e5baa298b1bb12624bb8b` |
-| `vivado_qor_subset_summary.csv` | `951d8e8a72d84844799c62b3f97b902239ca3cf380b96930998a2608e83e2084` |
+| `vivado_qor_subset_summary.json` | `3747045f2a2f3399555bdf40cedf81ba5a340708e0240f955f873c2437eed05c` |
+| `vivado_qor_subset_summary.csv` | `9c5387d8330b85c11ce4b22e92533fa2d57bf6dc2611752abac466871eaa8d2b` |
 | `vivado_qor_subset_delta.csv` | `5953f168b6a78e5f11c10e32e6af6642ff09792c9f41c03722d98c5f08d77060` |
 | `vivado_qor_subset_summary.tex` | `62f8b650775252d77afe97b739b58853cd441270dd8635bea04b12c2fc555f13` |
-| `vivado_qor_thresholds.json` | `5c6fd69471e4d4d729f08e98a885301e793142fefc48cf9c2a5f04ea51a0ca2a` |
+| `vivado_qor_thresholds.json` | `d59bb7b14d1c8d204444e480c037fd5900e33b168cac7139161c16bac514aa22` |
 | `vivado_qor_thresholds.tex` | `771f238db9f24f4fbefb5f8381185921849261f5047110a39761a7b2e487c3c9` |
 
 ## Non-Claims

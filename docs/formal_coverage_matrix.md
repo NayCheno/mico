@@ -1,6 +1,6 @@
 # MICO Formal Coverage Matrix
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This matrix documents the bounded formal evidence used by the DAC 2027
 candidate. Numeric claims are mapped in `docs/release_claim_table.md`; generated
@@ -9,7 +9,9 @@ CSV/TeX artifacts are written under ignored `build/` paths by
 
 ## Scope
 
-The current formal denominator is intentionally bounded and single-clock:
+The current formal denominator is intentionally bounded and single-clock. Every
+task counted in the denominator uses a declared committed harness; generated
+fallback harnesses are not counted in the paper claim:
 
 - public-development: 31/31 enabled formal monitors pass;
 - held-out: 9/9 enabled formal monitors pass;
@@ -46,11 +48,35 @@ CDC remains outside the formal proof claim. The current CDC treatment is:
 - simulation/lint smoke exercises explicit adapter integration;
 - CDC formal monitors are not counted in the single-clock formal denominator;
 - physical metastability, synchronizer MTBF, gray-pointer FIFO correctness, and
-  full multi-clock CDC proof remain unclaimed.
+  full multi-clock proof of CDC correctness remains unclaimed.
 
 A future CDC proof can add an assume/guarantee wrapper around an asynchronous
 FIFO model, but that must be reported separately from the current single-clock
 bounded matrix.
+
+## Contract Boundary
+
+The theorem-like claim for the current v0 contract subset is:
+
+> If a MICO composition passes the compiler, every connection that requires a
+> declared ready/valid adapter guarantee has a matching adapter declaration and
+> every counted single-clock formal task has a committed bounded monitor for its
+> task-specific ready/valid, payload, bridge, register/status, or filter
+> relation.
+
+This is a compiler coverage and bounded-smoke claim. It is not a temporal proof
+of arbitrary contracts, not a liveness theorem, and not a proof of multi-clock
+behavior. The generated SVA skeletons and directed monitors provide traceable
+evidence paths; they do not replace a future complete contract-verification
+engine.
+
+## Current Evidence Hashes
+
+| Artifact | SHA-256 |
+|---|---|
+| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `c63dddf03bc8bab62fbd9d255243260d5f357ce0b118d93f71daab68b8c73148` |
+| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `1b32f8ed42ebcbecf5eb7625c67d59b9ee8b7abfedf702aa2ce0dd483294dc59` |
+| `paper/tables/formal_coverage_matrix.tex` | `ac5e544addc20a801f354a5e74daca9f9576dbfe7188918ef95cf16f5704382a` |
 
 ## Reproduction
 

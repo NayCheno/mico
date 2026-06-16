@@ -1,6 +1,6 @@
 # Directed Verification Hardening
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-16.
 
 This records the M3 verification hardening step for the DAC 2027 plan. It does
 not expand CDC correctness claims or timing/QoR claims.
@@ -17,7 +17,8 @@ The public-development manifest now has:
 - 31 committed directed formal monitors.
 - 0 generated ready/valid formal smoke monitors in the current main
   public-development result.
-- CDC tasks remain lint/simulation smoke only; no CDC proof is claimed.
+- CDC tasks remain lint/simulation smoke only; proof of CDC correctness is not
+  claimed.
 
 New directed collateral covers:
 
@@ -47,10 +48,11 @@ New directed collateral covers:
 Command:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_manifest.yaml --output build/bench/m3_public_directed_results.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/m3_heldout_directed_results.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/m3_public_directed_results.json --out-json build/bench/aggregate_m3_public_directed.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-result build/bench/m3_public_directed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --output build/bench/heldout_results.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json"
+.\scripts\eda-docker.ps1 python3 scripts/write-formal-coverage-matrix.py --paper-table-dir paper/tables
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-result build/bench/seed_results.json --bench-result build/bench/heldout_results.json --bench-result build/bench/realism_results.json"
 ```
 
 Result:
@@ -66,13 +68,16 @@ Result:
 - `sim_mode_counts: {declared: 36}`
 - `formal_mode_counts: {declared: 31}`
 
-Artifact hash:
+Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/bench/m3_public_directed_results.json` | `7eb098d4bac7c537c4051a743897f9913d5f95d935e639282aa4652d22a553bb` |
-| `build/bench/m3_heldout_directed_results.json` | `436585587c2f9e4560f7c93e4f33fdaa30aaedc7d4c05f82b9d14c97532cef7f` |
-| `build/bench/aggregate_m3_public_directed.json` | `06da5a85b1e2a2d25c491f988167dc070fbab5ee86a8ebec525652cd89252c1d` |
+| `build/bench/seed_results.json` | `d8b365f4841869c1d5403512f727d62b72ee7e028a237cfc930586bb5d67414f` |
+| `build/bench/heldout_results.json` | `dfb08cff44789c07be42d66800eb21431128f22f2cddc6008ec2776f1a8bfc14` |
+| `build/bench/realism_results.json` | `84149b6515df65a7927f02a16f73ce550bcd4e67955b77d8694434810d113bab` |
+| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `c63dddf03bc8bab62fbd9d255243260d5f357ce0b118d93f71daab68b8c73148` |
+| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `1b32f8ed42ebcbecf5eb7625c67d59b9ee8b7abfedf702aa2ce0dd483294dc59` |
+| `paper/tables/formal_coverage_matrix.tex` | `ac5e544addc20a801f354a5e74daca9f9576dbfe7188918ef95cf16f5704382a` |
 
 Held-out directed audit result:
 
@@ -81,3 +86,11 @@ Held-out directed audit result:
 - T063, T064, T069, T071, T073, and T075 now use committed single-clock
   formal monitors. T065 remains CDC smoke-only and intentionally has no formal
   proof claim.
+
+Supplemental realism directed audit result:
+
+- `sim_mode_counts: {declared: 7}`
+- `formal_mode_counts: {declared: 6}`
+- T077, T079, T081, and the single-clock seed-style realism tasks are covered
+  by committed directed monitors; the explicit CDC realism case remains outside
+  the formal denominator.

@@ -1,6 +1,6 @@
 \section{Related Work}
 
-VerilogEval, RTLCoder, OpenLLM-RTL, and ChipNeMo show that LLMs can be evaluated and adapted for hardware tasks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025,chipnemo2023}. These works motivate better benchmarks and domain context, but the artifact emitted by a model is still often RTL text. MICO is complementary: it does not assume the model has become trustworthy. It narrows the model's output to a checked composition representation and uses compiler diagnostics plus RTL tools as the acceptance boundary.
+VerilogEval, RTLCoder, OpenLLM-RTL, CVDP, and ChipNeMo show that LLMs can be evaluated and adapted for hardware tasks~\cite{verilogeval2023,rtlcoder2023,openllmrtl2025,cvdp2025,chipnemo2023}. These works motivate better benchmarks and domain context, but the artifact emitted by a model is still often RTL text. MICO is complementary: it does not assume the model has become trustworthy. It narrows the model's output to a checked composition representation and uses compiler diagnostics plus RTL tools as the acceptance boundary.
 
 The evaluation target is also different. Existing RTL-generation benchmarks
 stress module synthesis from functional descriptions. MICO stresses integration
@@ -9,6 +9,22 @@ direction, width, protocol, domain, adapter, and unsafe negative cases. This
 lets the paper measure not only whether a candidate wrapper compiles, but also
 whether the flow rejects compositions that a permissive text-generation prompt
 could accidentally wire together.
+
+Agentic EDA systems increasingly wrap models in tool feedback loops.
+Spec2RTL-Agent uses agents to process complex specifications, VeriMaAS composes
+multi-agent RTL workflows with formal feedback, Dr. RTL uses EDA feedback for
+RTL optimization, and HWE-Bench moves agent evaluation to repository-level
+hardware bug repair~\cite{spec2rtlagent2025,verimaas2025,drrtl2026,hwebench2026}.
+MICO uses the same lesson--tools must be in the loop--but applies it before RTL
+repair or optimization: the proposed interconnect is a typed data structure that
+can be checked, diagnosed, repaired, and compared before being lowered.
+
+Hardware-verification benchmarks also increasingly emphasize realistic
+specifications and bug-finding. AssertLLM and AssertLLM2 evaluate assertion
+generation with formal and mutation-oriented criteria~\cite{assertllm2024,assertllm2_2026}.
+MICO is not an assertion synthesizer. Its SVA skeletons and directed formal
+monitors are acceptance evidence for a checked module-composition graph, while
+full temporal verification and CDC proof remain downstream obligations.
 
 SystemVerilog interfaces, Chisel bundles and bulk connections, Amaranth wiring, and CIRCT ESI all demonstrate that interface abstraction has practical value~\cite{chisel_interfaces,amaranth_wiring,circt_esi}. MICO differs in its objective. It targets the integration of existing RTL/IP modules, not complete hardware description. It restricts LLM output to structured AST/JSON forms, not arbitrary host-language code. It also treats clock/reset domains, protocol contracts, adapter synthesis, and formal collateral as part of the interface type system.
 

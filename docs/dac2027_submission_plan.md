@@ -42,7 +42,7 @@ schedule, and the release gate dates before claiming submission readiness.
 
 ## CFP Monitor
 
-Latest manual check: 2026-06-15.
+Latest manual check: 2026-06-16.
 
 | Item | Current record |
 |---|---|
@@ -74,6 +74,12 @@ Check log:
   deadline, page limit, anonymity policy, rebuttal policy, artifact policy, or
   topic taxonomy was found. Keep the provisional freeze and do not cite an
   unconfirmed DAC 2027 submission deadline.
+- 2026-06-16: Rechecked the official DAC 2027 event page and DAC call-for-
+  contributions search results. The official DAC 2027 page still lists only
+  July 10--16, 2027 at the San Jose Convention Center; no DAC 2027 Research
+  CFP, deadline, page limit, anonymity policy, artifact policy, or topic
+  taxonomy was found. Continue using DAC 2026 rules only as provisional
+  planning constraints.
 
 ## Claim Branches
 

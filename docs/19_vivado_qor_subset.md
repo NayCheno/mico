@@ -1,6 +1,6 @@
 # Vivado QoR Subset
 
-Snapshot date: 2026-06-16.
+Snapshot date: 2026-06-17.
 
 This records the M3.3 Vivado/QoR hardening step for the DAC 2027 plan. It adds
 a host-Vivado synthesis and timing subset for every QoR-enabled public and
@@ -34,7 +34,7 @@ current QoR threshold, and writes threshold JSON/TeX sidecars.
 
 The report records Vivado `2025.2`, target part `xc7a35tcpg236-1`, 10 ns clock
 assumptions, per-row elapsed seconds, and the total host run time. The final
-2026-06-16 run took 375.721 s wall-clock as reported by
+2026-06-17 run took 467.761 s wall-clock as reported by
 `vivado_qor_subset_summary.json`.
 
 The committed source RTL and benchmark wrappers are not modified. The Tcl script
@@ -93,11 +93,11 @@ Artifact hashes from the ignored report directory:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `3747045f2a2f3399555bdf40cedf81ba5a340708e0240f955f873c2437eed05c` |
-| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `9c5387d8330b85c11ce4b22e92533fa2d57bf6dc2611752abac466871eaa8d2b` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `60b6079758445a95655e4c9768676e13cfe810ad4c7168707e4a90d086fd2b21` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `7ad7b1bd5e273ae387057cef6b6ea1bc1b3c87d0f9c296c66c3b26179ee163dd` |
 | `build/reports/vivado-host/vivado_qor_subset_delta.csv` | `5953f168b6a78e5f11c10e32e6af6642ff09792c9f41c03722d98c5f08d77060` |
 | `build/reports/vivado-host/vivado_qor_subset_summary.tex` | `62f8b650775252d77afe97b739b58853cd441270dd8635bea04b12c2fc555f13` |
-| `build/reports/vivado-host/vivado_qor_thresholds.json` | `d59bb7b14d1c8d204444e480c037fd5900e33b168cac7139161c16bac514aa22` |
+| `build/reports/vivado-host/vivado_qor_thresholds.json` | `8761ff43936d300d737a37c788f4bae4b35dbc48c6ba0be60bff9b97e94568bf` |
 | `build/reports/vivado-host/vivado_qor_thresholds.tex` | `771f238db9f24f4fbefb5f8381185921849261f5047110a39761a7b2e487c3c9` |
 
 ## Claim Boundary

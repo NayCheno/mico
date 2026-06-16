@@ -1,6 +1,6 @@
 # LLM Full Matrix v3
 
-Snapshot date: 2026-06-16.
+Snapshot date: 2026-06-17.
 
 This document supersedes the v2 evidence in `docs/22_llm_full_matrix_v2.md` for
 current submission claims. The v3 execute records were refreshed against the
@@ -32,42 +32,43 @@ sanitized and does not contain API keys.
 
 | Split | Run id | Attempts | Execute requests in record | Cache hits | JSON-valid responses | MICO positive compiler pass | Unsafe rejection |
 |---|---|---:|---:|---:|---:|---:|---:|
-| Public-development | `b86f9028890e6bd9` | 930 | 930 | 930 | 777 | 207/324 | 229/234 |
-| Held-out | `339f9a8c1e1a24e0` | 300 | 300 | 300 | 254 | 59/90 | 89/90 |
+| Public-development | `a35fb473a8059e1a` | 930 | 930 | 879 | 782 | 204/324 | 228/234 |
+| Held-out | `8890a6647ba48793` | 300 | 300 | 90 | 262 | 55/90 | 86/90 |
 
 The runner's `provider_requests` field records execute-mode responses whose
-original cache payload came from provider requests; `cache_hits` records cache
-reuse in this v3 rerun. The v3 evidence is still an authenticated execute
-record because the cached responses are sanitized provider outputs and the new
-run re-evaluates them against the current manifests, compiler, and EDA gates.
+payload came from provider requests; `cache_hits` records retry-local cache
+reuse after Docker EOF interruptions during this from-empty-cache rerun. The v3
+evidence is still an authenticated execute record because the final sanitized
+records contain request-backed responses re-evaluated against the current
+manifests, compiler, and EDA gates.
 
 ## Compact Results
 
 | Split | Baseline | Profiles | Positive final pass | Unsafe rejection |
 |---|---|---:|---:|---:|
-| Public-development | Direct Verilog | 3 | 0-8/36 | n/a |
+| Public-development | Direct Verilog | 3 | 0-5/36 | n/a |
 | Public-development | SV interface | 3 | 0/36 | n/a |
-| Public-development | MICO source | 3 | 0/36 | 23-26/26 |
-| Public-development | JSON AST | 3 | 27-36/36 | 25-26/26 |
-| Public-development | JSON AST repair | 3 | 36/36 | 26/26 |
+| Public-development | MICO source | 3 | 0-1/36 | 24-25/26 |
+| Public-development | JSON AST | 3 | 24-36/36 | 25-26/26 |
+| Public-development | JSON AST repair | 3 | 35-36/36 | 25-26/26 |
 | Held-out | Direct Verilog | 3 | 0-2/10 | n/a |
 | Held-out | SV interface | 3 | 0/10 | n/a |
-| Held-out | MICO source | 3 | 0/10 | 10/10 |
-| Held-out | JSON AST | 3 | 9-10/10 | 9-10/10 |
-| Held-out | JSON AST repair | 3 | 10/10 | 10/10 |
+| Held-out | MICO source | 3 | 0/10 | 9-10/10 |
+| Held-out | JSON AST | 3 | 7-10/10 | 8-10/10 |
+| Held-out | JSON AST repair | 3 | 9-10/10 | 10/10 |
 
 ## Paired Tests
 
 | Split | Comparison | Target wins | Baseline wins | Ties | Exact p-value |
 |---|---|---:|---:|---:|---:|
-| Public-development | repair vs direct Verilog | 105 | 0 | 81 | `4.930380657631324e-32` |
-| Public-development | repair vs SV interface | 110 | 0 | 76 | `1.5407439555097887e-33` |
-| Public-development | repair vs MICO source | 112 | 0 | 74 | `3.851859888774472e-34` |
-| Public-development | repair vs plain JSON AST | 11 | 0 | 175 | `0.0009765625` |
-| Held-out | repair vs direct Verilog | 30 | 0 | 30 | `1.862645149230957e-09` |
-| Held-out | repair vs SV interface | 31 | 0 | 29 | `9.313225746154785e-10` |
-| Held-out | repair vs MICO source | 30 | 0 | 30 | `1.862645149230957e-09` |
-| Held-out | repair vs plain JSON AST | 2 | 0 | 58 | `0.5` |
+| Public-development | repair vs direct Verilog | 103 | 1 | 82 | `1.035379938102578e-29` |
+| Public-development | repair vs SV interface | 108 | 1 | 77 | `3.389636702121535e-31` |
+| Public-development | repair vs MICO source | 109 | 1 | 76 | `1.7102257906158654e-31` |
+| Public-development | repair vs plain JSON AST | 17 | 2 | 167 | `0.000728607177734375` |
+| Held-out | repair vs direct Verilog | 27 | 0 | 33 | `1.4901161193847656e-08` |
+| Held-out | repair vs SV interface | 30 | 0 | 30 | `1.862645149230957e-09` |
+| Held-out | repair vs MICO source | 31 | 0 | 29 | `9.313225746154785e-10` |
+| Held-out | repair vs plain JSON AST | 6 | 1 | 53 | `0.125` |
 
 ## Repair Boundary
 
@@ -75,11 +76,11 @@ The v3 run keeps the same repair boundary as v2:
 
 - `mico_json_ast` and `mico_json_ast_repair` are reported separately.
 - Public-development repair rows: 186.
-- Public-development rows with accepted repair records: 10.
+- Public-development paired wins over plain JSON AST: 17.
 - Held-out repair rows: 60.
-- Held-out rows with accepted repair records: 4.
+- Held-out paired wins over plain JSON AST: 6.
 - Accepted free-form LLM repair-patch wins: 0.
-- Accepted deterministic fallback wins: 14 total, all marked
+- Recorded deterministic fallback wins: 23 total, all marked
   `deterministic_adapter_instance_collapse` and accepted only after
   `mico_cli repair-json --apply --json` plus re-check passes.
 
@@ -91,9 +92,9 @@ free-form semantic repair.
 
 | File | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `f1c5aa83d2527241eae0b8efbae788b6ae630a8c4ef01de6d9f322fbc5ba9513` |
-| `build/llm/bench_execute_heldout_v3.json` | `44f249e02b6e5df0bbb70dfefdbb9ab07f340ff306c780ab2b88b8a395af06ff` |
-| `build/bench/aggregate_llm_v3.json` | `123f8296533f5e07312873c547e8e598454704fb2605e406f977af403c7aedbd` |
+| `build/llm/bench_execute_public_dev_v3.json` | `47d2ef8eba9e36ed6cabb7cd77cd4f773c8b6b2a725bf070c616a7eb921406b2` |
+| `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
+| `build/bench/aggregate_llm_v3.json` | `b300110f02742db13627fba8ed7d3382ac6ddbab7d101eefa4a1633ca9930309` |
 
 Generated CSV and TeX snippets are under `build/paper_tables/llm_v3/` and stay
 out of source control. `docs/llm_final_matrix_report.md` records the M5 final
@@ -105,11 +106,12 @@ Branch A is the current paper branch for the tested OpenCode Go profiles,
 prompts, public-development manifest, and held-out manifest:
 
 - the held-out execute record matches the current manifest hash;
-- structured MICO baselines have nonzero positive pass rates on all three
+- structured JSON AST baselines have nonzero positive pass rates on all three
   tested profiles;
-- JSON AST repair beats direct Verilog and SV-interface final pass by more than
-  15 percentage points on both public-development and held-out splits;
-- unsafe rejection is not weaker than the comparable MICO-source baseline;
+- JSON AST repair remains the strongest tested structured path, reaching
+  35--36/36 public-development positives and 9--10/10 held-out positives;
+- unsafe rejection is bounded to 25--26/26 public-development MICO unsafe tasks
+  and 10/10 held-out unsafe tasks for the JSON AST repair baseline;
 - paired tests against unstructured baselines are significant on both splits;
 - the repair claim is explicitly limited to the recorded deterministic
   fallback and compiler-gated repair path.

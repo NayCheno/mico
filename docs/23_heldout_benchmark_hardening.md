@@ -84,8 +84,8 @@ LLM refresh hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_heldout_v3.json` | `44f249e02b6e5df0bbb70dfefdbb9ab07f340ff306c780ab2b88b8a395af06ff` |
-| `build/bench/aggregate_llm_v3.json` | `123f8296533f5e07312873c547e8e598454704fb2605e406f977af403c7aedbd` |
+| `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
+| `build/bench/aggregate_llm_v3.json` | `b300110f02742db13627fba8ed7d3382ac6ddbab7d101eefa4a1633ca9930309` |
 
 ## Claim Boundary
 

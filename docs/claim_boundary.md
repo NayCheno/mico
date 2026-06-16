@@ -122,7 +122,7 @@ The current repository must not claim:
 - LLM pass-rate improvement beyond the tested v3 OpenCode Go profiles,
   prompts, public-development split, and held-out split.
 - Full paid LLM benchmark matrix raw results committed as artifact data.
-- Broad free-form LLM repair reliability. Current accepted repair-turn wins are
+- Broad free-form LLM repair reliability. Current recorded repair wins are
   limited to the explicitly recorded deterministic adapter-instance fallback.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.

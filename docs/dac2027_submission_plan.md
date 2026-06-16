@@ -164,7 +164,7 @@ M2 branch decision:
   prompts, public-development manifest, and held-out manifest.
 - The v3 held-out execute record is bound to the current held-out manifest
   SHA-256.
-- JSON AST repair reaches 36/36 public-development positives and 10/10
+- JSON AST repair reaches 35--36/36 public-development positives and 9--10/10
   held-out positives across the tested profiles, while direct Verilog and
   SV-interface baselines remain weaker.
 - Accepted repair-turn wins remain limited to the recorded

@@ -117,24 +117,26 @@ JSON used by the release workflow.
 \end{table*}
 
 For the tested profiles, the schema-guided MICO JSON AST repair baseline reaches
-36/36 positive compiler and lint passes on the public-development split and
-10/10 on the held-out split in every profile. It also rejects 26/26 public unsafe
-tasks and 10/10 held-out unsafe tasks in every profile. Direct Verilog and
+35--36/36 positive compiler and lint passes on the public-development split and
+9--10/10 on the held-out split. It also rejects 25--26/26 public unsafe tasks
+and 10/10 held-out unsafe tasks across the tested profiles. Direct Verilog and
 SystemVerilog-interface prompts never reach positive lint pass rates comparable
-to the structured baselines: their best rows are 8/36 public positives and 2/10
+to the structured baselines: their best rows are 5/36 public positives and 2/10
 held-out positives. The MICO-source baseline produces MICO-looking text but has
-0 positive compiler passes in the matrix, illustrating that the structured JSON
-AST representation, not merely the DSL vocabulary, is doing most of the work.
+at most 1/36 positive public compiler pass and 0/10 held-out positive compiler
+passes in the matrix, illustrating that the structured JSON AST representation,
+not merely the DSL vocabulary, is doing most of the work.
 
 Repair is beneficial but bounded. Compared with direct Verilog,
-\texttt{mico\_json\_ast\_repair} has 105 wins, 0 losses, and 81 ties on the
-public split, and 30 wins, 0 losses, and 30 ties on held-out. Compared with
-plain \texttt{mico\_json\_ast}, repair adds 11 public wins and 2 held-out wins.
-Two-sided exact paired tests over discordant attempts give $p<10^{-31}$
-against the unstructured public baselines, $p=9.77\times10^{-4}$ against plain
-public JSON AST, $p<2\times10^{-9}$ against held-out unstructured baselines,
-and no significant held-out difference from plain JSON AST ($p=0.50$).
-All accepted repair-turn wins in this run are attributed to the recorded
+\texttt{mico\_json\_ast\_repair} has 103 wins, 1 loss, and 82 ties on the
+public split, and 27 wins, 0 losses, and 33 ties on held-out. Compared with
+plain \texttt{mico\_json\_ast}, repair adds 17 public wins and 6 held-out wins,
+with 2 public losses and 1 held-out loss. Two-sided exact paired tests over
+discordant attempts give $p\le 1.04\times10^{-29}$ against the public
+unstructured and MICO-source baselines, $p=7.29\times10^{-4}$ against plain
+public JSON AST, $p\le 1.49\times10^{-8}$ against held-out unstructured and
+MICO-source baselines, and no significant held-out difference from plain JSON
+AST ($p=0.125$). All recorded repair-turn wins in this run are attributed to the
 \texttt{deterministic\_adapter\_instance\_collapse} fallback, so the paper claims
 compiler-feedback repair for a common adapter-as-instance error pattern rather
 than broad autonomous semantic repair.

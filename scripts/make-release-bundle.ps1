@@ -149,11 +149,19 @@ try {
         "docs/24_llm_matrix_v3.md",
         "docs/25_realism_supplement.md",
         "docs/llm_final_matrix_report.md",
+        "docs/llm_v3_artifact_readme.md",
         "docs/artifact_quickstart.md",
         "docs/claim_boundary.md",
+        "docs/final_claim_freeze.md",
+        "docs/submission_claim_freeze.md",
+        "docs/release_claim_table.md",
         "docs/current_status.md",
         "docs/dac2027_full_check_baseline_2026-06-15.md",
-        "docs/dac2027_submission_plan.md"
+        "docs/dac2027_submission_plan.md",
+        "docs/deterministic_evidence_report_2026-06-15.md",
+        "docs/formal_coverage_matrix.md",
+        "docs/benchmark_realism_ablation_report_2026-06-16.md",
+        "docs/release_gate_report_2026-06-16.md"
     )
     foreach ($doc in $docFiles) {
         Copy-BundleFile $doc $doc

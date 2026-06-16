@@ -47,6 +47,41 @@ Typical local runtime on the evaluation Windows workstation:
 4. Check `release/release_claim_table.json` before relying on any numeric
    claim in the paper.
 
+## 30-Minute Smoke Path
+
+Extract `source/mico-source-<commit>.zip`, enter the extracted repository, and
+run the smoke checks from Windows PowerShell. These commands use Docker for
+Rust, Python, and open-source EDA work:
+
+```powershell
+.\scripts\eda-docker.ps1 mico-verify-tools
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
+.\scripts\eda-docker.ps1 bash -lc "bash scripts/eda-smoke.sh"
+```
+
+The smoke path intentionally avoids paid provider calls and Vivado. It is the
+fastest check that the archive is runnable from a fresh checkout.
+
+## Full Reproduction Path
+
+Run the full deterministic gate from Windows PowerShell:
+
+```powershell
+.\scripts\full-check.ps1 -WithLatex
+.\scripts\make-release-bundle.ps1
+```
+
+The PowerShell wrapper runs the release gate inside Docker and builds the paper
+with the Windows-host LaTeX installation. Vivado is a host exception only for
+the optional Xilinx QoR subset through `scripts/run-vivado-host.ps1`; the
+included Vivado result hashes can be checked without rerunning Vivado.
+
+Authenticated LLM execute replay is not required for artifact review. The
+bundle includes sanitized v3 execute records and hash sidecars when those
+records are present, so reviewers can validate schema conformance, prompt and
+manifest hashes, model/profile metadata, and aggregate statistics without
+reissuing provider requests.
+
 ## Known Limitations
 
 The artifact does not claim CDC correctness proof, arbitrary LTL, routed timing

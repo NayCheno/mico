@@ -94,6 +94,11 @@ Run the Rust compiler checks inside Docker:
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo fmt --check && cargo check --workspace && cargo test --workspace"
 ```
 
+`cargo test --workspace` includes binary-level CLI smoke coverage for
+parse/check/build/dump-ir/emit-sv/emit-sva/emit-trace/verify/report,
+check-json/build-json, JSON emit commands, and repair-json positive/negative
+patch paths.
+
 Run CLI smoke checks:
 
 ```powershell
@@ -101,6 +106,8 @@ Run CLI smoke checks:
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- emit-sv examples/width_adapter.mico"
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- report examples/cdc_fifo.mico"
 .\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/stream_fifo_cli --schema-path ../schemas examples/stream_fifo.mico | python3 -m json.tool >/dev/null"
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/width_adapter_cli --schema-path ../schemas examples/width_adapter.mico | python3 -m json.tool >/dev/null"
+.\scripts\eda-docker.ps1 bash -lc "cd rust_project && cargo run -q -p mico_cli -- verify --eda --json --artifact-dir ../build/mico-verify/cdc_fifo_cli --schema-path ../schemas examples/cdc_fifo.mico | python3 -m json.tool >/dev/null"
 ```
 
 Expected behavior:

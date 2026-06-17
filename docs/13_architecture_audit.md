@@ -313,8 +313,9 @@ The next work should proceed in this order:
 
 1. Reproduce and archive the deterministic public-development and held-out
    evidence bundle with release hashes.
-2. Keep authenticated v3 LLM execute records bound to current manifest hashes
-   before treating Branch A as submission-ready.
+2. Keep authenticated v3 LLM execute records bound to their locked
+   pre-expansion manifest hashes, or rerun authentication before using expanded
+   manifests for LLM claims.
 3. Add broader directed formal/QoR coverage and additional subsystem studies,
    or keep the corresponding limitations prominent in the paper.
 

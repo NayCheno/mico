@@ -103,9 +103,12 @@ hashes, table hashes, provenance, token/cost status, and v4 non-claim boundary.
 ## Branch Decision
 
 Branch A is the current paper branch for the tested OpenCode Go profiles,
-prompts, public-development manifest, and held-out manifest:
+prompts, and locked pre-expansion public-development and held-out manifest
+hashes:
 
-- the held-out execute record matches the current manifest hash;
+- the held-out execute record matches the locked pre-expansion 20-task manifest
+  hash recorded in the v3 evidence, not the expanded 40-task deterministic
+  manifest;
 - structured JSON AST baselines have nonzero positive pass rates on all three
   tested profiles;
 - JSON AST repair remains the strongest tested structured path, reaching

@@ -66,9 +66,9 @@ The current repository supports these claims when the release gate passes:
 - MICO parses, checks, builds typed IR, and emits deterministic SV, SVA, JSON
   IR, and traceability records for the v0 language subset.
 - Source `.mico` and source-level JSON AST inputs share the same checker and
-  code generation path for the 62-task ModuleComposeBench manifest.
-- The deterministic benchmark has 62 tasks across L1-L6, with 36 positive and
-  26 negative tasks.
+  code generation path for the 83-task ModuleComposeBench manifest.
+- The deterministic benchmark has 83 tasks across L1-L6, with 46 positive and
+  37 negative tasks.
 - Positive benchmark tasks compose successfully and pass the currently enabled
   open-source lint/elaboration checks.
 - Negative benchmark tasks reject unsafe compositions with stable diagnostic
@@ -76,23 +76,23 @@ The current repository supports these claims when the release gate passes:
 - The committed benchmark manifest is schema-valid and documented as the public
   development split; final LLM advantage claims still require separately
   archived held-out results.
-- The committed held-out manifest contains 20 scoring tasks with ten positives,
-  ten negatives, seven subsystem positives, and seven paired negative variants;
-  deterministic held-out scoring currently passes 20/20 expected outcomes. Its
-  directed verification denominator includes ten declared simulations and nine
-  declared single-clock formal monitors; the explicit CDC held-out case remains
-  smoke-only for formal.
-- The supplemental realism manifest contains 14 deterministic-only tasks,
-  including three new subsystem positives and three paired negatives. It raises
-  the committed case-study corpus to 15 positives and at least 10 paired
-  negatives without changing the locked v3 LLM-scored manifests.
+- The committed held-out manifest contains 40 scoring tasks with twenty positives,
+  twenty negatives, seven subsystem positives, seven paired negative variants,
+  and balanced per-level calibration rows; deterministic held-out scoring is
+  expected to pass 40/40 outcomes. Its directed verification denominator includes
+  twenty declared simulations and seventeen declared single-clock formal monitors;
+  explicit CDC cases remain smoke-only for formal.
+- The supplemental realism manifest contains 30 deterministic-only tasks,
+  including subsystem realism positives, paired negatives, and balanced L1-L6
+  calibration rows. It raises the committed deterministic case-study corpus
+  without changing the locked v3 LLM-scored manifest hashes.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
-- All 36 positive tasks pass Icarus/VVP simulation smoke checks through
+- All 46 public-development positive tasks pass Icarus/VVP simulation smoke checks through
   committed directed testbenches.
-- Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
+- Forty public-development single-clock positive tasks pass bounded SymbiYosys formal smoke
   checks through committed directed monitors.
-- Nine reference-enabled positive tasks have structural Yosys area/wire and
+- Eleven public-development reference-enabled positive tasks have structural Yosys area/wire and
   generic mapped-cell QoR summaries against committed hand-written wrappers.
 - A dedicated host-Vivado subset script synthesizes measurement-only copies for
   12 QoR-enabled public and held-out tasks (`T001`--`T004` and `T058`--`T065`) on
@@ -120,7 +120,8 @@ The current repository supports these claims when the release gate passes:
 The current repository must not claim:
 
 - LLM pass-rate improvement beyond the tested v3 OpenCode Go profiles,
-  prompts, public-development split, and held-out split.
+  prompts, and locked pre-expansion public-development and held-out split
+  manifest hashes.
 - Full paid LLM benchmark matrix raw results committed as artifact data.
 - Broad free-form LLM repair reliability. Current recorded repair wins are
   limited to the explicitly recorded deterministic adapter-instance fallback.

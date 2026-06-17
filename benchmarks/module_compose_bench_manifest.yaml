@@ -1,9 +1,9 @@
 name: ModuleComposeBench
-version: 0.3.0
-minimum_tasks: 50
+version: 0.4.0
+minimum_tasks: 80
 purpose: Evaluate LLM-assisted RTL module composition with typed interfaces, contracts, adapters, and clock-domain checks.
 scope_notes:
-  - The deterministic compiler baseline covers 57 hand-written seed tasks plus 5 dedicated subsystem case studies.
+  - The deterministic compiler baseline covers 57 seed tasks, 5 public subsystem case studies, 14 held-out case-study/calibration tasks, 6 supplemental realism tasks, and 1 public L1 calibration alias.
   - L1/L2/L4 tasks use committed smoke RTL collateral for lint/elaboration.
   - L3/L5/L6 include seed approximations plus dedicated streaming, width-bridge, register/status, protocol-bridge, and telemetry case-study RTL.
   - Simulation and single-clock formal denominators include committed and generated smoke harnesses; QoR includes tasks with committed reference wrappers.
@@ -17,8 +17,8 @@ levels:
   L6: multi-IP subsystem integration seeds
 split_policy:
   public_dev:
-    description: All committed tasks in this manifest are public development tasks used for deterministic regression, documentation, and prompt debugging.
-    task_selector: T001-T062
+    description: All committed tasks in this expanded manifest are public development tasks for deterministic regression, documentation, and prompt debugging; locked v3 LLM claims remain bound to their recorded manifest hashes.
+    task_selector: T001-T085
   held_out:
     status: external_not_committed
     description: Final LLM advantage claims require a separately versioned held-out task manifest that is not used for prompt iteration before scoring.
@@ -1219,6 +1219,611 @@ tasks:
       lint_pass: true
       formal_pass: true
       diagnostics: []
+  - id: T063_axi_apb_wrapper_case
+    level: L5
+    type: positive
+    path: tasks/T063_axi_apb_wrapper_case
+    request: Connect an AXI-lite-like command source through an AXI-to-APB bridge into an APB-like peripheral sink.
+    module_inventory:
+    - CaseAxiLiteSource
+    - CaseAxiToApbBridge
+    - CaseApbPeripheralSink
+    interface_inventory:
+    - AxiLiteCmd
+    - ApbReq
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T063_axi_apb_wrapper_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T063_axi_apb_wrapper_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_axi_apb_wrapper_case.sv
+    sim_top: tb_axi_apb_wrapper_case
+    formal_harness: benchmarks/formal/tb_axi_apb_wrapper_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    qor_reference: benchmarks/qor/reference/T063_axi_apb_wrapper_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features:
+    - case_study
+    - axi_apb_wrapper
+    - protocol_bridge
+    - directed_simulation
+    - directed_formal
+    - qor_reference
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T064_video_filter_pipeline_case
+    level: L6
+    type: positive
+    path: tasks/T064_video_filter_pipeline_case
+    request: Connect a pixel stream through a line buffer and threshold filter into a frame sink.
+    module_inventory:
+    - CasePixelSource
+    - CaseLineBuffer
+    - CaseThresholdFilter
+    - CaseFrameSink
+    interface_inventory:
+    - PixelStream
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T064_video_filter_pipeline_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T064_video_filter_pipeline_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_video_filter_pipeline_case.sv
+    sim_top: tb_video_filter_pipeline_case
+    formal_harness: benchmarks/formal/tb_video_filter_pipeline_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    qor_reference: benchmarks/qor/reference/T064_video_filter_pipeline_case_ref.sv
+    qor_top: Top
+    qor_reference_top: Top
+    expected_features:
+    - case_study
+    - video_pipeline
+    - filter_chain
+    - directed_simulation
+    - directed_formal
+    - qor_reference
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T065_cdc_event_status_case
+    level: L4
+    type: positive
+    path: tasks/T065_cdc_event_status_case
+    request: Bridge an event stream from SrcClk to a status sink on DstClk through an explicit CaseAsyncFifo32 CDC adapter.
+    module_inventory:
+    - CaseEventSource
+    - CaseEventStatusSink
+    interface_inventory:
+    - EventStream
+    - StatusStream
+    adapter_inventory:
+    - CaseAsyncFifo32
+    mico_source: benchmarks/tasks/T065_cdc_event_status_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T065_cdc_event_status_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_cdc_event_status_case.sv
+    sim_top: tb_cdc_event_status_case
+    expected_features:
+    - case_study
+    - cdc_subsystem
+    - explicit_cdc_adapter
+    - smoke_only_cdc
+    - directed_simulation
+    - calibration
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      diagnostics: []
+  - id: T066_apb_direct_protocol_mismatch_case
+    level: L5
+    type: negative
+    path: tasks/T066_apb_direct_protocol_mismatch_case
+    request: Reject a direct AXI-lite command to APB peripheral connection when the bridge module is omitted.
+    module_inventory:
+    - CaseAxiLiteSource
+    - CaseApbPeripheralSink
+    interface_inventory:
+    - AxiLiteCmd
+    - ApbReq
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T066_apb_direct_protocol_mismatch_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - protocol_mismatch
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - InterfaceMismatch
+  - id: T067_video_reversed_direction_case
+    level: L6
+    type: negative
+    path: tasks/T067_video_reversed_direction_case
+    request: Reject a video-pipeline composition that drives the pixel source from the frame sink.
+    module_inventory:
+    - CasePixelSource
+    - CaseFrameSink
+    interface_inventory:
+    - PixelStream
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T067_video_reversed_direction_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - direction_mismatch
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - DirectionMismatch
+  - id: T068_cdc_without_adapter_case
+    level: L4
+    type: negative
+    path: tasks/T068_cdc_without_adapter_case
+    request: Reject a direct event/status connection across SrcClk and DstClk without the CaseAsyncFifo32 CDC adapter.
+    module_inventory:
+    - CaseEventSource
+    - CaseEventStatusSink
+    interface_inventory:
+    - EventStream
+    - StatusStream
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T068_cdc_without_adapter_case/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - unsafe_cdc_without_adapter
+    - compiler_rejection
+    - calibration
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - InterfaceMismatch
+      - ClockDomainMismatch
+  - id: T069_telemetry_filter_holdout_case
+    level: L6
+    type: positive
+    path: tasks/T069_telemetry_filter_holdout_case
+    request: Connect a telemetry source through a filter, explicit width adapter, accumulator, and host sink using renamed held-out
+      subsystem instances.
+    module_inventory:
+    - CaseTelemetrySource
+    - CaseTelemetryFilter
+    - CaseTelemetryAccumulator64
+    - CaseHostSink64
+    interface_inventory:
+    - Telemetry32
+    - Telemetry64
+    adapter_inventory:
+    - CaseWiden32To64
+    mico_source: benchmarks/tasks/T069_telemetry_filter_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_telemetry_filter_holdout_case.sv
+    sim_top: tb_telemetry_filter_holdout_case
+    formal_harness: benchmarks/formal/tb_telemetry_filter_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - heldout_subsystem
+    - telemetry_chain
+    - explicit_adapter
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T070_telemetry_missing_widen_holdout
+    level: L6
+    type: negative
+    path: tasks/T070_telemetry_missing_widen_holdout
+    request: Reject a telemetry filter path that connects a 32-bit filter output directly into the 64-bit accumulator without
+      the widening adapter.
+    module_inventory:
+    - CaseTelemetrySource
+    - CaseTelemetryFilter
+    - CaseTelemetryAccumulator64
+    - CaseHostSink64
+    interface_inventory:
+    - Telemetry32
+    - Telemetry64
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T070_telemetry_missing_widen_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - heldout_subsystem
+    - unsafe_width_without_adapter
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - InterfaceMismatch
+  - id: T071_protocol_bridge_holdout_case
+    level: L5
+    type: positive
+    path: tasks/T071_protocol_bridge_holdout_case
+    request: Connect a held-out request source through a request/response protocol bridge into a response sink.
+    module_inventory:
+    - CaseProtocolSource
+    - CaseProtocolBridge
+    - CaseProtocolSink
+    interface_inventory:
+    - ProtoReq
+    - ProtoRsp
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T071_protocol_bridge_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_protocol_bridge_holdout_case.sv
+    sim_top: tb_protocol_bridge_holdout_case
+    formal_harness: benchmarks/formal/tb_protocol_bridge_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - heldout_subsystem
+    - protocol_bridge
+    - request_response
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T072_protocol_reversed_response_holdout
+    level: L5
+    type: negative
+    path: tasks/T072_protocol_reversed_response_holdout
+    request: Reject a held-out protocol bridge variant that drives the bridge response output from the sink response input.
+    module_inventory:
+    - CaseProtocolSource
+    - CaseProtocolBridge
+    - CaseProtocolSink
+    interface_inventory:
+    - ProtoReq
+    - ProtoRsp
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T072_protocol_reversed_response_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - heldout_subsystem
+    - direction_mismatch
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - DirectionMismatch
+  - id: T073_register_status_holdout_case
+    level: L5
+    type: positive
+    path: tasks/T073_register_status_holdout_case
+    request: Connect a held-out APB-like command stream through a register file into a status sink with renamed instances.
+    module_inventory:
+    - CaseApbCommandSource
+    - CaseRegisterFile
+    - CaseStatusSink
+    interface_inventory:
+    - RegWord
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T073_register_status_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_register_status_holdout_case.sv
+    sim_top: tb_register_status_holdout_case
+    formal_harness: benchmarks/formal/tb_register_status_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - heldout_subsystem
+    - register_wrapper
+    - status_path
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T074_register_status_reversed_holdout
+    level: L5
+    type: negative
+    path: tasks/T074_register_status_reversed_holdout
+    request: Reject a held-out register/status variant that drives the register-file status output from the status sink input.
+    module_inventory:
+    - CaseApbCommandSource
+    - CaseRegisterFile
+    - CaseStatusSink
+    interface_inventory:
+    - RegWord
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T074_register_status_reversed_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - heldout_subsystem
+    - direction_mismatch
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - DirectionMismatch
+  - id: T075_video_pipeline_holdout_case
+    level: L6
+    type: positive
+    path: tasks/T075_video_pipeline_holdout_case
+    request: Connect a held-out pixel stream through a line buffer and threshold stage into a frame sink with renamed instances.
+    module_inventory:
+    - CasePixelSource
+    - CaseLineBuffer
+    - CaseThresholdFilter
+    - CaseFrameSink
+    interface_inventory:
+    - PixelStream
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T075_video_pipeline_holdout_case/expected.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_video_pipeline_holdout_case.sv
+    sim_top: tb_video_pipeline_holdout_case
+    formal_harness: benchmarks/formal/tb_video_pipeline_holdout_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - heldout_subsystem
+    - video_pipeline
+    - filter_chain
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T076_video_missing_stage_holdout
+    level: L6
+    type: negative
+    path: tasks/T076_video_missing_stage_holdout
+    request: Reject a held-out video pipeline that connects through an undeclared threshold filter instance.
+    module_inventory:
+    - CasePixelSource
+    - CaseLineBuffer
+    - CaseFrameSink
+    interface_inventory:
+    - PixelStream
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T076_video_missing_stage_holdout/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - heldout_subsystem
+    - unknown_instance
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - UnknownInstance
+  - id: T077_dma_register_map_case
+    level: L5
+    type: positive
+    path: tasks/T077_dma_register_map_case
+    request: Connect a DMA register command source through a register-map transform into an interrupt/status sink.
+    module_inventory:
+    - CaseDmaRegisterSource
+    - CaseRegisterFile
+    - CaseStatusSink
+    interface_inventory:
+    - DmaRegWord
+    - RegStatusWord
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T077_dma_register_map_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T077_dma_register_map_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_dma_register_map_case.sv
+    sim_top: tb_dma_register_map_case
+    formal_harness: benchmarks/formal/tb_dma_register_map_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - dma_register_map
+    - status_path
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T078_dma_register_map_reversed_status
+    level: L5
+    type: negative
+    path: tasks/T078_dma_register_map_reversed_status
+    request: Reject a DMA register-map composition that drives a register write input from a status sink input.
+    module_inventory:
+    - CaseDmaRegisterSource
+    - CaseRegisterFile
+    - CaseStatusSink
+    interface_inventory:
+    - DmaRegWord
+    - RegStatusWord
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T078_dma_register_map_reversed_status/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - reversed_status_direction
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - DirectionMismatch
+      - InterfaceMismatch
+  - id: T079_axis_packetizer_case
+    level: L6
+    type: positive
+    path: tasks/T079_axis_packetizer_case
+    request: Connect a 32-bit AXI-stream-like word source through a packetizer into a 64-bit packet sink.
+    module_inventory:
+    - CaseAxisWordSource
+    - CaseAxisPacketizer
+    - CaseAxisPacketSink
+    interface_inventory:
+    - AxisWord32
+    - AxisPacket64
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T079_axis_packetizer_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T079_axis_packetizer_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_axis_packetizer_case.sv
+    sim_top: tb_axis_packetizer_case
+    formal_harness: benchmarks/formal/tb_axis_packetizer_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - axi_stream_packetizer
+    - protocol_bridge
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T080_axis_packetizer_missing_stage
+    level: L6
+    type: negative
+    path: tasks/T080_axis_packetizer_missing_stage
+    request: Reject a direct 32-bit word source to 64-bit packet sink connection when the packetizer stage is omitted.
+    module_inventory:
+    - CaseAxisWordSource
+    - CaseAxisPacketSink
+    interface_inventory:
+    - AxisWord32
+    - AxisPacket64
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T080_axis_packetizer_missing_stage/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - missing_packetizer_stage
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - InterfaceMismatch
+  - id: T081_mmio_control_data_path_case
+    level: L6
+    type: positive
+    path: tasks/T081_mmio_control_data_path_case
+    request: Connect a memory-mapped control register source through an explicit width adapter into a 64-bit data path and host
+      sink.
+    module_inventory:
+    - CaseControlRegSource
+    - CaseControlDataPath64
+    - CaseHostSink64
+    interface_inventory:
+    - CtrlWord32
+    - CtrlWord64
+    - DataWord64
+    adapter_inventory:
+    - CaseWiden32To64
+    mico_source: benchmarks/tasks/T081_mmio_control_data_path_case/expected.mico
+    json_ast_fixture: benchmarks/tasks/T081_mmio_control_data_path_case/expected.ast.json
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    sim_testbench: benchmarks/sim/tb_mmio_control_data_path_case.sv
+    sim_top: tb_mmio_control_data_path_case
+    formal_harness: benchmarks/formal/tb_mmio_control_data_path_case_formal.sv
+    formal_top: Top
+    formal_depth: 4
+    expected_features:
+    - case_study
+    - mmio_control_data_path
+    - explicit_width_adapter
+    - directed_simulation
+    - directed_formal
+    expected:
+      compose_pass: true
+      lint_pass: true
+      sim_pass: true
+      formal_pass: true
+      diagnostics: []
+  - id: T082_mmio_control_missing_widen
+    level: L6
+    type: negative
+    path: tasks/T082_mmio_control_missing_widen
+    request: Reject a 32-bit memory-mapped control stream connected directly into a 64-bit data path without the width adapter.
+    module_inventory:
+    - CaseControlRegSource
+    - CaseControlDataPath64
+    - CaseHostSink64
+    interface_inventory:
+    - CtrlWord32
+    - CtrlWord64
+    - DataWord64
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T082_mmio_control_missing_widen/invalid.mico
+    rtl_collateral: rtl/case_studies/mico_case_studies.sv
+    expected_features:
+    - case_study_negative
+    - missing_width_adapter
+    - compiler_rejection
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - InterfaceMismatch
+  - id: T085_reversed_direction_public_alias
+    level: L1
+    type: negative
+    path: tasks/T007_reversed_direction
+    request: Public calibration alias rejecting a reversed ready-valid connection that drives Producer.tx from Consumer.rx.
+    module_inventory:
+    - Producer
+    - Consumer
+    interface_inventory:
+    - StreamU32
+    adapter_inventory: []
+    mico_source: benchmarks/tasks/T007_reversed_direction/invalid.mico
+    rtl_collateral: rtl/examples/mico_example_leafs.sv
+    expected_features:
+    - direction_mismatch
+    - compiler_rejection
+    - public_calibration_alias
+    expected:
+      compose_pass: false
+      lint_pass: false
+      diagnostics:
+      - DirectionMismatch
 metrics:
   - Compose-Pass@1
   - Repair-Turns

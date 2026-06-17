@@ -38,7 +38,7 @@
 | `docs/diagnostics.md` | Stable diagnostics envelope, diagnostic code list, JSON AST diagnostic behavior, and CLI JSON behavior. |
 | `rust_project/` | Rust workspace for MICO parser, checker, typed IR, codegen, and CLI. |
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
-| `benchmarks/` | 62-task public-development ModuleComposeBench suite plus the 20-task held-out split, supplemental realism manifest, runner, result aggregator, and scoring schema. |
+| `benchmarks/` | 83-task public-development ModuleComposeBench suite plus the 40-task held-out split, 30-task supplemental realism manifest, runner, result aggregator, and scoring schema. |
 | `scripts/write-release-claim-table-json.py` | Converts `docs/release_claim_table.md` into a hashed machine-readable release artifact. |
 | `scripts/write-llm-evidence-hashes.py` | Writes sanitized hash metadata for authenticated v3 LLM evidence files. |
 | `scripts/write-paper-summary-tables.py` | Generates compact paper summary tables from manifest and result evidence. |

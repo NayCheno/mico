@@ -40,9 +40,9 @@ This file is the short, traceable status page for the current repository. Use
   positive seed and case-study tasks.
 - Docker EDA smoke flow using Verilator, Icarus, Yosys, and a minimal
   SymbiYosys proof smoke.
-- Icarus simulation coverage for all 36 positive tasks through committed
+- Icarus simulation coverage for all 46 public-development positive tasks through committed
   directed testbenches.
-- Bounded SymbiYosys formal smoke coverage for all 31 single-clock positive
+- Bounded SymbiYosys formal smoke coverage for all 40 public-development single-clock positive
   tasks through committed directed monitors.
 - Structural and generic-mapped Yosys QoR extraction for supported positive
   benchmark wrappers, compared against committed hand-written reference wrappers
@@ -60,25 +60,26 @@ This file is the short, traceable status page for the current repository. Use
   diagnostics, source AST, typed IR, traceability, repair patches,
   deterministic benchmark results, LLM run
   records, LLM benchmark records, and aggregate results.
-- 62 public-development ModuleComposeBench tasks with required natural-language requests,
+- 83 public-development ModuleComposeBench tasks with required natural-language requests,
   module/interface/adapter inventories, expected diagnostics, explicit RTL
-  collateral, five public-development subsystem case studies, and a hardened
-  20-task held-out case-study split.
+  collateral, 14 public-development subsystem positives, and a hardened
+  40-task held-out case-study/calibration split.
 - Documented public-development and held-out split policy. The committed main
   manifest is the public development split; the separate held-out manifest has
-  20 scoring tasks, including seven subsystem positives and seven paired
-  negative variants. Prompt construction strips expected compose bodies from
-  MICO sources to avoid solution leakage.
+  40 scoring tasks, including seven subsystem positives, seven paired
+  negative variants, and balanced per-level calibration rows. Prompt
+  construction strips expected compose bodies from MICO sources to avoid
+  solution leakage.
 - Deterministic and LLM benchmark result records include the evaluated manifest
   path and SHA-256 hash.
 - Repository-owned LLM provider validate/smoke script that writes sanitized
   `mico.llm.run.v0` records.
-- Batch LLM benchmark runner for the 62-task manifest with Direct Verilog,
+- Batch LLM benchmark runner for the expanded 83-task manifest with Direct Verilog,
   SystemVerilog-interface, MICO source, MICO JSON AST, and MICO JSON AST +
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
-- Authenticated low-cost LLM matrix execution has been run for 62 tasks, two
+- Historical authenticated low-cost LLM matrix execution has been run for 62 tasks, two
   low-cost profiles, and five baselines. The sanitized summary in
   `docs/16_llm_matrix_results.md` is retained as a historical negative result
   for the original prompts.
@@ -89,7 +90,8 @@ This file is the short, traceable status page for the current repository. Use
   The selected pilot subset is no longer zero-pass, but it is not a full
   pass-rate improvement claim.
 - A full authenticated structured matrix rerun in
-  `docs/24_llm_matrix_v3.md` covers public-development and held-out splits
+  `docs/24_llm_matrix_v3.md` covers the locked pre-expansion
+  public-development and held-out splits
   across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It
   supports a Branch A claim for the tested profiles: MICO JSON AST
   and MICO JSON AST plus compiler-feedback repair produce nonzero to full
@@ -132,8 +134,8 @@ This file is the short, traceable status page for the current repository. Use
   deterministic fallback recorded in `docs/24_llm_matrix_v3.md`.
 - Full generated statistical appendix and any final submission-only table
   integration beyond the deterministic summary table.
-- Broader subsystem case studies beyond the current five public-dev plus seven
-  held-out deterministic cases.
+- Authenticated LLM reruns for the expanded 83-task public-development,
+  40-task held-out, and 30-task realism manifests.
 - Immutable release tag, GitHub Release, or Zenodo archive; the current policy
   uses a reviewable release branch and generated bundle first, then publishes
   permanent archives only after final artifact approval.
@@ -142,40 +144,41 @@ This file is the short, traceable status page for the current repository. Use
 
 Current deterministic benchmark scope:
 
-- Total tasks: 62, with 36 positives and 26 negatives.
-- Level coverage: L1 10, L2 13, L3 10, L4 10, L5 10, and L6 9.
+- Total tasks: 83, with 46 positives and 37 negatives.
+- Level coverage: L1 11, L2 13, L3 10, L4 12, L5 18, and L6 19.
 - The deterministic compiler baseline includes same-domain stream wiring,
   width adaptation, latency/backpressure seed tasks, CDC/RDC adapter tasks,
-  bus/register wrapper seeds, subsystem seeds, and 26 unsafe-rejection cases.
-- Expected current result: expected outcome 62/62, positive compose 36/36,
-  positive lint/elaboration smoke 36/36, positive simulation 36/36, unsafe
-  rejection 26/26, JSON AST path 62/62, single-clock bounded formal smoke
-  31/31, structural plus generic-mapped QoR available 9/9. The mode split is
-  36 declared and 0 generated simulations, plus 31 declared and 0 generated
+  bus/register wrapper seeds, subsystem seeds, and 37 unsafe-rejection cases.
+- Expected current result: expected outcome 83/83, positive compose 46/46,
+  positive lint/elaboration smoke 46/46, positive simulation 46/46, unsafe
+  rejection 37/37, JSON AST path 83/83, single-clock bounded formal smoke
+  40/40, structural plus generic-mapped QoR available 11/11. The mode split is
+  46 declared and 0 generated simulations, plus 40 declared and 0 generated
   single-clock formal checks.
 - `formal_pass` is claimed only for the single-clock formal smoke denominator;
   CDC proof, full task-specific formal coverage, broad timing QoR,
   technology-mapped delay, and broad Vivado QoR remain intentionally unclaimed.
   The separate Vivado subset covers 12 QoR-enabled public and held-out tasks and uses
   measurement-only build copies.
-- L3/L5/L6 include seed approximations plus the dedicated T058--T062 streaming,
-  width-bridge, register/status, protocol-bridge, and telemetry subsystem case
-  studies.
-- Held-out split: `benchmarks/module_compose_bench_heldout.yaml` has 20 tasks
-  with ten positives and ten negatives, including seven held-out subsystem
+- L3/L5/L6 include seed approximations plus dedicated T058--T082 streaming,
+  width-bridge, register/status, protocol-bridge, telemetry, AXI/APB, video,
+  DMA register-map, packetizer, and MMIO subsystem case studies.
+- Held-out split: `benchmarks/module_compose_bench_heldout.yaml` has 40 tasks
+  with twenty positives and twenty negatives, including seven held-out subsystem
   positives for AXI/APB wrapper, video pipeline, explicit CDC event/status,
   telemetry, protocol bridge, and register/status composition. Its expected
-  current result is 20/20 expected outcome, 10/10 positive lint/sim, 9/9
-  single-clock formal smoke, 3/3 QoR, 10/10 unsafe rejection, and 20/20 JSON
-  AST path. The held-out mode split is 10 declared and 0 generated simulations,
-  plus 9 declared and 0 generated single-clock formal checks; the explicit CDC
+  current result is 40/40 expected outcome, 20/20 positive lint/sim, 17/17
+  single-clock formal smoke, 6/6 QoR, 20/20 unsafe rejection, and 40/40 JSON
+  AST path. The held-out mode split is 20 declared and 0 generated simulations,
+  plus 17 declared and 0 generated single-clock formal checks; explicit CDC
   case remains formal not-run.
 - Supplemental realism split:
-  `benchmarks/module_compose_bench_realism.yaml` has 14 deterministic-only
-  tasks with seven positives and seven negatives. It adds three subsystem
-  positives plus three paired negatives and passes 14/14 expected outcomes,
-  7/7 positive lint/sim, 6/6 bounded single-clock formal, 7/7 unsafe rejection,
-  and 14/14 JSON AST path. It is not included in v3 LLM claims until a separate
+  `benchmarks/module_compose_bench_realism.yaml` has 30 deterministic-only
+  tasks with 15 positives and 15 negatives. It adds subsystem realism
+  positives, paired negatives, and balanced L1-L6 calibration rows, and is
+  expected to pass 30/30 expected outcomes, 15/15 positive lint/sim, 13/13
+  bounded single-clock formal, 15/15 unsafe rejection, 4/4 QoR, and 30/30 JSON
+  AST path. It is not included in v3 LLM claims until a separate
   authenticated matrix reruns it.
 
 ## Validation Commands

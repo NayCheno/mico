@@ -164,7 +164,7 @@ def scan_required_references() -> list[str]:
             errors.append(f"{rel}: missing docs/release_claim_table.md reference")
 
     numeric_claim_re = re.compile(
-        r"\b(62|36/36|31/31|26/26|20-task|20/20|10/10|12-task|32|24|nine-task)\b"
+        r"\b(83|46/46|40/40|37/37|40-task|40/40|20/20|30-task|30/30|15/15|12-task|32|24|nine-task)\b"
     )
     for path in sorted((REPO_ROOT / "paper" / "sections").glob("*.tex")):
         text = path.read_text(encoding="utf-8")
@@ -176,9 +176,9 @@ def scan_required_references() -> list[str]:
 def scan_stale_claims() -> list[str]:
     errors: list[str] = []
     checks: list[tuple[str, str, str]] = [
-        ("PROJECT_MANIFEST.md", r"\b60-task\b", "public benchmark is now 62 tasks"),
-        ("docs/13_architecture_audit.md", r"\b60-task\b", "public benchmark is now 62 tasks"),
-        ("docs/14_reproduction_workflow.md", r"\b60-task\b", "public benchmark is now 62 tasks"),
+        ("PROJECT_MANIFEST.md", r"\b60-task\b", "public benchmark is now 83 tasks"),
+        ("docs/13_architecture_audit.md", r"\b60-task\b", "public benchmark is now 83 tasks"),
+        ("docs/14_reproduction_workflow.md", r"\b60-task\b", "public benchmark is now 83 tasks"),
         ("docs/13_architecture_audit.md", r"Twenty tasks,", "public directed simulations are now 36"),
         ("docs/14_reproduction_workflow.md", r"\b20 use committed directed\b", "public directed simulations are now 36"),
         ("docs/13_architecture_audit.md", r"\b20 use committed directed\b", "public directed simulations are now 36"),
@@ -200,7 +200,6 @@ def scan_stale_claims() -> list[str]:
         ("docs/23_heldout_benchmark_hardening.md", r"\{declared:\s*6,\s*autogen:\s*3\}", "held-out formal checks are now all declared"),
         ("docs/14_reproduction_workflow.md", r"\b6 declared and 3\s+generated single-clock formal checks\b", "held-out formal checks are now all declared"),
         ("docs/14_reproduction_workflow.md", r"\b12/12\b", "held-out split is now 20/20"),
-        ("docs/14_reproduction_workflow.md", r"\b6/6\b", "held-out positives/unsafe are now 10/10"),
         ("docs/14_reproduction_workflow.md", r"\b5/5\b", "held-out formal is now 9/9"),
         ("docs/13_architecture_audit.md", r"\bfour-task\b", "Vivado subset is now 12 tasks"),
         ("docs/14_reproduction_workflow.md", r"\bfour-task\b", "Vivado subset is now 12 tasks"),
@@ -227,12 +226,15 @@ def scan_stale_claims() -> list[str]:
 def check_claim_table() -> list[str]:
     text = read_text("docs/release_claim_table.md")
     required_tokens = [
-        "62 total, 36 positive, 26 negative",
-        "36 declared, 0 generated",
-        "31 declared, 0 generated",
-        "20 total, 10 positive, 10 negative",
-        "10 declared, 0 generated",
-        "9 declared, 0 generated",
+        "83 total, 46 positive, 37 negative",
+        "46 declared, 0 generated",
+        "40 declared, 0 generated",
+        "40 total, 20 positive, 20 negative",
+        "20 declared, 0 generated",
+        "17 declared, 0 generated",
+        "30 total, 15 positive, 15 negative",
+        "15 declared, 0 generated",
+        "13 declared, 0 generated",
         "12 QoR-enabled tasks",
         "build/release/full_check_manifest.json",
         "build/release/deterministic_evidence_hashes.json",
@@ -249,28 +251,28 @@ def check_manifests() -> list[str]:
     heldout = task_summary(load_manifest("benchmarks/module_compose_bench_heldout.yaml"))
     realism = task_summary(load_manifest("benchmarks/module_compose_bench_realism.yaml"))
 
-    errors += expect("public total", public["total"], 62)
-    errors += expect("public positives", public["positive"], 36)
-    errors += expect("public negatives", public["negative"], 26)
-    errors += expect("public levels", public["levels"], {"L1": 10, "L2": 13, "L3": 10, "L4": 10, "L5": 10, "L6": 9})
-    errors += expect("public declared simulations", public["declared_sim"], 36)
-    errors += expect("public declared formal monitors", public["declared_formal"], 31)
-    errors += expect("public QoR references", public["qor_reference"], 9)
+    errors += expect("public total", public["total"], 83)
+    errors += expect("public positives", public["positive"], 46)
+    errors += expect("public negatives", public["negative"], 37)
+    errors += expect("public levels", public["levels"], {"L1": 11, "L2": 13, "L3": 10, "L4": 12, "L5": 18, "L6": 19})
+    errors += expect("public declared simulations", public["declared_sim"], 46)
+    errors += expect("public declared formal monitors", public["declared_formal"], 40)
+    errors += expect("public QoR references", public["qor_reference"], 11)
 
-    errors += expect("held-out total", heldout["total"], 20)
-    errors += expect("held-out positives", heldout["positive"], 10)
-    errors += expect("held-out negatives", heldout["negative"], 10)
-    errors += expect("held-out declared simulations", heldout["declared_sim"], 10)
-    errors += expect("held-out declared formal monitors", heldout["declared_formal"], 9)
-    errors += expect("held-out QoR references", heldout["qor_reference"], 3)
+    errors += expect("held-out total", heldout["total"], 40)
+    errors += expect("held-out positives", heldout["positive"], 20)
+    errors += expect("held-out negatives", heldout["negative"], 20)
+    errors += expect("held-out declared simulations", heldout["declared_sim"], 20)
+    errors += expect("held-out declared formal monitors", heldout["declared_formal"], 17)
+    errors += expect("held-out QoR references", heldout["qor_reference"], 6)
 
-    errors += expect("realism total", realism["total"], 14)
-    errors += expect("realism positives", realism["positive"], 7)
-    errors += expect("realism negatives", realism["negative"], 7)
-    errors += expect("realism levels", realism["levels"], {"L1": 2, "L2": 2, "L3": 2, "L4": 2, "L5": 2, "L6": 4})
-    errors += expect("realism declared simulations", realism["declared_sim"], 7)
-    errors += expect("realism declared formal monitors", realism["declared_formal"], 6)
-    errors += expect("realism QoR references", realism["qor_reference"], 0)
+    errors += expect("realism total", realism["total"], 30)
+    errors += expect("realism positives", realism["positive"], 15)
+    errors += expect("realism negatives", realism["negative"], 15)
+    errors += expect("realism levels", realism["levels"], {"L1": 4, "L2": 5, "L3": 4, "L4": 5, "L5": 5, "L6": 7})
+    errors += expect("realism declared simulations", realism["declared_sim"], 15)
+    errors += expect("realism declared formal monitors", realism["declared_formal"], 13)
+    errors += expect("realism QoR references", realism["qor_reference"], 4)
     return errors
 
 

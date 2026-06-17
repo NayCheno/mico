@@ -74,18 +74,19 @@ Include intentionally invalid tasks to measure rejection ability:
 
 ## Split And Leakage Policy
 
-The committed `T001`--`T062` tasks in
+The committed `T001`--`T085` task identities in
 `benchmarks/module_compose_bench_manifest.yaml` are the public development
 split. They are used for deterministic regression, documentation, prompt
 debugging, and artifact reproduction. The separate
 `benchmarks/module_compose_bench_heldout.yaml` manifest is the held-out scoring
 split. It includes seven additional subsystem case-study positives
 (`T063`--`T065`, `T069`, `T071`, `T073`, and `T075`), seven paired negative
-variants, and fixed seed calibration tasks that cover L1--L3. Full LLM
-advantage claims must report public-dev and
-held-out results separately; sanitized held-out prompts, results, aggregate
-hashes, and manifest metadata should be archived as release assets after
-scoring.
+variants, and fixed seed/alias calibration tasks that cover L1--L6. The
+supplemental realism manifest has 30 deterministic-only scoring rows. Full LLM
+advantage claims must report deterministic public-dev, held-out, and realism
+results separately from the locked authenticated v3 LLM-scored manifest hashes;
+sanitized held-out prompts, results, aggregate hashes, and manifest metadata
+should be archived as release assets after scoring.
 
 Prompt construction intentionally separates public requests from committed
 solutions. The LLM batch runner includes the natural-language request,
@@ -117,13 +118,13 @@ required task metadata and committed collateral paths, runs
 SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and
 executes Verilator, Icarus, and Yosys smoke checks against
 `rtl/examples/mico_example_leafs.sv` and dedicated case-study collateral under
-`rtl/case_studies/`. The current manifest has 62 tasks: 36 positive composition
-tasks and 26 negative unsafe-rejection tasks across L1-L6.
+`rtl/case_studies/`. The current manifest has 83 tasks: 46 positive composition
+tasks and 37 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
 Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
 testbenches. The current public-development summary records
-`sim_mode_counts = {declared: 36}`. The runner still has an auto-generated
+`sim_mode_counts = {declared: 46}`. The runner still has an auto-generated
 ready/valid smoke harness fallback for newly added positive tasks without a
 declared testbench, but fallback simulation is not part of the current public
 main table. Simulation stdout/stderr artifacts are written under ignored
@@ -131,9 +132,9 @@ main table. Simulation stdout/stderr artifacts are written under ignored
 Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated
 wrapper plus committed harness monitor. The current enabled formal denominator
-is 31/31, all through committed directed single-clock monitors.
+is 40/40, all through committed directed single-clock monitors.
 The current public-development summary records
-`formal_mode_counts = {declared: 31}`.
+`formal_mode_counts = {declared: 40}`.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and
 flattened generic-mapped `stat -json` for the generated wrapper and the
@@ -149,12 +150,12 @@ codes. It writes a `mico.bench.results.v0` JSON object under ignored
 `build/bench/` with the manifest hash, `summary` aggregation, and per-task
 results. The current runner aggregates `formal_pass` over formal-enabled tasks
 and `qor` over QoR-enabled positive tasks.
-L3/L5/L6 still contain seed approximations, but T058--T062 add dedicated
-streaming, width-bridge, register/status, protocol-bridge, and telemetry
-subsystem RTL case studies.
-The held-out manifest adds T063--T065 and T069/T071/T073/T075 for AXI/APB
-wrapper, video pipeline, explicit CDC event/status, telemetry, protocol bridge,
-and register/status case studies.
+L3/L5/L6 still contain seed approximations, but T058--T082 add dedicated
+streaming, width-bridge, register/status, protocol-bridge, telemetry, AXI/APB,
+video, explicit CDC event/status, DMA register-map, packetizer, and MMIO
+subsystem RTL case studies. The held-out manifest adds balanced calibration
+rows around those case-study tasks, and the realism supplement adds
+deterministic subsystem variants plus paired unsafe variants.
 
 ## Paper Table Aggregation
 

@@ -133,22 +133,25 @@ ready until the M3-M5 verification, paper, and release gates pass.
 
 Supported now:
 
-- 62 ModuleComposeBench tasks with 36 positive and 26 negative tasks.
-- 62/62 expected deterministic outcomes.
-- 36/36 positive lint/elaboration smoke.
-- 36/36 positive Icarus smoke simulations, all with committed directed
+- 83 ModuleComposeBench public-development tasks with 46 positive and 37 negative tasks.
+- 83/83 expected deterministic outcomes.
+- 46/46 positive lint/elaboration smoke.
+- 46/46 positive Icarus smoke simulations, all with committed directed
   harnesses.
-- 31/31 single-clock bounded formal smoke checks, all with committed directed
+- 40/40 single-clock bounded formal smoke checks, all with committed directed
   monitors.
-- 9/9 structural and generic-mapped Yosys QoR summaries for reference-enabled
+- 11/11 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
 - 12-task host-Vivado out-of-context QoR/timing subset covering all
   QoR-enabled public and held-out tasks: `T001`--`T004` and `T058`--`T065`.
-- Held-out manifest with 20 scoring tasks, including seven subsystem positives
+- Held-out manifest with 40 scoring tasks, including seven subsystem positives
   and seven paired negative variants; deterministic held-out scoring currently
-  passes 20/20 expected outcomes. The non-CDC held-out subsystem positives now
+  passes 40/40 expected outcomes. The non-CDC held-out subsystem positives now
   have committed directed formal monitors, while the explicit CDC held-out case
   remains smoke-only.
+- Supplemental realism manifest with 30 deterministic-only tasks, 15 positives,
+  15 negatives, balanced L1-L6 calibration coverage, and deterministic-only
+  claim status until a new authenticated matrix reruns it.
 - Historical sanitized low-cost LLM matrix summary showing a negative result
   for the original prompts.
 - Structured v3 authenticated LLM full matrix across public-development and
@@ -162,8 +165,8 @@ M2 branch decision:
 
 - Branch A is the current paper branch for the tested OpenCode Go profiles,
   prompts, public-development manifest, and held-out manifest.
-- The v3 held-out execute record is bound to the current held-out manifest
-  SHA-256.
+- The v3 held-out execute record is bound to the locked pre-expansion held-out
+  manifest SHA-256, not the expanded 40-task deterministic manifest.
 - JSON AST repair reaches 35--36/36 public-development positives and 9--10/10
   held-out positives across the tested profiles, while direct Verilog and
   SV-interface baselines remain weaker.

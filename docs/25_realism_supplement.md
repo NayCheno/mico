@@ -10,11 +10,13 @@ summarized in `docs/benchmark_realism_ablation_report_2026-06-16.md`.
 
 ## Scope
 
-`benchmarks/module_compose_bench_realism.yaml` contains 14 tasks:
+`benchmarks/module_compose_bench_realism.yaml` contains 30 deterministic-only tasks:
 
-- 8 L1-L4 calibration tasks reused from existing manifests to keep the
-  runner's per-level positive/negative invariant active.
-- 3 new subsystem positives:
+- 18 L1-L6 calibration tasks reused from existing committed collateral to keep
+  every level at or above two positives and two negatives.
+- 5 subsystem positives:
+  - `T063_axi_apb_wrapper_case`
+  - `T064_video_filter_pipeline_case`
   - `T077_dma_register_map_case`
   - `T079_axis_packetizer_case`
   - `T081_mmio_control_data_path_case`
@@ -25,8 +27,9 @@ summarized in `docs/benchmark_realism_ablation_report_2026-06-16.md`.
 
 The new positives cover DMA register-map/status composition, AXI-stream-like
 packetization, and memory-mapped control/data width adaptation. Each new
-positive has committed MICO source, JSON AST fixture, RTL collateral, directed
-simulation, and directed single-clock formal monitors.
+positive has committed MICO source, RTL collateral, directed simulation, and
+directed single-clock formal monitors where the task is in the single-clock
+formal denominator.
 
 ## Evidence
 
@@ -40,27 +43,27 @@ Commands:
 
 Result:
 
-- `expected_outcome_pass: 14/14`
-- `compose_pass_1: 7/7`
-- `lint_pass: 7/7`
-- `sim_pass: 7/7`
-- `formal_pass: 6/6`
-- `unsafe_rejection: 7/7`
-- `json_ast_path: 14/14`
-- `sim_mode_counts: {declared: 7}`
-- `formal_mode_counts: {declared: 6}`
+- `expected_outcome_pass: 30/30`
+- `compose_pass_1: 15/15`
+- `lint_pass: 15/15`
+- `sim_pass: 15/15`
+- `formal_pass: 13/13`
+- `qor_available: 4/4`
+- `unsafe_rejection: 15/15`
+- `json_ast_path: 30/30`
+- `sim_mode_counts: {declared: 15}`
+- `formal_mode_counts: {declared: 13}`
 
 Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `benchmarks/module_compose_bench_realism.yaml` | `9b991781c7cc5f6029229e9c2caabbdf249ec0fdae5dba5e40d9e93bbb370b33` |
-| `build/bench/realism_results.json` | `84149b6515df65a7927f02a16f73ce550bcd4e67955b77d8694434810d113bab` |
-| `build/bench/aggregate_realism_results.json` | `cabb881aa2c5d869cbd81ae0e21a3709ef4d2256176ae21acb0faa3c16176e0f` |
+| `benchmarks/module_compose_bench_realism.yaml` | `5a79fbe5171506143c0382a5854e1adabac9596fe999576ae7ae01db307d3654` |
+| `build/bench/realism_results.json` | `6015baea58ef9dc2ce2cf9e184f46e9ac3bdae076c15d7338d37fd22ef9b6f96` |
+| `build/bench/aggregate_realism_results.json` | `ad0ae8ae02bdd4614b895bc8d9fa791e2b0b479ff8d79fe65407cbdee642c615` |
 
 ## Claim Boundary
 
-This supplement raises the committed case-study corpus to 15 positives and at
-least 10 paired negative variants across the main, held-out, and supplemental
-manifests. It is deterministic-only evidence until the LLM matrix is rerun with
-the supplemental manifest included.
+This supplement raises deterministic subsystem and calibration coverage across
+the main, held-out, and supplemental manifests. It is deterministic-only
+evidence until the LLM matrix is rerun with the supplemental manifest included.

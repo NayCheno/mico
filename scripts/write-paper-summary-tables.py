@@ -102,7 +102,7 @@ def split_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     specs = [
         ("Public-dev", args.public_manifest, args.public_result, "Yosys reference"),
         ("Held-out", args.heldout_manifest, args.heldout_result, "Yosys reference"),
-        ("Realism supplement", args.realism_manifest, args.realism_result, "not run"),
+        ("Realism supplement", args.realism_manifest, args.realism_result, "Yosys reference"),
     ]
     rows = []
     for name, manifest, result, qor_label in specs:
@@ -224,6 +224,7 @@ def failure_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
 def qor_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     public = load_json(repo_path(args.public_result)).get("summary", {}).get("qor", {})
     heldout = load_json(repo_path(args.heldout_result)).get("summary", {}).get("qor", {})
+    realism = load_json(repo_path(args.realism_result)).get("summary", {}).get("qor", {})
     rows = [
         {
             "scope": "Yosys structural/generic public-dev",
@@ -234,6 +235,12 @@ def qor_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
         {
             "scope": "Yosys structural/generic held-out",
             "rows": f"{heldout.get('available_tasks', 0)}/{heldout.get('total', 0)}",
+            "status": "reference wrappers",
+            "claim": "area/wire/mapped-cell parity",
+        },
+        {
+            "scope": "Yosys structural/generic realism",
+            "rows": f"{realism.get('available_tasks', 0)}/{realism.get('total', 0)}",
             "status": "reference wrappers",
             "claim": "area/wire/mapped-cell parity",
         },

@@ -134,23 +134,23 @@ Run the deterministic benchmark runner:
 
 Expected current benchmark result:
 
-- `expected_outcome_pass: 62/62`
-- `compose_pass_1: 36/36` for positive tasks
-- `lint_pass: 36/36` for positive tasks
-- `sim_pass: 36/36` for positive tasks; all 36 use committed directed
+- `expected_outcome_pass: 83/83`
+- `compose_pass_1: 46/46` for positive tasks
+- `lint_pass: 46/46` for positive tasks
+- `sim_pass: 46/46` for positive tasks; all 46 use committed directed
   Icarus testbenches
-- `formal_pass: 31/31` for single-clock formal smoke tasks; all 31 use
+- `formal_pass: 40/40` for single-clock formal smoke tasks; all 40 use
   committed directed monitors
-- `qor_available: 9/9` for positive tasks with committed reference wrappers;
+- `qor_available: 11/11` for positive tasks with committed reference wrappers;
   availability includes structural and generic-mapped Yosys stat reports
-- `unsafe_rejection: 26/26` for negative tasks
-- `json_ast_path: 62/62` for source-to-AST-to-check equivalence
+- `unsafe_rejection: 37/37` for negative tasks
+- `json_ast_path: 83/83` for source-to-AST-to-check equivalence
 - CDC formal proof, full timing closure, technology-mapped delay, and broad
   Vivado QoR remain outside the deterministic benchmark runner. A separate
   representative Vivado subset is documented below.
-- T058--T062 provide dedicated streaming, width-bridge, register/status,
-  protocol-bridge, and telemetry subsystem case studies; broader latency and
-  bus IP studies remain future work.
+- T058--T082 provide dedicated streaming, width-bridge, register/status,
+  protocol-bridge, telemetry, AXI/APB, video, CDC event/status, DMA register-map,
+  packetizer, and MMIO subsystem case studies.
 - `build/bench/qor_summary.csv` and `build/bench/qor_summary.tex` are generated
   from the benchmark JSON and remain ignored build artifacts.
 
@@ -162,20 +162,39 @@ Run the held-out split separately:
 
 Expected held-out result:
 
-- `expected_outcome_pass: 20/20`
-- `compose_pass_1: 10/10`
-- `lint_pass: 10/10`
-- `sim_pass: 10/10`
-- `formal_pass: 9/9`
-- `qor_available: 3/3`
-- `unsafe_rejection: 10/10`
-- `json_ast_path: 20/20`
-- mode split: 10 declared and 0 generated simulations, plus 9 declared and 0
-  generated single-clock formal checks; the explicit CDC held-out case remains
+- `expected_outcome_pass: 40/40`
+- `compose_pass_1: 20/20`
+- `lint_pass: 20/20`
+- `sim_pass: 20/20`
+- `formal_pass: 17/17`
+- `qor_available: 6/6`
+- `unsafe_rejection: 20/20`
+- `json_ast_path: 40/40`
+- mode split: 20 declared and 0 generated simulations, plus 17 declared and 0
+  generated single-clock formal checks; explicit CDC held-out cases remain
   formal not-run
 
 Both public-dev and held-out benchmark JSON records include the manifest path
 and manifest SHA-256.
+
+Run the supplemental realism split separately:
+
+```powershell
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/run_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --output build/bench/realism_results.json"
+```
+
+Expected realism result:
+
+- `expected_outcome_pass: 30/30`
+- `compose_pass_1: 15/15`
+- `lint_pass: 15/15`
+- `sim_pass: 15/15`
+- `formal_pass: 13/13`
+- `qor_available: 4/4`
+- `unsafe_rejection: 15/15`
+- `json_ast_path: 30/30`
+- mode split: 15 declared and 0 generated simulations, plus 13 declared and 0
+  generated single-clock formal checks.
 
 Generate aggregate CSV and paper-table snippets from deterministic results:
 

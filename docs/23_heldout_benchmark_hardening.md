@@ -10,14 +10,14 @@ JSON and aggregate tables remain under ignored `build/` paths.
 
 `benchmarks/module_compose_bench_heldout.yaml` now contains:
 
-- 20 held-out tasks.
-- 10 positive and 10 negative tasks.
+- 40 held-out tasks.
+- 20 positive and 20 negative tasks.
 - 7 subsystem positive case-study variants.
 - 7 paired case-study negative variants.
-- 10 committed directed held-out simulation testbenches; the three seed
+- 20 committed directed held-out simulation testbenches; the expanded seed
   calibration positives now reuse committed directed public seed benches.
-- 9 committed directed single-clock held-out formal monitors covering all
-  non-CDC held-out positives; the CDC case remains formal not-run.
+- 17 committed directed single-clock held-out formal monitors covering all
+  non-CDC held-out positives; CDC cases remain formal not-run.
 - Per-task request text, module/interface/adapter inventories, expected
   diagnostics, RTL collateral, expected features, and prompt-leakage policy.
 
@@ -46,31 +46,33 @@ Commands:
 
 Result:
 
-- `expected_outcome_pass: 20/20`
-- `compose_pass_1: 10/10`
-- `lint_pass: 10/10`
-- `sim_pass: 10/10`
-- `formal_pass: 9/9`
-- `qor_available: 3/3`
-- `unsafe_rejection: 10/10`
-- `json_ast_path: 20/20`
-- `sim_mode_counts: {declared: 10}`
-- `formal_mode_counts: {declared: 9}`
+- `expected_outcome_pass: 40/40`
+- `compose_pass_1: 20/20`
+- `lint_pass: 20/20`
+- `sim_pass: 20/20`
+- `formal_pass: 17/17`
+- `qor_available: 6/6`
+- `unsafe_rejection: 20/20`
+- `json_ast_path: 40/40`
+- `sim_mode_counts: {declared: 20}`
+- `formal_mode_counts: {declared: 17}`
 
 Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `benchmarks/module_compose_bench_heldout.yaml` | `8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd` |
-| `build/bench/heldout_results.json` | `dfb08cff44789c07be42d66800eb21431128f22f2cddc6008ec2776f1a8bfc14` |
-| `build/bench/aggregate_heldout_results.json` | `1809f695c65b57443f3cf3aba803445547e209aed5a2746f6c5c2b2676c92376` |
+| `benchmarks/module_compose_bench_heldout.yaml` | `cb04838fbe4332b4bb94d9bfeddb7f2cdd62bd59993c6475696161418d7c69c5` |
+| `build/bench/heldout_results.json` | `f9520d217f294aaea9b6928dc52b07cd1593ffd505854af1c1960984ce7534bd` |
+| `build/bench/aggregate_heldout_results.json` | `4275d6e994573ac7704945a6c25d7689215a760ffe8de48cc66cf6120c90cba3` |
 
 ## LLM Split Refresh
 
 The original M5 change revised the held-out task set. The refreshed v3 LLM
-matrix now binds the authenticated held-out execute record to the current
-20-task held-out manifest hash above and supersedes the v2 held-out binding for
-submission claims. Detailed v3 pass-rate tables live in
+matrix binds the authenticated held-out execute record to the locked
+pre-expansion 20-task held-out manifest hash and supersedes the v2 held-out
+binding for submission claims. The expanded 40-task deterministic manifest
+requires a new authenticated rerun before it can support LLM claims. Detailed
+v3 pass-rate tables live in
 `docs/24_llm_matrix_v3.md` and `docs/llm_final_matrix_report.md`.
 
 Additional commands:

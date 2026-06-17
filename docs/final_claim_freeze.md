@@ -21,16 +21,17 @@ The current paper branch is bounded Branch A:
 - scope: the v3 OpenCode Go profiles `smoke`, `low_cost_crosscheck`, and
   `quality_code`;
 - prompts: the committed baseline prompts and schemas under `prompts/`;
-- splits: the 62-task public-development manifest and the 20-task held-out
-  manifest;
+- splits: the locked pre-expansion 62-task public-development manifest and
+  20-task held-out manifest hashes recorded in the v3 evidence;
 - accepted repair wins: the recorded
   `deterministic_adapter_instance_collapse` compiler-feedback fallback plus the
   compiler-gated JSON AST repair path;
 - evidence binding: sanitized run records and aggregate tables are hashed by
   `build/release/full_check_manifest.json` when present.
 
-The supplemental 14-task realism manifest is deterministic-only evidence until
-it is rerun in an authenticated LLM matrix.
+The expanded deterministic manifests are 83 public-development tasks,
+40 held-out tasks, and a 30-task realism supplement. The expanded deterministic
+rows are not LLM-scored until they are rerun in an authenticated matrix.
 
 ## Required Claim Mapping
 

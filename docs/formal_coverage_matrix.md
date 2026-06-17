@@ -13,9 +13,9 @@ The current formal denominator is intentionally bounded and single-clock. Every
 task counted in the denominator uses a declared committed harness; generated
 fallback harnesses are not counted in the paper claim:
 
-- public-development: 31/31 enabled formal monitors pass;
-- held-out: 9/9 enabled formal monitors pass;
-- supplemental realism: 6/6 enabled formal monitors pass.
+- public-development: 40/40 enabled formal monitors pass;
+- held-out: 17/17 enabled formal monitors pass;
+- supplemental realism: 13/13 enabled formal monitors pass.
 
 The enabled monitors are committed directed SystemVerilog bind modules under
 `benchmarks/formal/`. They are task-specific in the repository sense: each
@@ -30,12 +30,12 @@ benchmark result JSON and summarizes:
 
 | Property class | Public-dev | Held-out | Realism | Boundary |
 |---|---:|---:|---:|---|
-| direct_ready_valid_payload | 8/8 | 3/3 | 1/1 | payload stability and ready/valid after reset |
-| fifo_pipeline_ordering | 11/11 | 1/1 | 1/1 | bounded no-drop/no-duplicate proxy and payload ordering |
-| width_payload_relation | 9/9 | 1/1 | 2/2 | widening/packing relation and handshake coupling |
-| register_status_visibility | 1/1 | 1/1 | 1/1 | command-to-status visibility and payload relation |
-| protocol_request_response | 1/1 | 2/2 | 1/1 | request/response or bridge payload refinement |
-| telemetry_filter_predicate | 1/1 | 1/1 | 0/0 | filter/accumulator payload predicate preservation |
+| direct_ready_valid_payload | 10/10 | 6/6 | 4/4 | payload stability and ready/valid after reset |
+| fifo_pipeline_ordering | 11/11 | 4/4 | 3/3 | bounded no-drop/no-duplicate proxy and payload ordering |
+| width_payload_relation | 10/10 | 3/3 | 3/3 | widening/packing relation and handshake coupling |
+| register_status_visibility | 3/3 | 1/1 | 1/1 | command-to-status visibility and payload relation |
+| protocol_request_response | 4/4 | 2/2 | 2/2 | request/response or bridge payload refinement |
+| telemetry_filter_predicate | 2/2 | 1/1 | 0/0 | filter/accumulator payload predicate preservation |
 
 This exceeds the minimum M3 gate of at least 8 public task-specific monitors,
 at least 3 held-out task-specific monitors, and at least 4 property classes.
@@ -74,9 +74,9 @@ engine.
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `c63dddf03bc8bab62fbd9d255243260d5f357ce0b118d93f71daab68b8c73148` |
-| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `1b32f8ed42ebcbecf5eb7625c67d59b9ee8b7abfedf702aa2ce0dd483294dc59` |
-| `paper/tables/formal_coverage_matrix.tex` | `ac5e544addc20a801f354a5e74daca9f9576dbfe7188918ef95cf16f5704382a` |
+| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `d7169660339475b5e5393b5947681549047e0ce095aa5aa3989267e86456118b` |
+| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `6b557312d59f1564fd1f58de6c6d1c36eca396f6573a36e4212332b77c95f1cc` |
+| `paper/tables/formal_coverage_matrix.tex` | `1039108c1e9903ebc2c3eb0875466df52ece639fa2a00e8c92b7829efc783b3f` |
 
 ## Reproduction
 

@@ -19,56 +19,59 @@ payloads, or API keys.
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---:|---|---|---|---|
-| Public-development manifest tasks | 62 total, 36 positive, 26 negative | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
-| Level distribution | L1 10, L2 13, L3 10, L4 10, L5 10, L6 9 | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
-| Public-development case-study positives and paired negatives | 5 positive, 0 paired negative variants | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/tables/benchmark_split_summary.tex` |
-| Expected outcomes | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Positive compose | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Positive lint/elaboration | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Positive simulation | 36/36 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Simulation mode split | 36 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
-| Unsafe rejection | 26/26 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| JSON AST path | 62/62 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Single-clock bounded formal smoke | 31/31 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Formal mode split | 31 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
-| Formal property coverage matrix | 6 property classes; public 31/31, held-out 9/9, realism 6/6 | `build/bench/formal_coverage/formal_coverage_matrix.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/formal_coverage_matrix.tex` |
-| Structural and generic-mapped QoR | 9/9 reference-enabled public tasks | `build/bench/seed_results.json`, `build/bench/aggregate_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Public-development manifest tasks | 83 total, 46 positive, 37 negative | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
+| Level distribution | L1 11, L2 13, L3 10, L4 12, L5 18, L6 19 | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
+| Public-development case-study positives and paired negatives | 14 positive, 9 paired negative variants | `benchmarks/module_compose_bench_manifest.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/tables/benchmark_split_summary.tex` |
+| Expected outcomes | 83/83 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Positive compose | 46/46 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Positive lint/elaboration | 46/46 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Positive simulation | 46/46 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Simulation mode split | 46 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Unsafe rejection | 37/37 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| JSON AST path | 83/83 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Single-clock bounded formal smoke | 40/40 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Formal mode split | 40 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Formal property coverage matrix | 6 property classes; public 40/40, held-out 17/17, realism 13/13 | `build/bench/formal_coverage/formal_coverage_matrix.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/formal_coverage_matrix.tex` |
+| Structural and generic-mapped QoR | 11/11 reference-enabled public tasks | `build/bench/seed_results.json`, `build/bench/aggregate_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## Held-Out Claims
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---:|---|---|---|---|
-| Held-out manifest tasks | 20 total, 10 positive, 10 negative | `benchmarks/module_compose_bench_heldout.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
+| Held-out manifest tasks | 40 total, 20 positive, 20 negative | `benchmarks/module_compose_bench_heldout.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
 | Held-out subsystem positives | 7 | `benchmarks/module_compose_bench_heldout.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
 | Held-out paired negative variants | 7 | `benchmarks/module_compose_bench_heldout.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `paper/sections/08_evaluation.tex` |
-| Held-out expected outcomes | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out positive compose | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out positive lint/elaboration | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out positive simulation | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out simulation mode split | 10 declared, 0 generated | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
-| Held-out unsafe rejection | 10/10 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out JSON AST path | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out single-clock bounded formal smoke | 9/9 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
-| Held-out formal mode split | 9 declared, 0 generated; explicit CDC case formal not-run | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
-| Held-out QoR | 3/3 reference-enabled held-out tasks | `build/bench/heldout_results.json`, `build/bench/aggregate_heldout_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out expected outcomes | 40/40 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out positive compose | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out positive lint/elaboration | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out positive simulation | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out simulation mode split | 20 declared, 0 generated | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Held-out unsafe rejection | 20/20 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out JSON AST path | 40/40 | `build/bench/heldout_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out single-clock bounded formal smoke | 17/17 | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
+| Held-out formal mode split | 17 declared, 0 generated; explicit CDC cases formal not-run | `build/bench/heldout_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Held-out QoR | 6/6 reference-enabled held-out tasks | `build/bench/heldout_results.json`, `build/bench/aggregate_heldout_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## Supplemental Realism Claims
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---:|---|---|---|---|
-| Supplemental realism manifest tasks | 14 total, 7 positive, 7 negative | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md`, `paper/sections/08_evaluation.tex` |
-| New supplemental subsystem pairs | 3 positive and 3 paired negative | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md` |
-| Supplemental expected outcomes | 14/14 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
-| Supplemental positive simulation | 7/7 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
-| Supplemental bounded formal smoke | 6/6 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
-| Supplemental unsafe rejection | 7/7 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental realism manifest tasks | 30 total, 15 positive, 15 negative | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md`, `paper/sections/08_evaluation.tex` |
+| New supplemental subsystem pairs | 5 positive and 3 paired negative plus calibration rows | `benchmarks/module_compose_bench_realism.yaml` | `benchmarks/manifest_schema.json` | `build/release/full_check_manifest.json: benchmark_manifests` | `docs/25_realism_supplement.md` |
+| Supplemental expected outcomes | 30/30 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental positive simulation | 15/15 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental simulation mode split | 15 declared, 0 generated | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Supplemental bounded formal smoke | 13/13 declared | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental formal mode split | 13 declared, 0 generated | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
+| Supplemental unsafe rejection | 15/15 | `build/bench/realism_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `docs/25_realism_supplement.md` |
+| Supplemental QoR | 4/4 reference-enabled realism tasks | `build/bench/realism_results.json`, `build/bench/aggregate_realism_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## LLM And Repair Claims
 
 | Claim | Current value | Evidence artifact | Schema or source | Hash source | Paper location |
 |---|---|---|---|---|---|
 | Historical low-cost matrix | Negative result for original prompts | `docs/16_llm_matrix_results.md` plus ignored raw records | `mico.llm.bench.v0` when raw records are supplied | External archive or `build/release/full_check_manifest.json` when present | Background only |
-| Structured v3 matrix | Bounded Branch A result for tested profiles and prompts | `docs/24_llm_matrix_v3.md`, `docs/llm_final_matrix_report.md`, sanitized v3 execute records under `build/llm/` when present | `mico.llm.bench.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex` |
+| Structured v3 matrix | Bounded Branch A result for tested profiles, prompts, and locked pre-expansion 62/20 manifest hashes | `docs/24_llm_matrix_v3.md`, `docs/llm_final_matrix_report.md`, sanitized v3 execute records under `build/llm/` when present | `mico.llm.bench.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex` |
 | Tested profiles | `smoke`, `low_cost_crosscheck`, `quality_code` | `config/llm-provider.example.yaml`, sanitized execute records | `mico.llm.run.v0`, `mico.llm.bench.v0` | `build/release/full_check_manifest.json: llm` | `paper/sections/08_evaluation.tex` |
 | Baselines | `direct_verilog`, `sv_interface`, `mico_source`, `mico_json_ast`, `mico_json_ast_repair` | `prompts/llm_bench_baselines.yaml`, sanitized execute records | `mico.llm.bench.v0` | `build/release/full_check_manifest.json: prompts`, `authenticated_llm_evidence` | `paper/sections/06_llm_workflow.tex`, `paper/sections/08_evaluation.tex` |
 | Repair boundary | 0 accepted free-form repair-patch wins; 23 recorded deterministic fallback wins limited to the adapter-as-instance pattern plus compiler-gated JSON AST repair path | `docs/llm_final_matrix_report.md`, sanitized execute records | `mico.llm.bench.v0` | `build/release/full_check_manifest.json: authenticated_llm_evidence` when present | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
@@ -88,9 +91,9 @@ payloads, or API keys.
 Do not write these as supported claims in README, workflow docs, paper abstract,
 introduction, evaluation, conclusion, or release notes:
 
-- 60-task public benchmark.
-- 12-task or 12/12 held-out split.
-- 20 directed public simulations or 14 directed public formal monitors.
+- 60-task or 62-task public benchmark as the current deterministic manifest.
+- 12-task, 20-task, or 12/12 held-out split as the current deterministic manifest.
+- 20 or 36 directed public simulations, or 14 or 31 directed public formal monitors, as the current deterministic manifest.
 - Four-task, four-wrapper, or stale nine-task Vivado subset.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.

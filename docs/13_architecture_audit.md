@@ -8,8 +8,8 @@ remaining gaps behind that boundary.
 
 This audit supersedes the initial scaffold audit. The repository is now a working
 research prototype with a Rust parser/checker/codegen path, open-source EDA
-smoke flow, source-level JSON AST path, 62-task public-development benchmark,
-20-task held-out split, benchmark aggregation script, LLM provider validation
+smoke flow, source-level JSON AST path, 83-task public-development benchmark,
+40-task held-out split, 30-task realism supplement, benchmark aggregation script, LLM provider validation
 script, structured v3 LLM matrix summary, release-candidate scripts, and a
 cautiously worded paper draft. Numeric result claims are tracked in
 `docs/release_claim_table.md`. It is still not a complete "engineering +
@@ -136,15 +136,15 @@ The repository has a Docker-first open-source EDA flow. `scripts/eda-smoke.sh`
 generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and
 `width_adapter`, then runs Verilator lint, SVA lint, Icarus elaboration, Yosys
 hierarchy/proc/opt/stat, and a minimal SymbiYosys smoke proof.
-ModuleComposeBench reports `sim_pass: 36/36` for positive tasks. All 36
+ModuleComposeBench reports `sim_pass: 46/46` for public-development positive tasks. All 46
 accepted positives, including the five public-development subsystem case
 studies and the CDC adapter variants, use committed directed Icarus/VVP
 testbenches.
-It reports `formal_pass: 31/31` over the single-clock formal smoke denominator,
-with all 31 enabled checks using committed directed monitors.
+It reports `formal_pass: 40/40` over the single-clock formal smoke denominator,
+with all 40 enabled checks using committed directed monitors.
 It also parses Yosys structural and flattened generic-mapped `stat -json` output
 for positive benchmark wrappers, compares against committed hand-written
-references, and reports `qor_available: 9/9`. A separate host-Vivado subset
+references, and reports `qor_available: 11/11`. A separate host-Vivado subset
 script performs out-of-context synthesis and measurement-copy timing extraction
 for all 12 QoR-enabled public and held-out tasks (`T001`--`T004` and
 `T058`--`T065`).
@@ -156,7 +156,7 @@ root is `D:\Application\vivado\2025.2\Vivado`.
 
 Current limitations:
 
-- Formal coverage is limited to single-clock smoke properties, with 31
+- Formal coverage is limited to single-clock smoke properties, with 40 public
   task-specific directed monitors.
 - Broad QoR is structural area/wire accounting plus a generic mapped-cell proxy.
   The Vivado evidence is limited to a 12-task out-of-context subset; it is not
@@ -167,8 +167,10 @@ Current limitations:
 
 ### ModuleComposeBench
 
-`benchmarks/module_compose_bench_manifest.yaml` currently contains 62 tasks:
-57 hand-written seeds plus 5 dedicated subsystem case studies with required
+`benchmarks/module_compose_bench_manifest.yaml` currently contains 83 tasks:
+57 seed tasks, 5 original public subsystem case studies, held-out
+case-study/calibration rows, supplemental realism rows, and a public L1 alias
+with required
 natural-language requests, module/interface/adapter inventories, expected
 diagnostics, expected feature tags, and RTL collateral. The manifest is checked
 against `benchmarks/manifest_schema.json`, and the runner also verifies
@@ -177,17 +179,17 @@ deterministic scope is:
 
 | Level | Total | Positive | Negative | Focus |
 |---|---:|---:|---:|---|
-| L1 | 10 | 9 | 1 | direct same-domain stream wiring |
+| L1 | 11 | 9 | 2 | direct same-domain stream wiring |
 | L2 | 13 | 7 | 6 | width and parameter adaptation |
 | L3 | 10 | 6 | 4 | latency/backpressure and protocol seeds |
-| L4 | 10 | 5 | 5 | CDC/RDC adapter and rejection seeds |
-| L5 | 10 | 5 | 5 | bus/register wrapper seeds, register/status case, and protocol bridge |
-| L6 | 9 | 4 | 5 | multi-IP subsystem seeds and streaming/width/telemetry case studies |
+| L4 | 12 | 6 | 6 | CDC/RDC adapter and rejection seeds |
+| L5 | 18 | 9 | 9 | bus/register wrapper seeds, register/status, protocol bridge, AXI/APB, and DMA register-map cases |
+| L6 | 19 | 9 | 10 | multi-IP subsystem, streaming, width, telemetry, video, packetizer, and MMIO cases |
 
-The current expected result is 62/62 expected outcomes, 36/36 positive
-compose-pass, 36/36 positive lint/elaboration pass, 36/36 positive simulation
-smoke pass, 26/26 unsafe rejection, and 62/62 JSON AST path equivalence.
-Supported subsets are 31/31 single-clock bounded formal smoke proofs and 9/9
+The current expected result is 83/83 expected outcomes, 46/46 positive
+compose-pass, 46/46 positive lint/elaboration pass, 46/46 positive simulation
+smoke pass, 37/37 unsafe rejection, and 83/83 JSON AST path equivalence.
+Supported subsets are 40/40 single-clock bounded formal smoke proofs and 11/11
 structural plus generic-mapped QoR comparisons.
 
 `benchmarks/run_bench.py` executes the deterministic compiler baseline,
@@ -196,9 +198,10 @@ artifacts for positive tasks, runs open-source EDA smoke checks where
 supported, and writes `schema_version = mico.bench.results.v0`.
 
 The committed public-development manifest is paired with
-`benchmarks/module_compose_bench_heldout.yaml`, a 20-task held-out split with
-ten positives, ten negatives, seven subsystem positives, and seven paired
-negative variants. LLM claims require sanitized result archives that record the
+`benchmarks/module_compose_bench_heldout.yaml`, a 40-task held-out split with
+twenty positives, twenty negatives, seven subsystem positives, seven paired
+negative variants, and balanced calibration rows. LLM claims require sanitized
+result archives that record the
 evaluated manifest path and SHA-256 hash. The batch prompt builder includes
 task requests, inventories, and interface/module declarations, but strips
 committed `compose` bodies from expected MICO sources before constructing
@@ -208,8 +211,9 @@ Current limitations:
 
 - L3 latency/backpressure still relies on seed approximations over smoke RTL;
   L5/L6 now include dedicated register/status, protocol bridge, streaming
-  accelerator, width-bridge, and telemetry-chain case-study RTL, but broader
-  subsystem diversity is still needed.
+  accelerator, width-bridge, telemetry-chain, AXI/APB, video, DMA register-map,
+  packetizer, and MMIO case-study RTL, but broader industrial subsystem
+  diversity is still needed.
 - Full task-specific formal coverage and broad timing/Vivado QoR remain pending.
 
 ### LLM Provider Workflow
@@ -221,8 +225,10 @@ profile/model/base URL shape, records prompt SHA-256, model/profile metadata,
 repair turns, optional compiler and EDA JSON artifact attachments, token usage,
 and cost fields in a sanitized `mico.llm.run.v0` record.
 
-`scripts/run_llm_bench.py` adds the batch benchmark harness for the 62-task
-manifest. It supports Direct Verilog, SystemVerilog-interface, MICO source,
+`scripts/run_llm_bench.py` adds the batch benchmark harness for the expanded
+83-task manifest while historical authenticated v3 evidence remains bound to
+its locked pre-expansion manifest hashes. It supports Direct Verilog,
+SystemVerilog-interface, MICO source,
 MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
 validate-only mode for prompt/profile matrix checks, offline-fixture mode for
 compiler/EDA path validation without provider requests, authenticated execute
@@ -259,11 +265,11 @@ Current limitations:
 ### Paper
 
 The paper source is split under `paper/main.tex` and `paper/sections/*.tex`.
-The current abstract and evaluation section describe the 62-task
-public-development deterministic result, the 20-task held-out split, 36/36
-public positive-task smoke simulation coverage, 31/31 public single-clock
-bounded formal smoke coverage, structural plus generic-mapped Yosys QoR
-summaries, the 12-task Vivado subset, and the bounded v3
+The current abstract and evaluation section describe the 83-task
+public-development deterministic result, the 40-task held-out split, 30-task
+realism supplement, 46/46 public positive-task smoke simulation coverage,
+40/40 public single-clock bounded formal smoke coverage, structural plus
+generic-mapped Yosys QoR summaries, the 12-task Vivado subset, and the bounded v3
 tested-profile LLM result. Paper numbers must remain traceable to
 `docs/release_claim_table.md` and generated table artifacts. The manuscript
 must not claim full per-task formal proof, broad timing closure, arbitrary LTL,
@@ -318,8 +324,8 @@ Current claims supported by the repository:
 
 - MICO can parse, check, build typed IR, and emit traceable SV/SVA/JSON for a
   small v0 language.
-- The 62-task manifest meets the publishable-scale deterministic benchmark
-  threshold and spans L1-L6 with 36 positive and 26 negative tasks.
+- The 83-task manifest meets the publishable-scale deterministic benchmark
+  threshold and spans L1-L6 with 46 positive and 37 negative tasks.
 - The compiler rejects key unsafe seed cases: missing width adaptation, direct
   CDC, reversed direction, missing adapter guarantees, unknown adapter
   guarantees, and adapter guarantees invalid for their kind.
@@ -328,17 +334,18 @@ Current claims supported by the repository:
 - Positive benchmark wrappers pass open-source lint/elaboration smoke checks.
 - Selected sim/QoR-enabled positive seed and case-study SV/SVA/traceability
   outputs are covered by committed golden fixtures.
-- All 36 positive tasks pass Icarus/VVP simulation through committed directed
+- All 46 public-development positive tasks pass Icarus/VVP simulation through committed directed
   testbenches.
-- Thirty-one single-clock positive tasks pass bounded SymbiYosys formal smoke
+- Forty public-development single-clock positive tasks pass bounded SymbiYosys formal smoke
   checks through committed directed monitors.
-- Five public-development and seven held-out subsystem case studies have
+- Expanded public-development, held-out, and realism subsystem case studies have
   committed RTL, MICO source, simulation collateral, and selected
   structural/generic-mapped QoR references.
 - Positive seed and case-study wrappers have structural Yosys area/wire and
   generic mapped-cell QoR metrics against committed hand-written references.
-- The held-out manifest has 20 scoring tasks, ten positives, ten negatives,
-  seven subsystem positives, seven paired negative variants, and 20/20
+- The held-out manifest has 40 scoring tasks, twenty positives, twenty negatives,
+  seven subsystem positives, seven paired negative variants, calibration rows,
+  and 40/40
   deterministic expected outcomes.
 - The dedicated Vivado subset covers 12 QoR-enabled public and held-out
   out-of-context measurement-copy tasks and remains separate from broad

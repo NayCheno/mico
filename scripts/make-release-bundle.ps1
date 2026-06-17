@@ -162,7 +162,8 @@ try {
         "docs/deterministic_evidence_report_2026-06-15.md",
         "docs/formal_coverage_matrix.md",
         "docs/benchmark_realism_ablation_report_2026-06-16.md",
-        "docs/release_gate_report_2026-06-16.md"
+        "docs/release_gate_report_2026-06-16.md",
+        "docs/release_seal_2026-06-17.md"
     )
     foreach ($doc in $docFiles) {
         Copy-BundleFile $doc $doc

@@ -94,7 +94,7 @@ free-form semantic repair.
 |---|---|
 | `build/llm/bench_execute_public_dev_v3.json` | `47d2ef8eba9e36ed6cabb7cd77cd4f773c8b6b2a725bf070c616a7eb921406b2` |
 | `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
-| `build/bench/aggregate_llm_v3.json` | `b300110f02742db13627fba8ed7d3382ac6ddbab7d101eefa4a1633ca9930309` |
+| `build/bench/aggregate_llm_v3.json` | `60c9964c37bf1bc5d2a3aa782013995f68e2bf0c2d5d0f1074a490e576cd334a` |
 
 Generated CSV and TeX snippets are under `build/paper_tables/llm_v3/` and stay
 out of source control. `docs/llm_final_matrix_report.md` records the M5 final

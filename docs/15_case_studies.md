@@ -1,7 +1,7 @@
 # Subsystem Case Studies
 
 MICO includes five public-development subsystem case studies in the main
-62-task manifest, seven additional held-out subsystem case studies in
+83-task manifest, seven additional held-out subsystem case studies in
 `benchmarks/module_compose_bench_heldout.yaml`, and three deterministic
 supplemental subsystem positives in
 `benchmarks/module_compose_bench_realism.yaml`. They live in
@@ -57,14 +57,14 @@ Run the deterministic benchmark in Docker:
 
 Expected current case-study-inclusive result:
 
-- `expected_outcome_pass: 62/62`
-- `compose_pass_1: 36/36`
-- `lint_pass: 36/36`
-- `sim_pass: 36/36`
-- `formal_pass: 31/31`
-- `qor_available: 9/9`
-- `unsafe_rejection: 26/26`
-- `json_ast_path: 62/62`
+- `expected_outcome_pass: 83/83`
+- `compose_pass_1: 46/46`
+- `lint_pass: 46/46`
+- `sim_pass: 46/46`
+- `formal_pass: 40/40`
+- `qor_available: 11/11`
+- `unsafe_rejection: 37/37`
+- `json_ast_path: 83/83`
 
 Run the held-out split separately:
 
@@ -74,14 +74,14 @@ Run the held-out split separately:
 
 Expected held-out result:
 
-- `expected_outcome_pass: 20/20`
-- `compose_pass_1: 10/10`
-- `lint_pass: 10/10`
-- `sim_pass: 10/10`
-- `formal_pass: 9/9`
-- `qor_available: 3/3`
-- `unsafe_rejection: 10/10`
-- `json_ast_path: 20/20`
+- `expected_outcome_pass: 40/40`
+- `compose_pass_1: 20/20`
+- `lint_pass: 20/20`
+- `sim_pass: 20/20`
+- `formal_pass: 17/17`
+- `qor_available: 6/6`
+- `unsafe_rejection: 20/20`
+- `json_ast_path: 40/40`
 
 Run the deterministic realism supplement separately:
 
@@ -91,13 +91,14 @@ Run the deterministic realism supplement separately:
 
 Expected supplemental result:
 
-- `expected_outcome_pass: 14/14`
-- `compose_pass_1: 7/7`
-- `lint_pass: 7/7`
-- `sim_pass: 7/7`
-- `formal_pass: 6/6`
-- `unsafe_rejection: 7/7`
-- `json_ast_path: 14/14`
+- `expected_outcome_pass: 30/30`
+- `compose_pass_1: 15/15`
+- `lint_pass: 15/15`
+- `sim_pass: 15/15`
+- `formal_pass: 13/13`
+- `qor_available: 4/4`
+- `unsafe_rejection: 15/15`
+- `json_ast_path: 30/30`
 
 Generate aggregate CSV and TeX snippets from the same JSON:
 

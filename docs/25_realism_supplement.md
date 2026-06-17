@@ -60,7 +60,7 @@ Artifact hashes:
 |---|---|
 | `benchmarks/module_compose_bench_realism.yaml` | `5a79fbe5171506143c0382a5854e1adabac9596fe999576ae7ae01db307d3654` |
 | `build/bench/realism_results.json` | `6015baea58ef9dc2ce2cf9e184f46e9ac3bdae076c15d7338d37fd22ef9b6f96` |
-| `build/bench/aggregate_realism_results.json` | `ad0ae8ae02bdd4614b895bc8d9fa791e2b0b479ff8d79fe65407cbdee642c615` |
+| `build/bench/aggregate_realism_results.json` | `2372710ba7d9a4e8ecd61cc3357c459cb0256bf79fe488859f0f5ba25ca3f690` |
 
 ## Claim Boundary
 

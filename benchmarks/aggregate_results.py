@@ -131,73 +131,100 @@ def diagnostic_taxonomy(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
+def ablation_row(
+    name: str,
+    removed_guard: str,
+    affected: list[dict[str, Any]],
+    guarded: int,
+    task_ids: list[str] | None = None,
+    evidence_scope: str = "deterministic",
+) -> dict[str, Any]:
+    total = len(affected)
+    low, high = wilson_interval(guarded, total)
+    return {
+        "ablation": name,
+        "removed_guard": removed_guard,
+        "evidence_scope": evidence_scope,
+        "affected_tasks": total,
+        "currently_guarded": guarded,
+        # Compatibility for older CSV/TeX consumers that used this field name.
+        "currently_rejected": guarded,
+        "current_guard_rate": guarded / total if total else 0.0,
+        "current_rejection_rate": guarded / total if total else 0.0,
+        "ci95_low": low,
+        "ci95_high": high,
+        "task_ids": task_ids if task_ids is not None else [str(item.get("task_id")) for item in affected],
+    }
+
+
 def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> list[dict[str, Any]]:
     by_id = {str(task.get("id")): task for task in manifest.get("tasks", []) if isinstance(task, dict)}
     negatives = [item for item in results if item.get("type") == "negative"]
-    definitions = [
-        (
-            "no_contract_checks",
-            "ContractViolation",
-            lambda item: "ContractViolation" in expected_codes(item),
+    positives = [item for item in results if item.get("type") == "positive"]
+
+    schema_affected = [
+        item
+        for item in results
+        if isinstance(item.get("json_ast_result"), dict)
+    ]
+    compiler_feedback_affected = [item for item in negatives if expected_codes(item)]
+    adapter_contract_affected = [
+        item
+        for item in negatives
+        if "ContractViolation" in expected_codes(item)
+        or any(code in expected_codes(item) for code in ["AdapterMismatch", "UnknownAdapterKind", "UnknownAdapter"])
+    ]
+    eda_lint_affected = [item for item in positives if item.get("emit_sv_pass") is True]
+    prompt_policy = manifest.get("split_policy", {}).get("prompt_leakage_controls", [])
+    prompt_guarded = len(by_id) if isinstance(prompt_policy, list) and prompt_policy else 0
+
+    return [
+        ablation_row(
+            "no_json_schema",
+            "mico.ast.v0 JSON schema and schema-version gate",
+            schema_affected,
+            sum(1 for item in schema_affected if item.get("json_ast_result", {}).get("expected_outcome_pass") is True),
+            sorted(by_id),
+            "JSON AST schema",
         ),
-        (
-            "no_clock_domain_checks",
-            "ClockDomainMismatch or domain adapter misuse",
-            lambda item: "ClockDomainMismatch" in expected_codes(item)
-            or "cross_domain" in str(item.get("task_id"))
-            or "cdc" in str(item.get("task_id")),
+        ablation_row(
+            "no_compiler_feedback",
+            "structured compiler diagnostics for unsafe rejection and repair prompts",
+            compiler_feedback_affected,
+            sum(1 for item in compiler_feedback_affected if item.get("unsafe_rejection") is True),
+            evidence_scope="compiler feedback",
         ),
-        (
-            "no_adapter_library",
-            "adapter legality and availability checks",
-            lambda item: any(
-                code in expected_codes(item)
-                for code in ["UnknownAdapterKind", "UnknownAdapter", "AdapterMismatch", "WidthMismatch"]
-            ),
+        ablation_row(
+            "no_repair",
+            "compiler-feedback repair loop over schema-valid JSON AST records",
+            schema_affected,
+            sum(1 for item in schema_affected if item.get("json_ast_result", {}).get("expected_outcome_pass") is True),
+            sorted(by_id),
+            "repair boundary",
         ),
-        (
-            "no_structured_diagnostics",
-            "negative tasks lose machine-actionable repair codes",
-            lambda item: bool(expected_codes(item)),
+        ablation_row(
+            "no_adapter_contract_check",
+            "adapter legality and ready/valid v0 contract checks",
+            adapter_contract_affected,
+            sum(1 for item in adapter_contract_affected if item.get("unsafe_rejection") is True),
+            evidence_scope="adapter/contract",
+        ),
+        ablation_row(
+            "no_eda_lint_gate",
+            "Verilator/Icarus/Yosys lint and elaboration gate",
+            eda_lint_affected,
+            sum(1 for item in eda_lint_affected if item.get("lint_pass") is True),
+            evidence_scope="SV lint/elab",
+        ),
+        ablation_row(
+            "no_prompt_leakage_controls",
+            "manifest prompt policy that strips expected solutions, diagnostics, testbenches, formal monitors, and QoR references",
+            results,
+            prompt_guarded,
+            sorted(by_id),
+            "prompt policy",
         ),
     ]
-    rows = []
-    for name, removed_guard, predicate in definitions:
-        affected = [item for item in negatives if predicate(item)]
-        rejected = sum(1 for item in affected if item.get("unsafe_rejection") is True)
-        low, high = wilson_interval(rejected, len(affected))
-        rows.append(
-            {
-                "ablation": name,
-                "removed_guard": removed_guard,
-                "affected_tasks": len(affected),
-                "currently_rejected": rejected,
-                "current_rejection_rate": rejected / len(affected) if affected else 0.0,
-                "ci95_low": low,
-                "ci95_high": high,
-                "task_ids": [str(item.get("task_id")) for item in affected],
-            }
-        )
-    json_ast_total = len(results)
-    json_ast_passed = sum(
-        1
-        for item in results
-        if item.get("json_ast_result", {}).get("expected_outcome_pass") is True
-    )
-    low, high = wilson_interval(json_ast_passed, json_ast_total)
-    rows.append(
-        {
-            "ablation": "dsl_vs_json_ast",
-            "removed_guard": "source-to-AST equivalence path",
-            "affected_tasks": json_ast_total,
-            "currently_rejected": json_ast_passed,
-            "current_rejection_rate": json_ast_passed / json_ast_total if json_ast_total else 0.0,
-            "ci95_low": low,
-            "ci95_high": high,
-            "task_ids": sorted(by_id),
-        }
-    )
-    return rows
 
 
 def expected_codes(item: dict[str, Any]) -> list[str]:
@@ -206,11 +233,29 @@ def expected_codes(item: dict[str, Any]) -> list[str]:
     return [str(code) for code in codes] if isinstance(codes, list) else []
 
 
+def split_label(manifest: Any, attempts: int | None = None) -> str:
+    name = Path(str(manifest or "")).name
+    if name == "module_compose_bench_manifest.yaml":
+        return "public-dev"
+    if name == "module_compose_bench_heldout.yaml":
+        return "held-out"
+    if name == "module_compose_bench_realism.yaml":
+        return "realism"
+    if attempts in {62, 83}:
+        return "public-dev"
+    if attempts in {20, 40}:
+        return "held-out"
+    if attempts == 30:
+        return "realism"
+    return f"{attempts} tasks" if attempts is not None else "unknown"
+
+
 def llm_summary(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     for payload in llm_payloads:
         run = payload.get("run", {})
         results = payload.get("results", [])
+        split = split_label(run.get("manifest"))
         groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
         for item in results if isinstance(results, list) else []:
             if isinstance(item, dict):
@@ -254,6 +299,7 @@ def llm_summary(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 {
                     "run_id": run.get("id"),
                     "mode": run.get("mode"),
+                    "split": split,
                     "profile": profile,
                     "baseline": baseline,
                     "attempts": len(items),
@@ -295,15 +341,11 @@ def llm_compact_summary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         "mico_json_ast": "JSON AST",
         "mico_json_ast_repair": "JSON AST repair",
     }
-    for attempts in sorted(
-        {int(row.get("attempts", 0)) for row in rows if row.get("mode") == "execute"},
-        reverse=True,
-    ):
-        split = "public-dev" if attempts == 62 else "held-out" if attempts == 20 else f"{attempts} tasks"
+    for split in sorted({str(row.get("split", "")) for row in rows if row.get("mode") == "execute"}):
         split_rows = [
             row
             for row in rows
-            if row.get("mode") == "execute" and int(row.get("attempts", 0)) == attempts
+            if row.get("mode") == "execute" and str(row.get("split", "")) == split
         ]
         for baseline in [
             "direct_verilog",
@@ -458,6 +500,7 @@ def paired_comparisons(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any
     for payload in llm_payloads:
         run = payload.get("run", {})
         results = payload.get("results", [])
+        split = split_label(run.get("manifest"))
         by_profile_task: dict[tuple[str, str], dict[str, dict[str, Any]]] = defaultdict(dict)
         for item in results if isinstance(results, list) else []:
             if not isinstance(item, dict):
@@ -489,16 +532,27 @@ def paired_comparisons(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any
                 {
                     "run_id": run.get("id"),
                     "mode": run.get("mode"),
+                    "split": split,
                     "comparison": f"{target}_vs_{baseline}",
                     "comparable_tasks": comparable,
                     "target_wins": target_wins,
                     "baseline_wins": baseline_wins,
                     "discordant_pairs": target_wins + baseline_wins,
                     "exact_p_value": exact_sign_test_p_value(target_wins, baseline_wins),
+                    "net_effect_size": matched_pair_effect_size(target_wins, baseline_wins, comparable),
+                    "discordant_win_rate": target_wins / (target_wins + baseline_wins)
+                    if target_wins + baseline_wins
+                    else 0.0,
                     "ties": ties,
                 }
             )
     return rows
+
+
+def matched_pair_effect_size(target_wins: int, baseline_wins: int, comparable: int) -> float:
+    if comparable == 0:
+        return 0.0
+    return (target_wins - baseline_wins) / comparable
 
 
 def exact_sign_test_p_value(target_wins: int, baseline_wins: int) -> float:
@@ -799,9 +853,10 @@ def main() -> int:
         paper_dir / "ablation_counterfactual.tex",
         [
             ("ablation", "Ablation"),
+            ("evidence_scope", "Evidence"),
             ("affected_tasks", "Tasks"),
-            ("currently_rejected", "Guarded"),
-            ("current_rejection_rate", "Rate"),
+            ("currently_guarded", "Guarded"),
+            ("current_guard_rate", "Rate"),
         ],
         ablations,
     )
@@ -828,6 +883,7 @@ def main() -> int:
             paper_dir / "llm_summary.tex",
             [
                 ("mode", "Mode"),
+                ("split", "Split"),
                 ("profile", "Profile"),
                 ("baseline", "Baseline"),
                 ("attempts", "Attempts"),
@@ -884,11 +940,13 @@ def main() -> int:
             paper_dir / "llm_paired_comparisons.tex",
             [
                 ("mode", "Mode"),
+                ("split", "Split"),
                 ("comparison", "Comparison"),
                 ("comparable_tasks", "Tasks"),
                 ("target_wins", "Repair Wins"),
                 ("baseline_wins", "Baseline Wins"),
                 ("exact_p_value", "Exact p"),
+                ("net_effect_size", "Net effect"),
                 ("ties", "Ties"),
             ],
             paired,

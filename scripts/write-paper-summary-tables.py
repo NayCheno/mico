@@ -148,9 +148,10 @@ def repair_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
     for row in paired:
         if row.get("comparison") != "mico_json_ast_repair_vs_mico_json_ast":
             continue
-        if row.get("comparable_tasks") == 186:
+        split = row_split(row)
+        if split == "public-dev":
             public_wins = int(row.get("target_wins", 0))
-        elif row.get("comparable_tasks") == 60:
+        elif split == "held-out":
             heldout_wins = int(row.get("target_wins", 0))
     return [
         {
@@ -175,6 +176,20 @@ def repair_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
             "provenance": "not claimed",
         },
     ]
+
+
+def row_split(row: dict[str, Any]) -> str:
+    split = str(row.get("split", ""))
+    if split:
+        return split
+    comparable = row.get("comparable_tasks")
+    if comparable in {186, 249}:
+        return "public-dev"
+    if comparable in {60, 120}:
+        return "held-out"
+    if comparable == 90:
+        return "realism"
+    return "unknown"
 
 
 def failure_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:

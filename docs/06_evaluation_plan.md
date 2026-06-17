@@ -36,40 +36,28 @@
 
 ## Dataset construction
 
-The current deterministic manifest has 62 tasks: 57 hand-written seeds plus
-five public-development subsystem case studies plus a held-out case-study split.
+The current deterministic public-development manifest has 83 tasks: 46
+positives and 37 negatives, covering 11 L1, 13 L2, 10 L3, 12 L4, 18 L5, and 19
+L6 tasks. The separate held-out manifest has 40 tasks with 20 positives and 20
+negatives. The supplemental realism manifest has 30 deterministic-only tasks
+with 15 positives and 15 paired negatives. Public-development, held-out, and
+realism results must be aggregated and reported separately.
 
-- 10 L1 direct stream wiring tasks;
-- 13 L2 parameter/width tasks;
-- 10 L3 adapter/backpressure/latency seed tasks;
-- 10 L4 CDC/RDC tasks;
-- 10 L5 bus/register wrapper and case-study tasks;
-- 9 L6 subsystem integration and case-study tasks.
-
-The full LLM evaluation should preserve at least this 50+ task scale while
-expanding the dedicated non-smoke L3/L5/L6 RTL case-study set:
-
-- 10 direct stream wiring tasks;
-- 10 parameter/width tasks;
-- 10 adapter tasks;
-- 10 CDC/RDC tasks;
-- 5 bus bridge tasks;
-- 5 subsystem integration tasks.
-
-The committed manifest is the public-development split. A final LLM advantage
-claim requires a separately versioned held-out split that is not used for prompt
-iteration. Prompt construction may use task requests, inventories, and
-interface/module declarations, but it must not include committed expected
-compose bodies, diagnostics, testbench checks, or QoR references.
+The committed public-development manifest is allowed for prompt debugging and
+deterministic regression. Final LLM advantage claims remain bound to separately
+versioned scored manifests and their manifest SHA-256 values. Prompt
+construction may use task requests, inventories, and interface/module
+declarations, but it must not include committed expected compose bodies,
+diagnostics, testbench checks, formal monitors, or QoR references.
 
 ## Ablations
 
-- No contract checks.
-- No clock-domain checks.
-- No structured diagnostics.
-- Text DSL vs JSON AST.
-- No adapter library.
-- No retrieval over module inventory.
+- No JSON schema.
+- No compiler feedback.
+- No repair loop.
+- No adapter contract check.
+- No EDA lint gate.
+- No prompt leakage controls.
 
 ## Result Aggregation
 
@@ -77,9 +65,10 @@ compose bodies, diagnostics, testbench checks, or QoR references.
 with optional sanitized LLM batch records. It emits `mico.aggregate.results.v0`
 JSON, CSV tables under `build/bench/`, and LaTeX snippets under
 `build/paper_tables/` for main results, per-level denominators and confidence
-intervals, unsafe diagnostics, structural/generic-mapped QoR, conservative ablations,
-repair-turn distributions, token/cost accounting, paired comparisons, and
-failure taxonomy. Unsupported metrics must remain marked as `not_run` or
+intervals, unsafe diagnostics, structural/generic-mapped QoR, conservative
+ablation guard-surface rows, repair-turn distributions, token/cost accounting,
+paired comparisons with exact sign tests and net effect sizes, and failure
+taxonomy. Unsupported metrics must remain marked as `not_run` or
 `not_applicable` in their source records and must not be treated as zero-pass
 failures.
 

@@ -63,7 +63,7 @@ Artifact hashes:
 |---|---|
 | `benchmarks/module_compose_bench_heldout.yaml` | `cb04838fbe4332b4bb94d9bfeddb7f2cdd62bd59993c6475696161418d7c69c5` |
 | `build/bench/heldout_results.json` | `f9520d217f294aaea9b6928dc52b07cd1593ffd505854af1c1960984ce7534bd` |
-| `build/bench/aggregate_heldout_results.json` | `4275d6e994573ac7704945a6c25d7689215a760ffe8de48cc66cf6120c90cba3` |
+| `build/bench/aggregate_heldout_results.json` | `24207a889350fa6dba9682776fe9394f8ae98743d80a0dfe8ab1630e90854860` |
 
 ## LLM Split Refresh
 
@@ -87,7 +87,7 @@ LLM refresh hashes:
 | Artifact | SHA-256 |
 |---|---|
 | `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
-| `build/bench/aggregate_llm_v3.json` | `b300110f02742db13627fba8ed7d3382ac6ddbab7d101eefa4a1633ca9930309` |
+| `build/bench/aggregate_llm_v3.json` | `60c9964c37bf1bc5d2a3aa782013995f68e2bf0c2d5d0f1074a490e576cd334a` |
 
 ## Claim Boundary
 

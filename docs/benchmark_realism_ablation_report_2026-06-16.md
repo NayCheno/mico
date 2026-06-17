@@ -23,13 +23,14 @@ Run in the Docker EDA environment:
 
 | Split | Expected | Compose | Lint | Simulation | Formal | QoR | Unsafe | JSON AST |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Public-development | 62/62 | 36/36 | 36/36 | 36/36 | 31/31 | 9/9 | 26/26 | 62/62 |
-| Held-out | 20/20 | 10/10 | 10/10 | 10/10 | 9/9 | 3/3 | 10/10 | 20/20 |
-| Supplemental realism | 14/14 | 7/7 | 7/7 | 7/7 | 6/6 | 0/0 | 7/7 | 14/14 |
+| Public-development | 83/83 | 46/46 | 46/46 | 46/46 | 40/40 | 11/11 | 37/37 | 83/83 |
+| Held-out | 40/40 | 20/20 | 20/20 | 20/20 | 17/17 | 6/6 | 20/20 | 40/40 |
+| Supplemental realism | 30/30 | 15/15 | 15/15 | 15/15 | 13/13 | 4/4 | 15/15 | 30/30 |
 
-The committed case-study corpus now includes 15 positive subsystem tasks and
-at least 10 paired negative variants. The supplemental realism split contributes
-three new positive subsystem cases and three paired negative subsystem variants:
+The committed case-study corpus now includes expanded public-development,
+held-out, and supplemental realism subsystem positives plus paired negative
+variants. The supplemental realism split contributes deterministic subsystem
+cases and paired negative subsystem variants including:
 
 - `T077_dma_register_map_case` / `T078_dma_register_map_reversed_status`
 - `T079_axis_packetizer_case` / `T080_axis_packetizer_missing_stage`
@@ -44,9 +45,9 @@ The deterministic aggregate records include compiler diagnostic taxonomy rows:
 
 | Split | Taxonomy rows | Source CSV SHA-256 |
 |---|---:|---|
-| Public-development | 17 | `461e777d2563a1e01080b3857fadcbd1088be4ce9961781092e9b8eccc2abe13` |
-| Held-out | 5 | `c411ac34f0b57fea635501facf285b39e90bc2b76894fcbe38f4416bacd34c7d` |
-| Supplemental realism | 4 | `a4daec8c88e5da8a9fb586b6eefa8cf65f3c72a5f74d2299a658bec87b9cabd9` |
+| Public-development | 17 | `97b6cc2d07f66ad0f3b4959a3f9889f0ebd8aec0cb25bcc9be030a67e51359ac` |
+| Held-out | 10 | `475101bf824b3dca2ccbfbda383083d5020ae8f0540488ca966ad57e64297070` |
+| Supplemental realism | 7 | `094b16e729b96085f851e1a839aad8eb38c1f90fb5725af6538a03407627a6be` |
 
 The public-development taxonomy covers adapter misuse, clock-domain mismatch,
 contract violations, direction reversal, duplicate declarations, interface and
@@ -57,34 +58,39 @@ errors, compiler diagnostics, and repair outcomes.
 
 ## Ablation Evidence
 
-The deterministic aggregate emits five conservative counterfactual rows:
+The deterministic aggregate emits six conservative guard-surface rows matching
+the CCF-A checklist:
 
-- `no_contract_checks`
-- `no_clock_domain_checks`
-- `no_adapter_library`
-- `no_structured_diagnostics`
-- `dsl_vs_json_ast`
+- `no_json_schema`
+- `no_compiler_feedback`
+- `no_repair`
+- `no_adapter_contract_check`
+- `no_eda_lint_gate`
+- `no_prompt_leakage_controls`
 
 | Split | Ablation rows | Source CSV SHA-256 |
 |---|---:|---|
-| Public-development | 5 | `18d0134f9607ec83455e140dec9fdbb534559d45c8e6cf4a421ef4b5dff4680d` |
-| Held-out | 5 | `cf26b2ddb07f9d9d5baacee20783fd528efa2cd05e226138a9052cf78762ab69` |
-| Supplemental realism | 5 | `64a6db47ef86917d4edeed6db8354d7d8ee0e7a6c2a28f9e6ec744cfa8e80d5a` |
+| Public-development | 6 | `f246b3d06392f4be974b948a14ccf02a6374b0934c45297dda045e5fd8efa083` |
+| Held-out | 6 | `02ca947f572ff1abfb007a41486ab26217d30284baa56b2b70840762b27d3c72` |
+| Supplemental realism | 6 | `00f27c84b882839e98e80bd22a1082b73a156f7c37b008c15da868ea6af451fd` |
 
 The LLM v3 ablation surface is represented by the five baseline families:
 Direct Verilog, SystemVerilog interface, MICO source, MICO JSON AST, and MICO
-JSON AST repair. The paired comparison and compact summary tables are bound in
+JSON AST repair. The paired comparison table now includes exact sign-test
+p-values and net matched-pair effect sizes. The compact summary tables are bound in
 `docs/24_llm_matrix_v3.md` and `docs/llm_v3_artifact_readme.md`.
 
 ## Artifact Hashes
 
 | Artifact | SHA-256 |
 |---|---|
-| `benchmarks/module_compose_bench_realism.yaml` | `9b991781c7cc5f6029229e9c2caabbdf249ec0fdae5dba5e40d9e93bbb370b33` |
-| `build/bench/aggregate_results.json` | `1d8144d7ffa09460782f9a40496425538e4adc2f0c7ba621c6d336e41964f7da` |
-| `build/bench/aggregate_heldout_results.json` | `1809f695c65b57443f3cf3aba803445547e209aed5a2746f6c5c2b2676c92376` |
-| `build/bench/aggregate_realism_results.json` | `cabb881aa2c5d869cbd81ae0e21a3709ef4d2256176ae21acb0faa3c16176e0f` |
-| `paper/tables/benchmark_split_summary.tex` | `8f7f9cdb63a2db32a2fd39fc6bd4539dd1d50c286631124beeeec2c9bc1d32ff` |
+| `benchmarks/module_compose_bench_realism.yaml` | `5a79fbe5171506143c0382a5854e1adabac9596fe999576ae7ae01db307d3654` |
+| `build/bench/aggregate_results.json` | `ed1a8ebfbf8ca71303271ab9023ee4eff8bcfc4af4048b3d819a5f3d2e957bb0` |
+| `build/bench/aggregate_heldout_results.json` | `24207a889350fa6dba9682776fe9394f8ae98743d80a0dfe8ab1630e90854860` |
+| `build/bench/aggregate_realism_results.json` | `2372710ba7d9a4e8ecd61cc3357c459cb0256bf79fe488859f0f5ba25ca3f690` |
+| `paper/tables/benchmark_split_summary.tex` | `b995e738fb055487cbbd311b7c334d6b5feb1c70e1a6a5e4ab88167e4ddfd17d` |
+| `paper/tables/ablation_counterfactual.tex` | `64a3bd8388534548530d926d743ac8ba7f33910db982ae3be55d7f0cddf52e28` |
+| `paper/tables/llm_paired_comparisons.tex` | `81f1da056ddaa90c5da0e0c46e4ab03047eb630ca601ad294c7425bed69ad091` |
 
 ## Claim Boundary
 

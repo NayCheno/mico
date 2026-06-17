@@ -9,12 +9,12 @@ not expand CDC correctness claims or timing/QoR claims.
 
 The public-development manifest now has:
 
-- 36/36 positive simulation pass.
-- 36 committed directed Icarus testbenches.
+- 46/46 positive simulation pass.
+- 46 committed directed Icarus testbenches.
 - 0 generated ready/valid simulation smoke harnesses in the current main
   public-development result.
-- 31/31 single-clock bounded formal pass.
-- 31 committed directed formal monitors.
+- 40/40 single-clock bounded formal pass.
+- 40 committed directed formal monitors.
 - 0 generated ready/valid formal smoke monitors in the current main
   public-development result.
 - CDC tasks remain lint/simulation smoke only; proof of CDC correctness is not
@@ -57,40 +57,40 @@ Command:
 
 Result:
 
-- `expected_outcome_pass: 62/62`
-- `compose_pass_1: 36/36`
-- `lint_pass: 36/36`
-- `sim_pass: 36/36`
-- `formal_pass: 31/31`
-- `qor_available: 9/9`
-- `unsafe_rejection: 26/26`
-- `json_ast_path: 62/62`
-- `sim_mode_counts: {declared: 36}`
-- `formal_mode_counts: {declared: 31}`
+- `expected_outcome_pass: 83/83`
+- `compose_pass_1: 46/46`
+- `lint_pass: 46/46`
+- `sim_pass: 46/46`
+- `formal_pass: 40/40`
+- `qor_available: 11/11`
+- `unsafe_rejection: 37/37`
+- `json_ast_path: 83/83`
+- `sim_mode_counts: {declared: 46}`
+- `formal_mode_counts: {declared: 40}`
 
 Artifact hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/bench/seed_results.json` | `d8b365f4841869c1d5403512f727d62b72ee7e028a237cfc930586bb5d67414f` |
-| `build/bench/heldout_results.json` | `dfb08cff44789c07be42d66800eb21431128f22f2cddc6008ec2776f1a8bfc14` |
-| `build/bench/realism_results.json` | `84149b6515df65a7927f02a16f73ce550bcd4e67955b77d8694434810d113bab` |
-| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `c63dddf03bc8bab62fbd9d255243260d5f357ce0b118d93f71daab68b8c73148` |
-| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `1b32f8ed42ebcbecf5eb7625c67d59b9ee8b7abfedf702aa2ce0dd483294dc59` |
-| `paper/tables/formal_coverage_matrix.tex` | `ac5e544addc20a801f354a5e74daca9f9576dbfe7188918ef95cf16f5704382a` |
+| `build/bench/seed_results.json` | `a99afa29d04b6e4a95522173ef998dd5ae20c1eca19ecc2452bb7585e6151c6c` |
+| `build/bench/heldout_results.json` | `f9520d217f294aaea9b6928dc52b07cd1593ffd505854af1c1960984ce7534bd` |
+| `build/bench/realism_results.json` | `6015baea58ef9dc2ce2cf9e184f46e9ac3bdae076c15d7338d37fd22ef9b6f96` |
+| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `d7169660339475b5e5393b5947681549047e0ce095aa5aa3989267e86456118b` |
+| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `6b557312d59f1564fd1f58de6c6d1c36eca396f6573a36e4212332b77c95f1cc` |
+| `paper/tables/formal_coverage_matrix.tex` | `1039108c1e9903ebc2c3eb0875466df52ece639fa2a00e8c92b7829efc783b3f` |
 
 Held-out directed audit result:
 
-- `sim_mode_counts: {declared: 10}`
-- `formal_mode_counts: {declared: 9}`
+- `sim_mode_counts: {declared: 20}`
+- `formal_mode_counts: {declared: 17}`
 - T063, T064, T069, T071, T073, and T075 now use committed single-clock
   formal monitors. T065 remains CDC smoke-only and intentionally has no formal
   proof claim.
 
 Supplemental realism directed audit result:
 
-- `sim_mode_counts: {declared: 7}`
-- `formal_mode_counts: {declared: 6}`
+- `sim_mode_counts: {declared: 15}`
+- `formal_mode_counts: {declared: 13}`
 - T077, T079, T081, and the single-clock seed-style realism tasks are covered
   by committed directed monitors; the explicit CDC realism case remains outside
   the formal denominator.

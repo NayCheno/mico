@@ -32,6 +32,19 @@ The public-development manifest has 83 tasks: 46 positives and 37 negatives acro
   \input{tables/realism_deterministic_summary.tex}
 \end{table}
 
+The aggregate script also emits a conservative ablation/counterfactual table
+for the six guard surfaces used in the release gate: JSON schema validation,
+compiler feedback, repair-loop boundary, adapter/contract checks, EDA
+lint/elaboration, and prompt leakage controls. The table reports denominators
+for currently guarded public-development tasks; it is not mixed into the main
+pass-rate claims.
+
+\begin{table*}[t]
+  \centering
+  \caption{Public-development ablation guard surfaces generated from aggregate JSON}
+  \resizebox{\textwidth}{!}{\input{tables/ablation_counterfactual.tex}}
+\end{table*}
+
 The expanded subsystem positive case studies use dedicated RTL under
 \texttt{rtl/case\_studies/}: five public-development tasks for streaming,
 width/protocol bridging, register/status, request/response, and telemetry;
@@ -100,7 +113,8 @@ JSON used by the release workflow.
 
 \begin{table*}[t]
   \centering
-  \caption{JSON AST repair paired comparisons with exact paired tests generated from aggregate JSON}
+  \caption{JSON AST repair paired comparisons with exact paired tests and net effect sizes generated from aggregate JSON}
+  \label{tab:llm-paired-comparisons}
   \resizebox{\textwidth}{!}{\input{tables/llm_paired_comparisons.tex}}
 \end{table*}
 
@@ -131,7 +145,9 @@ Repair is beneficial but bounded. Compared with direct Verilog,
 \texttt{mico\_json\_ast\_repair} has 103 wins, 1 loss, and 82 ties on the
 public split, and 27 wins, 0 losses, and 33 ties on held-out. Compared with
 plain \texttt{mico\_json\_ast}, repair adds 17 public wins and 6 held-out wins,
-with 2 public losses and 1 held-out loss. Two-sided exact paired tests over
+with 2 public losses and 1 held-out loss; the net paired effect is reported in
+Table~\ref{tab:llm-paired-comparisons} as wins minus losses divided by
+comparable attempts. Two-sided exact paired tests over
 discordant attempts give $p\le 1.04\times10^{-29}$ against the public
 unstructured and MICO-source baselines, $p=7.29\times10^{-4}$ against plain
 public JSON AST, $p\le 1.49\times10^{-8}$ against held-out unstructured and

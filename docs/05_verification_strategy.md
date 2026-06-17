@@ -82,12 +82,12 @@ On Windows PowerShell:
 The script generates wrappers and SVA skeletons for `stream_fifo`, `cdc_fifo`, and `width_adapter` into ignored `build/eda-smoke/`, then runs Verilator lint, Icarus elaboration, and Yosys hierarchy/proc/opt/stat against `rtl/examples/mico_example_leafs.sv`. It also runs a minimal SymbiYosys smoke proof to verify that the Docker formal entry point works. The CDC FIFO in that file is a smoke-only stub, not a CDC correctness proof. Real CDC signoff still requires a proven FIFO implementation, assertions, and CDC/formal collateral.
 
 ModuleComposeBench runs Icarus/VVP simulation for every accepted positive task.
-All 36 public-development positives now use committed directed testbenches.
+All 46 public-development positives now use committed directed testbenches.
 These benches are dynamic wiring/protocol sanity checks, not a substitute for
 randomized task-specific functional scoreboards.
 
 ModuleComposeBench additionally runs bounded SymbiYosys checks for the
-single-clock formal smoke denominator. All 31 enabled public-development
+single-clock formal smoke denominator. All 40 enabled public-development
 single-clock positives now use committed directed monitors for direct stream,
 FIFO-chain, width-adapter, bus/register seed, and subsystem case-study
 properties. These monitors check no-unknowns, asserted ready/valid after reset,

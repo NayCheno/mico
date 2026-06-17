@@ -115,7 +115,8 @@ This file is the short, traceable status page for the current repository. Use
   and supplemental realism benchmark hashes, sanitized LLM validate-only and
   authenticated v4 hashes, optional Vivado subset hashes, and the final paper
   PDF hash when `-WithLatex` is used.
-- IEEE-style paper draft compressed to a five-page DAC-style manuscript, with
+- IEEE-style paper draft compressed to a six-page DAC-style manuscript plus a
+  references-only page, with
   generated deterministic tables, conservative claim boundaries, and a bounded
   tested-profile v4 structured LLM matrix summary.
 

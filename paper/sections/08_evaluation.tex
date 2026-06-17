@@ -11,39 +11,16 @@ The expanded deterministic public-development manifest has 83 tasks: 46 positive
 \begin{table*}[t]
   \centering
   \caption{Benchmark split summary generated from manifest and result JSON}
+  \label{tab:benchmark-splits}
   \resizebox{\textwidth}{!}{\input{tables/benchmark_split_summary.tex}}
 \end{table*}
-
-\begin{table}[t]
-  \centering
-  \caption{Public-development deterministic results generated from aggregate JSON}
-  \input{tables/deterministic_summary.tex}
-\end{table}
-
-\begin{table}[t]
-  \centering
-  \caption{Held-out deterministic results generated from aggregate JSON}
-  \input{tables/heldout_deterministic_summary.tex}
-\end{table}
-
-\begin{table}[t]
-  \centering
-  \caption{Supplemental realism deterministic results}
-  \input{tables/realism_deterministic_summary.tex}
-\end{table}
 
 The aggregate script also emits a conservative ablation/counterfactual table
 for the six guard surfaces used in the release gate: JSON schema validation,
 compiler feedback, repair-loop boundary, adapter/contract checks, EDA
 lint/elaboration, and prompt leakage controls. The table reports denominators
-for currently guarded public-development tasks; it is not mixed into the main
-pass-rate claims.
-
-\begin{table*}[t]
-  \centering
-  \caption{Public-development ablation guard surfaces generated from aggregate JSON}
-  \resizebox{\textwidth}{!}{\input{tables/ablation_counterfactual.tex}}
-\end{table*}
+for currently guarded public-development tasks in the artifact appendix; it is
+not mixed into the main pass-rate claims.
 
 The expanded subsystem positive case studies use dedicated RTL under
 \texttt{rtl/case\_studies/}: five public-development tasks for streaming,
@@ -67,16 +44,11 @@ single-clock formal denominator. Structural and generic-mapped Yosys QoR is
 available for all 11 reference-enabled public tasks, all 6 held-out
 QoR-enabled tasks, and all 4 realism QoR-enabled tasks.
 
-\begin{table*}[t]
-  \centering
-  \caption{Bounded single-clock formal coverage by property obligation}
-  \resizebox{\textwidth}{!}{\input{tables/formal_coverage_matrix.tex}}
-\end{table*}
-
-The formal evidence script also emits a CDC structural-boundary companion table
-for the artifact appendix. Those rows enumerate explicit CDC adapter boundaries
-and direct cross-domain rejection cases, but they remain outside the formal
-proof denominator and do not claim CDC correctness.
+The formal evidence script emits a property-class matrix and a CDC
+structural-boundary companion table for the artifact appendix. Those rows
+enumerate explicit CDC adapter boundaries and direct cross-domain rejection
+cases, but they remain outside the formal proof denominator and do not claim CDC
+correctness.
 
 A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
 through the pinned Windows launcher. It covers the 21 reference-enabled QoR rows
@@ -96,12 +68,6 @@ all-task technology-mapped timing closure.
   \caption{Vivado out-of-context QoR threshold summary}
   \label{tab:vivado-qor-thresholds}
   \resizebox{\columnwidth}{!}{\input{tables/vivado_qor_thresholds.tex}}
-\end{table}
-
-\begin{table}[t]
-  \centering
-  \caption{QoR evidence scope}
-  \resizebox{\columnwidth}{!}{\input{tables/qor_scope_summary.tex}}
 \end{table}
 
 \subsection{LLM Matrix}
@@ -133,17 +99,9 @@ Holm-Bonferroni correction across the 12 repair-vs-baseline comparisons.
   \resizebox{\textwidth}{!}{\input{tables/llm_paired_comparisons.tex}}
 \end{table*}
 
-\begin{table*}[t]
-  \centering
-  \caption{Repair boundary and provenance}
-  \resizebox{\textwidth}{!}{\input{tables/llm_repair_boundary.tex}}
-\end{table*}
-
-\begin{table*}[t]
-  \centering
-  \caption{Compact LLM failure taxonomy}
-  \resizebox{\textwidth}{!}{\input{tables/llm_failure_taxonomy_compact.tex}}
-\end{table*}
+Detailed repair-turn, cost/token, repair-boundary, and failure-taxonomy tables
+are generated as appendix artifacts and hash-logged in
+\texttt{docs/llm\_final\_matrix\_report.md}.
 
 For the tested profiles, the schema-guided MICO JSON AST repair baseline reaches
 45--46/46 positive compiler and lint passes on the public-development split,

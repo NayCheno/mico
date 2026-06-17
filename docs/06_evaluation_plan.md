@@ -36,12 +36,15 @@
 
 ## Dataset construction
 
-The current deterministic public-development manifest has 83 tasks: 46
+The expanded deterministic public-development manifest has 83 tasks: 46
 positives and 37 negatives, covering 11 L1, 13 L2, 10 L3, 12 L4, 18 L5, and 19
-L6 tasks. The separate held-out manifest has 40 tasks with 20 positives and 20
-negatives. The supplemental realism manifest has 30 deterministic-only tasks
-with 15 positives and 15 paired negatives. Public-development, held-out, and
-realism results must be aggregated and reported separately.
+L6 tasks. The expanded deterministic held-out manifest has 40 tasks with 20
+positives and 20 negatives. The supplemental realism manifest has 30
+deterministic-only tasks with 15 positives and 15 paired negatives.
+Public-development, held-out, and realism results must be aggregated and
+reported separately, with numeric claim sources recorded in
+`docs/release_claim_table.md` and denominator mixing rules recorded in
+`docs/submission_claim_lock_2026Q3.md`.
 
 The committed public-development manifest is allowed for prompt debugging and
 deterministic regression. Final LLM advantage claims remain bound to separately

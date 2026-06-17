@@ -5,8 +5,8 @@ Snapshot date: 2026-06-15.
 This document freezes the claim boundary for the DAC 2027 research-manuscript
 candidate. It is intentionally stricter than the current implementation status:
 paper, README, release, and artifact text may only make claims that map to
-`docs/release_claim_table.md` and to generated evidence hashes from the release
-gate.
+`docs/release_claim_table.md`, `docs/submission_claim_lock_2026Q3.md`, and to
+generated evidence hashes from the release gate.
 
 ## Frozen Main Line
 

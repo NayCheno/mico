@@ -83,8 +83,9 @@ split. It includes seven additional subsystem case-study positives
 (`T063`--`T065`, `T069`, `T071`, `T073`, and `T075`), seven paired negative
 variants, and fixed seed/alias calibration tasks that cover L1--L6. The
 supplemental realism manifest has 30 deterministic-only scoring rows. Full LLM
-advantage claims must report deterministic public-dev, held-out, and realism
-results separately from the locked authenticated v3 LLM-scored manifest hashes;
+advantage claims must report expanded deterministic public-development,
+expanded deterministic held-out, and deterministic realism results separately
+from the locked authenticated v3 LLM-scored manifest hashes;
 sanitized held-out prompts, results, aggregate hashes, and manifest metadata
 should be archived as release assets after scoring.
 
@@ -99,8 +100,8 @@ and SHA-256 hash so scores are bound to the evaluated split.
 
 ## Current runner
 
-The repository includes a deterministic runner for the current positive and
-negative benchmark tasks:
+The repository includes a deterministic runner for the expanded deterministic
+public-development positive and negative benchmark tasks:
 
 ```bash
 ./scripts/eda-docker.sh bash -lc "python3 benchmarks/run_bench.py --output build/bench/seed_results.json"
@@ -118,12 +119,13 @@ required task metadata and committed collateral paths, runs
 SystemVerilog/SVA/traceability artifacts for accepted positive tasks, and
 executes Verilator, Icarus, and Yosys smoke checks against
 `rtl/examples/mico_example_leafs.sv` and dedicated case-study collateral under
-`rtl/case_studies/`. The current manifest has 83 tasks: 46 positive composition
+`rtl/case_studies/`. The expanded deterministic public-development manifest has
+83 tasks: 46 positive composition
 tasks and 37 negative unsafe-rejection tasks across L1-L6.
 Every task declares a natural-language request, module inventory, interface
 inventory, adapter inventory, expected diagnostics, and RTL collateral.
 Positive tasks with `sim_testbench` and `sim_top` use committed directed Icarus
-testbenches. The current public-development summary records
+testbenches. The expanded deterministic public-development summary records
 `sim_mode_counts = {declared: 46}`. The runner still has an auto-generated
 ready/valid smoke harness fallback for newly added positive tasks without a
 declared testbench, but fallback simulation is not part of the current public
@@ -131,9 +133,10 @@ main table. Simulation stdout/stderr artifacts are written under ignored
 `build/bench/`.
 Positive tasks with `formal_harness` and `formal_top` generate a SymbiYosys job
 under ignored `build/bench/` and run bounded proofs against the generated
-wrapper plus committed harness monitor. The current enabled formal denominator
+wrapper plus committed harness monitor. The expanded deterministic
+public-development enabled formal denominator
 is 40/40, all through committed directed single-clock monitors.
-The current public-development summary records
+The expanded deterministic public-development summary records
 `formal_mode_counts = {declared: 40}`.
 CDC remains smoke-only and is not reported as a proof.
 Positive tasks with `qor_reference` also run Yosys structural `stat -json` and

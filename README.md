@@ -24,7 +24,8 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 1. Treat DAC 2027 Research Track as the primary target and use
    `docs/dac2027_submission_plan.md` as the venue-specific control document.
 2. Keep the current claim boundary frozen and evidence-backed; see
-   `docs/claim_boundary.md` and `docs/submission_claim_freeze.md`.
+   `docs/claim_boundary.md`, `docs/submission_claim_freeze.md`, and
+   `docs/submission_claim_lock_2026Q3.md`.
 3. Treat the authenticated v3 OpenCode Go matrix as a bounded tested-profile
    Branch A result for the public-development and held-out splits only.
 4. Keep the supplemental realism split as deterministic-only evidence until it

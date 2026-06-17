@@ -6,7 +6,7 @@ The current artifact answers five evidence-bounded questions: whether intended c
 
 \subsection{Deterministic Results}
 
-The public-development manifest has 83 tasks: 46 positives and 37 negatives across L1--L6. A separate held-out manifest has 40 scoring tasks: 20 positives and 20 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, paired negative variants, and balanced per-level calibration rows. A deterministic-only realism supplement adds 30 tasks with 15 positives and 15 negatives without changing the locked v3 LLM-scored manifest hashes. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md}.
+The expanded deterministic public-development manifest has 83 tasks: 46 positives and 37 negatives across L1--L6. A separate expanded deterministic held-out manifest has 40 scoring tasks: 20 positives and 20 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, paired negative variants, and balanced per-level calibration rows. A deterministic-only realism supplement adds 30 tasks with 15 positives and 15 negatives without changing the locked v3 LLM-scored manifest hashes. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md} and the denominator lock is maintained in \texttt{docs/submission\_claim\_lock\_2026Q3.md}.
 
 \begin{table*}[t]
   \centering
@@ -100,7 +100,7 @@ board-level implementation or all-task timing closure.
 
 The batch runner supports Direct Verilog, SystemVerilog-interface, MICO source,
 MICO JSON AST, and JSON AST repair baselines. The v3 authenticated matrix ran
-the locked pre-expansion 62-task public-development split and the 20-task held-out split across
+the locked pre-expansion 62-task LLM-scored public-development split and the 20-task LLM-scored held-out split across
 three tested OpenCode Go profiles and five baselines, for 1,230 total attempts.
 The public-development and held-out tables are generated from the same aggregate
 JSON used by the release workflow.

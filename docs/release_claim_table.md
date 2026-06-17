@@ -3,10 +3,11 @@
 Snapshot date: 2026-06-17.
 
 This table is the single source for numeric claims used by README, workflow
-docs, paper text, and release packaging. `docs/claim_boundary.md` and
-`docs/submission_claim_freeze.md` remain the normative claim boundary; this
-file maps each current number to the artifact path, schema, hash source, and
-paper location that must support it in a release candidate.
+docs, paper text, and release packaging. `docs/claim_boundary.md`,
+`docs/submission_claim_freeze.md`, and
+`docs/submission_claim_lock_2026Q3.md` remain the normative claim boundary;
+this file maps each current number to the artifact path, schema, hash source,
+and paper location that must support it in a release candidate.
 
 Generated evidence stays under ignored `build/` paths. Hashes are recorded by
 `build/release/full_check_manifest.json`,

@@ -3,10 +3,10 @@
 Snapshot date: 2026-06-17.
 
 This document supersedes the v2 evidence in `docs/22_llm_full_matrix_v2.md` for
-current submission claims. The v3 execute records were refreshed against the
-current public-development and held-out manifest SHA-256 hashes and therefore
-clear the held-out manifest-hash mismatch called out in the CCF-A submission
-plan.
+bounded submission claims. The v3 execute records are locked to pre-expansion
+LLM-scored public-development and held-out manifest hashes. They clear the
+historical held-out manifest-hash mismatch for that LLM evidence line, but they
+do not cover the expanded deterministic 83/40/30 manifests.
 
 ## Commands Run
 
@@ -25,8 +25,8 @@ sanitized and does not contain API keys.
 
 | Artifact | Manifest | Manifest SHA-256 |
 |---|---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `benchmarks/module_compose_bench_manifest.yaml` | `3b8c412659b22fcbcdb5954fc299a6250ecd237988ff85bc398f096b61bf2957` |
-| `build/llm/bench_execute_heldout_v3.json` | `benchmarks/module_compose_bench_heldout.yaml` | `8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd` |
+| `build/llm/bench_execute_public_dev_v3.json` | Locked pre-expansion public-development LLM manifest | `3b8c412659b22fcbcdb5954fc299a6250ecd237988ff85bc398f096b61bf2957` |
+| `build/llm/bench_execute_heldout_v3.json` | Locked pre-expansion held-out LLM manifest | `8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd` |
 
 ## Execute Summary
 
@@ -39,8 +39,8 @@ The runner's `provider_requests` field records execute-mode responses whose
 payload came from provider requests; `cache_hits` records retry-local cache
 reuse after Docker EOF interruptions during this from-empty-cache rerun. The v3
 evidence is still an authenticated execute record because the final sanitized
-records contain request-backed responses re-evaluated against the current
-manifests, compiler, and EDA gates.
+records contain request-backed responses re-evaluated against the locked
+pre-expansion LLM-scored manifests, compiler, and EDA gates.
 
 ## Compact Results
 

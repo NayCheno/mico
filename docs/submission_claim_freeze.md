@@ -5,14 +5,18 @@ Snapshot date: 2026-06-16.
 This file is the reviewer-facing freeze for the DAC 2027 submission narrative.
 It mirrors `docs/claim_boundary.md`, `docs/final_claim_freeze.md`, and the
 numeric source of truth in `docs/release_claim_table.md`.
+`docs/submission_claim_lock_2026Q3.md` gives the quarter-specific denominator
+lock that prevents mixing expanded deterministic counts with locked
+pre-expansion LLM counts.
 
 ## Main Submission Claim
 
 MICO turns LLM-assisted RTL module composition into a compiler-gated typed-graph
-problem. On the tested v3 OpenCode Go profiles and the frozen
-public-development and held-out splits, schema-guided JSON AST prompting plus
-compiler-gated repair outperforms direct RTL, SystemVerilog-interface, and
-MICO-source prompting while preserving unsafe rejection.
+problem. On the tested v3 OpenCode Go profiles and the locked pre-expansion
+LLM-scored public-development and held-out manifest hashes, schema-guided JSON
+AST prompting plus compiler-gated repair outperforms direct RTL,
+SystemVerilog-interface, and MICO-source prompting while preserving unsafe
+rejection.
 
 The compiler remains the authority for parsing, name resolution, direction,
 width, protocol, clock/reset domain, adapter, and v0 ready/valid contract
@@ -31,7 +35,8 @@ decide whether those artifacts are accepted.
 - The deterministic public-development, held-out, and supplemental realism
   results listed in `docs/release_claim_table.md`.
 - A bounded v3 LLM result tied to the tested OpenCode Go profiles, committed
-  prompts, public-development split, and held-out split.
+  prompts, and locked pre-expansion LLM-scored public-development and held-out
+  manifest hashes.
 - Compiler-gated JSON AST repair plus the recorded deterministic
   adapter-instance fallback, with repair provenance preserved in the LLM
   evidence.

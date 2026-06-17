@@ -5,7 +5,7 @@ Snapshot date: 2026-06-15.
 This file is the authoritative boundary between evidence-backed MICO claims and
 work that remains unsupported. It should be read together with
 `docs/final_claim_freeze.md`, `docs/submission_claim_freeze.md`,
-`docs/current_status.md`,
+`docs/submission_claim_lock_2026Q3.md`, `docs/current_status.md`,
 `docs/13_architecture_audit.md`, and `docs/14_reproduction_workflow.md`. DAC
 2027 submission planning lives in `docs/dac2027_submission_plan.md`; this file
 remains the source of truth for what the repository may currently claim.
@@ -30,10 +30,11 @@ The v3 authenticated matrix in `docs/24_llm_matrix_v3.md` now supports a
 bounded Branch A claim for the tested profiles and prompts: MICO JSON
 AST prompting, with the recorded compiler-feedback repair fallback, improves
 positive-task pass rate and unsafe rejection over direct RTL,
-SystemVerilog-interface, and MICO-source prompting on the current
-public-development and held-out splits. README, documentation, and paper text
-must keep this claim tied to that matrix and must not generalize it to
-untested models, prompts, or benchmark splits.
+SystemVerilog-interface, and MICO-source prompting on the locked
+pre-expansion LLM-scored public-development and held-out manifest hashes.
+README, documentation, and paper text must keep this claim tied to that matrix
+and must not generalize it to untested models, prompts, expanded deterministic
+manifests, or benchmark splits.
 
 Numeric claim values, evidence artifact paths, schema names, release hash
 locations, and paper locations are tracked in `docs/release_claim_table.md`.

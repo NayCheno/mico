@@ -67,7 +67,7 @@ against the expanded manifests, compiler, and EDA gates.
 | `build/llm/bench_execute_public_expanded_v4.json` | `61f8c59d85959c9ec40a54c6ddf27b6a1cc9265f414d83c44bc2447b17f32827` |
 | `build/llm/bench_execute_heldout_expanded_v4.json` | `e1f34005cf0f2c8961f52af74ed9af6c93238ca8193f34bd429d07ebe5a1180a` |
 | `build/llm/bench_execute_realism_v4.json` | `fea1e7cdae883d4f5995f00430d44756960f6d5f70ce615dc9b1264dc8a0a6a3` |
-| `build/bench/aggregate_llm_v4.json` | `de6f090be33ec5ce7f7eceb36a89135ecc5dd6268e6125c16900a8e070d3ddd3` |
+| `build/bench/aggregate_llm_v4.json` | `a6765ded3c47f8400905a1045e83ddb8159128f85c82931e8df8e0bc7825c836` |
 
 Generated CSV and TeX snippets are under `build/bench/llm_v4/` and
 `build/paper_tables/llm_v4/` and stay out of source control unless a specific

@@ -601,7 +601,32 @@ def paired_comparisons(llm_payloads: list[dict[str, Any]]) -> list[dict[str, Any
                     "ties": ties,
                 }
             )
+    apply_holm_bonferroni(rows)
     return rows
+
+
+def apply_holm_bonferroni(rows: list[dict[str, Any]], alpha: float = 0.05) -> None:
+    ranked = sorted(
+        enumerate(rows),
+        key=lambda item: float(item[1].get("exact_p_value", 1.0)),
+    )
+    m = len(ranked)
+    running = 0.0
+    for rank, (original_index, row) in enumerate(ranked, start=1):
+        adjusted = min(1.0, float(row.get("exact_p_value", 1.0)) * (m - rank + 1))
+        running = max(running, adjusted)
+        rows[original_index]["holm_p_value"] = running
+        rows[original_index]["holm_significant_0_05"] = running <= alpha
+        rows[original_index]["exact_p_text"] = format_p_value(float(row.get("exact_p_value", 1.0)))
+        rows[original_index]["holm_p_text"] = format_p_value(running)
+
+
+def format_p_value(value: float) -> str:
+    if value == 0:
+        return "0"
+    if value < 0.001:
+        return f"{value:.2e}"
+    return f"{value:.3f}"
 
 
 def matched_pair_effect_size(target_wins: int, baseline_wins: int, comparable: int) -> float:
@@ -1037,7 +1062,8 @@ def main() -> int:
                 ("comparable_tasks", "Tasks"),
                 ("target_wins", "Repair Wins"),
                 ("baseline_wins", "Baseline Wins"),
-                ("exact_p_value", "Exact p"),
+                ("exact_p_text", "Exact p"),
+                ("holm_p_text", "Holm p"),
                 ("net_effect_size", "Net effect"),
                 ("ties", "Ties"),
             ],

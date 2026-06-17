@@ -142,9 +142,11 @@ def repair_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
 
     plain_public = positive("public-dev", "JSON AST")
     plain_heldout = positive("held-out", "JSON AST")
+    plain_realism = positive("realism", "JSON AST")
     repair_public = positive("public-dev", "JSON AST repair")
     repair_heldout = positive("held-out", "JSON AST repair")
-    public_wins = heldout_wins = 0
+    repair_realism = positive("realism", "JSON AST repair")
+    public_wins = heldout_wins = realism_wins = 0
     for row in paired:
         if row.get("comparison") != "mico_json_ast_repair_vs_mico_json_ast":
             continue
@@ -153,11 +155,14 @@ def repair_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
             public_wins = int(row.get("target_wins", 0))
         elif split == "held-out":
             heldout_wins = int(row.get("target_wins", 0))
+        elif split == "realism":
+            realism_wins = int(row.get("target_wins", 0))
     return [
         {
             "path": "Plain JSON AST",
             "public": plain_public,
             "heldout": plain_heldout,
+            "realism": plain_realism,
             "wins": "baseline",
             "provenance": "model structured JSON",
         },
@@ -165,13 +170,15 @@ def repair_rows(aggregate: dict[str, Any]) -> list[dict[str, Any]]:
             "path": "JSON AST + repair",
             "public": repair_public,
             "heldout": repair_heldout,
-            "wins": f"{public_wins} public, {heldout_wins} held-out",
+            "realism": repair_realism,
+            "wins": f"{public_wins} public, {heldout_wins} held-out, {realism_wins} realism",
             "provenance": "deterministic_adapter_instance_collapse",
         },
         {
             "path": "Free-form LLM patch",
             "public": "0 recorded wins",
             "heldout": "0 recorded wins",
+            "realism": "0 recorded wins",
             "wins": "0",
             "provenance": "not claimed",
         },
@@ -380,6 +387,7 @@ def main() -> int:
             ("path", "Path"),
             ("public", "Public positives"),
             ("heldout", "Held-out positives"),
+            ("realism", "Realism positives"),
             ("wins", "Added wins"),
             ("provenance", "Provenance"),
         ],

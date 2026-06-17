@@ -90,7 +90,7 @@ p-values and net matched-pair effect sizes. The compact summary tables are bound
 | `build/bench/aggregate_realism_results.json` | `2372710ba7d9a4e8ecd61cc3357c459cb0256bf79fe488859f0f5ba25ca3f690` |
 | `paper/tables/benchmark_split_summary.tex` | `b995e738fb055487cbbd311b7c334d6b5feb1c70e1a6a5e4ab88167e4ddfd17d` |
 | `paper/tables/ablation_counterfactual.tex` | `64a3bd8388534548530d926d743ac8ba7f33910db982ae3be55d7f0cddf52e28` |
-| `paper/tables/llm_paired_comparisons.tex` | `81f1da056ddaa90c5da0e0c46e4ab03047eb630ca601ad294c7425bed69ad091` |
+| `paper/tables/llm_paired_comparisons.tex` | `8d3d336e74935c93be2790faf7aaeef7dbec483bfd7cfbfe948db20d706e51fc` |
 
 ## Claim Boundary
 

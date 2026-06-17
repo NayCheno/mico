@@ -79,14 +79,17 @@ and direct cross-domain rejection cases, but they remain outside the formal
 proof denominator and do not claim CDC correctness.
 
 A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
-through the pinned Windows launcher. It synthesizes measurement-only copies of
-T001--T004 and T058--T065 for \texttt{xc7a35tcpg236-1}. Generated/reference LUT
-counts match on all 12 rows, and WNS is positive for all generated and
-reference copies. A Docker-side threshold check enforces a median
-generated/reference LUT delta of at most 5\% and nonnegative WNS before writing
-the paper snippet in Table~\ref{tab:vivado-qor-thresholds}. This is
-representative out-of-context evidence, not
-board-level implementation or all-task timing closure.
+through the pinned Windows launcher. It covers the 21 reference-enabled QoR rows
+from the public-development, held-out, and realism splits by synthesizing
+measurement-only generated/reference copies of 12 unique task pairs,
+T001--T004 and T058--T065, for \texttt{xc7a35tcpg236-1}. Generated/reference
+LUT counts match on all 12 task pairs, and WNS is positive for all generated
+and reference copies. A Docker-side threshold check enforces complete
+split-row coverage, a median generated/reference LUT delta of at most 5\%, and
+nonnegative WNS before writing the paper snippet in
+Table~\ref{tab:vivado-qor-thresholds}. This is representative
+out-of-context evidence, not board-level implementation, bitstream readiness, or
+all-task technology-mapped timing closure.
 
 \begin{table}[t]
   \centering

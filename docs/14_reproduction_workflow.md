@@ -312,11 +312,13 @@ The subset targets `xc7a35tcpg236-1` and writes
 The Docker threshold check also writes `vivado_qor_thresholds.json` and
 `vivado_qor_thresholds.tex`, and can refresh the committed paper snippet
 `paper/tables/vivado_qor_thresholds.tex`. It uses build-only measurement
-copies for all 12 QoR-enabled public and held-out tasks (`T001`--`T004` and
-`T058`--`T065`), records Vivado `2025.2`, target part, per-row runtime, and
-constraint assumptions, and checks median LUT delta <= 5.0% plus nonnegative
-generated/reference WNS. It does not claim board-level implementation, route
-timing closure, or all-task Vivado QoR.
+copies for all 21 reference-enabled public-development, held-out, and realism
+QoR split rows through 12 unique task pairs (`T001`--`T004` and
+`T058`--`T065`), records Vivado `2025.2`, target part, split coverage,
+per-row runtime, and constraint assumptions, and checks complete split-row
+coverage, median LUT delta <= 5.0%, and nonnegative generated/reference WNS. It
+does not claim board-level implementation, route timing closure, bitstream
+readiness, or all-task Vivado QoR.
 
 ## Paper Build
 

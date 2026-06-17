@@ -63,6 +63,12 @@ def build_summary(data: dict[str, Any], max_median_lut_delta_pct: float) -> dict
     records = data.get("records", [])
     if not isinstance(records, list):
         raise ValueError("records must be a list")
+    split_coverage = data.get("split_coverage", [])
+    if not isinstance(split_coverage, list):
+        raise ValueError("split_coverage must be a list when present")
+    coverage_summary = data.get("coverage_summary", {})
+    if coverage_summary and not isinstance(coverage_summary, dict):
+        raise ValueError("coverage_summary must be an object when present")
     index = by_task_kind(records)
     tasks = sorted({str(row.get("task")) for row in records if row.get("task")})
 
@@ -75,6 +81,34 @@ def build_summary(data: dict[str, Any], max_median_lut_delta_pct: float) -> dict
         failures.append("source report is missing vivado_version")
     if not data.get("constraint_assumptions"):
         failures.append("source report is missing constraint_assumptions")
+    split_rows = len(split_coverage)
+    unique_split_tasks = sorted({str(row.get("task")) for row in split_coverage if row.get("task")})
+    if coverage_summary:
+        expected_split_rows = coverage_summary.get("total_reference_enabled_rows")
+        expected_pairs = coverage_summary.get("unique_vivado_task_pairs")
+        expected_unique_tasks = coverage_summary.get("unique_covered_tasks")
+        if expected_split_rows != split_rows:
+            failures.append(
+                f"coverage_summary total_reference_enabled_rows={expected_split_rows} "
+                f"does not match split_coverage rows={split_rows}"
+            )
+        if expected_pairs != len(tasks):
+            failures.append(
+                f"coverage_summary unique_vivado_task_pairs={expected_pairs} "
+                f"does not match report task pairs={len(tasks)}"
+            )
+        if expected_unique_tasks != len(unique_split_tasks):
+            failures.append(
+                f"coverage_summary unique_covered_tasks={expected_unique_tasks} "
+                f"does not match split unique tasks={len(unique_split_tasks)}"
+            )
+    if split_coverage and set(unique_split_tasks) != set(tasks):
+        missing = sorted(set(unique_split_tasks) - set(tasks))
+        extra = sorted(set(tasks) - set(unique_split_tasks))
+        if missing:
+            failures.append(f"split coverage tasks missing Vivado records: {', '.join(missing)}")
+        if extra:
+            failures.append(f"Vivado records not referenced by split coverage: {', '.join(extra)}")
     for task in tasks:
         gen = index.get((task, "generated"))
         ref = index.get((task, "reference"))
@@ -156,6 +190,8 @@ def build_summary(data: dict[str, Any], max_median_lut_delta_pct: float) -> dict
         "summary": {
             "task_count": len(tasks),
             "task_pairs_checked": len(task_rows),
+            "reference_enabled_split_rows": split_rows if split_coverage else None,
+            "unique_covered_tasks": len(unique_split_tasks) if split_coverage else None,
             "median_lut_delta_pct": median_lut_delta,
             "max_abs_lut_delta_pct": max_abs_lut_delta,
             "min_generated_wns_ns": min(generated_wns) if generated_wns else None,
@@ -172,7 +208,12 @@ def build_summary(data: dict[str, Any], max_median_lut_delta_pct: float) -> dict
 def write_tex(path: Path, payload: dict[str, Any]) -> None:
     summary = payload["summary"]
     thresholds = payload["thresholds"]
+    split_rows = summary.get("reference_enabled_split_rows")
+    split_row_text = (
+        f"{split_rows}/{split_rows}" if isinstance(split_rows, int) and split_rows > 0 else "n/a"
+    )
     rows = [
+        ("Reference-enabled split rows", split_row_text),
         ("Task pairs", f"{summary['task_pairs_checked']}/{summary['task_count']}"),
         ("Median LUT delta", format_number(summary["median_lut_delta_pct"], "%")),
         ("Max absolute LUT delta", format_number(summary["max_abs_lut_delta_pct"], "%")),

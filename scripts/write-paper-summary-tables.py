@@ -269,10 +269,17 @@ def qor_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
             for record in vivado.get("records", [])
             if record.get("kind") == "generated" and record.get("status") == "pass" and record.get("timing_pass") is True
         ]
+        coverage = vivado.get("coverage_summary", {})
+        split_rows = coverage.get("total_reference_enabled_rows") if isinstance(coverage, dict) else None
+        split_row_text = (
+            f"{split_rows}/{split_rows} split rows; {len(passed)}/{len(tasks)} task pairs"
+            if isinstance(split_rows, int) and split_rows > 0
+            else f"{len(passed)}/{len(tasks)}"
+        )
         rows.append(
             {
                 "scope": "Vivado OOC subset",
-                "rows": f"{len(passed)}/{len(tasks)}",
+                "rows": split_row_text,
                 "status": str(vivado.get("vivado_part", "unknown")),
                 "claim": "positive WNS, not routed closure",
             }

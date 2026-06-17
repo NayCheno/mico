@@ -85,8 +85,8 @@ reissuing provider requests.
 ## Known Limitations
 
 The artifact does not claim CDC correctness proof, arbitrary LTL, routed timing
-closure, broad Vivado QoR beyond the 12-task out-of-context subset, broad
-free-form LLM repair, or generalization beyond the tested v3 OpenCode Go
+closure, broad Vivado QoR beyond the 21-row, 12-task-pair out-of-context subset,
+broad free-form LLM repair, or generalization beyond the tested v3 OpenCode Go
 profiles and prompts.
 
 The bundle intentionally excludes local provider configs, API keys, raw provider

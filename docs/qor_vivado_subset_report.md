@@ -9,7 +9,8 @@ Vivado subset.
 
 ## Scope
 
-The host Vivado subset covers 12 generated/reference task pairs:
+The host Vivado subset covers 21 reference-enabled split rows mapped onto 12
+generated/reference task pairs:
 
 - `T001_stream_fifo`
 - `T002_cdc_fifo`
@@ -24,9 +25,11 @@ The host Vivado subset covers 12 generated/reference task pairs:
 - `T064_video_filter_pipeline_case`
 - `T065_cdc_event_status_case`
 
-The supplemental realism QoR rows overlap this subset through `T001`, `T003`,
-`T063`, and `T064`. Realism-only subsystem rows outside this list remain
-Yosys-reference evidence only.
+The split coverage is 11/11 public-development QoR rows, 6/6 held-out QoR rows,
+and 4/4 supplemental realism QoR rows. The supplemental realism QoR rows overlap
+this subset through `T001`, `T003`, `T063`, and `T064`. Realism-only subsystem
+rows outside this list remain deterministic compiler, lint/simulation, formal
+where applicable, and non-reference Yosys evidence only.
 
 The flow uses `D:\Application\vivado\2025.2\Vivado`, Vivado `2025.2`, target
 part `xc7a35tcpg236-1`, and out-of-context synthesis. Constraint assumptions
@@ -54,12 +57,13 @@ The final 2026-06-17 run produced:
 
 | Metric | Value |
 |---|---:|
+| Reference-enabled split rows | 21/21 |
 | Task pairs checked | 12/12 |
 | Median generated/reference LUT delta | 0.000% |
 | Maximum absolute LUT delta | 0.000% |
 | Minimum generated WNS | 4.854 ns |
 | Minimum reference WNS | 4.584 ns |
-| Total host Vivado elapsed time | 467.761 s |
+| Total host Vivado elapsed time | 373.812 s |
 | Threshold status | pass |
 
 The threshold is median generated/reference LUT delta <= 5.0%, all generated
@@ -75,17 +79,17 @@ copied into the release bundle when present.
 
 | Artifact | SHA-256 |
 |---|---|
-| `vivado_qor_subset_summary.json` | `60b6079758445a95655e4c9768676e13cfe810ad4c7168707e4a90d086fd2b21` |
-| `vivado_qor_subset_summary.csv` | `7ad7b1bd5e273ae387057cef6b6ea1bc1b3c87d0f9c296c66c3b26179ee163dd` |
+| `vivado_qor_subset_summary.json` | `e27ce3401a45b5f584c61932d7a0926457162dadcc05b38daf7f8d68d38c4937` |
+| `vivado_qor_subset_summary.csv` | `4f013e3d2a498110ef0da2a9044e8e839d3791f089713a5e9634da89e57d00c1` |
 | `vivado_qor_subset_delta.csv` | `5953f168b6a78e5f11c10e32e6af6642ff09792c9f41c03722d98c5f08d77060` |
 | `vivado_qor_subset_summary.tex` | `62f8b650775252d77afe97b739b58853cd441270dd8635bea04b12c2fc555f13` |
-| `vivado_qor_thresholds.json` | `8761ff43936d300d737a37c788f4bae4b35dbc48c6ba0be60bff9b97e94568bf` |
-| `vivado_qor_thresholds.tex` | `771f238db9f24f4fbefb5f8381185921849261f5047110a39761a7b2e487c3c9` |
+| `vivado_qor_thresholds.json` | `1e16b9d25e355650d57b05254964b2ae6d620760c618da591d3752fa26d1dce0` |
+| `vivado_qor_thresholds.tex` | `bf1de99113574cde29b0140038248fe06244d304e0f74becccf33d6505917c7d` |
 
 ## Non-Claims
 
 This report does not support timing closure, routed implementation readiness,
 bitstream readiness, CDC correctness, or all-task Vivado QoR. Tasks outside the
-12-task subset remain covered only by the Docker open-source validation and
-Yosys structural/generic-mapped QoR proxy where the benchmark manifest enables
-that proxy.
+21 reference-enabled split rows remain covered only by the Docker open-source
+validation and Yosys structural/generic-mapped QoR proxy where the benchmark
+manifest enables that proxy.

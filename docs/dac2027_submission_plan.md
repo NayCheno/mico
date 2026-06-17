@@ -150,8 +150,9 @@ Supported now:
   monitors.
 - 11/11 structural and generic-mapped Yosys QoR summaries for reference-enabled
   tasks.
-- 12-task host-Vivado out-of-context QoR/timing subset covering all
-  QoR-enabled public and held-out tasks: `T001`--`T004` and `T058`--`T065`.
+- Host-Vivado out-of-context QoR/timing subset covering 21 reference-enabled
+  public-development, held-out, and realism split rows through 12 unique task
+  pairs: `T001`--`T004` and `T058`--`T065`.
 - Held-out manifest with 40 scoring tasks, including seven subsystem positives
   and seven paired negative variants; deterministic held-out scoring currently
   passes 40/40 expected outcomes. The non-CDC held-out subsystem positives now
@@ -194,7 +195,7 @@ Unsupported now:
   single-clock smoke denominator;
 - CDC correctness proof;
 - full timing closure, technology-mapped delay, or broad Vivado QoR beyond the
-  current 12-task out-of-context subset;
+  current 21-row, 12-task-pair out-of-context subset;
 - final submission-readiness.
 
 ## Evidence Schedule

@@ -59,8 +59,9 @@ The repository and paper must not claim:
 - CDC correctness proof;
 - routed timing closure, board-level implementation, bitstream generation, or
   complete-benchmark technology-mapped delay;
-- Vivado QoR beyond the dedicated 12-task out-of-context subset unless a new
-  hashed Vivado artifact is generated and the claim table is updated.
+- Vivado QoR beyond the dedicated 21-row, 12-task-pair out-of-context subset
+  unless a new hashed Vivado artifact is generated and the claim table is
+  updated.
 
 These phrases may appear only in explicit limitation, non-claim, unsupported,
 or claim-boundary contexts.

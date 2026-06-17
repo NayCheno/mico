@@ -3,13 +3,14 @@
 Snapshot date: 2026-06-17.
 
 This records the M3.3 Vivado/QoR hardening step for the DAC 2027 plan. It adds
-a host-Vivado synthesis and timing subset for every QoR-enabled public and
-held-out task without expanding the deterministic benchmark runner's normal
-Yosys QoR scope.
+a host-Vivado synthesis and timing subset for every reference-enabled public,
+held-out, and realism QoR row without expanding the deterministic benchmark
+runner's normal Yosys QoR scope.
 
 ## Scope
 
-The Vivado subset covers 12 QoR-enabled positive tasks:
+The Vivado subset covers 21 reference-enabled split rows, mapped onto 12 unique
+QoR-enabled positive task pairs:
 
 - `T001_stream_fifo`
 - `T002_cdc_fifo`
@@ -24,9 +25,10 @@ The Vivado subset covers 12 QoR-enabled positive tasks:
 - `T064_video_filter_pipeline_case`
 - `T065_cdc_event_status_case`
 
-The supplemental realism QoR-enabled rows currently overlap this subset through
-`T001`, `T003`, `T063`, and `T064`; no additional Vivado claim is made for the
-non-overlapping realism-only subsystem tasks.
+The split coverage is 11/11 public-development QoR rows, 6/6 held-out QoR rows,
+and 4/4 supplemental realism QoR rows. The supplemental realism QoR-enabled rows
+overlap this subset through `T001`, `T003`, `T063`, and `T064`; no additional
+Vivado claim is made for non-reference realism-only subsystem tasks.
 
 The flow uses `D:\Application\vivado\2025.2\Vivado` through
 `scripts/run-vivado-host.ps1`, targets `xc7a35tcpg236-1`, and writes all
@@ -37,9 +39,9 @@ for release-manifest hashing and bundle inclusion. The Docker-side post-check
 current QoR threshold, and writes threshold JSON/TeX sidecars.
 
 The report records Vivado `2025.2`, target part `xc7a35tcpg236-1`, 10 ns clock
-assumptions, per-row elapsed seconds, and the total host run time. The final
-2026-06-17 run took 467.761 s wall-clock as reported by
-`vivado_qor_subset_summary.json`.
+assumptions, per-row elapsed seconds, split-coverage metadata, and the total
+host run time. The final 2026-06-17 run took 373.812 s wall-clock as reported
+by `vivado_qor_subset_summary.json`.
 
 The committed source RTL and benchmark wrappers are not modified. The Tcl script
 creates build-only sanitized copies that:
@@ -84,31 +86,33 @@ Result summary:
 | `T064_video_filter_pipeline_case` | 24 | 24 | 5.184 | 5.401 |
 | `T065_cdc_event_status_case` | 14 | 14 | 6.087 | 6.087 |
 
-All generated/reference rows passed out-of-context synthesis and timing-path extraction in the
-measurement-copy flow. FF, BRAM, and DSP counts are zero for this subset because
-the current representative leaf RTL is combinational smoke collateral.
-The Vivado log reported 0 errors and 0 critical warnings for each synthesis
-step; ordinary unconnected-port warnings are expected for these measurement
-copies. The threshold sidecar reports 12/12 task pairs checked, median LUT
-delta 0.000%, maximum absolute LUT delta 0.000%, minimum generated WNS
-4.854 ns, minimum reference WNS 4.584 ns, and status `pass`.
+All generated/reference rows passed out-of-context synthesis and timing-path
+extraction in the measurement-copy flow. FF, BRAM, and DSP counts are zero for
+this subset because the current representative leaf RTL is combinational smoke
+collateral. The Vivado log reported 0 errors and 0 critical warnings for each
+synthesis step; ordinary unconnected-port warnings are expected for these
+measurement copies. The threshold sidecar reports 21/21 reference-enabled split
+rows, 12/12 unique task pairs checked, median LUT delta 0.000%, maximum
+absolute LUT delta 0.000%, minimum generated WNS 4.854 ns, minimum reference
+WNS 4.584 ns, and status `pass`.
 
 Artifact hashes from the ignored report directory:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `60b6079758445a95655e4c9768676e13cfe810ad4c7168707e4a90d086fd2b21` |
-| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `7ad7b1bd5e273ae387057cef6b6ea1bc1b3c87d0f9c296c66c3b26179ee163dd` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.json` | `e27ce3401a45b5f584c61932d7a0926457162dadcc05b38daf7f8d68d38c4937` |
+| `build/reports/vivado-host/vivado_qor_subset_summary.csv` | `4f013e3d2a498110ef0da2a9044e8e839d3791f089713a5e9634da89e57d00c1` |
 | `build/reports/vivado-host/vivado_qor_subset_delta.csv` | `5953f168b6a78e5f11c10e32e6af6642ff09792c9f41c03722d98c5f08d77060` |
 | `build/reports/vivado-host/vivado_qor_subset_summary.tex` | `62f8b650775252d77afe97b739b58853cd441270dd8635bea04b12c2fc555f13` |
-| `build/reports/vivado-host/vivado_qor_thresholds.json` | `8761ff43936d300d737a37c788f4bae4b35dbc48c6ba0be60bff9b97e94568bf` |
-| `build/reports/vivado-host/vivado_qor_thresholds.tex` | `771f238db9f24f4fbefb5f8381185921849261f5047110a39761a7b2e487c3c9` |
+| `build/reports/vivado-host/vivado_qor_thresholds.json` | `1e16b9d25e355650d57b05254964b2ae6d620760c618da591d3752fa26d1dce0` |
+| `build/reports/vivado-host/vivado_qor_thresholds.tex` | `bf1de99113574cde29b0140038248fe06244d304e0f74becccf33d6505917c7d` |
 
 ## Claim Boundary
 
 This evidence supports only a Vivado out-of-context synthesis and
-measurement-copy timing subset for the 12 QoR-enabled public and held-out tasks.
-It does not support board-level implementation, route timing closure, bitstream
-generation, CDC timing signoff, technology-mapped conclusions for all 83
-public-development tasks or all realism-only subsystem tasks, or QoR claims
-beyond the reported generated/reference rows.
+measurement-copy timing subset for the 21 reference-enabled public-development,
+held-out, and realism split rows mapped to 12 unique task pairs. It does not
+support board-level implementation, route timing closure, bitstream generation,
+CDC timing signoff, technology-mapped conclusions for all 83 public-development
+tasks or non-reference realism-only subsystem tasks, or QoR claims beyond the
+reported generated/reference rows.

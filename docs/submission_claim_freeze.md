@@ -41,8 +41,8 @@ decide whether those artifacts are accepted.
   adapter-instance fallback, with repair provenance preserved in the LLM
   evidence.
 - Directed simulation, bounded single-clock formal smoke, structural/generic
-  Yosys QoR, and the 12-task Vivado out-of-context subset exactly as scoped in
-  `docs/release_claim_table.md`.
+  Yosys QoR, and the 21-row, 12-task-pair Vivado out-of-context subset exactly
+  as scoped in `docs/release_claim_table.md`.
 
 ## Forbidden Claims
 

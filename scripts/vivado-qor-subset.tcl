@@ -38,6 +38,12 @@ set tasks {
   {T065_cdc_event_status_case rtl/case_studies/mico_case_studies.sv build/bench/T065_cdc_event_status_case/top.sv benchmarks/qor/reference/T065_cdc_event_status_case_ref.sv {aclk bclk}}
 }
 
+set split_coverage {
+  {public-dev {T001_stream_fifo T002_cdc_fifo T003_width_adapter T004_direct_stream T058_streaming_accelerator_case T059_width_protocol_bridge_case T060_register_status_case T061_protocol_bridge_case T062_multi_ip_telemetry_case T063_axi_apb_wrapper_case T064_video_filter_pipeline_case}}
+  {held-out {T065_cdc_event_status_case T063_axi_apb_wrapper_case T064_video_filter_pipeline_case T001_stream_fifo T003_width_adapter T004_direct_stream}}
+  {realism {T001_stream_fifo T003_width_adapter T063_axi_apb_wrapper_case T064_video_filter_pipeline_case}}
+}
+
 proc json_escape {value} {
   set out [string map {
     "\\" "\\\\"
@@ -269,6 +275,10 @@ proc tex_number {value {fmt "%.3f"}} {
   return [tex_escape $value]
 }
 
+proc list_contains {items value} {
+  expr {[lsearch -exact $items $value] >= 0}
+}
+
 set records {}
 set run_start_ms [clock milliseconds]
 foreach task_info $tasks {
@@ -336,6 +346,18 @@ puts $tex "\\bottomrule"
 puts $tex "\\end{tabular}"
 close $tex
 
+set covered_unique_tasks {}
+set split_row_count 0
+foreach split_info $split_coverage {
+  lassign $split_info split_name split_tasks
+  incr split_row_count [llength $split_tasks]
+  foreach split_task $split_tasks {
+    if {![list_contains $covered_unique_tasks $split_task]} {
+      lappend covered_unique_tasks $split_task
+    }
+  }
+}
+
 set json_path [file join $report_root "vivado_qor_subset_summary.json"]
 set json [open $json_path w]
 puts $json "{"
@@ -348,6 +370,26 @@ puts $json "  \"run_elapsed_seconds\": [json_value $run_elapsed_seconds],"
 puts $json "  \"constraint_assumptions\": \"[json_escape $constraint_assumptions]\","
 puts $json "  \"top_copy_policy\": \"[json_escape $top_copy_policy]\","
 puts $json "  \"report_root\": \"[json_escape $report_root_json]\","
+puts $json "  \"coverage_summary\": {"
+puts $json "    \"reference_enabled_splits\": [json_value [llength $split_coverage]],"
+puts $json "    \"total_reference_enabled_rows\": [json_value $split_row_count],"
+puts $json "    \"unique_vivado_task_pairs\": [json_value [llength $tasks]],"
+puts $json "    \"unique_covered_tasks\": [json_value [llength $covered_unique_tasks]]"
+puts $json "  },"
+puts $json "  \"split_coverage\": \["
+set split_record_index 0
+foreach split_info $split_coverage {
+  lassign $split_info split_name split_tasks
+  foreach split_task $split_tasks {
+    puts $json "    {"
+    puts $json "      \"split\": \"[json_escape $split_name]\","
+    puts $json "      \"task\": \"[json_escape $split_task]\""
+    incr split_record_index
+    set comma [expr {$split_record_index < $split_row_count ? "," : ""}]
+    puts $json "    }${comma}"
+  }
+}
+puts $json "  ],"
 puts $json "  \"records\": \["
 for {set i 0} {$i < [llength $records]} {incr i} {
   set record [lindex $records $i]

@@ -76,6 +76,65 @@ def count_rate(items: list[dict[str, Any]], key: str) -> dict[str, Any]:
     }
 
 
+def rate_summary(passed: int, total: int) -> dict[str, Any]:
+    return {
+        "passed": passed,
+        "total": total,
+        "rate": passed / total if total else 0.0,
+    }
+
+
+def summary_from_results(results: list[dict[str, Any]]) -> dict[str, Any]:
+    positives = [item for item in results if item.get("type") == "positive"]
+    negatives = [item for item in results if item.get("type") == "negative"]
+    sim_enabled = [item for item in positives if item.get("sim_result", {}).get("enabled") is True]
+    formal_enabled = [
+        item for item in positives if item.get("formal_result", {}).get("enabled") is True
+    ]
+    qor_enabled = [item for item in positives if item.get("qor_result", {}).get("enabled") is True]
+    return {
+        "total_tasks": len(results),
+        "positive_tasks": len(positives),
+        "negative_tasks": len(negatives),
+        "expected_outcome_pass": rate_summary(
+            sum(1 for item in results if item.get("expected_outcome_pass") is True),
+            len(results),
+        ),
+        "compose_pass_1": rate_summary(
+            sum(1 for item in positives if item.get("compose_pass_1") is True),
+            len(positives),
+        ),
+        "lint_pass": rate_summary(
+            sum(1 for item in positives if item.get("lint_pass") is True),
+            len(positives),
+        ),
+        "unsafe_rejection": rate_summary(
+            sum(1 for item in negatives if item.get("unsafe_rejection") is True),
+            len(negatives),
+        ),
+        "json_ast_path": rate_summary(
+            sum(
+                1
+                for item in results
+                if item.get("json_ast_result", {}).get("expected_outcome_pass") is True
+            ),
+            len(results),
+        ),
+        "sim_pass": rate_summary(
+            sum(1 for item in sim_enabled if item.get("sim_pass") is True),
+            len(sim_enabled),
+        ),
+        "formal_pass": rate_summary(
+            sum(1 for item in formal_enabled if item.get("formal_pass") is True),
+            len(formal_enabled),
+        ),
+        "qor": {
+            "available_tasks": sum(1 for item in qor_enabled if item.get("qor", {}).get("available") is True),
+            "total": len(qor_enabled),
+        },
+    }
+
+
 def deterministic_per_level(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     for level in sorted({str(item.get("level", "")) for item in results}):
@@ -158,7 +217,6 @@ def ablation_row(
 
 
 def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> list[dict[str, Any]]:
-    by_id = {str(task.get("id")): task for task in manifest.get("tasks", []) if isinstance(task, dict)}
     negatives = [item for item in results if item.get("type") == "negative"]
     positives = [item for item in results if item.get("type") == "positive"]
 
@@ -176,7 +234,7 @@ def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> li
     ]
     eda_lint_affected = [item for item in positives if item.get("emit_sv_pass") is True]
     prompt_policy = manifest.get("split_policy", {}).get("prompt_leakage_controls", [])
-    prompt_guarded = len(by_id) if isinstance(prompt_policy, list) and prompt_policy else 0
+    prompt_guarded = len(results) if isinstance(prompt_policy, list) and prompt_policy else 0
 
     return [
         ablation_row(
@@ -184,8 +242,7 @@ def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> li
             "mico.ast.v0 JSON schema and schema-version gate",
             schema_affected,
             sum(1 for item in schema_affected if item.get("json_ast_result", {}).get("expected_outcome_pass") is True),
-            sorted(by_id),
-            "JSON AST schema",
+            evidence_scope="JSON AST schema",
         ),
         ablation_row(
             "no_compiler_feedback",
@@ -199,8 +256,7 @@ def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> li
             "compiler-feedback repair loop over schema-valid JSON AST records",
             schema_affected,
             sum(1 for item in schema_affected if item.get("json_ast_result", {}).get("expected_outcome_pass") is True),
-            sorted(by_id),
-            "repair boundary",
+            evidence_scope="repair boundary",
         ),
         ablation_row(
             "no_adapter_contract_check",
@@ -221,8 +277,7 @@ def ablation_rows(results: list[dict[str, Any]], manifest: dict[str, Any]) -> li
             "manifest prompt policy that strips expected solutions, diagnostics, testbenches, formal monitors, and QoR references",
             results,
             prompt_guarded,
-            sorted(by_id),
-            "prompt policy",
+            evidence_scope="prompt policy",
         ),
     ]
 
@@ -775,26 +830,63 @@ def deterministic_summary_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def manifest_path_for_bench(bench: dict[str, Any]) -> Path:
+    benchmark = bench.get("benchmark", {})
+    manifest = benchmark.get("manifest") if isinstance(benchmark, dict) else None
+    if not manifest:
+        raise ValueError("benchmark result is missing benchmark.manifest")
+    return repo_path(str(manifest))
+
+
+def merge_manifests(manifests: list[dict[str, Any]]) -> dict[str, Any]:
+    tasks: list[dict[str, Any]] = []
+    prompt_controls: list[Any] = []
+    for manifest in manifests:
+        manifest_tasks = manifest.get("tasks", [])
+        if isinstance(manifest_tasks, list):
+            tasks.extend(task for task in manifest_tasks if isinstance(task, dict))
+        controls = manifest.get("split_policy", {}).get("prompt_leakage_controls", [])
+        if isinstance(controls, list):
+            prompt_controls.extend(controls)
+    return {
+        "tasks": tasks,
+        "split_policy": {
+            "prompt_leakage_controls": prompt_controls,
+        },
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--bench-result", default="build/bench/seed_results.json")
-    parser.add_argument("--manifest", default="benchmarks/module_compose_bench_manifest.yaml")
+    parser.add_argument("--bench-result", action="append", default=None)
+    parser.add_argument("--manifest", action="append", default=None)
     parser.add_argument("--llm-result", action="append", default=[])
     parser.add_argument("--out-json", default="build/bench/aggregate_results.json")
     parser.add_argument("--out-dir", default="build/bench")
     parser.add_argument("--paper-table-dir", default="build/paper_tables")
     args = parser.parse_args()
 
-    bench_path = repo_path(args.bench_result)
-    manifest_path = repo_path(args.manifest)
-    bench = load_json(bench_path)
-    manifest = load_yaml(manifest_path)
-    results = bench.get("results", [])
-    if not isinstance(results, list):
-        raise ValueError("benchmark results must contain a results list")
+    bench_paths = [repo_path(path) for path in (args.bench_result or ["build/bench/seed_results.json"])]
+    benches = [load_json(path) for path in bench_paths]
+    if args.manifest:
+        manifest_paths = [repo_path(path) for path in args.manifest]
+        if len(manifest_paths) == 1 and len(benches) > 1:
+            manifest_paths = manifest_paths * len(benches)
+        if len(manifest_paths) != len(benches):
+            raise ValueError("--manifest must be supplied once or once per --bench-result")
+    else:
+        manifest_paths = [manifest_path_for_bench(bench) for bench in benches]
+    manifests = [load_yaml(path) for path in manifest_paths]
+    manifest = merge_manifests(manifests)
+    results: list[dict[str, Any]] = []
+    for bench, path in zip(benches, bench_paths, strict=True):
+        bench_results = bench.get("results", [])
+        if not isinstance(bench_results, list):
+            raise ValueError(f"{display_path(path)} must contain a results list")
+        results.extend(item for item in bench_results if isinstance(item, dict))
     llm_payloads = [load_json(repo_path(path)) for path in args.llm_result]
 
-    summary_rows = deterministic_summary_rows(bench.get("summary", {}))
+    summary_rows = deterministic_summary_rows(summary_from_results(results))
     per_level = deterministic_per_level(results)
     taxonomy = diagnostic_taxonomy(results)
     ablations = ablation_rows(results, manifest)
@@ -966,8 +1058,10 @@ def main() -> int:
     aggregate = {
         "schema_version": AGGREGATE_SCHEMA,
         "inputs": {
-            "bench_result": display_path(bench_path),
-            "manifest": display_path(manifest_path),
+            "bench_result": display_path(bench_paths[0]),
+            "bench_results": [display_path(path) for path in bench_paths],
+            "manifest": display_path(manifest_paths[0]),
+            "manifests": [display_path(path) for path in manifest_paths],
             "llm_results": [display_path(repo_path(path)) for path in args.llm_result],
         },
         "generated_tables": {

@@ -108,6 +108,8 @@ run_step "LLM batch validate-only" python3 scripts/run_llm_bench.py \
     --output build/llm/bench_validate.json
 run_step "Aggregate benchmark and LLM records" python3 benchmarks/aggregate_results.py \
     --bench-result build/bench/seed_results.json \
+    --bench-result build/bench/heldout_results.json \
+    --bench-result build/bench/realism_results.json \
     --llm-result build/llm/bench_validate.json \
     --out-json build/bench/aggregate_results.json
 run_step "Aggregate held-out benchmark records" python3 benchmarks/aggregate_results.py \

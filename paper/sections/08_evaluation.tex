@@ -2,7 +2,7 @@
 
 ModuleComposeBench evaluates integration of existing RTL/IP modules: wrapper generation, stream chaining, bus attachment, width adaptation, protocol bridging, CDC adapter insertion, and unsafe ambiguity rejection. Metrics include first-pass compose success, lint/elaboration, simulation, bounded formal smoke, unsafe rejection, JSON AST equivalence, QoR delta, and repair turns.
 
-The current artifact answers five evidence-bounded questions: whether intended compositions are accepted, unsafe compositions are rejected, accepted wrappers pass open-source RTL validation, selected ready/valid and width properties survive bounded formal checks, and generated wrappers remain comparable with hand-written references.
+The current artifact answers five evidence-bounded questions: whether intended compositions are accepted, unsafe compositions are rejected, accepted wrappers pass open-source RTL validation, selected ready/valid, transfer, width, no-drop/no-duplicate, register/status, protocol, and telemetry obligations survive bounded formal checks, and generated wrappers remain comparable with hand-written references.
 
 \subsection{Deterministic Results}
 
@@ -69,9 +69,14 @@ QoR-enabled tasks, and all 4 realism QoR-enabled tasks.
 
 \begin{table*}[t]
   \centering
-  \caption{Bounded single-clock formal coverage by property class}
+  \caption{Bounded single-clock formal coverage by property obligation}
   \resizebox{\textwidth}{!}{\input{tables/formal_coverage_matrix.tex}}
 \end{table*}
+
+The formal evidence script also emits a CDC structural-boundary companion table
+for the artifact appendix. Those rows enumerate explicit CDC adapter boundaries
+and direct cross-domain rejection cases, but they remain outside the formal
+proof denominator and do not claim CDC correctness.
 
 A separate host-Vivado subset uses \texttt{scripts/vivado-qor-subset.tcl}
 through the pinned Windows launcher. It synthesizes measurement-only copies of

@@ -128,8 +128,8 @@ The current repository must not claim:
   limited to the explicitly recorded deterministic adapter-instance fallback.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
-- Exhaustive task-specific formal proof coverage beyond the bounded formal
-  smoke denominator.
+- Exhaustive task-specific formal proof coverage beyond the bounded
+  single-clock obligation denominator.
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, routed implementation, bitstream generation,
   technology-mapped delay claims for the complete benchmark, or Vivado QoR

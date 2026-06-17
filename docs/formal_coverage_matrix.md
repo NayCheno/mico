@@ -1,6 +1,6 @@
 # MICO Formal Coverage Matrix
 
-Snapshot date: 2026-06-16.
+Snapshot date: 2026-06-17.
 
 This matrix documents the bounded formal evidence used by the DAC 2027
 candidate. Numeric claims are mapped in `docs/release_claim_table.md`; generated
@@ -20,22 +20,27 @@ fallback harnesses are not counted in the paper claim:
 The enabled monitors are committed directed SystemVerilog bind modules under
 `benchmarks/formal/`. They are task-specific in the repository sense: each
 monitor binds named generated wires for one benchmark task and checks the
-payload, ready/valid, bridge, register/status, or filter relation expected for
-that task.
+payload, ready/valid, bridge, register/status, width, or filter relation
+expected for that task. `scripts/write-formal-coverage-matrix.py` expands each
+task into one or more proof obligations so the reviewer-facing table is
+property-obligation by split, not just a pass-count rollup.
 
-## Property Classes
+## Property Obligations
 
 `paper/tables/formal_coverage_matrix.tex` is generated from the deterministic
 benchmark result JSON and summarizes:
 
-| Property class | Public-dev | Held-out | Realism | Boundary |
+| Property obligation | Public-dev | Held-out | Realism | Boundary |
 |---|---:|---:|---:|---|
-| direct_ready_valid_payload | 10/10 | 6/6 | 4/4 | payload stability and ready/valid after reset |
-| fifo_pipeline_ordering | 11/11 | 4/4 | 3/3 | bounded no-drop/no-duplicate proxy and payload ordering |
-| width_payload_relation | 10/10 | 3/3 | 3/3 | widening/packing relation and handshake coupling |
-| register_status_visibility | 3/3 | 1/1 | 1/1 | command-to-status visibility and payload relation |
-| protocol_request_response | 4/4 | 2/2 | 2/2 | request/response or bridge payload refinement |
-| telemetry_filter_predicate | 2/2 | 1/1 | 0/0 | filter/accumulator payload predicate preservation |
+| ready_valid_stability | 40/40 | 17/17 | 13/13 | payload stability while valid is held before ready |
+| fire_implies_transfer | 40/40 | 17/17 | 13/13 | valid-and-ready fire event advances the modeled transfer |
+| no_combinational_self_loop | 40/40 | 17/17 | 13/13 | bounded smoke excludes combinational ready/valid self-loop |
+| no_drop_bounded | 14/14 | 6/6 | 4/4 | FIFO, skid, or pipeline monitor observes no dropped transfer in bound |
+| no_duplicate_bounded | 14/14 | 6/6 | 4/4 | FIFO, skid, or pipeline monitor observes no duplicate transfer in bound |
+| width_extension_correctness | 10/10 | 3/3 | 3/3 | width adapter output preserves and zero-extends source payload |
+| register_status_visibility | 6/6 | 2/2 | 2/2 | command payload becomes visible on status path in bound |
+| protocol_request_response | 4/4 | 2/2 | 2/2 | request/response or bridge payload refinement is preserved |
+| telemetry_filter_predicate | 2/2 | 1/1 | 0/0 | filter or accumulator predicate relation is preserved |
 
 This exceeds the minimum M3 gate of at least 8 public task-specific monitors,
 at least 3 held-out task-specific monitors, and at least 4 property classes.
@@ -54,6 +59,13 @@ A future CDC proof can add an assume/guarantee wrapper around an asynchronous
 FIFO model, but that must be reported separately from the current single-clock
 bounded matrix.
 
+`scripts/write-formal-coverage-matrix.py` also writes
+`build/bench/formal_coverage/cdc_structural_boundaries.csv` and
+`paper/tables/cdc_structural_boundaries.tex`. The table records explicit CDC
+adapter rows and direct CDC rejection rows for public-development, held-out,
+and realism tasks. These rows are structural evidence only: they document the
+compiler gate and smoke boundary, not a CDC correctness proof.
+
 ## Contract Boundary
 
 The theorem-like claim for the current v0 contract subset is:
@@ -70,13 +82,12 @@ behavior. The generated SVA skeletons and directed monitors provide traceable
 evidence paths; they do not replace a future complete contract-verification
 engine.
 
-## Current Evidence Hashes
+## Evidence Hashes
 
-| Artifact | SHA-256 |
-|---|---|
-| `build/bench/formal_coverage/formal_coverage_matrix.csv` | `d7169660339475b5e5393b5947681549047e0ce095aa5aa3989267e86456118b` |
-| `build/bench/formal_coverage/formal_coverage_tasks.csv` | `6b557312d59f1564fd1f58de6c6d1c36eca396f6573a36e4212332b77c95f1cc` |
-| `paper/tables/formal_coverage_matrix.tex` | `1039108c1e9903ebc2c3eb0875466df52ece639fa2a00e8c92b7829efc783b3f` |
+Current hashes for generated CSV/TeX evidence are recorded by
+`build/release/deterministic_evidence_hashes.json` after
+`.\scripts\full-check.ps1 -WithLatex` runs. Do not hard-code generated hash
+values in committed documentation.
 
 ## Reproduction
 
@@ -90,7 +101,9 @@ The command writes:
 
 - `build/bench/formal_coverage/formal_coverage_tasks.csv`
 - `build/bench/formal_coverage/formal_coverage_matrix.csv`
+- `build/bench/formal_coverage/cdc_structural_boundaries.csv`
 - `build/paper_tables/formal/formal_coverage_matrix.tex`
+- `build/paper_tables/formal/cdc_structural_boundaries.tex`
 
 To refresh the committed paper table snapshot after a validated evidence run:
 

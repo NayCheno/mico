@@ -32,7 +32,8 @@ payloads, or API keys.
 | JSON AST path | 83/83 | `build/bench/seed_results.json` | `mico.bench.results.v0`, `mico.ast.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Single-clock bounded formal smoke | 40/40 | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 | Formal mode split | 40 declared, 0 generated | `build/bench/seed_results.json` | `mico.bench.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex`, `paper/sections/09_limitations.tex` |
-| Formal property coverage matrix | 6 property classes; public 40/40, held-out 17/17, realism 13/13 | `build/bench/formal_coverage/formal_coverage_matrix.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/formal_coverage_matrix.tex` |
+| Formal property coverage matrix | 9 property obligations; public 40/40, held-out 17/17, realism 13/13 base obligations; adapter-specific rows include no-drop/no-duplicate, width extension, register/status, protocol, and telemetry predicates | `build/bench/formal_coverage/formal_coverage_matrix.csv`, `build/bench/formal_coverage/formal_coverage_tasks.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/formal_coverage_matrix.tex` |
+| CDC structural boundary matrix | Explicit CDC adapter rows and direct-CDC rejection rows recorded separately; CDC correctness proof remains unclaimed | `build/bench/formal_coverage/cdc_structural_boundaries.csv` | `scripts/write-formal-coverage-matrix.py` | `build/release/deterministic_evidence_hashes.json: generated_tables` | `paper/tables/cdc_structural_boundaries.tex`, `paper/sections/09_limitations.tex` |
 | Structural and generic-mapped QoR | 11/11 reference-enabled public tasks | `build/bench/seed_results.json`, `build/bench/aggregate_results.json` | `mico.bench.results.v0`, `mico.aggregate.results.v0` | `build/release/full_check_manifest.json: result_json_hashes` | `paper/sections/08_evaluation.tex` |
 
 ## Held-Out Claims
@@ -98,7 +99,7 @@ introduction, evaluation, conclusion, or release notes:
 - Four-task, four-wrapper, or stale nine-task Vivado subset.
 - Exhaustive or randomized simulation coverage beyond the committed directed
   smoke scenarios.
-- Exhaustive task-specific formal proof beyond bounded ready/valid smoke
+- Exhaustive task-specific formal proof beyond bounded single-clock obligation
   denominators.
 - CDC correctness proof.
 - Full timing closure, routed implementation, or technology-mapped delay for

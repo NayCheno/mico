@@ -1,6 +1,6 @@
 # DAC 2027 Submission Plan
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-17.
 
 This file is the submission-oriented control document for moving MICO from a
 research prototype toward a DAC 2027 Research Manuscript candidate. It does not
@@ -42,14 +42,15 @@ schedule, and the release gate dates before claiming submission readiness.
 
 ## CFP Monitor
 
-Latest manual check: 2026-06-16.
+Latest manual check: 2026-06-17.
 
 | Item | Current record |
 |---|---|
-| Official DAC 2027 event page | Rechecked at `https://dac.com/2026/events/dac-2027`; lists July 10--16, 2027 at the San Jose Convention Center. |
+| Official DAC 2027 event page | Rechecked 2026-06-17 at `https://dac.com/2026/events/dac-2027`; lists July 10--16, 2027 at the San Jose Convention Center. |
 | DAC future-dates archive | Rechecked at `https://archive.dac.com/about/future-dac-dates.html`; also lists 64th DAC 2027 on July 10--16, 2027 at the San Jose Convention Center. |
 | DAC 2027 Research CFP | Not published in the reviewed DAC event/future-date pages or DAC web search results at this snapshot. |
 | Research manuscript deadline | Not published for DAC 2027. Do not infer a submission-ready deadline from prior years. |
+| Current DAC call pages | Official detailed call content found on 2026-06-17 remains DAC 2026 content at `https://dac.com/2026/call-for-contributions` and `https://dac.com/2026/research-frequently-asked-questions`. |
 | Provisional page limit | Use the DAC 2026 research FAQ convention as a planning constraint only: six manuscript pages plus one references-only page. Replace when the DAC 2027 CFP appears. |
 | Provisional review policy | Treat the submission as double-blind, with no author names or affiliations in the manuscript, following the DAC 2026 FAQ until DAC 2027 publishes its own rules. |
 | Provisional topic fit | AI, Electronic Design Automation, Design, Systems, and Verification/Validation are the nearest DAC 2026-style topic areas; re-map to DAC 2027 topics when available. |
@@ -80,6 +81,13 @@ Check log:
   CFP, deadline, page limit, anonymity policy, artifact policy, or topic
   taxonomy was found. Continue using DAC 2026 rules only as provisional
   planning constraints.
+- 2026-06-17: Rechecked the official DAC 2027 event page, the official DAC
+  2026 Call for Contributions page, and the official DAC 2026 Research FAQ.
+  The DAC 2027 page remains an event/date/venue page; the detailed public
+  call content is still DAC 2026-specific. No official DAC 2027 Research CFP,
+  abstract deadline, manuscript deadline, page limit, artifact policy, or
+  topic taxonomy was found. Keep the provisional planning boundary and do not
+  infer a DAC 2027 submission deadline.
 
 ## Claim Branches
 
@@ -156,8 +164,8 @@ Supported now:
   for the original prompts.
 - Structured v3 authenticated LLM full matrix across public-development and
   held-out splits showing a tested-profile Branch A result for MICO JSON AST
-  and compiler-feedback repair, bound to the current manifest hashes in
-  `docs/24_llm_matrix_v3.md`.
+  and compiler-feedback repair, bound to the locked pre-expansion manifest
+  hashes in `docs/24_llm_matrix_v3.md`.
 - Five-page DAC-style paper draft with deterministic summary table generated
   from aggregate JSON.
 

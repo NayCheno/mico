@@ -1,6 +1,6 @@
 # MICO Current Status
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-17.
 
 This file is the short, traceable status page for the current repository. Use
 `docs/claim_boundary.md` for the authoritative claim boundary,

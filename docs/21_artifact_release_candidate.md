@@ -1,6 +1,6 @@
 # DAC Artifact Release Candidate
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-17.
 
 This note records the current DAC artifact release-candidate policy. Generated
 evidence remains under ignored `build/` paths and is intended for an external
@@ -18,8 +18,8 @@ git diff --check
 ```
 
 The Docker portion of `full-check` now covers Rust format/check/tests, open
-source EDA smoke, the 62-task public-development benchmark, the 20-task
-held-out benchmark, the 14-task supplemental realism benchmark, validate-only
+source EDA smoke, the 83-task public-development benchmark, the 40-task
+held-out benchmark, the 30-task supplemental realism benchmark, validate-only
 LLM provider and batch records, aggregate table generation, schema validation,
 release claim JSON, LLM evidence hash JSON, paper-summary table generation, and
 generated-output policy checks. The PowerShell wrapper then builds the paper

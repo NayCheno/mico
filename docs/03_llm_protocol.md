@@ -38,12 +38,15 @@ valid request. The Kimi code profile currently uses an effective temperature of
 `1.0` because that model rejects lower temperature values.
 
 Batch benchmark runs use `scripts/run_llm_bench.py`. The runner reads the
-62-task ModuleComposeBench manifest, generates deterministic prompts from
+selected ModuleComposeBench manifest, defaulting to the current expanded
+83-task public-development manifest, generates deterministic prompts from
 `prompts/system_prompt_compose_agent.md` and
 `prompts/llm_bench_baselines.yaml`, supports five baselines, caches provider
 responses by prompt/profile/model hash, evaluates MICO outputs through the
 compiler, runs open-source lint/elaboration for accepted positive candidates,
-and writes sanitized `mico.llm.bench.v0` output.
+and writes sanitized `mico.llm.bench.v0` output. Historical v3 authenticated
+LLM evidence remains bound to the locked pre-expansion 62-task public and
+20-task held-out manifests recorded in `docs/24_llm_matrix_v3.md`.
 
 JSON AST repair turns use the repository-owned compiler path:
 `mico_cli repair-json --apply --json <ast.json> <patch.json>`. The runner

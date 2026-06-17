@@ -1,6 +1,6 @@
 # MICO Release Claim Table
 
-Snapshot date: 2026-06-15.
+Snapshot date: 2026-06-17.
 
 This table is the single source for numeric claims used by README, workflow
 docs, paper text, and release packaging. `docs/claim_boundary.md` and

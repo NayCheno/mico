@@ -65,6 +65,15 @@ struct CliArgs {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    if args
+        .iter()
+        .skip(1)
+        .any(|arg| arg == "--help" || arg == "-h")
+    {
+        println!("{}", usage());
+        return;
+    }
+
     let cli = parse_args(&args).unwrap_or_else(|err| {
         eprintln!("{err}");
         eprintln!("{}", usage());

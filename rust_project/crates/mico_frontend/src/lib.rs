@@ -264,6 +264,9 @@ impl<'a> Parser<'a> {
                     ),
                 );
                 self.recover_to_statement_end();
+                if self.at_symbol(Symbol::RBrace) {
+                    self.bump();
+                }
             }
         }
     }
@@ -925,6 +928,66 @@ mod tests {
             inst p: Producer;
             inst c: Consumer;
             connect ptx -> c.rx;
+          }
+        "#;
+        let errors = parse_mico(source).unwrap_err();
+        assert!(errors.iter().any(|e| e.code == "ExpectedToken"));
+    }
+
+    #[test]
+    fn recovers_missing_semicolon_boundary() {
+        let source = r#"
+          clockdom Sys(clk, rst)
+          interface StreamU32 @Sys {
+            producer payload:u32;
+            consumer ready:bool;
+          }
+        "#;
+        let errors = parse_mico(source).unwrap_err();
+        assert!(errors.iter().any(|e| e.code == "ExpectedToken"));
+    }
+
+    #[test]
+    fn recovers_unknown_top_level_block() {
+        let source = r#"
+          clockdom Sys(clk, rst);
+          unknown Thing {
+            field value;
+          }
+          interface StreamU32 @Sys {
+            producer payload:u32;
+            consumer ready:bool;
+          }
+        "#;
+        let errors = parse_mico(source).unwrap_err();
+        assert!(errors.iter().any(|e| e.code == "UnexpectedToken"));
+    }
+
+    #[test]
+    fn recovers_malformed_contract() {
+        let source = r#"
+          clockdom Sys(clk, rst);
+          interface StreamU32 @Sys {
+            producer payload:u32, valid:bool;
+            consumer ready:bool;
+            contract stable_payload valid -> stable(payload) until ready;
+          }
+        "#;
+        let errors = parse_mico(source).unwrap_err();
+        assert!(errors.iter().any(|e| e.code == "ExpectedToken"));
+    }
+
+    #[test]
+    fn recovers_duplicate_endpoint_tokens() {
+        let source = r#"
+          clockdom Sys(clk, rst);
+          interface StreamU32 @Sys { producer payload:u32; consumer ready:bool; }
+          extern module Producer @Sys { out tx: StreamU32; }
+          extern module Consumer @Sys { in rx: StreamU32; }
+          compose Top @Sys {
+            inst p: Producer;
+            inst c: Consumer;
+            connect p.tx -> c.rx -> c.rx;
           }
         "#;
         let errors = parse_mico(source).unwrap_err();

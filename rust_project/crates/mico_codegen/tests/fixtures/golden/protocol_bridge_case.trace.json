@@ -1,0 +1,234 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "source.req",
+              "field": "payload",
+              "leaf_port": "req_payload",
+              "role": "producer",
+              "signal": "source_req__bridge_req_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "source.req",
+              "field": "valid",
+              "leaf_port": "req_valid",
+              "role": "producer",
+              "signal": "source_req__bridge_req_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "source.req",
+              "field": "ready",
+              "leaf_port": "req_ready",
+              "role": "consumer",
+              "signal": "source_req__bridge_req_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "bridge.req",
+              "field": "payload",
+              "leaf_port": "req_payload",
+              "role": "producer",
+              "signal": "source_req__bridge_req_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "bridge.req",
+              "field": "valid",
+              "leaf_port": "req_valid",
+              "role": "producer",
+              "signal": "source_req__bridge_req_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "bridge.req",
+              "field": "ready",
+              "leaf_port": "req_ready",
+              "role": "consumer",
+              "signal": "source_req__bridge_req_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "source.req",
+            "instance": "source",
+            "interface": "ProtoReq",
+            "module": "CaseProtocolSource",
+            "port": "req",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "bridge.req",
+            "instance": "bridge",
+            "interface": "ProtoReq",
+            "module": "CaseProtocolBridge",
+            "port": "req",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "bridge.rsp",
+              "field": "payload",
+              "leaf_port": "rsp_payload",
+              "role": "producer",
+              "signal": "bridge_rsp__sink_rsp_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "bridge.rsp",
+              "field": "valid",
+              "leaf_port": "rsp_valid",
+              "role": "producer",
+              "signal": "bridge_rsp__sink_rsp_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "bridge.rsp",
+              "field": "ready",
+              "leaf_port": "rsp_ready",
+              "role": "consumer",
+              "signal": "bridge_rsp__sink_rsp_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rsp",
+              "field": "payload",
+              "leaf_port": "rsp_payload",
+              "role": "producer",
+              "signal": "bridge_rsp__sink_rsp_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "sink.rsp",
+              "field": "valid",
+              "leaf_port": "rsp_valid",
+              "role": "producer",
+              "signal": "bridge_rsp__sink_rsp_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rsp",
+              "field": "ready",
+              "leaf_port": "rsp_ready",
+              "role": "consumer",
+              "signal": "bridge_rsp__sink_rsp_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "bridge.rsp",
+            "instance": "bridge",
+            "interface": "ProtoRsp",
+            "module": "CaseProtocolBridge",
+            "port": "rsp",
+            "port_dir": "out"
+          },
+          "index": 1,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 1,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "sink.rsp",
+            "instance": "sink",
+            "interface": "ProtoRsp",
+            "module": "CaseProtocolSink",
+            "port": "rsp",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "ProtoReq.stable_payload",
+          "domain": "Sys",
+          "endpoint": "source.req",
+          "interface": "ProtoReq",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_source_req_stable_payload",
+          "payload": "source_req__bridge_req_payload",
+          "ready": "source_req__bridge_req_ready",
+          "reset": "rst",
+          "valid": "source_req__bridge_req_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "ProtoRsp.stable_payload",
+          "domain": "Sys",
+          "endpoint": "bridge.rsp",
+          "interface": "ProtoRsp",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_src_bridge_rsp_stable_payload",
+          "payload": "bridge_rsp__sink_rsp_payload",
+          "ready": "bridge_rsp__sink_rsp_ready",
+          "reset": "rst",
+          "valid": "bridge_rsp__sink_rsp_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "bridge_rsp__sink_rsp_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "bridge_rsp__sink_rsp_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "bridge_rsp__sink_rsp_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "source_req__bridge_req_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "source_req__bridge_req_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "source_req__bridge_req_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

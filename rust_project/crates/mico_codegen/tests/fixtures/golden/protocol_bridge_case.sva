@@ -1,0 +1,41 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] bridge_rsp__sink_rsp_payload,
+  input logic bridge_rsp__sink_rsp_ready,
+  input logic bridge_rsp__sink_rsp_valid,
+  input logic [31:0] source_req__bridge_req_payload,
+  input logic source_req__bridge_req_ready,
+  input logic source_req__bridge_req_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect source.req -> bridge.req
+  // [1] connect bridge.rsp -> sink.rsp
+
+  // mico_conn_0_src_source_req_stable_payload: stable payload while valid is held without ready on source.req (ProtoReq, ProtoReq.stable_payload)
+  logic [31:0] mico_conn_0_src_source_req_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_source_req_stable_payload
+    mico_conn_0_src_source_req_stable_payload_payload_q <= source_req__bridge_req_payload;
+    if (!rst && source_req__bridge_req_valid && !source_req__bridge_req_ready) begin
+      assert (source_req__bridge_req_payload == mico_conn_0_src_source_req_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_bridge_rsp_stable_payload: stable payload while valid is held without ready on bridge.rsp (ProtoRsp, ProtoRsp.stable_payload)
+  logic [31:0] mico_conn_1_src_bridge_rsp_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_bridge_rsp_stable_payload
+    mico_conn_1_src_bridge_rsp_stable_payload_payload_q <= bridge_rsp__sink_rsp_payload;
+    if (!rst && bridge_rsp__sink_rsp_valid && !bridge_rsp__sink_rsp_ready) begin
+      assert (bridge_rsp__sink_rsp_payload == mico_conn_1_src_bridge_rsp_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

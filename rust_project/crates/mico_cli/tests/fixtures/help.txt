@@ -1,0 +1,4 @@
+usage: mico [--format text|json|--json] <parse|check|build|dump-ast-json|dump-ir|emit-sv|emit-sva|emit-trace|check-json|build-json|dump-json-ir|emit-json-sv|emit-json-sva|emit-json-trace|verify|report> <file>
+       mico [--format text|json|--json] emit <json|sv|sva|trace> <file.mico>
+       mico [--format text|json|--json] repair-json [--dry-run|--apply] <ast.json> <patch.json>
+       mico [--format text|json|--json] verify [--compiler|--eda] [--artifact-dir DIR] [--schema-path PATH] <file.mico>

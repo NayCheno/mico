@@ -1212,6 +1212,51 @@ mod tests {
             sva: include_str!("../tests/fixtures/golden/register_status_case.sva"),
             trace: include_str!("../tests/fixtures/golden/register_status_case.trace.json"),
         },
+        GoldenCase {
+            name: "protocol_bridge_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T061_protocol_bridge_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/protocol_bridge_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/protocol_bridge_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/protocol_bridge_case.trace.json"),
+        },
+        GoldenCase {
+            name: "multi_ip_telemetry_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T062_multi_ip_telemetry_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/multi_ip_telemetry_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/multi_ip_telemetry_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/multi_ip_telemetry_case.trace.json"),
+        },
+        GoldenCase {
+            name: "axi_apb_wrapper_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T063_axi_apb_wrapper_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/axi_apb_wrapper_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/axi_apb_wrapper_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/axi_apb_wrapper_case.trace.json"),
+        },
+        GoldenCase {
+            name: "video_filter_pipeline_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T064_video_filter_pipeline_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/video_filter_pipeline_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/video_filter_pipeline_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/video_filter_pipeline_case.trace.json"),
+        },
+        GoldenCase {
+            name: "cdc_event_status_case",
+            source: include_str!(
+                "../../../../benchmarks/tasks/T065_cdc_event_status_case/expected.mico"
+            ),
+            sv: include_str!("../tests/fixtures/golden/cdc_event_status_case.sv"),
+            sva: include_str!("../tests/fixtures/golden/cdc_event_status_case.sva"),
+            trace: include_str!("../tests/fixtures/golden/cdc_event_status_case.trace.json"),
+        },
     ];
 
     #[test]
@@ -1311,6 +1356,63 @@ mod tests {
             json["composes"][0]["sva_properties"][0]["kind"],
             "ready_valid_stable_payload"
         );
+    }
+
+    #[test]
+    fn traceability_covers_all_emitted_wires_adapter_boundaries_and_contracts() {
+        for case in GOLDEN_CASES {
+            let design = mico_frontend::parse_mico(case.source)
+                .unwrap_or_else(|errors| panic!("{} parse failed: {errors:#?}", case.name));
+            let typed = build_typed_ir(&design)
+                .unwrap_or_else(|errors| panic!("{} typed IR failed: {errors:#?}", case.name));
+            let trace: serde_json::Value =
+                serde_json::from_str(&emit_traceability_report(&typed)).unwrap();
+            let sv = emit_systemverilog(&design);
+
+            let wires = trace["composes"][0]["wires"]
+                .as_array()
+                .unwrap_or_else(|| panic!("{} trace wires should be an array", case.name));
+            for wire in wires {
+                let name = wire["name"]
+                    .as_str()
+                    .unwrap_or_else(|| panic!("{} trace wire should have a name", case.name));
+                assert!(
+                    sv.contains(&format!(" {name};"))
+                        || sv.contains(&format!(" {name},"))
+                        || sv.contains(&format!("({name})")),
+                    "{} emitted wire `{}` is missing from SystemVerilog",
+                    case.name,
+                    name
+                );
+            }
+
+            let connections = trace["composes"][0]["connections"]
+                .as_array()
+                .unwrap_or_else(|| panic!("{} trace connections should be an array", case.name));
+            for connection in connections {
+                if connection["adapter"].is_string() {
+                    assert!(
+                        connection["adapter_boundary"].is_object(),
+                        "{} adapted connection lacks adapter boundary trace",
+                        case.name
+                    );
+                }
+            }
+
+            let properties = trace["composes"][0]["sva_properties"]
+                .as_array()
+                .unwrap_or_else(|| panic!("{} SVA properties should be an array", case.name));
+            for property in properties {
+                let contract_id = property["contract_id"]
+                    .as_str()
+                    .unwrap_or_else(|| panic!("{} property should have contract_id", case.name));
+                assert!(
+                    !contract_id.is_empty(),
+                    "{} property has empty contract_id",
+                    case.name
+                );
+            }
+        }
     }
 
     #[test]

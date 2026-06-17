@@ -1,0 +1,422 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "clk",
+        "rst"
+      ],
+      "connections": [
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "source.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "source_tx__filter_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "source.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "source_tx__filter_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "source.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "source_tx__filter_input_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "payload",
+              "leaf_port": "input_payload",
+              "role": "producer",
+              "signal": "source_tx__filter_input_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "valid",
+              "leaf_port": "input_valid",
+              "role": "producer",
+              "signal": "source_tx__filter_input_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.input",
+              "field": "ready",
+              "leaf_port": "input_ready",
+              "role": "consumer",
+              "signal": "source_tx__filter_input_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "source.tx",
+            "instance": "source",
+            "interface": "Telemetry32",
+            "module": "CaseTelemetrySource",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "filter.input",
+            "instance": "filter",
+            "interface": "Telemetry32",
+            "module": "CaseTelemetryFilter",
+            "port": "input",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": "CaseWiden32To64",
+          "adapter_boundary": {
+            "adapter": "CaseWiden32To64",
+            "from_endpoint": "filter.output",
+            "input_signals": [
+              {
+                "endpoint": "filter.output",
+                "field": "payload",
+                "leaf_port": "output_payload",
+                "role": "producer",
+                "signal": "filter_output__casewiden32to64_1_in_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "filter.output",
+                "field": "valid",
+                "leaf_port": "output_valid",
+                "role": "producer",
+                "signal": "filter_output__casewiden32to64_1_in_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "filter.output",
+                "field": "ready",
+                "leaf_port": "output_ready",
+                "role": "consumer",
+                "signal": "filter_output__casewiden32to64_1_in_ready",
+                "width_bits": 1
+              }
+            ],
+            "instance": "casewiden32to64_1",
+            "output_signals": [
+              {
+                "endpoint": "accum.rx",
+                "field": "payload",
+                "leaf_port": "rx_payload",
+                "role": "producer",
+                "signal": "casewiden32to64_1__accum_rx_payload",
+                "width_bits": 64
+              },
+              {
+                "endpoint": "accum.rx",
+                "field": "valid",
+                "leaf_port": "rx_valid",
+                "role": "producer",
+                "signal": "casewiden32to64_1__accum_rx_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "accum.rx",
+                "field": "ready",
+                "leaf_port": "rx_ready",
+                "role": "consumer",
+                "signal": "casewiden32to64_1__accum_rx_ready",
+                "width_bits": 1
+              }
+            ],
+            "to_endpoint": "accum.rx"
+          },
+          "adapter_instance": "casewiden32to64_1",
+          "field_bindings": [
+            {
+              "endpoint": "filter.output",
+              "field": "payload",
+              "leaf_port": "output_payload",
+              "role": "producer",
+              "signal": "filter_output__casewiden32to64_1_in_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "filter.output",
+              "field": "valid",
+              "leaf_port": "output_valid",
+              "role": "producer",
+              "signal": "filter_output__casewiden32to64_1_in_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "filter.output",
+              "field": "ready",
+              "leaf_port": "output_ready",
+              "role": "consumer",
+              "signal": "filter_output__casewiden32to64_1_in_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accum.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "casewiden32to64_1__accum_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "accum.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "casewiden32to64_1__accum_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accum.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "casewiden32to64_1__accum_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "filter.output",
+            "instance": "filter",
+            "interface": "Telemetry32",
+            "module": "CaseTelemetryFilter",
+            "port": "output",
+            "port_dir": "out"
+          },
+          "index": 1,
+          "kind": "adapt",
+          "source_ref": {
+            "compose": "Top",
+            "index": 1,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "accum.rx",
+            "instance": "accum",
+            "interface": "Telemetry64",
+            "module": "CaseTelemetryAccumulator64",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        },
+        {
+          "adapter": null,
+          "adapter_boundary": null,
+          "adapter_instance": null,
+          "field_bindings": [
+            {
+              "endpoint": "accum.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "accum_tx__host_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "accum.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "accum_tx__host_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "accum.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "accum_tx__host_rx_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "accum_tx__host_rx_payload",
+              "width_bits": 64
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "accum_tx__host_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "host.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "accum_tx__host_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "Sys",
+            "endpoint": "accum.tx",
+            "instance": "accum",
+            "interface": "Telemetry64",
+            "module": "CaseTelemetryAccumulator64",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 2,
+          "kind": "connect",
+          "source_ref": {
+            "compose": "Top",
+            "index": 2,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "Sys",
+            "endpoint": "host.rx",
+            "instance": "host",
+            "interface": "Telemetry64",
+            "module": "CaseHostSink64",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "Sys",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "clk",
+          "contract_id": "Telemetry32.stable_payload",
+          "domain": "Sys",
+          "endpoint": "source.tx",
+          "interface": "Telemetry32",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_source_tx_stable_payload",
+          "payload": "source_tx__filter_input_payload",
+          "ready": "source_tx__filter_input_ready",
+          "reset": "rst",
+          "valid": "source_tx__filter_input_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "Telemetry32.stable_payload",
+          "domain": "Sys",
+          "endpoint": "filter.output",
+          "interface": "Telemetry32",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_src_filter_output_stable_payload",
+          "payload": "filter_output__casewiden32to64_1_in_payload",
+          "ready": "filter_output__casewiden32to64_1_in_ready",
+          "reset": "rst",
+          "valid": "filter_output__casewiden32to64_1_in_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "Telemetry64.stable_payload",
+          "domain": "Sys",
+          "endpoint": "accum.rx",
+          "interface": "Telemetry64",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_1_dst_accum_rx_stable_payload",
+          "payload": "casewiden32to64_1__accum_rx_payload",
+          "ready": "casewiden32to64_1__accum_rx_ready",
+          "reset": "rst",
+          "valid": "casewiden32to64_1__accum_rx_valid"
+        },
+        {
+          "clock": "clk",
+          "contract_id": "Telemetry64.stable_payload",
+          "domain": "Sys",
+          "endpoint": "accum.tx",
+          "interface": "Telemetry64",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_2_src_accum_tx_stable_payload",
+          "payload": "accum_tx__host_rx_payload",
+          "ready": "accum_tx__host_rx_ready",
+          "reset": "rst",
+          "valid": "accum_tx__host_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "accum_tx__host_rx_payload",
+          "width_bits": 64
+        },
+        {
+          "name": "accum_tx__host_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "accum_tx__host_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "casewiden32to64_1__accum_rx_payload",
+          "width_bits": 64
+        },
+        {
+          "name": "casewiden32to64_1__accum_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "casewiden32to64_1__accum_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "filter_output__casewiden32to64_1_in_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "filter_output__casewiden32to64_1_in_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "filter_output__casewiden32to64_1_in_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "source_tx__filter_input_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "source_tx__filter_input_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "source_tx__filter_input_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

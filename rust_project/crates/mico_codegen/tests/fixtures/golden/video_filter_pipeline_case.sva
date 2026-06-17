@@ -1,0 +1,54 @@
+`default_nettype none
+
+// MICO-generated SVA skeleton.
+// Bind ports to generated wrapper wires before treating assertions as proof.
+
+module mico_sva_Top(
+  input logic clk,
+  input logic rst,
+  input logic [31:0] filter_output__sink_rx_payload,
+  input logic filter_output__sink_rx_ready,
+  input logic filter_output__sink_rx_valid,
+  input logic [31:0] linebuf_output__filter_input_payload,
+  input logic linebuf_output__filter_input_ready,
+  input logic linebuf_output__filter_input_valid,
+  input logic [31:0] source_tx__linebuf_input_payload,
+  input logic source_tx__linebuf_input_ready,
+  input logic source_tx__linebuf_input_valid
+);
+
+  // Traceability: checked MICO connections
+  // [0] connect source.tx -> linebuf.input
+  // [1] connect linebuf.output -> filter.input
+  // [2] connect filter.output -> sink.rx
+
+  // mico_conn_0_src_source_tx_stable_payload: stable payload while valid is held without ready on source.tx (PixelStream, PixelStream.stable_payload)
+  logic [31:0] mico_conn_0_src_source_tx_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_0_src_source_tx_stable_payload
+    mico_conn_0_src_source_tx_stable_payload_payload_q <= source_tx__linebuf_input_payload;
+    if (!rst && source_tx__linebuf_input_valid && !source_tx__linebuf_input_ready) begin
+      assert (source_tx__linebuf_input_payload == mico_conn_0_src_source_tx_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_1_src_linebuf_output_stable_payload: stable payload while valid is held without ready on linebuf.output (PixelStream, PixelStream.stable_payload)
+  logic [31:0] mico_conn_1_src_linebuf_output_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_1_src_linebuf_output_stable_payload
+    mico_conn_1_src_linebuf_output_stable_payload_payload_q <= linebuf_output__filter_input_payload;
+    if (!rst && linebuf_output__filter_input_valid && !linebuf_output__filter_input_ready) begin
+      assert (linebuf_output__filter_input_payload == mico_conn_1_src_linebuf_output_stable_payload_payload_q);
+    end
+  end
+
+  // mico_conn_2_src_filter_output_stable_payload: stable payload while valid is held without ready on filter.output (PixelStream, PixelStream.stable_payload)
+  logic [31:0] mico_conn_2_src_filter_output_stable_payload_payload_q;
+  always_ff @(posedge clk) begin : mico_conn_2_src_filter_output_stable_payload
+    mico_conn_2_src_filter_output_stable_payload_payload_q <= filter_output__sink_rx_payload;
+    if (!rst && filter_output__sink_rx_valid && !filter_output__sink_rx_ready) begin
+      assert (filter_output__sink_rx_payload == mico_conn_2_src_filter_output_stable_payload_payload_q);
+    end
+  end
+
+endmodule
+
+`default_nettype wire

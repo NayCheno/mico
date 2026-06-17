@@ -1,0 +1,212 @@
+{
+  "composes": [
+    {
+      "clock_reset_ports": [
+        "aclk",
+        "arst_n",
+        "bclk",
+        "brst_n"
+      ],
+      "connections": [
+        {
+          "adapter": "CaseAsyncFifo32",
+          "adapter_boundary": {
+            "adapter": "CaseAsyncFifo32",
+            "from_endpoint": "source.tx",
+            "input_signals": [
+              {
+                "endpoint": "source.tx",
+                "field": "payload",
+                "leaf_port": "tx_payload",
+                "role": "producer",
+                "signal": "source_tx__caseasyncfifo32_0_in_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "source.tx",
+                "field": "valid",
+                "leaf_port": "tx_valid",
+                "role": "producer",
+                "signal": "source_tx__caseasyncfifo32_0_in_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "source.tx",
+                "field": "ready",
+                "leaf_port": "tx_ready",
+                "role": "consumer",
+                "signal": "source_tx__caseasyncfifo32_0_in_ready",
+                "width_bits": 1
+              }
+            ],
+            "instance": "caseasyncfifo32_0",
+            "output_signals": [
+              {
+                "endpoint": "sink.rx",
+                "field": "payload",
+                "leaf_port": "rx_payload",
+                "role": "producer",
+                "signal": "caseasyncfifo32_0__sink_rx_payload",
+                "width_bits": 32
+              },
+              {
+                "endpoint": "sink.rx",
+                "field": "valid",
+                "leaf_port": "rx_valid",
+                "role": "producer",
+                "signal": "caseasyncfifo32_0__sink_rx_valid",
+                "width_bits": 1
+              },
+              {
+                "endpoint": "sink.rx",
+                "field": "ready",
+                "leaf_port": "rx_ready",
+                "role": "consumer",
+                "signal": "caseasyncfifo32_0__sink_rx_ready",
+                "width_bits": 1
+              }
+            ],
+            "to_endpoint": "sink.rx"
+          },
+          "adapter_instance": "caseasyncfifo32_0",
+          "field_bindings": [
+            {
+              "endpoint": "source.tx",
+              "field": "payload",
+              "leaf_port": "tx_payload",
+              "role": "producer",
+              "signal": "source_tx__caseasyncfifo32_0_in_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "source.tx",
+              "field": "valid",
+              "leaf_port": "tx_valid",
+              "role": "producer",
+              "signal": "source_tx__caseasyncfifo32_0_in_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "source.tx",
+              "field": "ready",
+              "leaf_port": "tx_ready",
+              "role": "consumer",
+              "signal": "source_tx__caseasyncfifo32_0_in_ready",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "payload",
+              "leaf_port": "rx_payload",
+              "role": "producer",
+              "signal": "caseasyncfifo32_0__sink_rx_payload",
+              "width_bits": 32
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "valid",
+              "leaf_port": "rx_valid",
+              "role": "producer",
+              "signal": "caseasyncfifo32_0__sink_rx_valid",
+              "width_bits": 1
+            },
+            {
+              "endpoint": "sink.rx",
+              "field": "ready",
+              "leaf_port": "rx_ready",
+              "role": "consumer",
+              "signal": "caseasyncfifo32_0__sink_rx_ready",
+              "width_bits": 1
+            }
+          ],
+          "from": {
+            "domain": "SrcClk",
+            "endpoint": "source.tx",
+            "instance": "source",
+            "interface": "EventStream",
+            "module": "CaseEventSource",
+            "port": "tx",
+            "port_dir": "out"
+          },
+          "index": 0,
+          "kind": "adapt",
+          "source_ref": {
+            "compose": "Top",
+            "index": 0,
+            "kind": "compose_connection",
+            "span": null
+          },
+          "to": {
+            "domain": "DstClk",
+            "endpoint": "sink.rx",
+            "instance": "sink",
+            "interface": "StatusStream",
+            "module": "CaseEventStatusSink",
+            "port": "rx",
+            "port_dir": "in"
+          }
+        }
+      ],
+      "domain": "SrcClk",
+      "name": "Top",
+      "sva_module": "mico_sva_Top",
+      "sva_properties": [
+        {
+          "clock": "aclk",
+          "contract_id": "EventStream.stable_payload",
+          "domain": "SrcClk",
+          "endpoint": "source.tx",
+          "interface": "EventStream",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_src_source_tx_stable_payload",
+          "payload": "source_tx__caseasyncfifo32_0_in_payload",
+          "ready": "source_tx__caseasyncfifo32_0_in_ready",
+          "reset": "arst_n",
+          "valid": "source_tx__caseasyncfifo32_0_in_valid"
+        },
+        {
+          "clock": "bclk",
+          "contract_id": "StatusStream.stable_payload",
+          "domain": "DstClk",
+          "endpoint": "sink.rx",
+          "interface": "StatusStream",
+          "kind": "ready_valid_stable_payload",
+          "name": "mico_conn_0_dst_sink_rx_stable_payload",
+          "payload": "caseasyncfifo32_0__sink_rx_payload",
+          "ready": "caseasyncfifo32_0__sink_rx_ready",
+          "reset": "brst_n",
+          "valid": "caseasyncfifo32_0__sink_rx_valid"
+        }
+      ],
+      "top_module": "Top",
+      "wires": [
+        {
+          "name": "caseasyncfifo32_0__sink_rx_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "caseasyncfifo32_0__sink_rx_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "caseasyncfifo32_0__sink_rx_valid",
+          "width_bits": 1
+        },
+        {
+          "name": "source_tx__caseasyncfifo32_0_in_payload",
+          "width_bits": 32
+        },
+        {
+          "name": "source_tx__caseasyncfifo32_0_in_ready",
+          "width_bits": 1
+        },
+        {
+          "name": "source_tx__caseasyncfifo32_0_in_valid",
+          "width_bits": 1
+        }
+      ]
+    }
+  ],
+  "kind": "traceability_report",
+  "schema_version": "mico.traceability.v0"
+}

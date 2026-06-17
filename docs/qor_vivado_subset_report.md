@@ -24,6 +24,10 @@ The host Vivado subset covers 12 generated/reference task pairs:
 - `T064_video_filter_pipeline_case`
 - `T065_cdc_event_status_case`
 
+The supplemental realism QoR rows overlap this subset through `T001`, `T003`,
+`T063`, and `T064`. Realism-only subsystem rows outside this list remain
+Yosys-reference evidence only.
+
 The flow uses `D:\Application\vivado\2025.2\Vivado`, Vivado `2025.2`, target
 part `xc7a35tcpg236-1`, and out-of-context synthesis. Constraint assumptions
 are 10 ns clocks on declared clock ports plus zero-delay reset inputs and

@@ -24,6 +24,10 @@ The Vivado subset covers 12 QoR-enabled positive tasks:
 - `T064_video_filter_pipeline_case`
 - `T065_cdc_event_status_case`
 
+The supplemental realism QoR-enabled rows currently overlap this subset through
+`T001`, `T003`, `T063`, and `T064`; no additional Vivado claim is made for the
+non-overlapping realism-only subsystem tasks.
+
 The flow uses `D:\Application\vivado\2025.2\Vivado` through
 `scripts/run-vivado-host.ps1`, targets `xc7a35tcpg236-1`, and writes all
 reports under ignored `build/reports/vivado-host/`.
@@ -105,6 +109,6 @@ Artifact hashes from the ignored report directory:
 This evidence supports only a Vivado out-of-context synthesis and
 measurement-copy timing subset for the 12 QoR-enabled public and held-out tasks.
 It does not support board-level implementation, route timing closure, bitstream
-generation, CDC timing signoff, technology-mapped conclusions for all 62
-public-development tasks, or QoR claims beyond the reported generated/reference
-rows.
+generation, CDC timing signoff, technology-mapped conclusions for all 83
+public-development tasks or all realism-only subsystem tasks, or QoR claims
+beyond the reported generated/reference rows.

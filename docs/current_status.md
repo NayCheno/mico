@@ -80,8 +80,8 @@ This file is the short, traceable status page for the current repository. Use
   compiler-feedback repair baselines. It supports validate-only planning,
   offline fixture checks, authenticated OpenAI-compatible execution, response
   caching, compiler/EDA scoring, and sanitized `mico.llm.bench.v0` records.
-- Historical authenticated low-cost LLM matrix execution has been run for 62 tasks, two
-  low-cost profiles, and five baselines. The sanitized summary in
+- Historical authenticated low-cost LLM matrix execution has been run for 62
+  tasks, two low-cost profiles, and five baselines. The sanitized summary in
   `docs/16_llm_matrix_results.md` is retained as a historical negative result
   for the original prompts.
 - A follow-up prompt/model pilot in
@@ -90,14 +90,14 @@ This file is the short, traceable status page for the current repository. Use
   output budgets, compact repair diagnostics, and stronger profile validation.
   The selected pilot subset is no longer zero-pass, but it is not a full
   pass-rate improvement claim.
-- A full authenticated structured matrix rerun in
-  `docs/24_llm_matrix_v3.md` covers the locked pre-expansion
-  public-development and held-out splits
-  across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It
-  supports a Branch A claim for the tested profiles: MICO JSON AST
-  and MICO JSON AST plus compiler-feedback repair produce nonzero to full
-  positive compiler/lint passes and strong unsafe rejection, while direct
-  Verilog, SystemVerilog-interface, and MICO-source baselines remain weak.
+- A full authenticated structured v4 matrix in `docs/26_llm_matrix_v4.md`
+  covers the expanded 83-task public-development manifest, 40-task held-out
+  manifest, and 30-task realism manifest across `smoke`,
+  `low_cost_crosscheck`, and `quality_code` profiles. It supports a bounded
+  Branch A claim for the tested profiles: MICO JSON AST and MICO JSON AST plus
+  compiler-feedback repair produce strong positive compiler/lint passes and
+  unsafe rejection, while direct Verilog, SystemVerilog-interface, and
+  MICO-source baselines remain weak.
 - Repository-owned JSON AST repair patch applicator in the compiler/CLI. The
   `repair-json` command supports dry-run, apply, and immediate re-check using
   `schemas/mico_repair_patch.schema.json`; the LLM batch runner delegates patch
@@ -113,11 +113,11 @@ This file is the short, traceable status page for the current repository. Use
   `scripts/make-release-bundle.ps1` review ZIP/sidecar packager with a bundled
   artifact quickstart. The release gate records public-development, held-out,
   and supplemental realism benchmark hashes, sanitized LLM validate-only and
-  authenticated v3 hashes, optional Vivado subset hashes, and the final paper
+  authenticated v4 hashes, optional Vivado subset hashes, and the final paper
   PDF hash when `-WithLatex` is used.
 - IEEE-style paper draft compressed to a five-page DAC-style manuscript, with
   generated deterministic tables, conservative claim boundaries, and a bounded
-  tested-profile v3 structured LLM matrix summary.
+  tested-profile v4 structured LLM matrix summary.
 
 ## Not Yet Implemented
 
@@ -128,15 +128,13 @@ This file is the short, traceable status page for the current repository. Use
 - CDC correctness proof for the smoke FIFO collateral.
 - Full timing closure, broad Vivado QoR, and technology-mapped delay reporting
   beyond the dedicated 21-row, 12-task-pair Vivado subset.
-- Release-archived full paid multi-profile LLM baseline result artifacts.
-- Positive pass-rate improvement claims beyond the exact v3 tested profiles,
-  prompts, public-development split, and held-out split.
+- External archival of the final paid multi-profile LLM evidence bundle.
+- Positive pass-rate improvement claims beyond the exact v4 tested profiles,
+  prompts, public-development, held-out, and realism splits.
 - Broad free-form LLM repair reliability beyond the adapter-as-instance
-  deterministic fallback recorded in `docs/24_llm_matrix_v3.md`.
+  deterministic fallback recorded in `docs/26_llm_matrix_v4.md`.
 - Full generated statistical appendix and any final submission-only table
   integration beyond the deterministic summary table.
-- Authenticated LLM reruns for the expanded 83-task public-development,
-  40-task held-out, and 30-task realism manifests.
 - Immutable release tag, GitHub Release, or Zenodo archive; the current policy
   uses a reviewable release branch and generated bundle first, then publishes
   permanent archives only after final artifact approval.
@@ -174,13 +172,12 @@ Current deterministic benchmark scope:
   plus 17 declared and 0 generated single-clock formal checks; explicit CDC
   case remains formal not-run.
 - Supplemental realism split:
-  `benchmarks/module_compose_bench_realism.yaml` has 30 deterministic-only
-  tasks with 15 positives and 15 negatives. It adds subsystem realism
-  positives, paired negatives, and balanced L1-L6 calibration rows, and is
-  expected to pass 30/30 expected outcomes, 15/15 positive lint/sim, 13/13
-  bounded single-clock formal, 15/15 unsafe rejection, 4/4 QoR, and 30/30 JSON
-  AST path. It is not included in v3 LLM claims until a separate
-  authenticated matrix reruns it.
+  `benchmarks/module_compose_bench_realism.yaml` has 30 tasks with 15
+  positives and 15 negatives. It adds subsystem realism positives, paired
+  negatives, and balanced L1-L6 calibration rows, and is expected to pass 30/30
+  expected outcomes, 15/15 positive lint/sim, 13/13 bounded single-clock
+  formal, 15/15 unsafe rejection, 4/4 QoR, and 30/30 JSON AST path. It is also
+  included in the authenticated v4 LLM matrix.
 
 ## Validation Commands
 

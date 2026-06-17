@@ -347,7 +347,7 @@ def main() -> int:
     parser.add_argument("--public-result", default="build/bench/seed_results.json")
     parser.add_argument("--heldout-result", default="build/bench/heldout_results.json")
     parser.add_argument("--realism-result", default="build/bench/realism_results.json")
-    parser.add_argument("--llm-aggregate", default="build/bench/aggregate_llm_v3.json")
+    parser.add_argument("--llm-aggregate", default="build/bench/aggregate_llm_v4.json")
     parser.add_argument("--vivado-summary", default="build/reports/vivado-host/vivado_qor_subset_summary.json")
     parser.add_argument("--out-dir", default="build/paper_tables/paper_summary")
     args = parser.parse_args()

@@ -14,27 +14,25 @@ remains the source of truth for what the repository may currently claim.
 
 The primary full-paper target is DAC 2027 Research Track / Research Manuscript.
 The current repository is not yet DAC-ready as a full research submission. It is
-a strong deterministic artifact candidate with an explicitly negative
-low-cost LLM matrix.
+a strong deterministic artifact candidate with a bounded positive structured
+LLM matrix under the tested OpenCode Go profiles.
 
 The final paper must choose one branch before submission:
 
-- positive LLM-improvement paper, only after a new authenticated matrix shows
-  nonzero positive compiler/lint pass rates and a statistically supported MICO
-  structured-output advantage;
+- positive LLM-improvement paper, using the authenticated v4 matrix only for
+  the tested profiles, prompts, and expanded split hashes;
 - negative LLM study plus compiler-gated benchmark/tool paper, if improved
   prompts and model profiles still fail but the deterministic benchmark,
   failure taxonomy, and reproducible artifact become the main contribution.
 
-The v3 authenticated matrix in `docs/24_llm_matrix_v3.md` now supports a
-bounded Branch A claim for the tested profiles and prompts: MICO JSON
-AST prompting, with the recorded compiler-feedback repair fallback, improves
-positive-task pass rate and unsafe rejection over direct RTL,
-SystemVerilog-interface, and MICO-source prompting on the locked
-pre-expansion LLM-scored public-development and held-out manifest hashes.
-README, documentation, and paper text must keep this claim tied to that matrix
-and must not generalize it to untested models, prompts, expanded deterministic
-manifests, or benchmark splits.
+The v4 authenticated matrix in `docs/26_llm_matrix_v4.md` supports a bounded
+Branch A claim for the tested profiles and prompts: MICO JSON AST prompting,
+with the recorded compiler-feedback repair fallback, improves positive-task
+pass rate and unsafe rejection over direct RTL, SystemVerilog-interface, and
+MICO-source prompting on the expanded public-development, held-out, and realism
+manifest hashes. README, documentation, and paper text must keep this claim
+tied to that matrix and must not generalize it to untested models, prompts,
+provider versions, or benchmark splits.
 
 Numeric claim values, evidence artifact paths, schema names, release hash
 locations, and paper locations are tracked in `docs/release_claim_table.md`.
@@ -75,18 +73,18 @@ The current repository supports these claims when the release gate passes:
 - Negative benchmark tasks reject unsafe compositions with stable diagnostic
   codes, graph-node references, and repair actions.
 - The committed benchmark manifest is schema-valid and documented as the public
-  development split; final LLM advantage claims still require separately
-  archived held-out results.
+  development split; LLM advantage claims are limited to the authenticated v4
+  public-development, held-out, and realism records.
 - The committed held-out manifest contains 40 scoring tasks with twenty positives,
   twenty negatives, seven subsystem positives, seven paired negative variants,
   and balanced per-level calibration rows; deterministic held-out scoring is
   expected to pass 40/40 outcomes. Its directed verification denominator includes
   twenty declared simulations and seventeen declared single-clock formal monitors;
   explicit CDC cases remain smoke-only for formal.
-- The supplemental realism manifest contains 30 deterministic-only tasks,
-  including subsystem realism positives, paired negatives, and balanced L1-L6
-  calibration rows. It raises the committed deterministic case-study corpus
-  without changing the locked v3 LLM-scored manifest hashes.
+- The supplemental realism manifest contains 30 tasks, including subsystem
+  realism positives, paired negatives, and balanced L1-L6 calibration rows. It
+  raises the committed case-study corpus and is included in the authenticated
+  v4 LLM matrix.
 - The ready/valid v0 contract subset checks conservative adapter-guarantee
   coverage for supported patterns.
 - All 46 public-development positive tasks pass Icarus/VVP simulation smoke checks through
@@ -106,12 +104,12 @@ The current repository supports these claims when the release gate passes:
   fixture checks, execute authenticated provider subsets when local credentials
   and budget are configured, and emit sanitized `mico.llm.bench.v0` records.
 - The historical authenticated low-cost matrix summary is a negative result for
-  the original prompts. The v3 structured matrix supersedes it for current
-  LLM claims and supports a bounded tested-profile MICO-vs-baseline pass-rate
+  the original prompts. The v4 structured matrix supersedes it for current LLM
+  claims and supports a bounded tested-profile MICO-vs-baseline pass-rate
   improvement claim.
 - The compiler/CLI can dry-run, apply, and re-check schema-valid JSON AST
   repair patches through `repair-json`; the LLM benchmark runner uses this path
-  for JSON AST repair turns. The v3 matrix additionally records a narrow
+  for JSON AST repair turns. The v4 matrix additionally records a narrow
   deterministic adapter-instance repair fallback that is accepted only through
   the same compiler path.
 - Aggregate scripts can merge deterministic and optional LLM artifacts into
@@ -121,8 +119,8 @@ The current repository supports these claims when the release gate passes:
 
 The current repository must not claim:
 
-- LLM pass-rate improvement beyond the tested v3 OpenCode Go profiles,
-  prompts, and locked pre-expansion public-development and held-out split
+- LLM pass-rate improvement beyond the tested v4 OpenCode Go profiles,
+  prompts, and expanded public-development, held-out, and realism split
   manifest hashes.
 - Full paid LLM benchmark matrix raw results committed as artifact data.
 - Broad free-form LLM repair reliability. Current recorded repair wins are

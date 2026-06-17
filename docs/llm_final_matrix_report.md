@@ -2,17 +2,18 @@
 
 Snapshot date: 2026-06-17.
 
-This is the M5 final LLM evidence report for the current paper branch. It
-records the authenticated v3 OpenCode Go matrix, aggregate statistics, repair
-provenance, and non-claim boundary. It supersedes historical v1/v2 LLM result
+This is the final LLM evidence report for the current paper branch. It records
+the authenticated v4 OpenCode Go matrix, aggregate statistics, repair
+provenance, and non-claim boundary. It supersedes historical v1/v2/v3 LLM result
 summaries for submission claims.
 
 ## Scope
 
-The v3 matrix covers:
+The v4 matrix covers the expanded submission manifests:
 
-- public-development manifest: 62 tasks, 930 attempts;
-- held-out manifest: 20 tasks, 300 attempts;
+- public-development manifest: 83 tasks, 1,245 attempts;
+- held-out manifest: 40 tasks, 600 attempts;
+- supplemental realism manifest: 30 tasks, 450 attempts;
 - profiles: `smoke`, `low_cost_crosscheck`, `quality_code`;
 - baselines: `direct_verilog`, `sv_interface`, `mico_source`,
   `mico_json_ast`, `mico_json_ast_repair`.
@@ -28,86 +29,98 @@ compiler/EDA outcomes, repair records, tokens, and cost status.
 Run inside the Docker EDA environment:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_public_dev_v3.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_v3.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_public_expanded_v4.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_expanded_v4.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_realism.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_realism_v4.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --bench-result build/bench/heldout_results.json --bench-result build/bench/realism_results.json --llm-result build/llm/bench_execute_public_expanded_v4.json --llm-result build/llm/bench_execute_heldout_expanded_v4.json --llm-result build/llm/bench_execute_realism_v4.json --out-json build/bench/aggregate_llm_v4.json --out-dir build/bench/llm_v4 --paper-table-dir build/paper_tables/llm_v4"
 .\scripts\eda-docker.ps1 python3 scripts/write-llm-evidence-hashes.py --require --output build/release/llm_evidence_hashes.json
 ```
 
-Schema validation command:
-
-```powershell
-.\scripts\eda-docker.ps1 python3 scripts/validate_json_schemas.py --no-generate-smoke --bench-manifest benchmarks/module_compose_bench_heldout.yaml --bench-result build/bench/seed_results.json --bench-result build/bench/heldout_results.json --llm-run build/llm/provider_validate.json --llm-bench build/llm/bench_execute_public_dev_v3.json --llm-bench build/llm/bench_execute_heldout_v3.json --aggregate-result build/bench/aggregate_llm_v3.json
-```
+Schema validation was run separately for each LLM bench JSON against
+`scripts/validate_json_schemas.py` with `build/bench/aggregate_llm_v4.json`.
 
 ## Evidence Hashes
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_public_dev_v3.json` | `47d2ef8eba9e36ed6cabb7cd77cd4f773c8b6b2a725bf070c616a7eb921406b2` |
-| `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
-| `build/bench/aggregate_llm_v3.json` | `60c9964c37bf1bc5d2a3aa782013995f68e2bf0c2d5d0f1074a490e576cd334a` |
+| `build/llm/bench_execute_public_expanded_v4.json` | `61f8c59d85959c9ec40a54c6ddf27b6a1cc9265f414d83c44bc2447b17f32827` |
+| `build/llm/bench_execute_heldout_expanded_v4.json` | `e1f34005cf0f2c8961f52af74ed9af6c93238ca8193f34bd429d07ebe5a1180a` |
+| `build/llm/bench_execute_realism_v4.json` | `fea1e7cdae883d4f5995f00430d44756960f6d5f70ce615dc9b1264dc8a0a6a3` |
+| `build/bench/aggregate_llm_v4.json` | `de6f090be33ec5ce7f7eceb36a89135ecc5dd6268e6125c16900a8e070d3ddd3` |
 | `build/release/llm_evidence_hashes.json` | release-commit dependent; regenerated by `write-llm-evidence-hashes.py` |
 
-The public-development manifest hash is
-`3b8c412659b22fcbcdb5954fc299a6250ecd237988ff85bc398f096b61bf2957`.
-The held-out manifest hash is
-`8aebbfe8b1c1f9cf67cbb112e6fa9d439e4cded2fd8cf8b270041c8b37380ffd`.
+Manifest hashes:
+
+| Manifest | SHA-256 |
+|---|---|
+| `benchmarks/module_compose_bench_manifest.yaml` | `584ac98045ee6c2a02e1afb3e3f0f4ad5cf6057954cb4637f1165fbdaacbfdc4` |
+| `benchmarks/module_compose_bench_heldout.yaml` | `cb04838fbe4332b4bb94d9bfeddb7f2cdd62bd59993c6475696161418d7c69c5` |
+| `benchmarks/module_compose_bench_realism.yaml` | `5a79fbe5171506143c0382a5854e1adabac9596fe999576ae7ae01db307d3654` |
 
 ## Aggregate Coverage
 
-`build/bench/aggregate_llm_v3.json` contains:
+`build/bench/aggregate_llm_v4.json` contains:
 
-- 30 full LLM summary rows with per-profile compiler, lint/final pass, unsafe
+- 45 full LLM summary rows with per-profile compiler, lint/final pass, unsafe
   rejection, JSON-valid rate, Wilson confidence intervals, provider request
   counts, token totals, and cost status;
-- 10 compact summary rows for paper-facing pass/reject ranges;
-- 8 paired exact-test rows comparing `mico_json_ast_repair` against each
-  baseline on public-development and held-out splits, with net matched-pair
-  effect sizes;
-- 33 repair-turn distribution rows;
-- 30 token/cost accounting rows;
-- 57 failure-taxonomy rows.
+- 15 compact summary rows for paper-facing pass/reject ranges;
+- 12 paired exact-test rows comparing `mico_json_ast_repair` against each
+  baseline on public-development, held-out, and realism splits, with net
+  matched-pair effect sizes;
+- 48 repair-turn distribution rows;
+- 45 token/cost accounting rows;
+- 66 failure-taxonomy rows.
 
 Generated table hashes:
 
 | Table | SHA-256 |
 |---|---|
-| `build/paper_tables/llm_v3/llm_summary.tex` | `cd99c244e60985eb0e5aeba20f155f4b9e3135f72afedf78aeec5614163856cc` |
-| `build/paper_tables/llm_v3/llm_compact_summary.tex` | `dde90eeb99854e6091fb810f77e2dad0a5a29a2d96f86be19fc09b9264c0e6ff` |
-| `build/paper_tables/llm_v3/llm_paired_comparisons.tex` | `81f1da056ddaa90c5da0e0c46e4ab03047eb630ca601ad294c7425bed69ad091` |
-| `build/paper_tables/llm_v3/llm_repair_turns.tex` | `1576fc47be7294e1fc077c7961b5875ac186f936f123c57874dc6ce486a6c11a` |
-| `build/paper_tables/llm_v3/llm_cost_tokens.tex` | `a8c111d49af353b5b2aed2619233c03f9d022640f42da8579a5fb466ee5a8f9d` |
-| `build/paper_tables/llm_v3/llm_failure_taxonomy.tex` | `cf6e0fd080b3a2524b9fd8f54e36d2307726a603f3f7978f95f313b2a4e3eb84` |
+| `build/paper_tables/llm_v4/llm_summary.tex` | `acba8ea61802fe6a7526de9f4627ac0794e2b09eee849000b00d4aa4c7bfc239` |
+| `build/paper_tables/llm_v4/llm_compact_summary.tex` | `760bab4e74636b775291de437bf53bf415c033edc0ce7bfa5179c902c03d6cbf` |
+| `build/paper_tables/llm_v4/llm_paired_comparisons.tex` | `bae4bf33679a920163f89df5d582411b46a95954b9420e7cf2bc9af56d567eed` |
+| `build/paper_tables/llm_v4/llm_repair_turns.tex` | `a5c9c8d6e27e27a78cfacf428f9c2e2b55a3f281c67add46ce150ca3b977f471` |
+| `build/paper_tables/llm_v4/llm_cost_tokens.tex` | `9e536f10531f718e002a56653cf64c1084927299b14b92d5a225e9bcea6cbef3` |
+| `build/paper_tables/llm_v4/llm_failure_taxonomy.tex` | `151d6459876a78fb264990ba45706b038c78295336b5aa1fc0e517bf64fbaa20` |
 
 ## Acceptance Checks
 
 | Check | Result |
 |---|---|
-| Public JSON AST repair positives | 35--36/36 final pass across tested profiles |
-| Held-out JSON AST repair positives | 9--10/10 final pass across tested profiles |
-| Public unsafe rejection | 25--26/26 for JSON AST repair unsafe tasks across tested profiles |
-| Held-out unsafe rejection | 10/10 in every tested profile |
-| Public paired tests vs Direct/SV/MICO-source | significant; exact p-values at or below `1.04e-29` |
-| Held-out paired tests vs Direct/SV/MICO-source | significant; exact p-values at or below `1.49e-8` |
-| Plain JSON AST vs repair, public | significant; exact p-value `0.000728607177734375` |
-| Plain JSON AST vs repair, held-out | not significant; exact p-value `0.125` and reported as such |
-| Repair provenance | 0 accepted free-form LLM patch wins; 23 recorded deterministic fallback wins |
+| Public JSON AST repair positives | 45--46/46 final pass across tested profiles |
+| Held-out JSON AST repair positives | 19--20/20 final pass across tested profiles |
+| Realism JSON AST repair positives | 15/15 final pass across tested profiles |
+| Public unsafe rejection | 36--37/37 for JSON AST repair unsafe tasks across tested profiles |
+| Held-out unsafe rejection | 20/20 in every tested profile |
+| Realism unsafe rejection | 15/15 in every tested profile |
+| Public paired tests vs Direct/SV/MICO-source | significant; exact p-values at or below `4.89e-38` |
+| Held-out paired tests vs Direct/SV/MICO-source | significant; exact p-values at or below `5.56e-17` |
+| Realism paired tests vs Direct/SV/MICO-source | significant; exact p-values at or below `4.55e-13` |
+| Plain JSON AST vs repair | significant on all three splits: public `2.77e-4`, held-out `0.0215`, realism `0.03125` |
+| Repair provenance | 0 accepted free-form LLM patch wins; 29 accepted deterministic fallback records |
 | Token/cost accounting | token rows present; USD cost is `not_configured` because profile cost rates are not configured |
 | Raw provider data | not committed; sanitized execute records only |
 
 ## Repair Boundary
 
-The recorded repair wins over plain JSON AST are limited to
-`deterministic_adapter_instance_collapse`: 17 public-development rows and 6
-held-out rows. The paper may claim compiler-feedback repair for this common
+The recorded deterministic fallback records are limited to
+`deterministic_adapter_instance_collapse`: 17 public-development records, 7
+held-out records, and 5 realism records. Paired wins over plain JSON AST are 21
+public-development rows, 9 held-out rows, and 6 realism rows. These are related
+but distinct counts because paired wins compare final pass outcomes across
+baselines, while fallback records count the explicit deterministic fallback
+applications.
+
+The paper may claim compiler-feedback repair for this common
 adapter-as-instance pattern after schema validation, `repair-json --apply`, and
 compiler re-check. It must not claim autonomous semantic repair or broad
 free-form LLM patch reliability.
 
-## V4 Decision
+## Branch Decision
 
-No v4 or second-provider matrix is included in this M5 seal. The paper claim is
-therefore bounded to the tested OpenCode Go profiles, prompts, manifests,
-schemas, compiler version, and cached sanitized provider outputs. It must not
-generalize to arbitrary models or LLMs in general.
+Branch A is now the current paper branch for the tested OpenCode Go profiles,
+prompts, and expanded public-development, held-out, and realism manifests.
+The claim remains bounded to those exact profiles, prompt templates, manifest
+hashes, schemas, compiler version, and sanitized provider outputs. It must not
+generalize to arbitrary models, future provider versions, unbounded repair, CDC
+correctness, exhaustive formal proof, or routed timing closure.

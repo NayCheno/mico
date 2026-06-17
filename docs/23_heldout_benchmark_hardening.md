@@ -67,27 +67,25 @@ Artifact hashes:
 
 ## LLM Split Refresh
 
-The original M5 change revised the held-out task set. The refreshed v3 LLM
-matrix binds the authenticated held-out execute record to the locked
-pre-expansion 20-task held-out manifest hash and supersedes the v2 held-out
-binding for submission claims. The expanded 40-task deterministic manifest
-requires a new authenticated rerun before it can support LLM claims. Detailed
-v3 pass-rate tables live in
-`docs/24_llm_matrix_v3.md` and `docs/llm_final_matrix_report.md`.
+The original M5 change revised the held-out task set. The later v4 LLM matrix
+binds the authenticated held-out execute record to the expanded 40-task
+held-out manifest hash and supersedes the historical v3 held-out binding for
+current submission claims. Detailed v4 pass-rate tables live in
+`docs/26_llm_matrix_v4.md` and `docs/llm_final_matrix_report.md`.
 
 Additional commands:
 
 ```powershell
-.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_v3.json"
-.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --llm-result build/llm/bench_execute_public_dev_v3.json --llm-result build/llm/bench_execute_heldout_v3.json --out-json build/bench/aggregate_llm_v3.json --out-dir build/bench/llm_v3 --paper-table-dir build/paper_tables/llm_v3"
+.\scripts\eda-docker.ps1 bash -lc "python3 scripts/run_llm_bench.py --manifest benchmarks/module_compose_bench_heldout.yaml --config config/llm-provider.local.yaml --execute --profiles smoke,low_cost_crosscheck,quality_code --baselines direct_verilog,sv_interface,mico_source,mico_json_ast,mico_json_ast_repair --output build/llm/bench_execute_heldout_expanded_v4.json"
+.\scripts\eda-docker.ps1 bash -lc "python3 benchmarks/aggregate_results.py --bench-result build/bench/seed_results.json --bench-result build/bench/heldout_results.json --bench-result build/bench/realism_results.json --llm-result build/llm/bench_execute_public_expanded_v4.json --llm-result build/llm/bench_execute_heldout_expanded_v4.json --llm-result build/llm/bench_execute_realism_v4.json --out-json build/bench/aggregate_llm_v4.json --out-dir build/bench/llm_v4 --paper-table-dir build/paper_tables/llm_v4"
 ```
 
 LLM refresh hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `build/llm/bench_execute_heldout_v3.json` | `04fd36350ddb17dfd220bcf2825df2c3cd4f9188d3f014dd01b70fc9e48d5f7e` |
-| `build/bench/aggregate_llm_v3.json` | `60c9964c37bf1bc5d2a3aa782013995f68e2bf0c2d5d0f1074a490e576cd334a` |
+| `build/llm/bench_execute_heldout_expanded_v4.json` | `e1f34005cf0f2c8961f52af74ed9af6c93238ca8193f34bd429d07ebe5a1180a` |
+| `build/bench/aggregate_llm_v4.json` | `de6f090be33ec5ce7f7eceb36a89135ecc5dd6268e6125c16900a8e070d3ddd3` |
 
 ## Claim Boundary
 

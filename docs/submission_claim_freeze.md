@@ -6,14 +6,13 @@ This file is the reviewer-facing freeze for the DAC 2027 submission narrative.
 It mirrors `docs/claim_boundary.md`, `docs/final_claim_freeze.md`, and the
 numeric source of truth in `docs/release_claim_table.md`.
 `docs/submission_claim_lock_2026Q3.md` gives the quarter-specific denominator
-lock that prevents mixing expanded deterministic counts with locked
-pre-expansion LLM counts.
+lock that records the expanded deterministic and v4 LLM denominators.
 
 ## Main Submission Claim
 
 MICO turns LLM-assisted RTL module composition into a compiler-gated typed-graph
-problem. On the tested v3 OpenCode Go profiles and the locked pre-expansion
-LLM-scored public-development and held-out manifest hashes, schema-guided JSON
+problem. On the tested v4 OpenCode Go profiles and the expanded
+public-development, held-out, and realism manifest hashes, schema-guided JSON
 AST prompting plus compiler-gated repair outperforms direct RTL,
 SystemVerilog-interface, and MICO-source prompting while preserving unsafe
 rejection.
@@ -34,9 +33,9 @@ decide whether those artifacts are accepted.
 
 - The deterministic public-development, held-out, and supplemental realism
   results listed in `docs/release_claim_table.md`.
-- A bounded v3 LLM result tied to the tested OpenCode Go profiles, committed
-  prompts, and locked pre-expansion LLM-scored public-development and held-out
-  manifest hashes.
+- A bounded v4 LLM result tied to the tested OpenCode Go profiles, committed
+  prompts, and expanded public-development, held-out, and realism manifest
+  hashes.
 - Compiler-gated JSON AST repair plus the recorded deterministic
   adapter-instance fallback, with repair provenance preserved in the LLM
   evidence.
@@ -47,7 +46,7 @@ decide whether those artifacts are accepted.
 ## Forbidden Claims
 
 - LLM improvement for profiles, prompts, provider versions, or benchmark splits
-  outside the v3 evidence.
+  outside the v4 evidence.
 - Broad autonomous free-form repair reliability.
 - Complete formal signoff, complete temporal contract verification, or
   unrestricted LTL support.

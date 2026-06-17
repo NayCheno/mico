@@ -18,20 +18,20 @@ checks.
 
 The current paper branch is bounded Branch A:
 
-- scope: the v3 OpenCode Go profiles `smoke`, `low_cost_crosscheck`, and
+- scope: the v4 OpenCode Go profiles `smoke`, `low_cost_crosscheck`, and
   `quality_code`;
 - prompts: the committed baseline prompts and schemas under `prompts/`;
-- splits: the locked pre-expansion 62-task public-development manifest and
-  20-task held-out manifest hashes recorded in the v3 evidence;
+- splits: the expanded 83-task public-development manifest, 40-task held-out
+  manifest, and 30-task supplemental realism manifest hashes recorded in the v4
+  evidence;
 - accepted repair wins: the recorded
   `deterministic_adapter_instance_collapse` compiler-feedback fallback plus the
   compiler-gated JSON AST repair path;
 - evidence binding: sanitized run records and aggregate tables are hashed by
   `build/release/full_check_manifest.json` when present.
 
-The expanded deterministic manifests are 83 public-development tasks,
-40 held-out tasks, and a 30-task realism supplement. The expanded deterministic
-rows are not LLM-scored until they are rerun in an authenticated matrix.
+The expanded deterministic manifests are also the current authenticated LLM
+matrix denominators. Historical v3 records remain pre-expansion evidence only.
 
 ## Required Claim Mapping
 
@@ -52,7 +52,7 @@ evidence is produced by `scripts/full-check.ps1 -WithLatex` and packaged by
 
 The repository and paper must not claim:
 
-- arbitrary-model LLM improvement or generalization beyond the tested v3
+- arbitrary-model LLM improvement or generalization beyond the tested v4
   profiles, prompts, and splits;
 - broad free-form or autonomous model repair reliability;
 - exhaustive formal verification, full formal proof, or arbitrary LTL support;

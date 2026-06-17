@@ -36,8 +36,8 @@ cases and paired negative subsystem variants including:
 - `T079_axis_packetizer_case` / `T080_axis_packetizer_missing_stage`
 - `T081_mmio_control_data_path_case` / `T082_mmio_control_missing_widen`
 
-The supplemental realism split remains deterministic-only evidence until an
-authenticated LLM matrix explicitly reruns that manifest.
+The supplemental realism split is now included in the authenticated v4 LLM
+matrix recorded in `docs/26_llm_matrix_v4.md`.
 
 ## Failure Taxonomy
 
@@ -52,7 +52,7 @@ The deterministic aggregate records include compiler diagnostic taxonomy rows:
 The public-development taxonomy covers adapter misuse, clock-domain mismatch,
 contract violations, direction reversal, duplicate declarations, interface and
 protocol mismatch, unknown module/interface/port/instance references, and width
-mismatch. The LLM v3 aggregate additionally records 57 failure-taxonomy rows for
+mismatch. The LLM v4 aggregate additionally records 66 failure-taxonomy rows for
 schema invalid JSON, direct RTL lint failures, hallucinated binding/reference
 errors, compiler diagnostics, and repair outcomes.
 
@@ -74,11 +74,11 @@ the CCF-A checklist:
 | Held-out | 6 | `02ca947f572ff1abfb007a41486ab26217d30284baa56b2b70840762b27d3c72` |
 | Supplemental realism | 6 | `00f27c84b882839e98e80bd22a1082b73a156f7c37b008c15da868ea6af451fd` |
 
-The LLM v3 ablation surface is represented by the five baseline families:
+The LLM v4 ablation surface is represented by the five baseline families:
 Direct Verilog, SystemVerilog interface, MICO source, MICO JSON AST, and MICO
 JSON AST repair. The paired comparison table now includes exact sign-test
 p-values and net matched-pair effect sizes. The compact summary tables are bound in
-`docs/24_llm_matrix_v3.md` and `docs/llm_v3_artifact_readme.md`.
+`docs/26_llm_matrix_v4.md` and `docs/llm_final_matrix_report.md`.
 
 ## Artifact Hashes
 
@@ -94,6 +94,7 @@ p-values and net matched-pair effect sizes. The compact summary tables are bound
 
 ## Claim Boundary
 
-M5 does not add LLM claims for the supplemental realism split and does not add
-new Vivado or QoR claims beyond the scoped 12-task subset. Public-development,
-held-out, and supplemental realism results must be reported separately.
+M5 adds bounded v4 LLM claims for the supplemental realism split but does not
+add new Vivado or QoR claims beyond the scoped 21-row, 12-task-pair subset.
+Public-development, held-out, and supplemental realism results must be reported
+separately.

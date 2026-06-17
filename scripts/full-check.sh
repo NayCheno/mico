@@ -308,6 +308,10 @@ result_paths = [
     "build/bench/aggregate_realism_results.json",
 ]
 authenticated_llm_paths = [
+    "build/llm/bench_execute_public_expanded_v4.json",
+    "build/llm/bench_execute_heldout_expanded_v4.json",
+    "build/llm/bench_execute_realism_v4.json",
+    "build/bench/aggregate_llm_v4.json",
     "build/llm/bench_execute_public_dev_v3.json",
     "build/llm/bench_execute_heldout_v3.json",
     "build/bench/aggregate_llm_v3.json",

@@ -2,15 +2,15 @@
 
 Snapshot date: 2026-06-15.
 
-This note records the M3.4 deterministic realism supplement. It intentionally
-does not change the locked public-development or held-out manifests used by the
-authenticated v3 LLM matrix; LLM claims must rerun explicitly before including
-this supplement. The current M5 failure-taxonomy and ablation evidence is
-summarized in `docs/benchmark_realism_ablation_report_2026-06-16.md`.
+This note records the M3.4 deterministic realism supplement. The supplement is
+now also included in the authenticated v4 LLM matrix recorded in
+`docs/26_llm_matrix_v4.md`. The older v3 LLM matrix did not include this split.
+The current M5 failure-taxonomy and ablation evidence is summarized in
+`docs/benchmark_realism_ablation_report_2026-06-16.md`.
 
 ## Scope
 
-`benchmarks/module_compose_bench_realism.yaml` contains 30 deterministic-only tasks:
+`benchmarks/module_compose_bench_realism.yaml` contains 30 scoring tasks:
 
 - 18 L1-L6 calibration tasks reused from existing committed collateral to keep
   every level at or above two positives and two negatives.
@@ -65,5 +65,5 @@ Artifact hashes:
 ## Claim Boundary
 
 This supplement raises deterministic subsystem and calibration coverage across
-the main, held-out, and supplemental manifests. It is deterministic-only
-evidence until the LLM matrix is rerun with the supplemental manifest included.
+the main, held-out, and supplemental manifests. Its LLM-scored claims are
+bounded to the authenticated v4 matrix and tested OpenCode Go profiles.

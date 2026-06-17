@@ -6,7 +6,7 @@ The current artifact answers five evidence-bounded questions: whether intended c
 
 \subsection{Deterministic Results}
 
-The expanded deterministic public-development manifest has 83 tasks: 46 positives and 37 negatives across L1--L6. A separate expanded deterministic held-out manifest has 40 scoring tasks: 20 positives and 20 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, paired negative variants, and balanced per-level calibration rows. A deterministic-only realism supplement adds 30 tasks with 15 positives and 15 negatives without changing the locked v3 LLM-scored manifest hashes. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md} and the denominator lock is maintained in \texttt{docs/submission\_claim\_lock\_2026Q3.md}.
+The expanded deterministic public-development manifest has 83 tasks: 46 positives and 37 negatives across L1--L6. A separate expanded deterministic held-out manifest has 40 scoring tasks: 20 positives and 20 negatives, including AXI/APB wrapper, video-filter pipeline, explicit CDC event/status composition, telemetry filtering, request/response bridging, register/status composition, paired negative variants, and balanced per-level calibration rows. A realism supplement adds 30 tasks with 15 positives and 15 negatives. Benchmark and LLM records include the evaluated manifest path and SHA-256 hash; the source mapping for these numeric claims is maintained in \texttt{docs/release\_claim\_table.md} and the denominator lock is maintained in \texttt{docs/submission\_claim\_lock\_2026Q3.md}.
 
 \begin{table*}[t]
   \centering
@@ -107,11 +107,12 @@ all-task technology-mapped timing closure.
 \subsection{LLM Matrix}
 
 The batch runner supports Direct Verilog, SystemVerilog-interface, MICO source,
-MICO JSON AST, and JSON AST repair baselines. The v3 authenticated matrix ran
-the locked pre-expansion 62-task LLM-scored public-development split and the 20-task LLM-scored held-out split across
-three tested OpenCode Go profiles and five baselines, for 1,230 total attempts.
-The public-development and held-out tables are generated from the same aggregate
-JSON used by the release workflow.
+MICO JSON AST, and JSON AST repair baselines. The v4 authenticated matrix ran
+the expanded 83-task public-development split, 40-task held-out split, and
+30-task realism split across three tested OpenCode Go profiles and five
+baselines, for 2,295 total attempts. The public-development, held-out, and
+realism tables are generated from the same aggregate JSON used by the release
+workflow.
 
 \begin{table*}[t]
   \centering
@@ -139,28 +140,32 @@ JSON used by the release workflow.
 \end{table*}
 
 For the tested profiles, the schema-guided MICO JSON AST repair baseline reaches
-35--36/36 positive compiler and lint passes on the public-development split and
-9--10/10 on the held-out split. It also rejects 25--26/26 public unsafe tasks
-and 10/10 held-out unsafe tasks across the tested profiles. Direct Verilog and
+45--46/46 positive compiler and lint passes on the public-development split,
+19--20/20 on the held-out split, and 15/15 on the realism split. It also rejects
+36--37/37 public unsafe tasks, 20/20 held-out unsafe tasks, and 15/15 realism
+unsafe tasks across the tested profiles. Direct Verilog and
 SystemVerilog-interface prompts never reach positive lint pass rates comparable
-to the structured baselines: their best rows are 5/36 public positives and 2/10
-held-out positives. The MICO-source baseline produces MICO-looking text but has
-at most 1/36 positive public compiler pass and 0/10 held-out positive compiler
-passes in the matrix, illustrating that the structured JSON AST representation,
-not merely the DSL vocabulary, is doing most of the work.
+to the structured baselines: their best rows are 6/46 public positives, 5/20
+held-out positives, and 4/15 realism positives, with the SV-interface baseline
+at 0 positives on all three splits. The MICO-source baseline produces
+MICO-looking text but has at most 1/46 positive public compiler pass and 0/20
+held-out or 0/15 realism positive compiler passes in the matrix, illustrating
+that the structured JSON AST representation, not merely the DSL vocabulary, is
+doing most of the work.
 
 Repair is beneficial but bounded. Compared with direct Verilog,
-\texttt{mico\_json\_ast\_repair} has 103 wins, 1 loss, and 82 ties on the
-public split, and 27 wins, 0 losses, and 33 ties on held-out. Compared with
-plain \texttt{mico\_json\_ast}, repair adds 17 public wins and 6 held-out wins,
-with 2 public losses and 1 held-out loss; the net paired effect is reported in
+\texttt{mico\_json\_ast\_repair} has 131 wins, 1 loss, and 117 ties on the
+public split; 55 wins, 0 losses, and 65 ties on held-out; and 42 wins, 0 losses,
+and 48 ties on realism. Compared with plain \texttt{mico\_json\_ast}, repair
+adds 21 public wins, 9 held-out wins, and 6 realism wins, with 3 public losses,
+1 held-out loss, and 0 realism losses; the net paired effect is reported in
 Table~\ref{tab:llm-paired-comparisons} as wins minus losses divided by
-comparable attempts. Two-sided exact paired tests over
-discordant attempts give $p\le 1.04\times10^{-29}$ against the public
-unstructured and MICO-source baselines, $p=7.29\times10^{-4}$ against plain
-public JSON AST, $p\le 1.49\times10^{-8}$ against held-out unstructured and
-MICO-source baselines, and no significant held-out difference from plain JSON
-AST ($p=0.125$). All recorded repair-turn wins in this run are attributed to the
-\texttt{deterministic\_adapter\_instance\_collapse} fallback, so the paper claims
-compiler-feedback repair for a common adapter-as-instance error pattern rather
-than broad autonomous semantic repair.
+comparable attempts. Two-sided exact paired tests over discordant attempts give
+$p\le 4.89\times10^{-38}$ against direct Verilog on the public split,
+$p\le 5.56\times10^{-17}$ on held-out, and $p\le 4.55\times10^{-13}$ on
+realism; against plain JSON AST, the corresponding exact tests are
+$p=2.77\times10^{-4}$, $p=2.15\times10^{-2}$, and $p=3.13\times10^{-2}$. The
+authenticated v4 records include 29 accepted deterministic fallback records and
+0 accepted free-form repair-patch wins, so the paper claims compiler-feedback
+repair for a common adapter-as-instance error pattern rather than broad
+autonomous semantic repair.

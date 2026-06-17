@@ -96,7 +96,7 @@ def aggregate_summary(data: dict[str, Any]) -> dict[str, Any]:
 def collect_artifact(path: Path) -> dict[str, Any]:
     data = load_json(path)
     rel = display(path)
-    summary = aggregate_summary(data) if rel.endswith("aggregate_llm_v3.json") else llm_bench_summary(data)
+    summary = aggregate_summary(data) if "aggregate_llm" in rel else llm_bench_summary(data)
     return {
         "path": rel,
         "sha256": sha256_file(path),
@@ -123,7 +123,7 @@ def build_payload(paths: list[str], require: bool) -> dict[str, Any]:
             "api_keys": "never stored",
             "local_provider_config": "not included",
             "raw_provider_caches": "not included",
-            "bundle_scope": "sanitized v3 execute records and aggregate metadata only",
+            "bundle_scope": "sanitized v4 execute records and aggregate metadata only",
         },
     }
 
@@ -140,9 +140,10 @@ def main() -> int:
         "--artifact",
         action="append",
         default=[
-            "build/llm/bench_execute_public_dev_v3.json",
-            "build/llm/bench_execute_heldout_v3.json",
-            "build/bench/aggregate_llm_v3.json",
+            "build/llm/bench_execute_public_expanded_v4.json",
+            "build/llm/bench_execute_heldout_expanded_v4.json",
+            "build/llm/bench_execute_realism_v4.json",
+            "build/bench/aggregate_llm_v4.json",
         ],
     )
     args = parser.parse_args()

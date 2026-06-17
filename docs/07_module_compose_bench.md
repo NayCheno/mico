@@ -82,12 +82,11 @@ debugging, and artifact reproduction. The separate
 split. It includes seven additional subsystem case-study positives
 (`T063`--`T065`, `T069`, `T071`, `T073`, and `T075`), seven paired negative
 variants, and fixed seed/alias calibration tasks that cover L1--L6. The
-supplemental realism manifest has 30 deterministic-only scoring rows. Full LLM
-advantage claims must report expanded deterministic public-development,
-expanded deterministic held-out, and deterministic realism results separately
-from the locked authenticated v3 LLM-scored manifest hashes;
-sanitized held-out prompts, results, aggregate hashes, and manifest metadata
-should be archived as release assets after scoring.
+supplemental realism manifest has 30 scoring rows. Full LLM advantage claims
+must report the expanded public-development, expanded held-out, and realism
+v4 manifest hashes from the authenticated records; sanitized prompts, results,
+aggregate hashes, and manifest metadata should be archived as release assets
+after scoring.
 
 Prompt construction intentionally separates public requests from committed
 solutions. The LLM batch runner includes the natural-language request,

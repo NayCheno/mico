@@ -148,6 +148,7 @@ try {
         "docs/23_heldout_benchmark_hardening.md",
         "docs/24_llm_matrix_v3.md",
         "docs/25_realism_supplement.md",
+        "docs/26_llm_matrix_v4.md",
         "docs/llm_final_matrix_report.md",
         "docs/llm_v3_artifact_readme.md",
         "docs/artifact_quickstart.md",
@@ -179,6 +180,9 @@ try {
     Copy-BundleFile "build/llm/provider_validate.json" "results/llm_validate/provider_validate.json"
     Copy-BundleFile "build/llm/bench_validate.json" "results/llm_validate/bench_validate.json"
     $sanitizedLlmExecuteFiles = @(
+        "build/llm/bench_execute_public_expanded_v4.json",
+        "build/llm/bench_execute_heldout_expanded_v4.json",
+        "build/llm/bench_execute_realism_v4.json",
         "build/llm/bench_execute_public_dev_v3.json",
         "build/llm/bench_execute_heldout_v3.json"
     )
@@ -192,6 +196,7 @@ try {
         Copy-BundleTree "paper/tables" "paper/tables"
     }
     $optionalAggregateFiles = @(
+        "build/bench/aggregate_llm_v4.json",
         "build/bench/aggregate_llm_v3.json",
         "build/bench/aggregate_dac2027_llm_stats.json",
         "build/bench/aggregate_m3_heldout_directed.json"
@@ -248,8 +253,14 @@ try {
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/llm_v3") -PathType Container) {
         Copy-BundleTree "build/bench/llm_v3" "tables/llm_v3"
     }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/bench/llm_v4") -PathType Container) {
+        Copy-BundleTree "build/bench/llm_v4" "tables/llm_v4"
+    }
     if (Test-Path -LiteralPath (Resolve-RepoPath "build/paper_tables/llm_v3") -PathType Container) {
         Copy-BundleTree "build/paper_tables/llm_v3" "tables/llm_v3_tex"
+    }
+    if (Test-Path -LiteralPath (Resolve-RepoPath "build/paper_tables/llm_v4") -PathType Container) {
+        Copy-BundleTree "build/paper_tables/llm_v4" "tables/llm_v4_tex"
     }
 
     $forbiddenBundlePaths = Get-ChildItem -LiteralPath $script:stageRoot -Recurse -File | Where-Object {
@@ -264,7 +275,10 @@ try {
         ($bundlePath -match "bench_execute.*\.json$" -and
             $bundlePath -notin @(
                 "results/llm_execute/bench_execute_public_dev_v3.json",
-                "results/llm_execute/bench_execute_heldout_v3.json"
+                "results/llm_execute/bench_execute_heldout_v3.json",
+                "results/llm_execute/bench_execute_public_expanded_v4.json",
+                "results/llm_execute/bench_execute_heldout_expanded_v4.json",
+                "results/llm_execute/bench_execute_realism_v4.json"
             ))
     }
     if ($forbiddenBundlePaths) {
@@ -324,7 +338,7 @@ try {
         included_files = $files
         excluded_by_policy = @(
             "config/*.local.yaml",
-            "non-v3 execute records",
+            "raw provider response caches",
             "provider response caches",
             "logs",
             "Vivado project output",

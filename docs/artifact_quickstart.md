@@ -14,10 +14,10 @@ back into the source repository.
 - `release/release_claim_table.json`: machine-readable claim-to-evidence map
   generated from `docs/release_claim_table.md`.
 - `release/llm_evidence_hashes.json`: sanitized hashes and metadata for the
-  authenticated v3 LLM evidence.
+  authenticated v4 LLM evidence.
 - `results/`: deterministic, validate-only LLM, optional authenticated LLM,
   aggregate, and Vivado result JSON/CSV/TeX files.
-- `tables/`: deterministic aggregate CSV/TeX files plus authenticated v3 LLM
+- `tables/`: deterministic aggregate CSV/TeX files plus authenticated v4 LLM
   CSV/TeX table directories when the final LLM matrix artifacts are present.
 - `paper/main.pdf`: host-LaTeX-built paper PDF.
 - `artifact_manifest.json`: per-file hashes for every file in the archive.
@@ -32,7 +32,7 @@ Typical local runtime on the evaluation Windows workstation:
   available; this step is optional for reviewers without Vivado.
 - Bundle creation and SHA-256 sidecar: under 1 minute.
 - Authenticated LLM execute reruns can be much longer and may incur provider
-  cost; the bundle includes sanitized v3 execute evidence when present, so
+  cost; the bundle includes sanitized v4 execute evidence when present, so
   reviewers can validate hashes and aggregate statistics without replaying paid
   provider requests.
 
@@ -77,7 +77,7 @@ the optional Xilinx QoR subset through `scripts/run-vivado-host.ps1`; the
 included Vivado result hashes can be checked without rerunning Vivado.
 
 Authenticated LLM execute replay is not required for artifact review. The
-bundle includes sanitized v3 execute records and hash sidecars when those
+bundle includes sanitized v4 execute records and hash sidecars when those
 records are present, so reviewers can validate schema conformance, prompt and
 manifest hashes, model/profile metadata, and aggregate statistics without
 reissuing provider requests.
@@ -86,7 +86,7 @@ reissuing provider requests.
 
 The artifact does not claim CDC correctness proof, arbitrary LTL, routed timing
 closure, broad Vivado QoR beyond the 21-row, 12-task-pair out-of-context subset,
-broad free-form LLM repair, or generalization beyond the tested v3 OpenCode Go
+broad free-form LLM repair, or generalization beyond the tested v4 OpenCode Go
 profiles and prompts.
 
 The bundle intentionally excludes local provider configs, API keys, raw provider

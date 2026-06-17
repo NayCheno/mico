@@ -10,12 +10,12 @@ This audit supersedes the initial scaffold audit. The repository is now a workin
 research prototype with a Rust parser/checker/codegen path, open-source EDA
 smoke flow, source-level JSON AST path, 83-task public-development benchmark,
 40-task held-out split, 30-task realism supplement, benchmark aggregation script, LLM provider validation
-script, structured v3 LLM matrix summary, release-candidate scripts, and a
+script, structured v4 LLM matrix summary, release-candidate scripts, and a
 cautiously worded paper draft. Numeric result claims are tracked in
 `docs/release_claim_table.md`. It is still not a complete "engineering +
-experiments + paper" artifact: release-archived authenticated LLM evidence,
-broader case-study diversity, full formal coverage, broad timing/QoR evidence,
-and final paper-table integration remain open milestones.
+experiments + paper" artifact: external release archival, broader case-study
+diversity, full formal coverage, broad timing/QoR evidence, and final
+submission-table integration remain open milestones.
 
 ## Sources Reviewed
 
@@ -226,8 +226,8 @@ repair turns, optional compiler and EDA JSON artifact attachments, token usage,
 and cost fields in a sanitized `mico.llm.run.v0` record.
 
 `scripts/run_llm_bench.py` adds the batch benchmark harness for the expanded
-83-task manifest while historical authenticated v3 evidence remains bound to
-its locked pre-expansion manifest hashes. It supports Direct Verilog,
+83-task public-development manifest, 40-task held-out manifest, and 30-task
+realism manifest. It supports Direct Verilog,
 SystemVerilog-interface, MICO source,
 MICO JSON AST, and MICO JSON AST + compiler-feedback repair baselines. It has
 validate-only mode for prompt/profile matrix checks, offline-fixture mode for
@@ -243,10 +243,10 @@ semantics stay aligned.
 An authenticated low-cost matrix has been executed for 62 tasks, two low-cost
 profiles, and five baselines. The sanitized summary is recorded in
 `docs/16_llm_matrix_results.md` and remains a historical negative result for
-the original prompts. The newer structured v3 matrix in
-`docs/24_llm_matrix_v3.md` covers public-development and held-out splits
-across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It supports
-only the bounded tested-profile Branch A claim described in
+the original prompts. The current structured v4 matrix in
+`docs/26_llm_matrix_v4.md` covers public-development, held-out, and realism
+splits across `smoke`, `low_cost_crosscheck`, and `quality_code` profiles. It
+supports only the bounded tested-profile Branch A claim described in
 `docs/claim_boundary.md`: MICO JSON AST and MICO JSON AST plus the recorded
 compiler-feedback repair fallback improve positive-task compiler/lint pass and
 unsafe rejection over the tested direct RTL, SystemVerilog-interface, and
@@ -269,11 +269,11 @@ The current abstract and evaluation section describe the 83-task
 public-development deterministic result, the 40-task held-out split, 30-task
 realism supplement, 46/46 public positive-task smoke simulation coverage,
 40/40 public single-clock bounded formal smoke coverage, structural plus
-generic-mapped Yosys QoR summaries, the 21-row, 12-task-pair Vivado subset, and the bounded v3
+generic-mapped Yosys QoR summaries, the 21-row, 12-task-pair Vivado subset, and the bounded v4
 tested-profile LLM result. Paper numbers must remain traceable to
 `docs/release_claim_table.md` and generated table artifacts. The manuscript
 must not claim full per-task formal proof, broad timing closure, arbitrary LTL,
-or LLM improvements beyond the tested v3 profiles, prompts, and splits. Host
+or LLM improvements beyond the tested v4 profiles, prompts, and splits. Host
 LaTeX is the repository policy for paper builds.
 
 Current limitations:
@@ -281,7 +281,7 @@ Current limitations:
 - The paper is still an evidence-limited submission candidate, not a complete
   experimental paper.
 - Generated table snippets are available under ignored `build/paper_tables/`;
-  the paper source now carries deterministic and bounded v3 LLM table values,
+  the paper source now carries deterministic and bounded v4 LLM table values,
   while raw result archives and final statistical appendices remain release
   work.
 - Broader case-study diversity and full reproducibility hashes are pending.
@@ -313,9 +313,9 @@ The next work should proceed in this order:
 
 1. Reproduce and archive the deterministic public-development and held-out
    evidence bundle with release hashes.
-2. Keep authenticated v3 LLM execute records bound to their locked
-   pre-expansion manifest hashes, or rerun authentication before using expanded
-   manifests for LLM claims.
+2. Archive the authenticated v4 LLM execute records, aggregate JSON, and
+   generated table hashes as release evidence without committing raw provider
+   payloads or local credentials.
 3. Add broader directed formal/QoR coverage and additional subsystem studies,
    or keep the corresponding limitations prominent in the paper.
 
@@ -353,9 +353,9 @@ Current claims supported by the repository:
   broad timing-closure claims.
 - The LLM provider path can validate redacted OpenAI-compatible configuration
   and write sanitized run metadata.
-- The LLM benchmark runner can plan the full public-development and held-out
-  baseline matrices, validate offline compiler/EDA scoring paths, and execute
-  authenticated provider subsets without storing secrets.
+- The LLM benchmark runner can plan the full public-development, held-out, and
+  realism baseline matrices, validate offline compiler/EDA scoring paths, and
+  execute authenticated provider subsets without storing secrets.
 - `benchmarks/aggregate_results.py` can merge deterministic and optional LLM
   batch artifacts into CSV and TeX tables for deterministic summaries,
   per-level rates, QoR, ablations, repair turns, token/cost, paired comparison,
@@ -363,8 +363,8 @@ Current claims supported by the repository:
 
 Claims not yet supported:
 
-- LLM pass-rate improvements beyond the exact v3 tested profiles, prompts,
-  public-development split, and held-out split.
+- LLM pass-rate improvements beyond the exact v4 tested profiles, prompts,
+  public-development, held-out, and realism splits.
 - Full paid LLM benchmark matrix results committed as artifact data.
 - Broad free-form LLM repair reliability beyond the recorded deterministic
   adapter-instance fallback.

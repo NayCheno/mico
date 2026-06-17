@@ -5,6 +5,11 @@ held-out, and supplemental realism splits. Numeric claims are mapped in
 `docs/release_claim_table.md`; generated JSON, CSV, TeX, and hash sidecars stay
 under ignored `build/` paths.
 
+Current submission claims have since been refreshed by the expanded 83/40/30
+deterministic evidence and the authenticated v4 LLM matrix in
+`docs/26_llm_matrix_v4.md`; this report is retained as a historical M2 gate
+record.
+
 ## Commands
 
 Run from the repository root through the Docker EDA wrapper:
@@ -44,7 +49,6 @@ The case-study/paired-negative column is derived from manifest
 
 ## Claim Boundary
 
-The supplemental realism split remains deterministic-only evidence until an
-authenticated LLM matrix explicitly reruns it. CDC proof, exhaustive formal
-coverage, routed timing closure, and arbitrary-model LLM claims remain outside
-the M2 evidence boundary.
+The supplemental realism split is included in the later authenticated v4 LLM
+matrix. CDC proof, exhaustive formal coverage, routed timing closure, and
+arbitrary-model LLM claims remain outside the M2 evidence boundary.

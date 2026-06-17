@@ -158,15 +158,15 @@ Supported now:
   passes 40/40 expected outcomes. The non-CDC held-out subsystem positives now
   have committed directed formal monitors, while the explicit CDC held-out case
   remains smoke-only.
-- Supplemental realism manifest with 30 deterministic-only tasks, 15 positives,
-  15 negatives, balanced L1-L6 calibration coverage, and deterministic-only
-  claim status until a new authenticated matrix reruns it.
+- Supplemental realism manifest with 30 tasks, 15 positives, 15 negatives,
+  balanced L1-L6 calibration coverage, deterministic validation, and
+  authenticated v4 LLM scoring.
 - Historical sanitized low-cost LLM matrix summary showing a negative result
   for the original prompts.
-- Structured v3 authenticated LLM full matrix across public-development and
-  held-out splits showing a tested-profile Branch A result for MICO JSON AST
-  and compiler-feedback repair, bound to the locked pre-expansion manifest
-  hashes in `docs/24_llm_matrix_v3.md`.
+- Structured v4 authenticated LLM full matrix across expanded
+  public-development, held-out, and realism splits showing a tested-profile
+  Branch A result for MICO JSON AST and compiler-feedback repair, bound to the
+  manifest hashes in `docs/26_llm_matrix_v4.md`.
 - Five-page DAC-style paper draft with deterministic summary table generated
   from aggregate JSON.
 
@@ -174,19 +174,19 @@ M2 branch decision:
 
 - Branch A is the current paper branch for the tested OpenCode Go profiles,
   prompts, public-development manifest, and held-out manifest.
-- The v3 held-out execute record is bound to the locked pre-expansion held-out
-  manifest SHA-256, not the expanded 40-task deterministic manifest.
-- JSON AST repair reaches 35--36/36 public-development positives and 9--10/10
-  held-out positives across the tested profiles, while direct Verilog and
-  SV-interface baselines remain weaker.
+- JSON AST repair reaches 45--46/46 public-development positives, 19--20/20
+  held-out positives, and 15/15 realism positives across the tested profiles,
+  while direct Verilog and SV-interface baselines remain weaker.
+- Unsafe rejection remains strong in the same v4 matrix: 36--37/37 public
+  unsafe tasks, 20/20 held-out unsafe tasks, and 15/15 realism unsafe tasks.
 - Accepted repair-turn wins remain limited to the recorded
   `deterministic_adapter_instance_collapse` fallback; broad free-form repair is
   still unsupported.
 
 Unsupported now:
 
-- LLM pass-rate improvement beyond the exact v3 tested profiles, prompts, and
-  benchmark splits;
+- LLM pass-rate improvement beyond the exact v4 tested profiles, prompts, and
+  public-development, held-out, and realism splits;
 - broad free-form model-generated repair reliability beyond the recorded
   adapter-instance compiler-feedback fallback;
 - exhaustive or randomized simulation coverage beyond the committed directed

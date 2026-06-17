@@ -2,11 +2,13 @@
 
 Snapshot date: 2026-06-17.
 
-This document supersedes the v2 evidence in `docs/22_llm_full_matrix_v2.md` for
-bounded submission claims. The v3 execute records are locked to pre-expansion
-LLM-scored public-development and held-out manifest hashes. They clear the
-historical held-out manifest-hash mismatch for that LLM evidence line, but they
-do not cover the expanded deterministic 83/40/30 manifests.
+This document superseded the v2 evidence in `docs/22_llm_full_matrix_v2.md` for
+the historical pre-expansion LLM evidence line. Current bounded submission
+claims use the expanded v4 evidence in `docs/26_llm_matrix_v4.md` and
+`docs/llm_final_matrix_report.md`. The v3 execute records are locked to
+pre-expansion LLM-scored public-development and held-out manifest hashes. They
+clear the historical held-out manifest-hash mismatch for that evidence line,
+but they do not cover the expanded deterministic 83/40/30 manifests.
 
 ## Commands Run
 

@@ -2,9 +2,11 @@
 
 Snapshot date: 2026-06-17.
 
-This note describes the sanitized v3 LLM artifacts used by the current bounded
-Branch A paper claim. The artifacts are generated evidence under ignored
-`build/` paths and are not committed.
+This note describes the sanitized v3 LLM artifacts retained as historical
+pre-expansion evidence. Current bounded Branch A paper claims use the expanded
+v4 evidence in `docs/26_llm_matrix_v4.md` and
+`docs/llm_final_matrix_report.md`. The artifacts are generated evidence under
+ignored `build/` paths and are not committed.
 
 ## Scope
 
@@ -17,8 +19,7 @@ Branch A paper claim. The artifacts are generated evidence under ignored
 - Baselines: `direct_verilog`, `sv_interface`, `mico_source`,
   `mico_json_ast`, `mico_json_ast_repair`.
 - Splits: 62-task public-development and 20-task held-out manifests.
-- Supplemental realism: deterministic-only; it is not part of the v3 LLM
-  claim.
+- Supplemental realism: not part of the historical v3 LLM claim.
 
 ## Current Evidence Files
 
@@ -56,16 +57,17 @@ Replaying provider calls without cache is not required for artifact review.
 ## Sanitization Policy
 
 The committed repository and release bundle must not include API keys, local
-provider YAML, raw provider payload caches, non-v3 execute records, logs, or
-provider response directories. Sanitized v3 execute records include profile and
-model names, prompt hashes, request parameters, JSON validity, compiler and EDA
-outcomes, repair provenance, token counts, and cost status.
+provider YAML, raw provider payload caches, logs, or provider response
+directories. Sanitized v3 execute records include profile and model names,
+prompt hashes, request parameters, JSON validity, compiler and EDA outcomes,
+repair provenance, token counts, and cost status.
 
 ## Claim Boundary
 
-The paper may claim only the tested-profile v3 result: JSON AST repair reaches
+The historical v3 evidence may be cited only as pre-expansion context. Current
+paper claims must use the v4 evidence. The v3 record showed JSON AST repair at
 35--36/36 public positive final pass, 9--10/10 held-out positive final pass,
 25--26/26 public unsafe rejection, and 10/10 held-out unsafe rejection across
-the tested profiles. Recorded repair wins are limited to zero free-form patch
+the tested profiles. Recorded repair wins were limited to zero free-form patch
 wins and 23 deterministic adapter-instance fallback wins accepted through
 compiler gates.

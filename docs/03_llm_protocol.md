@@ -44,9 +44,10 @@ selected ModuleComposeBench manifest, defaulting to the current expanded
 `prompts/llm_bench_baselines.yaml`, supports five baselines, caches provider
 responses by prompt/profile/model hash, evaluates MICO outputs through the
 compiler, runs open-source lint/elaboration for accepted positive candidates,
-and writes sanitized `mico.llm.bench.v0` output. Historical v3 authenticated
-LLM evidence remains bound to the locked pre-expansion 62-task public and
-20-task held-out manifests recorded in `docs/24_llm_matrix_v3.md`.
+and writes sanitized `mico.llm.bench.v0` output. Current authenticated
+submission claims use the expanded v4 public-development, held-out, and realism
+records in `docs/26_llm_matrix_v4.md`; historical v3 records are retained only
+as pre-expansion audit evidence in `docs/24_llm_matrix_v3.md`.
 
 JSON AST repair turns use the repository-owned compiler path:
 `mico_cli repair-json --apply --json <ast.json> <patch.json>`. The runner

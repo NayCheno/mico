@@ -26,16 +26,16 @@ Direct Verilog generation asks an LLM to solve too many coupled problems in one 
 2. Keep the current claim boundary frozen and evidence-backed; see
    `docs/claim_boundary.md`, `docs/submission_claim_freeze.md`, and
    `docs/submission_claim_lock_2026Q3.md`.
-3. Treat the authenticated v3 OpenCode Go matrix as a bounded tested-profile
-   Branch A result for the public-development and held-out splits only.
-4. Keep the supplemental realism split as deterministic-only evidence until it
-   is rerun in an authenticated LLM matrix.
+3. Treat the authenticated v4 OpenCode Go matrix as a bounded tested-profile
+   Branch A result for the expanded public-development, held-out, and realism
+   splits.
+4. Keep v3 LLM records only as historical pre-expansion evidence.
 5. Use generated release manifests, paper tables, and hashes as the source of
    truth for submission and artifact claims.
 
 ## Status And Reproduction
 
-MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for selected sim/QoR-enabled positive seeds and case studies, Icarus simulation coverage for all 46 public-development positive tasks through committed directed harnesses, bounded SymbiYosys smoke coverage for all 40 public-development single-clock positive tasks through committed directed monitors, structural and generic-mapped Yosys QoR summaries for supported positive tasks, a Vivado out-of-context subset covering 21 reference-enabled public/held-out/realism split rows through 12 unique task pairs, an 83-task public-development ModuleComposeBench runner with required task metadata plus 40-task held-out and 30-task realism manifests, an aggregate-results generator for CSV/TeX paper tables, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The authenticated v3 structured LLM matrix supports only the bounded tested-profile JSON-AST claim described in `docs/24_llm_matrix_v3.md` for its locked pre-expansion manifest hashes; it does not support arbitrary-model or broad free-form repair claims. The paper is still a submission candidate in progress and does not yet claim exhaustive formal coverage, broad timing closure, arbitrary LTL, or unbounded LLM improvements.
+MICO now has a working Rust parser/checker/typed-IR/codegen/CLI path, source-level JSON AST input/output, a parsed ready/valid v0 contract subset, seed RTL smoke collateral, golden SV/SVA/trace fixtures for selected sim/QoR-enabled positive seeds and case studies, Icarus simulation coverage for all 46 public-development positive tasks through committed directed harnesses, bounded SymbiYosys smoke coverage for all 40 public-development single-clock positive tasks through committed directed monitors, structural and generic-mapped Yosys QoR summaries for supported positive tasks, a Vivado out-of-context subset covering 21 reference-enabled public/held-out/realism split rows through 12 unique task pairs, an 83-task public-development ModuleComposeBench runner with required task metadata plus 40-task held-out and 30-task realism manifests, an aggregate-results generator for CSV/TeX paper tables, schema-versioned diagnostic/AST/IR/trace/LLM records, an SDK-backed LLM provider smoke test, and a batch LLM benchmark runner with five baselines plus JSON-AST repair-loop plumbing. The authenticated v4 structured LLM matrix supports the bounded tested-profile JSON-AST repair claim described in `docs/26_llm_matrix_v4.md` for the expanded manifests; it does not support arbitrary-model or broad free-form repair claims. The paper is still a submission candidate in progress and does not yet claim exhaustive formal coverage, broad timing closure, arbitrary LTL, or unbounded LLM improvements.
 
 For the current claim boundary and numeric claim source of truth, read
 `docs/claim_boundary.md`, `docs/release_claim_table.md`,

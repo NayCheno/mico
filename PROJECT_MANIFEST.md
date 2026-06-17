@@ -26,9 +26,10 @@
 | `docs/13_architecture_audit.md` | Current architecture audit, implemented state, claim boundary, gaps, and next priority order. |
 | `docs/14_reproduction_workflow.md` | Clean-checkout reproduction workflow covering Docker Rust/EDA, benchmarks, LLM provider smoke, host Vivado, and host LaTeX. |
 | `docs/15_case_studies.md` | Dedicated subsystem case-study inventory, collateral paths, and reproduction commands. |
-| `docs/24_llm_matrix_v3.md` | Current manifest-bound authenticated LLM matrix summary and Branch A decision. |
-| `docs/25_realism_supplement.md` | Deterministic supplemental subsystem realism manifest, validation results, hashes, and LLM-claim boundary. |
-| `docs/llm_final_matrix_report.md` | M5 final v3 LLM evidence seal, hashes, table inventory, repair provenance, token/cost status, and v4 non-claim boundary. |
+| `docs/24_llm_matrix_v3.md` | Historical pre-expansion authenticated LLM matrix summary retained for audit trail. |
+| `docs/25_realism_supplement.md` | Supplemental subsystem realism manifest, deterministic validation results, hashes, and v4 LLM-claim boundary. |
+| `docs/26_llm_matrix_v4.md` | Current expanded authenticated LLM matrix summary and Branch A decision for public-development, held-out, and realism splits. |
+| `docs/llm_final_matrix_report.md` | Final v4 LLM evidence seal, hashes, table inventory, repair provenance, token/cost status, and non-claim boundary. |
 | `docs/artifact_quickstart.md` | Anonymous artifact bundle quickstart, hash-check locations, and known limitations. |
 | `docs/current_status.md` | Short status page summarizing implemented features, non-claims, deterministic benchmark boundary, and validation commands. |
 | `docs/final_claim_freeze.md` | Frozen DAC 2027 claim boundary, Branch A scope, unsupported-claim list, and release Go/No-Go rule. |
@@ -40,7 +41,7 @@
 | `docker/eda/` | Dockerfile, Compose file, and tool verification script for Rust/RTL/EDA development. |
 | `benchmarks/` | 83-task public-development ModuleComposeBench suite plus the 40-task held-out split, 30-task supplemental realism manifest, runner, result aggregator, and scoring schema. |
 | `scripts/write-release-claim-table-json.py` | Converts `docs/release_claim_table.md` into a hashed machine-readable release artifact. |
-| `scripts/write-llm-evidence-hashes.py` | Writes sanitized hash metadata for authenticated v3 LLM evidence files. |
+| `scripts/write-llm-evidence-hashes.py` | Writes sanitized hash metadata for authenticated v4 LLM evidence files. |
 | `scripts/write-paper-summary-tables.py` | Generates compact paper summary tables from manifest and result evidence. |
 | `scripts/write-formal-coverage-matrix.py` | Generates bounded formal coverage task CSV, aggregate CSV, and TeX matrix artifacts. |
 | `scripts/check-vivado-qor-summary.py` | Validates the host-Vivado subset against median-LUT-delta and nonnegative-WNS thresholds and writes JSON/TeX sidecars. |

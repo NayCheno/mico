@@ -3,6 +3,10 @@
 This report records the M1 release-gate hardening validation run. Generated
 outputs stayed under ignored `build/` paths and are not committed.
 
+This is a historical gate report. Current release-candidate claims use the
+expanded 83/40/30 deterministic evidence and authenticated v4 LLM evidence
+recorded in the newer claim and LLM matrix documents.
+
 ## Scope
 
 The M1 change hardened the release gate by:
@@ -11,8 +15,8 @@ The M1 change hardened the release gate by:
 - running `scripts/check-doc-claims.py` inside the Docker release gate;
 - allowing a clean checkout without `config/llm-provider.local.yaml` to use
   `config/llm-provider.example.yaml` for validate-only LLM checks;
-- making authenticated v3 LLM evidence hashes optional by default while keeping
-  `scripts/write-llm-evidence-hashes.py --require` for the final M5 evidence
+- making authenticated LLM evidence hashes optional by default while keeping
+  `scripts/write-llm-evidence-hashes.py --require` for the final evidence
   seal.
 
 ## Command
